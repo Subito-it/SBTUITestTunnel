@@ -1,0 +1,42 @@
+PODS:
+  - FXKeychain (1.5.3)
+  - GCDWebServer (3.3.2):
+    - GCDWebServer/Core (= 3.3.2)
+  - GCDWebServer/Core (3.3.2)
+  - NSHash (1.0.2)
+  - OHHTTPStubs (5.0.0):
+    - OHHTTPStubs/Default (= 5.0.0)
+  - OHHTTPStubs/Core (5.0.0)
+  - OHHTTPStubs/Default (5.0.0):
+    - OHHTTPStubs/Core
+    - OHHTTPStubs/JSON
+    - OHHTTPStubs/NSURLSession
+    - OHHTTPStubs/OHPathHelpers
+  - OHHTTPStubs/JSON (5.0.0):
+    - OHHTTPStubs/Core
+  - OHHTTPStubs/NSURLSession (5.0.0):
+    - OHHTTPStubs/Core
+  - OHHTTPStubs/OHPathHelpers (5.0.0)
+  - SBTUITestTunnel/Client (0.9.0)
+  - SBTUITestTunnel/Server (0.9.0):
+    - FXKeychain
+    - GCDWebServer (~> 3.0)
+    - NSHash (~> 1.0.2)
+    - OHHTTPStubs
+
+DEPENDENCIES:
+  - SBTUITestTunnel/Client (from `../`)
+  - SBTUITestTunnel/Server (from `../`)
+
+EXTERNAL SOURCES:
+  SBTUITestTunnel:
+    :path: ../
+
+SPEC CHECKSUMS:
+  FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
+  GCDWebServer: 2a375ec42839a41d7187d04e5b688d32fa5c4cd5
+  NSHash: 173d9782d4b7dec17bf32f22d8ab203c88655a04
+  OHHTTPStubs: a5d2e9eea07869d42ec03338325f398bc520e159
+  SBTUITestTunnel: ef496bf0a1992d6e8f3d3fa73a5bdb1665b42dff
+
+COCOAPODS: 0.39.0
