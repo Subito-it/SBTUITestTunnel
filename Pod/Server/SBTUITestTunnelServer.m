@@ -152,9 +152,9 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Stubs Commands
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
-- (NSString *)commandStubPathThathMatchesRegex:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = [self identifierForStubRequest:stubRequest];
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
         // existing stub found, replacing with new one
         NSLog(@"[UITestTunnelServer] Warning existing stub found, replacing it");
@@ -163,8 +163,8 @@ description:(desc), ##__VA_ARGS__]; \
     }
 
     id<OHHTTPStubsDescriptor> stub = [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        if ([self validStubRequest:stubRequest]) {
-            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        if ([self validStubRequest:tunnelRequest]) {
+            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
             NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
             
             return [request matchesRegexPattern:regexPattern];
@@ -172,16 +172,16 @@ description:(desc), ##__VA_ARGS__]; \
         return NO;
         
     } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        return [self responseForStubRequest:stubRequest withStubId:stubId];
+        return [self responseForStubRequest:tunnelRequest withStubId:stubId];
     }];
     
     self.activeStubs[stubId] = stub;
     return stubId;
 }
 
-- (NSString *)commandStubPathThathContainsQueryParams:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = [self identifierForStubRequest:stubRequest];
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
         // existing stub found, replacing with new one
         NSLog(@"[UITestTunnelServer] Warning existing stub found, replacing it");
@@ -190,8 +190,8 @@ description:(desc), ##__VA_ARGS__]; \
     }
     
     id<OHHTTPStubsDescriptor> stub = [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        if ([self validStubRequest:stubRequest]) {
-            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        if ([self validStubRequest:tunnelRequest]) {
+            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
             NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
             
             return [request matchesQueryParams:queries];
@@ -199,7 +199,7 @@ description:(desc), ##__VA_ARGS__]; \
         return NO;
         
     } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        return [self responseForStubRequest:stubRequest withStubId:stubId];
+        return [self responseForStubRequest:tunnelRequest withStubId:stubId];
     }];
     
     self.activeStubs[stubId] = stub;
@@ -207,39 +207,39 @@ description:(desc), ##__VA_ARGS__]; \
 }
 
 #pragma mark - Stub and Remove Commands
-- (NSString *)commandStubAndRemovePathThathMatchesRegex:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubAndRemovePathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
-    if ([self validStubRequest:stubRequest]) {
-        NSInteger stubRequestsRemoveAfterCount = [stubRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
+    if ([self validStubRequest:tunnelRequest]) {
+        NSInteger stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
         
         for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
-            [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:stubRequest]];
+            [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
         }
         
-        return [self commandStubPathThathMatchesRegex:stubRequest].length > 0 ? @"YES" : @"NO";
+        return [self commandStubPathThathMatchesRegex:tunnelRequest].length > 0 ? @"YES" : @"NO";
     }
     
     return @"NO";
 }
 
-- (NSString *)commandStubAndRemovePathThathContainsQueryParams:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubAndRemovePathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
-    if ([self validStubRequest:stubRequest]) {
-        NSInteger stubRequestsRemoveAfterCount = [stubRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
+    if ([self validStubRequest:tunnelRequest]) {
+        NSInteger stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
         
         for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
-            [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:stubRequest]];
+            [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
         }
         
-        return [self commandStubPathThathContainsQueryParams:stubRequest].length > 0 ? @"YES" : @"NO";
+        return [self commandStubPathThathContainsQueryParams:tunnelRequest].length > 0 ? @"YES" : @"NO";
     }
     
     return @"NO";
 }
 
-- (NSString *)commandStubRequestsRemove:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     if (!self.activeStubs[stubId] || [self.stubsToRemoveAfterCount countForObject:stubId] > 0) {
@@ -253,7 +253,7 @@ description:(desc), ##__VA_ARGS__]; \
     return @"YES";
 }
 
-- (NSString *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     NSMutableArray<NSString *> *keysToRemove = [NSMutableArray array];
     [self.activeStubs enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<OHHTTPStubsDescriptor> stub, BOOL *stop) {
@@ -271,18 +271,18 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Request Monitor Commands
 
-- (NSString *)commandMonitorPathThathMatchesRegex:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandMonitorPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *recId = nil;
 
-    NSString *stubId = [self identifierForStubRequest:stubRequest];
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
         NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
         return nil;
     }
     
-    if ([self validMonitorRequest:stubRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
+    if ([self validMonitorRequest:tunnelRequest]) {
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
         recId = [SBTNetworkRequestsMonitor monitorRequestsWithRegex:regexPattern monitorBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
@@ -305,18 +305,18 @@ description:(desc), ##__VA_ARGS__]; \
     return recId;
 }
 
-- (NSString *)commandMonitorPathThathContainsQueryParams:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandMonitorPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *recId = nil;
     
-    NSString *stubId = [self identifierForStubRequest:stubRequest];
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
         NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
         return nil;
     }
     
-    if ([self validMonitorRequest:stubRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
+    if ([self validMonitorRequest:tunnelRequest]) {
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
         NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
         
         recId = [SBTNetworkRequestsMonitor monitorRequestsWithQueryParams:queries monitorBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
@@ -339,22 +339,22 @@ description:(desc), ##__VA_ARGS__]; \
     return recId;
 }
 
-- (NSString *)commandMonitorRemove:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *recId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
     return [SBTNetworkRequestsMonitor monitorRequestsRemoveWithId:recId] ? @"YES" : @"NO";
 }
 
-- (NSString *)commandMonitorsRemoveAll:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandMonitorsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTNetworkRequestsMonitor monitorRequestsRemoveAll];
     
     return @"YES";
 }
 
-- (NSString *)commandMonitorFlush:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandMonitorFlush:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
@@ -379,10 +379,10 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - NSUSerDefaults Commands
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
-- (NSString *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
-    NSData *objData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelObjectKey] options:0];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
     
     if (objKey) {
@@ -393,9 +393,9 @@ description:(desc), ##__VA_ARGS__]; \
     return @"NO";
 }
 
-- (NSString *)commandNSUserDefaultsRemoveObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandNSUserDefaultsRemoveObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
     if (objKey) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:objKey];
@@ -405,9 +405,9 @@ description:(desc), ##__VA_ARGS__]; \
     return @"NO";
 }
 
-- (NSString *)commandNSUserDefaultsObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandNSUserDefaultsObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
     NSObject *obj = [[NSUserDefaults standardUserDefaults] objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
@@ -418,7 +418,7 @@ description:(desc), ##__VA_ARGS__]; \
     return nil;
 }
 
-- (NSString *)commandNSUserDefaultsReset:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandNSUserDefaultsReset:(GCDWebServerRequest *)tunnelRequest
 {
     resetUserDefaults();
     
@@ -427,10 +427,10 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Keychain Commands
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
-- (NSString *)commandKeychainSetObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandKeychainSetObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
-    NSData *objData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelObjectKey] options:0];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
     
     if (obj && objKey) {
@@ -440,9 +440,9 @@ description:(desc), ##__VA_ARGS__]; \
     return @"NO";
 }
 
-- (NSString *)commandKeychainRemoveObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandKeychainRemoveObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
     if (objKey) {
         return [[FXKeychain defaultKeychain] removeObjectForKey:objKey] ? @"YES" : @"NO";
@@ -451,9 +451,9 @@ description:(desc), ##__VA_ARGS__]; \
     return @"NO";
 }
 
-- (NSString *)commandKeychainObject:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandKeychainObject:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *objKey = stubRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
 
     NSObject *obj = [[FXKeychain defaultKeychain] objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
@@ -464,7 +464,7 @@ description:(desc), ##__VA_ARGS__]; \
     return nil;
 }
 
-- (NSString *)commandKeychainReset:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandKeychainReset:(GCDWebServerRequest *)tunnelRequest
 {
     deleteAllKeysForSecClass(kSecClassGenericPassword);
     deleteAllKeysForSecClass(kSecClassInternetPassword);
@@ -477,11 +477,11 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Copy Commands
 
-- (NSString *)commandUpload:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandUpload:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *fileData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelUploadDataKey] options:0];
-    NSString *destPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelUploadDestPathKey] options:0]];
-    NSSearchPathDirectory basePath = [stubRequest.parameters[SBTUITunnelUploadBasePathKey] intValue];
+    NSData *fileData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelUploadDataKey] options:0];
+    NSString *destPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelUploadDestPathKey] options:0]];
+    NSSearchPathDirectory basePath = [tunnelRequest.parameters[SBTUITunnelUploadBasePathKey] intValue];
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(basePath, NSUserDomainMask, YES);
     NSString *path = [[paths firstObject] stringByAppendingPathComponent:destPath];
@@ -506,10 +506,10 @@ description:(desc), ##__VA_ARGS__]; \
     return [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
 }
 
-- (NSString *)commandDownload:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandDownload:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *srcPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelDownloadPathKey] options:0]];
-    NSSearchPathDirectory basePath = [stubRequest.parameters[SBTUITunnelDownloadBasePathKey] intValue];
+    NSString *srcPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelDownloadPathKey] options:0]];
+    NSSearchPathDirectory basePath = [tunnelRequest.parameters[SBTUITunnelDownloadBasePathKey] intValue];
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(basePath, NSUserDomainMask, YES);
     NSString *path = [[paths firstObject] stringByAppendingPathComponent:srcPath];
@@ -521,16 +521,16 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Other Commands 
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
-- (NSString *)commandSetUIAnimations:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandSetUIAnimations:(GCDWebServerRequest *)tunnelRequest
 {
-    BOOL enableAnimations = [stubRequest.parameters[SBTUITunnelObjectKey] boolValue];
+    BOOL enableAnimations = [tunnelRequest.parameters[SBTUITunnelObjectKey] boolValue];
     
     [UIView setAnimationsEnabled:enableAnimations];
     
     return @"YES";
 }
 
-- (NSString *)commandShutDown:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_async(self.commandDispatchQueue, ^{
          [self.server stop];
@@ -539,7 +539,7 @@ description:(desc), ##__VA_ARGS__]; \
     return @"YES";
 }
 
-- (NSString *)commandStartupCompleted:(GCDWebServerRequest *)stubRequest
+- (NSString *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
     self.startupCommandsCompleted = YES;
     
@@ -582,9 +582,9 @@ description:(desc), ##__VA_ARGS__]; \
     }
 }
 
-- (NSString *)identifierForStubRequest:(GCDWebServerRequest *)stubRequest
+- (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[stubRequest.parameters[SBTUITunnelStubQueryRuleKey]];
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
 
@@ -596,7 +596,7 @@ description:(desc), ##__VA_ARGS__]; \
     return [@"stub-" stringByAppendingString:[[jsonData SHA1] base64EncodedStringWithOptions:0]];
 }
 
-- (OHHTTPStubsResponse *)responseForStubRequest:(GCDWebServerRequest *)stubRequest withStubId:(NSString *)stubId
+- (OHHTTPStubsResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest withStubId:(NSString *)stubId
 {
     if ([self.stubsToRemoveAfterCount containsObject:stubId]) {
         [self.stubsToRemoveAfterCount removeObject:stubId];
@@ -608,7 +608,7 @@ description:(desc), ##__VA_ARGS__]; \
         }
     }
 
-    NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0];
+    NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0];
     NSDictionary<NSString *, NSObject *> *responseDict = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
     
     NSError *error = nil;
@@ -618,18 +618,18 @@ description:(desc), ##__VA_ARGS__]; \
         return nil;
     }
     
-    OHHTTPStubsResponse *response = [OHHTTPStubsResponse responseWithData:responseData statusCode:[stubRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] intValue] headers:@{@"Content-Type": @"application/json"}];
+    OHHTTPStubsResponse *response = [OHHTTPStubsResponse responseWithData:responseData statusCode:[tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] intValue] headers:@{@"Content-Type": @"application/json"}];
     
-    NSTimeInterval responseTime = [stubRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
+    NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
     
     return [response responseTime:responseTime];
 }
 
-- (BOOL)validStubRequest:(GCDWebServerRequest *)stubRequest
+- (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (!stubRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] ||
-        ![[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0] ||
-        ![[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0]) {
+    if (!tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] ||
+        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0] ||
+        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid stubRequest received!");
         
         return NO;
@@ -638,9 +638,9 @@ description:(desc), ##__VA_ARGS__]; \
     return YES;
 }
 
-- (BOOL)validMonitorRequest:(GCDWebServerRequest *)stubRequest
+- (BOOL)validMonitorRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (![[NSData alloc] initWithBase64EncodedString:stubRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0]) {
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid monitorRequest received!");
         
         return NO;
