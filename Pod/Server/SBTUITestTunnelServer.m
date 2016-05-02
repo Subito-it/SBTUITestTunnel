@@ -92,6 +92,7 @@ description:(desc), ##__VA_ARGS__]; \
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
+        
         [self.sharedInstance takeOffOnce];
     });
 }

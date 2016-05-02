@@ -147,6 +147,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         NSDictionary *matchingRule = [SBTProxyURLProtocol matchingRuleForRequest:self.request];
         
         NSData *requestData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
+        [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
 
         __block typeof(self) weakSelf = self;
         NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
@@ -171,9 +172,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
                 });
             }
         });
-        
-        NSAssert([SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)] != nil, @"Nil task in tasks?");
-        [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
+
     } else {
         [self.client URLProtocol:self didFailWithError:error];
     }
