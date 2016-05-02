@@ -17,7 +17,7 @@
 #import "SBTUITestTunnelServer.h"
 #import "SBTUITestTunnel.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
-#import "SBTNetworkRequestsMonitor.h"
+#import "SBTProxyURLProtocol.h"
 #import <OHHTTPStubs/OHHTTPStubs.h>
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
@@ -91,7 +91,7 @@ description:(desc), ##__VA_ARGS__]; \
 {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        [NSURLProtocol registerClass:[SBTNetworkRequestsMonitor class]];
+        [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
         [self.sharedInstance takeOffOnce];
     });
 }
@@ -150,8 +150,10 @@ description:(desc), ##__VA_ARGS__]; \
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
 
-#pragma mark - Stubs Commands
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
+
+#pragma mark - Stubs Commands
+
 - (NSString *)commandStubPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *stubId = [self identifierForStubRequest:tunnelRequest];
@@ -207,6 +209,7 @@ description:(desc), ##__VA_ARGS__]; \
 }
 
 #pragma mark - Stub and Remove Commands
+
 - (NSString *)commandStubAndRemovePathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
     if ([self validStubRequest:tunnelRequest]) {
@@ -273,7 +276,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandMonitorPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *recId = nil;
+    NSString *reqId = nil;
 
     NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
@@ -282,10 +285,10 @@ description:(desc), ##__VA_ARGS__]; \
     }
     
     if ([self validMonitorRequest:tunnelRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
-        recId = [SBTNetworkRequestsMonitor monitorRequestsWithRegex:regexPattern monitorBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
+        reqId = [SBTProxyURLProtocol proxyRequestsWithRegex:regexPattern delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
             NSAssert([NSThread isMainThread], @"Should be main thread"); // synchronize using main thread
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
@@ -302,12 +305,12 @@ description:(desc), ##__VA_ARGS__]; \
         }];
     }
     
-    return recId;
+    return reqId;
 }
 
 - (NSString *)commandMonitorPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *recId = nil;
+    NSString *reqId = nil;
     
     NSString *stubId = [self identifierForStubRequest:tunnelRequest];
     if (self.activeStubs[stubId]) {
@@ -316,10 +319,10 @@ description:(desc), ##__VA_ARGS__]; \
     }
     
     if ([self validMonitorRequest:tunnelRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0];
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
         
-        recId = [SBTNetworkRequestsMonitor monitorRequestsWithQueryParams:queries monitorBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
+        reqId = [SBTProxyURLProtocol proxyRequestsWithQueryParams:queries delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
             NSAssert([NSThread isMainThread], @"Should be main thread"); // synchronize using main thread
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
@@ -336,20 +339,20 @@ description:(desc), ##__VA_ARGS__]; \
         }];
     }
     
-    return recId;
+    return reqId;
 }
 
 - (NSString *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
-    NSString *recId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+    NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
-    return [SBTNetworkRequestsMonitor monitorRequestsRemoveWithId:recId] ? @"YES" : @"NO";
+    return [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
 }
 
 - (NSString *)commandMonitorsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
-    [SBTNetworkRequestsMonitor monitorRequestsRemoveAll];
+    [SBTProxyURLProtocol proxyRequestsRemoveAll];
     
     return @"YES";
 }
@@ -377,8 +380,67 @@ description:(desc), ##__VA_ARGS__]; \
     return ret;
 }
 
+#pragma mark - Throttle Monitor Commands
+
+- (NSString *)commandThrottlePathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *reqId = nil;
+    
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
+    if (self.activeStubs[stubId]) {
+        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
+        return nil;
+    }
+    
+    if ([self validThrottleRequest:tunnelRequest]) {
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
+        NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+        NSTimeInterval responseDelayTime = [tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
+        
+        reqId = [SBTProxyURLProtocol proxyRequestsWithRegex:regexPattern delayResponse:responseDelayTime responseBlock:nil];
+    }
+    
+    return reqId;
+}
+
+- (NSString *)commandThrottlePathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *reqId = nil;
+    
+    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
+    if (self.activeStubs[stubId]) {
+        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
+        return nil;
+    }
+    
+    if ([self validThrottleRequest:tunnelRequest]) {
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
+        NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+        NSTimeInterval responseDelayTime = [tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
+        
+        reqId = [SBTProxyURLProtocol proxyRequestsWithQueryParams:queries delayResponse:responseDelayTime responseBlock:nil];
+    }
+    
+    return reqId;
+}
+
+- (NSString *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
+{
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+    
+    return [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+}
+
+- (NSString *)commandThrottlesRemoveAll:(GCDWebServerRequest *)tunnelRequest
+{
+    [SBTProxyURLProtocol proxyRequestsRemoveAll];
+    
+    return @"YES";
+}
+
 #pragma mark - NSUSerDefaults Commands
-/* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
+
 - (NSString *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
@@ -426,7 +488,7 @@ description:(desc), ##__VA_ARGS__]; \
 }
 
 #pragma mark - Keychain Commands
-/* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
+
 - (NSString *)commandKeychainSetObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
@@ -520,12 +582,14 @@ description:(desc), ##__VA_ARGS__]; \
 }
 
 #pragma mark - Other Commands 
-/* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
+
 - (NSString *)commandSetUIAnimations:(GCDWebServerRequest *)tunnelRequest
 {
     BOOL enableAnimations = [tunnelRequest.parameters[SBTUITunnelObjectKey] boolValue];
     
-    [UIView setAnimationsEnabled:enableAnimations];
+    // Replacing [UIView setAnimationsEnabled:] as per
+    // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
+    UIApplication.sharedApplication.keyWindow.layer.speed = enableAnimations ? 1 : 100;
     
     return @"YES";
 }
@@ -640,7 +704,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (BOOL)validMonitorRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelMonitorQueryRuleKey] options:0]) {
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid monitorRequest received!");
         
         return NO;
@@ -648,6 +712,18 @@ description:(desc), ##__VA_ARGS__]; \
     
     return YES;
 }
+
+- (BOOL)validThrottleRequest:(GCDWebServerRequest *)tunnelRequest
+{
+    if (tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] != nil && ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0]) {
+        NSLog(@"[UITestTunnelServer] Invalid throttleRequest received!");
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
 
 #pragma mark - Helper Functions
 

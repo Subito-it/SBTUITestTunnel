@@ -36,7 +36,8 @@ NSString * const SBTUITunnelStubQueryReturnCodeKey = @"ret_code";
 NSString * const SBTUITunnelStubQueryIterations = @"iterations";
 NSString * const SBTUITunnelStubQueryResponseTimeKey = @"time_response";
 
-NSString * const SBTUITunnelMonitorQueryRuleKey = @"rule";
+NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
+NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
 
 NSString * const SBTUITunnelObjectKey = @"obj";
 NSString * const SBTUITunnelObjectKeyKey = @"key";
@@ -62,6 +63,11 @@ NSString * const SBTUITunneledApplicationCommandMonitorPathThatContainsQueryPara
 NSString * const SBTUITunneledApplicationCommandMonitorRemove = @"commandMonitorRemove";
 NSString * const SBTUITunneledApplicationcommandMonitorRemoveAll = @"commandMonitorsRemoveAll";
 NSString * const SBTUITunneledApplicationcommandMonitorFlush = @"commandMonitorFlush";
+
+NSString * const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex = @"commandThrottlePathThathMatchesRegex";
+NSString * const SBTUITunneledApplicationCommandThrottlePathThatContainsQueryParams = @"commandThrottlePathThathContainsQueryParams";
+NSString * const SBTUITunneledApplicationCommandThrottleRemove = @"commandThrottleRemove";
+NSString * const SBTUITunneledApplicationcommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
 
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsSetObject = @"commandNSUserDefaultsSetObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject = @"commandNSUserDefaultsRemoveObject";

@@ -252,11 +252,11 @@ NSString *ipAddress(NSNetService *service)
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
-#pragma mark - Monitor requests Commands
+#pragma mark - Monitor Requests Commands
 
 - (NSString *)monitorRequestsWithRegex:(NSString *)regexPattern
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelMonitorQueryRuleKey: [self base64SerializeObject:regexPattern]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:regexPattern]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex params:params];
 }
@@ -276,18 +276,18 @@ NSString *ipAddress(NSNetService *service)
     return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
 }
 
-- (BOOL)monitorRequestRemoveWithId:(NSString *)recId
+- (BOOL)monitorRequestRemoveWithId:(NSString *)reqId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelMonitorQueryRuleKey:[self base64SerializeObject:recId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey:[self base64SerializeObject:reqId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorRemove params:params] boolValue];
 }
 
-- (BOOL)monitorRequestRemoveWithIds:(NSArray<NSString *> *)recIds
+- (BOOL)monitorRequestRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
     BOOL ret = YES;
-    for (NSString *recId in recIds) {
-        ret &= [self monitorRequestRemoveWithId:recId];
+    for (NSString *reqId in reqIds) {
+        ret &= [self monitorRequestRemoveWithId:reqId];
     }
     
     return ret;
@@ -296,6 +296,44 @@ NSString *ipAddress(NSNetService *service)
 - (BOOL)monitorRequestRemoveAll
 {
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorRemoveAll params:nil] boolValue];
+}
+
+#pragma mark - Throttle Requests Commands
+
+- (nullable NSString *)throttleRequestsWithRegex:(nonnull NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:regexPattern], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex params:params];
+}
+
+- (nullable NSString *)throttleRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams responseTime:(NSTimeInterval)responseTime;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:queryParams], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathThatContainsQueryParams params:params];
+}
+
+- (BOOL)throttleRequestRemoveWithId:(nonnull NSString *)reqId;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey:[self base64SerializeObject:reqId]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleRemove params:params] boolValue];
+}
+
+- (BOOL)throttleRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
+{
+    BOOL ret = YES;
+    for (NSString *reqId in reqIds) {
+        ret &= [self throttleRequestRemoveWithId:reqId];
+    }
+    
+    return ret;
+}
+
+- (BOOL)throttleRequestRemoveAll
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandThrottleRemoveAll params:nil] boolValue];
 }
 
 #pragma mark - NSUserDefaults Commands

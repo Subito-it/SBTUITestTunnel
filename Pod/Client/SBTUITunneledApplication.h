@@ -198,7 +198,7 @@
  */
 - (BOOL)stubRequestsRemoveAll;
 
-#pragma mark - Monitor requests Commands
+#pragma mark - Monitor Requests Commands
 
 /**
  *  Start monitoring requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
@@ -209,7 +209,7 @@
  *
  *  @param regexPattern The regular expression
  *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when removing probe using -(BOOL)monitorRequestRemoveWithId:
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when using -(BOOL)monitorRequestRemoveWithId:
  */
 - (nullable NSString *)monitorRequestsWithRegex:(nonnull NSString *)regexPattern;
 
@@ -224,7 +224,7 @@
  *
  *  @param queryParams The list of query params that should be present in the request
  *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when removing probe using -(BOOL)monitorRequestRemoveWithId:
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when using -(BOOL)monitorRequestRemoveWithId:
  */
 - (nullable NSString *)monitorRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams;
 
@@ -238,20 +238,20 @@
 /**
  *  Remove a request monitor
  *
- *  @param recId The identifier that was returned when adding the monitor request
+ *  @param reqId The identifier that was returned when adding the monitor request
  *
  *  @return `YES` on success. If `NO` one of the specified identifier was not associated to an active monitor request or request failed
  */
-- (BOOL)monitorRequestRemoveWithId:(nonnull NSString *)recId;
+- (BOOL)monitorRequestRemoveWithId:(nonnull NSString *)reqId;
 
 /**
  *  Remove a list of request monitors
  *
- *  @param recIds The identifiers that were returned when adding the monitor requests
+ *  @param reqIds The identifiers that were returned when adding the monitor requests
  *
  *  @return `YES` on success. If `NO` one of the specified identifier were not associated to an active monitor request or request failed
  */
-- (BOOL)monitorRequestRemoveWithIds:(nonnull NSArray<NSString *> *)recIds;
+- (BOOL)monitorRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 
 /**
  *  Remove all active request monitors
@@ -260,6 +260,62 @@
  */
 - (BOOL)monitorRequestRemoveAll;
 
+#pragma mark - Throttle Requests Commands
+
+/**
+ *  Start throttling requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  The throttled events can be successively polled using the throttledRequestsFlushAll method.
+ *
+ *  Note: you cannot have a throttle request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param regexPattern The regular expression
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
+ */
+- (nullable NSString *)throttleRequestsWithRegex:(nonnull NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
+
+/**
+ *  Start throttling requests whose parameters match the specified list.
+ *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
+ *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
+ *s
+ *  The throttled events can be successively polled using the throttledRequestsFlushAll method.
+ *
+ *  Note: you cannot have a throttle request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
+ */
+- (nullable NSString *)throttleRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams responseTime:(NSTimeInterval)responseTime;
+
+/**
+ *  Remove a request throttle
+ *
+ *  @param reqId The identifier that was returned when adding the throttle request
+ *
+ *  @return `YES` on success. If `NO` one of the specified identifier was not associated to an active throttle request or request failed
+ */
+- (BOOL)throttleRequestRemoveWithId:(nonnull NSString *)reqId;
+
+/**
+ *  Remove a list of request throttles
+ *
+ *  @param reqIds The identifiers that were returned when adding the throttle requests
+ *
+ *  @return `YES` on success. If `NO` one of the specified identifier were not associated to an active throttle request or request failed
+ */
+- (BOOL)throttleRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
+
+/**
+ *  Remove all active request throttles
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)throttleRequestRemoveAll;
 
 #pragma mark - NSUserDefaults Commands
 
