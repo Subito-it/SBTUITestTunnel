@@ -153,7 +153,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
         if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
             // When negative delayResponseTime is the faked response time expressed in KB/s
-            NSHTTPURLResponse *requestResponse = self.response;
+            NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
             
             NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
             
