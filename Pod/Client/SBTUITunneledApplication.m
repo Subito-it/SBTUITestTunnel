@@ -15,12 +15,43 @@
 // limitations under the License.
 
 #import "SBTUITunneledApplication.h"
+#include <ifaddrs.h>
 #include <arpa/inet.h>
+
 
 const NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
 
 // it would have been more elegant to add a category on NSNetService, however Xcode 7.3 doesn't allow to do so
+NSString *localIpAddress(void)
+{
+    NSString *address = @"error";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0) {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while (temp_addr != NULL) {
+            if (temp_addr->ifa_addr->sa_family == AF_INET) {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                if ([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"]) {
+                    // Get NSString from C String
+                    address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+                }
+            }
+            
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    // Free memory
+    freeifaddrs(interfaces);
+    
+    return address;
+}
+
 NSString *ipAddress(NSNetService *service)
 {
     char addressBuffer[INET6_ADDRSTRLEN];
@@ -49,7 +80,11 @@ NSString *ipAddress(NSNetService *service)
             
             if (addressStr && port)
             {
-                return [NSString stringWithCString:addressStr encoding:NSASCIIStringEncoding];
+                // further workaround for http://www.openradar.me/23048120
+                NSString *localAddress = localIpAddress();
+                NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSASCIIStringEncoding];
+                
+                return [localAddress isEqualToString:remoteAddress] ? @"127.0.0.1" : remoteAddress;
             }
         }
     }
@@ -447,7 +482,6 @@ NSString *ipAddress(NSNetService *service)
     if (ipAddress(sender).length > 0 && sender.port > 0) {
         // for some reasons using hostname to contact the server during startupBlock doesn't work
         // we'll instead use the plain IP address which kinda works :-/
-
         self.remoteHost = ipAddress(sender);
         self.remotePort = sender.port;
         

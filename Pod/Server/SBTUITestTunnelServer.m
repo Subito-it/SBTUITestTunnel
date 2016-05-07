@@ -144,7 +144,7 @@ description:(desc), ##__VA_ARGS__]; \
     [self processLaunchOptionsIfNeeded];
     
     [GCDWebServer setLogLevel:3];
-    [self.server startWithPort:serverPort bonjourName: bonjourName];
+    [self.server startWithPort:serverPort bonjourName:bonjourName];
     
     [self processStartupCommandsIfNeeded];
     
