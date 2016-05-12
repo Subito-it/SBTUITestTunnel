@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #import "SBTUITunneledApplication.h"
+#import "NSString+SwiftDemangle.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -517,12 +518,49 @@ NSString *ipAddress(NSNetService *service)
     NSError *error = nil;
     NSData *data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:jsonName ofType:jsonExtension]];
     
+    if (!data) {
+        data = [self dataFromFrameworksWithName:jsonFilename];
+    }
+    
     NSDictionary<NSString *, NSObject *> *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
     if (!dict || error) {
         NSAssert(NO, @"[SBTUITestTunnel] Failed to deserialize json file %@", jsonFilename);
     }
     
     return dict;
+}
+
+- (NSData *)dataFromFrameworksWithName:(NSString *)filename
+{
+    NSString *name = [filename stringByDeletingPathExtension];
+    NSString *extension = [filename pathExtension];
+    
+    NSData *data = nil;
+    
+    // find in frameworks extracting info from stacktrace
+    // are we using frameworks? Swift?
+    for (NSString *sourceString in [NSThread callStackSymbols]) {
+        NSCharacterSet *separatorSet = [NSCharacterSet characterSetWithCharactersInString:@" -[]+?.,"];
+        NSMutableArray *array = [NSMutableArray arrayWithArray:[sourceString  componentsSeparatedByCharactersInSet:separatorSet]];
+        [array removeObject:@""];
+        
+        NSString *stackFramework = array[1];
+        NSString *stackClass = array[3];
+        
+        NSString *swiftClassName = [stackClass demangleSwiftClassName];
+        
+        if (swiftClassName) {
+            data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:NSClassFromString(swiftClassName)] pathForResource:name ofType:extension]];
+            
+            if (data) {
+                break;
+            }
+        } else {
+#warning objective-c frameworks TODO.
+        }
+    }
+    
+    return data;
 }
 
 - (NSString *)base64SerializeObject:(NSObject *)obj
