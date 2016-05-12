@@ -1,10 +1,10 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'SBTUITestTunnel_Example', :exclusive => true do
+target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnel/Server', :path => '../'
 end
 
-target 'SBTUITestTunnel_Tests', :exclusive => true do
+target 'SBTUITestTunnel_Tests' do
   pod 'SBTUITestTunnel/Client', :path => '../'
 end
 

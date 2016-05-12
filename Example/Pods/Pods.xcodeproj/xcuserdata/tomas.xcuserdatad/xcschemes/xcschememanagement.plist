@@ -24,22 +24,22 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-SBTUITestTunnel_Example-SBTUITestTunnel.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>Pods-SBTUITestTunnel_Example.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-SBTUITestTunnel_Tests-SBTUITestTunnel.xcscheme</key>
+		<key>Pods-SBTUITestTunnel_Tests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-SBTUITestTunnel_Tests.xcscheme</key>
+		<key>SBTUITestTunnel-Client.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>SBTUITestTunnel-Server.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -52,17 +52,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>2374B06227E837467AD6BEC8826900BE</key>
+		<key>1509DCDE89930E14534C67D2D9AB9DCA</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>5679DA8C08B40D3FE56CA60CBC3E5862</key>
+		<key>2B3DD6F4AAC4FF3D4AB35A034AEE0304</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>56970F3BA49808033211FA58A4BD2A41</key>
+		<key>49CA1719664113551E88356798B89D11</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -72,7 +72,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8846D05C6294AF529CC22C1D5A825B40</key>
+		<key>C21BBB1F271BFF01027FDD3F90D25B78</key>
 		<dict>
 			<key>primary</key>
 			<true/>

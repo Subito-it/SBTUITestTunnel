@@ -17,8 +17,8 @@ PODS:
   - OHHTTPStubs/NSURLSession (5.0.0):
     - OHHTTPStubs/Core
   - OHHTTPStubs/OHPathHelpers (5.0.0)
-  - SBTUITestTunnel/Client (0.9.2)
-  - SBTUITestTunnel/Server (0.9.2):
+  - SBTUITestTunnel/Client (0.9.3)
+  - SBTUITestTunnel/Server (0.9.3):
     - FXKeychain
     - GCDWebServer (~> 3.0)
     - NSHash (~> 1.0.2)
@@ -37,6 +37,8 @@ SPEC CHECKSUMS:
   GCDWebServer: 2a375ec42839a41d7187d04e5b688d32fa5c4cd5
   NSHash: 173d9782d4b7dec17bf32f22d8ab203c88655a04
   OHHTTPStubs: a5d2e9eea07869d42ec03338325f398bc520e159
-  SBTUITestTunnel: eb71386856bdf91aa14bb6019311ef624407e57a
+  SBTUITestTunnel: 894b67aa6870b905f217a16485ca49aa99a6430a
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: ca9c3fa8ebce0fc6d241c1e2fa6ffc7aa5551ffa
+
+COCOAPODS: 1.0.0
