@@ -544,10 +544,7 @@ NSString *ipAddress(NSNetService *service)
         NSMutableArray *array = [NSMutableArray arrayWithArray:[sourceString  componentsSeparatedByCharactersInSet:separatorSet]];
         [array removeObject:@""];
         
-        NSString *stackFramework = array[1];
-        NSString *stackClass = array[3];
-        
-        NSString *swiftClassName = [stackClass demangleSwiftClassName];
+        NSString *swiftClassName = [array[3] demangleSwiftClassName];
         
         if (swiftClassName) {
             data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:NSClassFromString(swiftClassName)] pathForResource:name ofType:extension]];
@@ -556,7 +553,7 @@ NSString *ipAddress(NSNetService *service)
                 break;
             }
         } else {
-#warning objective-c frameworks TODO.
+//#warning objective-c frameworks TODO.
         }
     }
     
