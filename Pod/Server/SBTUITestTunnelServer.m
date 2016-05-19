@@ -91,8 +91,6 @@ description:(desc), ##__VA_ARGS__]; \
 {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
-        
         [self.sharedInstance takeOffOnce];
     });
 }
@@ -109,6 +107,8 @@ description:(desc), ##__VA_ARGS__]; \
         NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
         return;
     }
+    
+    [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
     
