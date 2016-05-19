@@ -88,6 +88,8 @@ NSString * const SBTUITunneledApplicationCommandShutDown = @"commandShutDown";
 
 NSString * const SBTUITunneledApplicationCommandStartupCommandsCompleted = @"commandStartupCompleted";
 
+NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
+
 @implementation SBTUITunnelStartupCommand
 
 - (id)initWithCoder:(NSCoder *)decoder

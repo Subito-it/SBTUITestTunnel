@@ -89,6 +89,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandShutDown;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStartupCommandsCompleted;
 
+extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
+
 #pragma mark - Classes
 
 @interface SBTUITunnelStartupCommand: NSObject
