@@ -24,7 +24,7 @@
 {
     NSURLSessionUploadTask *task = [self swz_uploadTaskWithRequest:request fromData:bodyData];
     
-    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
         [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
     }
     
