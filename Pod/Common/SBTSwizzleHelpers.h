@@ -16,7 +16,7 @@
 
 #import <objc/runtime.h>
 
-static void SBTTestTunnelClassSwizzle(Class cls, SEL originalSelector, SEL swizzledSelector)
+__unused static void SBTTestTunnelClassSwizzle(Class cls, SEL originalSelector, SEL swizzledSelector)
 {
     Method originalMethod = class_getClassMethod(cls, originalSelector);
     Method swizzledMethod = class_getClassMethod(cls, swizzledSelector);
@@ -28,7 +28,7 @@ static void SBTTestTunnelClassSwizzle(Class cls, SEL originalSelector, SEL swizz
     }
 }
 
-static void SBTTestTunnelInstanceSwizzle(Class cls, SEL originalSelector, SEL swizzledSelector)
+__unused static void SBTTestTunnelInstanceSwizzle(Class cls, SEL originalSelector, SEL swizzledSelector)
 {
     Method originalMethod = class_getInstanceMethod(cls, originalSelector);
     Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);

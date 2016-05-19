@@ -30,8 +30,11 @@
 - (id)swz_copyWithZone:(NSZone *)zone
 {
     NSURLRequest *ret = [self swz_copyWithZone:zone];
-    NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
-    [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:ret];
+    
+    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+        NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+        [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:ret];        
+    }
     
     return ret;
 }
@@ -39,8 +42,11 @@
 - (id)swz_mutableCopyWithZone:(NSZone *)zone
 {
     NSMutableURLRequest *ret = [self swz_mutableCopyWithZone:zone];
-    NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
-    [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:ret];
+    
+    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+        NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+        [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:ret];
+    }
     
     return ret;
 }

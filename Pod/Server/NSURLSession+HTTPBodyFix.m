@@ -24,7 +24,9 @@
 {
     NSURLSessionUploadTask *task = [self swz_uploadTaskWithRequest:request fromData:bodyData];
     
-    [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:request];
+    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:request];
+    }
     
     return task;
 }
@@ -38,8 +40,11 @@
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData completionHandler:(void (^)(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error))completionHandler;
 {
-    [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:request];
     NSURLSessionUploadTask *task = [self swz_uploadTaskWithRequest:request fromData:bodyData completionHandler:completionHandler];
+    
+    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
+        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:request];        
+    }
     
     return task;
 }
