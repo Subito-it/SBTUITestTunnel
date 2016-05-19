@@ -146,7 +146,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[@(task.taskIdentifier)] timeIntervalSinceNow];
         NSDictionary *matchingRule = [SBTProxyURLProtocol matchingRuleForRequest:self.request];
         
-        NSData *requestData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
+        NSData *responseData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
         [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
 
         __block typeof(self) weakSelf = self;
@@ -166,11 +166,11 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 
             void(^block)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) = matchingRule[SBTProxyURLProtocolBlockKey];
             
-            if (![block isEqual:[NSNull null]]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, requestData, requestTime);
-                });
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (![block isEqual:[NSNull null]]) {
+                    block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, responseData, requestTime);
+                }
+            });
         });
 
     } else {
