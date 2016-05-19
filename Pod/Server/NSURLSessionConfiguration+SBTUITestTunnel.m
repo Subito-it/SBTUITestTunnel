@@ -17,40 +17,22 @@
 // https://github.com/AliSoftware/OHHTTPStubs/blob/master/OHHTTPStubs/Sources/NSURLSession/OHHTTPStubs%2BNSURLSessionConfiguration.m
 
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
+#import "SBTSwizzleHelpers.h"
 #import "SBTProxyURLProtocol.h"
-#import <objc/runtime.h>
 
 @implementation NSURLSessionConfiguration (SBTUITestTunnel)
 
-typedef NSURLSessionConfiguration*(*SessionConfigConstructor)(id,SEL);
-static SessionConfigConstructor orig_defaultSessionConfiguration;
-static SessionConfigConstructor orig_ephemeralSessionConfiguration;
-
-static SessionConfigConstructor SBTTestTunnelSwizzle(SEL selector, SessionConfigConstructor newImpl)
++ (NSURLSessionConfiguration *)swz_defaultSessionConfiguration
 {
-    Class cls = NSURLSessionConfiguration.class;
-    Class metaClass = object_getClass(cls);
-    
-    Method origMethod = class_getClassMethod(cls, selector);
-    SessionConfigConstructor origImpl = (SessionConfigConstructor)method_getImplementation(origMethod);
-    if (!class_addMethod(metaClass, selector, (IMP)newImpl, method_getTypeEncoding(origMethod)))
-    {
-        method_setImplementation(origMethod, (IMP)newImpl);
-    }
-    return origImpl;
-}
-
-static NSURLSessionConfiguration* SBTTestTunnelStubs_defaultSessionConfiguration(id self, SEL _cmd)
-{
-    NSURLSessionConfiguration* config = orig_defaultSessionConfiguration(self,_cmd); // call original method
+    NSURLSessionConfiguration *config = [self swz_defaultSessionConfiguration];
     [self addSBTProxyProtocol:config];
     
     return config;
 }
 
-static NSURLSessionConfiguration* SBTTestTunnelStubs_ephemeralSessionConfiguration(id self, SEL _cmd)
++ (NSURLSessionConfiguration *)swz_ephemeralSessionConfiguration
 {
-    NSURLSessionConfiguration* config = orig_ephemeralSessionConfiguration(self,_cmd); // call original method
+    NSURLSessionConfiguration *config = [self swz_ephemeralSessionConfiguration];
     [self addSBTProxyProtocol:config];
     
     return config;
@@ -65,10 +47,11 @@ static NSURLSessionConfiguration* SBTTestTunnelStubs_ephemeralSessionConfigurati
 
 + (void)load
 {
-    orig_defaultSessionConfiguration = SBTTestTunnelSwizzle(@selector(defaultSessionConfiguration),
-                                                            SBTTestTunnelStubs_defaultSessionConfiguration);
-    orig_ephemeralSessionConfiguration = SBTTestTunnelSwizzle(@selector(ephemeralSessionConfiguration),
-                                                              SBTTestTunnelStubs_ephemeralSessionConfiguration);
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SBTTestTunnelClassSwizzle(self, @selector(defaultSessionConfiguration), @selector(swz_defaultSessionConfiguration));
+        SBTTestTunnelClassSwizzle(self, @selector(ephemeralSessionConfiguration), @selector(swz_ephemeralSessionConfiguration));
+    });
 }
 
 @end
