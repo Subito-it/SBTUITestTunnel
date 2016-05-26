@@ -45,13 +45,13 @@ Call `[SBTUITestTunnelServer takeOff]` from the application's `main` function
 
     #import "SBTAppDelegate.h"
 
-    #if TARGET_OS_SIMULATOR
+    #if DEBUG
         #import "SBTUITestTunnelServer.h"
     #endif
 
     int main(int argc, char *argv[])
     {
-    #if TARGET_OS_SIMULATOR
+    #if DEBUG
         [SBTUITestTunnelServer takeOff];
     #endif
 
