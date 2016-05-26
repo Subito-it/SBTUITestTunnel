@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import <Foundation/Foundation.h>
 
 extern const double
@@ -116,3 +118,5 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 @property (nullable, nonatomic, strong) NSData *responseData;
 
 @end
+
+#endif

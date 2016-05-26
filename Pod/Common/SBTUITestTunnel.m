@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import "SBTUITestTunnel.h"
 
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
@@ -162,3 +164,5 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
 }
 
 @end
+
+#endif

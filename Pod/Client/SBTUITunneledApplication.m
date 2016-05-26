@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import "SBTUITunneledApplication.h"
 #import "NSString+SwiftDemangle.h"
 #include <ifaddrs.h>
@@ -83,7 +85,7 @@ NSString *ipAddress(NSNetService *service)
             {
                 // further workaround for http://www.openradar.me/23048120
                 NSString *localAddress = localIpAddress();
-                NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSASCIIStringEncoding];
+                NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSUTF8StringEncoding];
                 
                 return [localAddress isEqualToString:remoteAddress] ? @"127.0.0.1" : remoteAddress;
             }
@@ -637,3 +639,5 @@ NSString *ipAddress(NSNetService *service)
 }
 
 @end
+
+#endif

@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import <objc/runtime.h>
 
 __unused static void SBTTestTunnelClassSwizzle(Class cls, SEL originalSelector, SEL swizzledSelector)
@@ -39,3 +41,5 @@ __unused static void SBTTestTunnelInstanceSwizzle(Class cls, SEL originalSelecto
         method_exchangeImplementations(originalMethod, swizzledMethod);
     }
 }
+
+#endif

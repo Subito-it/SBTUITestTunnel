@@ -16,6 +16,8 @@
 
 // https://github.com/AliSoftware/OHHTTPStubs/blob/master/OHHTTPStubs/Sources/NSURLSession/OHHTTPStubs%2BNSURLSessionConfiguration.m
 
+#if DEBUG
+
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTProxyURLProtocol.h"
@@ -55,3 +57,5 @@
 }
 
 @end
+
+#endif

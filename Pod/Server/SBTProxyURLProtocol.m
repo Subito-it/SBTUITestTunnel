@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import "SBTProxyURLProtocol.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSString+NSHash.h"
@@ -240,3 +242,5 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 }
 
 @end
+
+#endif

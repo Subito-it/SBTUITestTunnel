@@ -14,8 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <XCTest/XCTest.h>
+#if DEBUG
 
+#import <XCTest/XCTest.h>
 #import "SBTUITestTunnel.h"
 
 @interface SBTUITunneledApplication : XCUIApplication
@@ -429,3 +430,5 @@
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled;
 
 @end
+
+#endif

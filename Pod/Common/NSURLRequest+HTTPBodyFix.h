@@ -15,10 +15,13 @@
 // limitations under the License.
 
 // Alternative approach to fix this: https://github.com/AliSoftware/OHHTTPStubs/pull/166
-// This works in combination with swizzling in 
+
+#if DEBUG 
 
 #import <Foundation/Foundation.h>
 
 @interface NSURLRequest (HTTPBodyFix)
 
 @end
+
+#endif

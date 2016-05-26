@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import "SBTUITestTunnelServer.h"
 #import "SBTUITestTunnel.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
@@ -758,3 +760,5 @@ void (^deleteAllKeysForSecClass)(CFTypeRef) = ^(CFTypeRef secClass) {
 };
 
 @end
+
+#endif
