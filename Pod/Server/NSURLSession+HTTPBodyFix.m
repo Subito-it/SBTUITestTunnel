@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import "NSURLSession+HTTPBodyFix.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
@@ -68,3 +70,5 @@
 }
 
 @end
+
+#endif
