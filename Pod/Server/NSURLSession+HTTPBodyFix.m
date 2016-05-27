@@ -14,8 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-
 #import "NSURLSession+HTTPBodyFix.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
@@ -33,9 +31,12 @@
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL
 {
-    NSData *data = [NSData dataWithContentsOfURL:fileURL];
+    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
+        NSData *bodyData = [NSData dataWithContentsOfURL:fileURL];
+        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
+    }
     
-    return [self uploadTaskWithRequest:request fromData:data];
+    return [self swz_uploadTaskWithRequest:request fromFile:fileURL];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData completionHandler:(void (^)(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error))completionHandler;
@@ -67,5 +68,3 @@
 }
 
 @end
-
-#endif
