@@ -601,7 +601,7 @@ NSString *ipAddress(NSNetService *service)
         } else if  ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) {
             request = [NSMutableURLRequest requestWithURL:url];
             
-            request.HTTPBody = [components.query dataUsingEncoding:NSASCIIStringEncoding];
+            request.HTTPBody = [components.query dataUsingEncoding:NSUTF8StringEncoding];
         }
         request.HTTPMethod = SBTUITunnelHTTPMethod;
         
