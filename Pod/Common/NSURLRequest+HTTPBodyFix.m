@@ -35,7 +35,9 @@
     
     if ([ret isKindOfClass:[NSMutableURLRequest class]]) {
         NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
-        [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];
+        if (body) {
+            [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];            
+        }
     }
     
     return ret;
