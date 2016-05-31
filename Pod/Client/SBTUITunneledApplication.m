@@ -28,7 +28,7 @@ const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
 // it would have been more elegant to add a category on NSNetService, however Xcode 7.3 doesn't allow to do so
 static NSString *localIpAddress(void)
 {
-    NSString *address = @"error";
+    NSString *address = nil;
     struct ifaddrs *interfaces = NULL;
     struct ifaddrs *temp_addr = NULL;
     int success = 0;
@@ -86,8 +86,13 @@ static NSString *ipAddress(NSNetService *service)
                 // further workaround for http://www.openradar.me/23048120
                 NSString *localAddress = localIpAddress();
                 NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSUTF8StringEncoding];
-                
-                return [localAddress isEqualToString:remoteAddress] ? @"127.0.0.1" : remoteAddress;
+
+                NSString *validAddressRegex = @"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+                NSPredicate *validAddressPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", validAddressRegex];
+
+                if ([validAddressPredicate evaluateWithObject:remoteAddress]) {
+                    return [localAddress isEqualToString:remoteAddress] ? @"127.0.0.1" : remoteAddress;
+                }
             }
         }
     }
