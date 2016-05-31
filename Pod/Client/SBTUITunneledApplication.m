@@ -26,7 +26,7 @@ const NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
 
 // it would have been more elegant to add a category on NSNetService, however Xcode 7.3 doesn't allow to do so
-NSString *localIpAddress(void)
+static NSString *localIpAddress(void)
 {
     NSString *address = @"error";
     struct ifaddrs *interfaces = NULL;
@@ -55,7 +55,7 @@ NSString *localIpAddress(void)
     return address;
 }
 
-NSString *ipAddress(NSNetService *service)
+static NSString *ipAddress(NSNetService *service)
 {
     char addressBuffer[INET6_ADDRSTRLEN];
     
