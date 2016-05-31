@@ -309,9 +309,13 @@ static NSString *ipAddress(NSNetService *service)
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll;
 {
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorFlush params:nil];
-    NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
-    return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
+    }
+    
+    return nil;
 }
 
 - (BOOL)monitorRequestRemoveWithId:(NSString *)reqId
@@ -396,9 +400,14 @@ static NSString *ipAddress(NSNetService *service)
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
     
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsObject params:params];
-    NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
     
-    return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+    }
+    
+    return nil;
 }
 
 - (BOOL)userDefaultsReset
@@ -428,9 +437,14 @@ static NSString *ipAddress(NSNetService *service)
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
     
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainObject params:params];
-    NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+    
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
-    return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+    }
+    
+    return nil;
 }
 
 - (BOOL)keychainReset
