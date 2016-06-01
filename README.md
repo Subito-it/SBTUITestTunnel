@@ -26,10 +26,10 @@ We strongly suggest to use [cocoapods](https://cocoapods.org) being the easiest 
 
 Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app target and `SBTUITestTunnel/Client` for the UI test target.
 
-    target :APP_TARGET do
+    target 'APP_TARGET' do
       pod 'SBTUITestTunnel/Server'
     end
-    target :UITESTS_TARGET, :exclusive => true do
+    target 'UITESTS_TARGET' do
       pod 'SBTUITestTunnel/Client'
     end
 
@@ -45,22 +45,18 @@ Call `[SBTUITestTunnelServer takeOff]` from the application's `main` function
 
     #import "SBTAppDelegate.h"
 
-    #if DEBUG
-        #import "SBTUITestTunnelServer.h"
-    #endif
+    #import "SBTUITestTunnelServer.h"
 
     int main(int argc, char *argv[])
     {
-    #if DEBUG
         [SBTUITestTunnelServer takeOff];
-    #endif
 
         @autoreleasepool {
             return UIApplicationMain(argc, argv, nil, NSStringFromClass([SBTAppDelegate class]));
         }
     }
 
-**Note** The web server won't startup in production code however we strongly suggest to avoid shipping SBTUITestTunnel at all in your production code, like for example wrapping the code inside a preprocessor conditional `#if` clause as shown above.
+**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros!
 
 ### UI Testing target
 
