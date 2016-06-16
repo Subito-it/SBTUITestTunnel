@@ -169,7 +169,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
             void(^block)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) = matchingRule[SBTProxyURLProtocolBlockKey];
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (![block isEqual:[NSNull null]]) {
+                if (![block isEqual:[NSNull null]] && block != nil) {
                     block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, responseData, requestTime);
                 }
             });
