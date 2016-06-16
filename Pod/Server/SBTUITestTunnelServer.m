@@ -67,6 +67,7 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, assign) BOOL startupCommandsCompleted;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 
 @end
 
@@ -126,14 +127,19 @@ description:(desc), ##__VA_ARGS__]; \
             
             NSString *commandString = [command stringByAppendingString:@":"];
             SEL commandSelector = NSSelectorFromString(commandString);
-            if (![weakSelf respondsToSelector:commandSelector]) {
-                BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
+            NSString *response = nil;
+            
+            if (![self processCustomCommandIfNecessary:request]) {
+                if (![weakSelf respondsToSelector:commandSelector]) {
+                    BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
+                }
+                
+                IMP imp = [weakSelf methodForSelector:commandSelector];
+                
+                NSString * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
+                response = func(weakSelf, commandSelector, request);
             }
-            IMP imp = [weakSelf methodForSelector:commandSelector];
-            
-            NSString * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
-            NSString *response = func(weakSelf, commandSelector, request);
-            
+                       
             ret = [GCDWebServerDataResponse responseWithJSONObject:@{ SBTUITunnelResponseResultKey: response ?: @"" }];
             
             dispatch_semaphore_signal(sem);
@@ -151,6 +157,26 @@ description:(desc), ##__VA_ARGS__]; \
     [self processStartupCommandsIfNeeded];
     
     NSLog(@"[UITestTunnelServer] Up and running!");
+}
+
+- (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request
+{
+    NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
+    
+    if ([command isEqualToString:SBTUITunneledApplicationCommandCustom]) {
+        NSString *customCommandName = request.parameters[SBTUITunnelCustomCommandKey];
+        NSData *objData = [[NSData alloc] initWithBase64EncodedString:request.parameters[SBTUITunnelObjectKey] options:0];
+        NSObject *obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
+        
+        void(^block)(NSObject *) = [[SBTUITestTunnelServer customCommands] objectForKey:customCommandName];
+        if (block) {
+            block(obj);
+            
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
@@ -633,6 +659,36 @@ description:(desc), ##__VA_ARGS__]; \
     self.startupCommandsCompleted = YES;
     
     return @"YES";
+}
+
+#pragma mark - Custom Commands
+
++ (NSMutableDictionary *)customCommands
+{
+    static NSMutableDictionary *customCommandsDict = nil;
+    
+    if (customCommandsDict == nil) {
+        customCommandsDict = [NSMutableDictionary dictionary];
+    }
+    
+    return customCommandsDict;
+}
+
++ (void)registerCustomCommandNamed:(NSString *)commandName block:(void (^)(NSObject *object))block;
+{
+    if ([self respondsToSelector:NSSelectorFromString([commandName stringByAppendingString:@":"])]) {
+        NSAssert(NO, @"Command name already taken");
+    }
+    if ([[self customCommands] objectForKey:commandName]) {
+        NSAssert(NO, @"Custom command already registered, did you forgot to unregister it?");
+    }
+    
+    [[self customCommands] setObject:block forKey:commandName];
+}
+
++ (void)unregisterCommandNamed:(NSString *)commandName
+{
+    [[self customCommands] removeObjectForKey:commandName];
 }
 
 #pragma mark - Helper Methods

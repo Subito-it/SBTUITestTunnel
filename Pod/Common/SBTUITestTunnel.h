@@ -54,6 +54,8 @@ extern NSString * _Nonnull const SBTUITunnelDownloadBasePathKey;
 
 extern NSString * _Nonnull const SBTUITunnelResponseResultKey;
 
+extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
+
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathThatMatchesRegex;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex;
@@ -82,6 +84,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainSetObjec
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainRemoveObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainReset;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCustom;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandSetUserInterfaceAnimations;
 

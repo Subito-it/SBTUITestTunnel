@@ -298,6 +298,15 @@
     [app throttleRequestRemoveAll];
 }
 
+- (void)testCustomCommand {
+    NSString *rndString = [NSString stringWithFormat:@"%f", CFAbsoluteTimeGetCurrent()];
+    [app performCustomCommandNamed:@"myCustomCommand" object:rndString];
+    
+    NSString *rndStringRemote = [app userDefaultsObjectForKey:@"custom_command_test"];
+    
+    XCTAssertEqualObjects(rndString, rndStringRemote);
+}
+
 #pragma mark - Helper Methods
 
 - (void)afterTapping:(XCUIElement *)element assertAlertMessageEquals:(NSString *)message {

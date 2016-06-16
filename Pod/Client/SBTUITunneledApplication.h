@@ -336,7 +336,7 @@
  *
  *  @return `YES` on success.
  */
-- (BOOL)userDefaultsSetObject:(nonnull NSObject *)object forKey:(nonnull NSString *)key;
+- (BOOL)userDefaultsSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
 
 /**
  *  Remove object from NSUSerDefaults.
@@ -374,7 +374,7 @@
  *
  *  @return `YES` on success.
  */
-- (BOOL)keychainSetObject:(nonnull NSObject *)object forKey:(nonnull NSString *)key;
+- (BOOL)keychainSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
 
 /**
  *  Remove object from keychain. For simplicity we're using FXKeychain using the BunleID as default service
@@ -424,6 +424,18 @@
  *  @return The data associated to the requested item
  */
 - (nullable NSData *)downloadItemFromPath:(nonnull NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder;
+
+#pragma mark - Custom Commands
+
+/**
+ *  Perform custom command.
+ *
+ *  @param commandName custom name that will match [SBTUITestTunnelServer registerCustomCommandNamed:block:]
+ *  @param data optional data to be attached to request
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject<NSCoding> *)object;
 
 #pragma mark - Other Commands
 

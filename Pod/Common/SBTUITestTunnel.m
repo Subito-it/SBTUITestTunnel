@@ -53,6 +53,8 @@ NSString * const SBTUITunnelDownloadBasePathKey = @"base";
 
 NSString * const SBTUITunnelResponseResultKey = @"result";
 
+NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
+
 NSString * const SBTUITunneledApplicationCommandStubPathThatMatchesRegex = @"commandStubPathThathMatchesRegex";
 NSString * const SBTUITunneledApplicationCommandStubPathThatContainsQueryParams = @"commandStubPathThathContainsQueryParams";
 NSString * const SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex = @"commandStubAndRemovePathThathMatchesRegex";
@@ -81,6 +83,8 @@ NSString * const SBTUITunneledApplicationCommandKeychainSetObject = @"commandKey
 NSString * const SBTUITunneledApplicationCommandKeychainRemoveObject = @"commandKeychainRemoveObject";
 NSString * const SBTUITunneledApplicationCommandKeychainObject = @"commandKeychainObject";
 NSString * const SBTUITunneledApplicationCommandKeychainReset = @"commandKeychainReset";
+
+NSString * const SBTUITunneledApplicationCommandCustom = @"commandCustom";
 
 NSString * const SBTUITunneledApplicationCommandSetUserInterfaceAnimations = @"commandSetUIAnimations";
 

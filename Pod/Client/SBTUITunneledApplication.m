@@ -497,6 +497,16 @@ static NSString *ipAddress(NSNetService *service)
     return nil;
 }
 
+#pragma mark - Custom Commands
+
+- (BOOL)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject *)object
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCustomCommandKey: commandName,
+                                                     SBTUITunnelObjectKey: [self base64SerializeObject:object]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCustom params:params] boolValue];
+}
+
 #pragma mark - Other Commands
 
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled

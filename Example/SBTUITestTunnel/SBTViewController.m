@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #import "SBTViewController.h"
+#import "SBTUITestTunnelServer.h"
 
 @interface SBTViewController ()
 @property (nonatomic, strong) UIAlertController *alert;
@@ -28,6 +29,11 @@
 
     self.alert = [UIAlertController alertControllerWithTitle:@"Result" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     [self.alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
+        [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }];
 }
 
 - (IBAction)doGoogleNetRequestTapped:(id)sender
