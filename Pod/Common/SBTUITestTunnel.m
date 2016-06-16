@@ -64,6 +64,7 @@ NSString * const SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex = @"
 NSString * const SBTUITunneledApplicationCommandMonitorPathThatContainsQueryParams = @"commandMonitorPathThathContainsQueryParams";
 NSString * const SBTUITunneledApplicationCommandMonitorRemove = @"commandMonitorRemove";
 NSString * const SBTUITunneledApplicationcommandMonitorRemoveAll = @"commandMonitorsRemoveAll";
+NSString * const SBTUITunneledApplicationcommandMonitorPeek = @"commandMonitorPeek";
 NSString * const SBTUITunneledApplicationcommandMonitorFlush = @"commandMonitorFlush";
 
 NSString * const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex = @"commandThrottlePathThathMatchesRegex";

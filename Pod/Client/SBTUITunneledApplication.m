@@ -308,6 +308,18 @@ static NSString *ipAddress(NSNetService *service)
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathThatContainsQueryParams params:params];
 }
 
+- (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
+{
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorPeek params:nil];
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
+    }
+    
+    return nil;
+}
+
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll;
 {
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorFlush params:nil];

@@ -360,6 +360,28 @@ description:(desc), ##__VA_ARGS__]; \
     return @"YES";
 }
 
+- (NSString *)commandMonitorPeek:(GCDWebServerRequest *)tunnelRequest
+{
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    __block NSString *ret = nil;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // we use main thread to synchronize access to self.monitoredRequests
+        NSArray *requestsToPeek = [self.monitoredRequests copy];
+        
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToPeek];
+        if (data) {
+            ret = [data base64EncodedStringWithOptions:0];
+        }
+        dispatch_semaphore_signal(sem);
+    });
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    return ret;
+}
+
 - (NSString *)commandMonitorFlush:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);

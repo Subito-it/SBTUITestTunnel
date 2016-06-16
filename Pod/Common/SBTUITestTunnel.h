@@ -65,6 +65,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathThatM
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorRemoveAll;
+extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorPeek;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorFlush;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex;

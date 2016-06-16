@@ -171,7 +171,7 @@
     [app stubRequestsRemoveAll];
 }
 
-- (void)testMonitorRegexCommandsResponseString {
+- (void)testMonitorFlushRegexCommandsResponseString {
     XCTAssertTrue([app monitoredRequestsFlushAll].count == 0);
     
     [app monitorRequestsWithRegex:@"(.*)google(.*)"];
@@ -200,6 +200,34 @@
     [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
 
     XCTAssertTrue([app monitoredRequestsFlushAll].count == 0);
+}
+
+- (void)testMonitorPeekRegexCommandsResponseString {
+    XCTAssertTrue([app monitoredRequestsPeekAll].count == 0);
+    
+    [app monitorRequestsWithRegex:@"(.*)google(.*)"];
+    
+    [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
+    [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
+    XCTAssertTrue([app monitoredRequestsPeekAll].count == 0);
+    
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    NSArray<SBTMonitoredNetworkRequest *> *requests = [app monitoredRequestsPeekAll];
+    XCTAssertTrue(requests.count == 3);
+    NSArray<SBTMonitoredNetworkRequest *> *requests2 = [app monitoredRequestsPeekAll];
+    XCTAssertTrue(requests2.count == 3);
+    
+    for (SBTMonitoredNetworkRequest *request in requests) {
+        XCTAssertTrue([[request responseString] rangeOfString:@"www.google."].location != NSNotFound);
+        XCTAssertTrue(request.timestamp > 0.0);
+        XCTAssertTrue(request.requestTime > 0.0);
+    }
+    
+    [app monitorRequestRemoveAll];
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
 }
 
 - (void)testMonitorQueryCommandsResponseString {

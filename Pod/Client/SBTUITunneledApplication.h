@@ -231,7 +231,14 @@
 - (nullable NSString *)monitorRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams;
 
 /**
- *  Flushes the current list of collected requests
+ *  Peek (retrieve) the current list of collected requests
+ *
+ *  @return The list of monitored requests
+ */
+- (nonnull NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
+
+/**
+ *  Flushes (retrieve + clear) the current list of collected requests
  *
  *  @return The list of monitored requests
  */
