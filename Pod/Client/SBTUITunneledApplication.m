@@ -59,8 +59,7 @@ static NSString *ipAddress(NSNetService *service)
 {
     char addressBuffer[INET6_ADDRSTRLEN];
     
-    for (NSData *data in service.addresses)
-    {
+    for (NSData *data in service.addresses) {
         memset(addressBuffer, 0, INET6_ADDRSTRLEN);
         
         typedef union {
@@ -71,8 +70,7 @@ static NSString *ipAddress(NSNetService *service)
         
         ip_socket_address *socketAddress = (ip_socket_address *)[data bytes];
         
-        if (socketAddress && (socketAddress->sa.sa_family == AF_INET || socketAddress->sa.sa_family == AF_INET6))
-        {
+        if (socketAddress && (socketAddress->sa.sa_family == AF_INET || socketAddress->sa.sa_family == AF_INET6)) {
             const char *addressStr = inet_ntop(
                                                socketAddress->sa.sa_family,
                                                (socketAddress->sa.sa_family == AF_INET ? (void *)&(socketAddress->ipv4.sin_addr) : (void *)&(socketAddress->ipv6.sin6_addr)),
@@ -81,8 +79,7 @@ static NSString *ipAddress(NSNetService *service)
             
             int port = ntohs(socketAddress->sa.sa_family == AF_INET ? socketAddress->ipv4.sin_port : socketAddress->ipv6.sin6_port);
             
-            if (addressStr && port)
-            {
+            if (addressStr && port) {
                 // further workaround for http://www.openradar.me/23048120
                 NSString *localAddress = localIpAddress();
                 NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSUTF8StringEncoding];
