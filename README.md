@@ -13,6 +13,7 @@ With SBTUITestTunnel we extended UI testing functionality allowing to dynamicall
 * interact with NSUserDefaults and Keychain
 * download/upload files from/to the app's sandbox
 * network calls monitoring
+* define custom blocks of codes executed in the application target
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application and the other in the testing code. A web server inside the application is used to create the link between the two components allowing test code to send requests to the application.
 
@@ -70,7 +71,7 @@ Instead of using `XCUIApplication` use `SBTUITunneledApplication`.
 
 ### Startup
 
-At launch you can optionally provide some options and a startup block which will be executed before the applicationDidFinishLaunching will be called. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
+At launch you can optionally provide some options and a startup block which will be executed before the `applicationDidFinishLaunching` will be called. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
 
 **Launch with no options**
 
@@ -119,6 +120,17 @@ There are several ways to stub network calls
 
     [app userDefaultsRemoveObjectForKey:@"test_key"]
 
+### Upload / Download items
+
+**Upload**
+
+    NSString *testFilePath = ... // path to file
+    [app uploadItemAtPath:testFilePath toPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
+
+**Download**
+
+    NSData *uploadData = [app downloadItemFromPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
+
 ### Network monitoring
 
 This may come handy when you need to check that specific network requests are made.
@@ -136,16 +148,26 @@ This may come handy when you need to check that specific network requests are ma
 
     [app monitorRequestRemoveAll];
 
-### Upload / Download items
+### Custom defined blocks of code
 
-**Upload**
+You can easily add a custom block of code in the application target that can be conveniently invoked from the test target. An NSString identifies the block of code when registering and invoking it.
 
-    NSString *testFilePath = ... // path to file
-    [app uploadItemAtPath:testFilePath toPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
+**Application target**
 
-**Download**
+You register a block of code that will be invoked from the test target as follows:
 
-    NSData *uploadData = [app downloadItemFromPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
+        // the block of code that will be executed when the test target calls
+        // [SBTUITunneledApplication performCustomCommandNamed:object:];
+    }];
+
+**Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours
+
+**Test target**
+
+You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
+
+    [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
 
 
 ## Thanks
