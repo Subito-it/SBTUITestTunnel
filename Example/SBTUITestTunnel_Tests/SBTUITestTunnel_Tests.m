@@ -305,6 +305,10 @@
     NSString *rndStringRemote = [app userDefaultsObjectForKey:@"custom_command_test"];
     
     XCTAssertEqualObjects(rndString, rndStringRemote);
+    
+    [app performCustomCommandNamed:@"myCustomCommand" object:nil];
+    
+    XCTAssertNil([app userDefaultsObjectForKey:@"custom_command_test"]);
 }
 
 #pragma mark - Helper Methods
