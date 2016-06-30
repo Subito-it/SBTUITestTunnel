@@ -183,20 +183,23 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandStubPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = nil;
+    __block NSString *stubId = nil;
 
     if ([self validStubRequest:tunnelRequest]) {
         NSData *regexPatternData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:regexPatternData];
 
         SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
+        NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
         __weak typeof(self)weakSelf = self;
         stubId = [SBTProxyURLProtocol stubRequestsWithRegex:regexPattern stubResponse:response didStubRequest:^(NSURLRequest *request) {
-            if ([weakSelf.stubsToRemoveAfterCount containsObject:stubId]) {
-                [weakSelf.stubsToRemoveAfterCount removeObject:stubId];
+            __strong typeof(weakSelf)strongSelf = weakSelf;
+            
+            if ([strongSelf.stubsToRemoveAfterCount containsObject:requestIdentifier]) {
+                [strongSelf.stubsToRemoveAfterCount removeObject:requestIdentifier];
                 
-                if ([weakSelf.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+                if ([strongSelf.stubsToRemoveAfterCount countForObject:requestIdentifier] == 0) {
                     [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
                 }
             }
@@ -209,20 +212,23 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandStubPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = nil;
+    __block NSString *stubId = nil;
     
     if ([self validStubRequest:tunnelRequest]) {
         NSData *queriesData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
         NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:queriesData];
 
         SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
+        NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
         __weak typeof(self)weakSelf = self;
         stubId = [SBTProxyURLProtocol stubRequestsWithQueryParams:queries stubResponse:response didStubRequest:^(NSURLRequest *request) {
-            if ([weakSelf.stubsToRemoveAfterCount containsObject:stubId]) {
-                [weakSelf.stubsToRemoveAfterCount removeObject:stubId];
+            __strong typeof(weakSelf)strongSelf = weakSelf;
+
+            if ([strongSelf.stubsToRemoveAfterCount containsObject:requestIdentifier]) {
+                [strongSelf.stubsToRemoveAfterCount removeObject:requestIdentifier];
                 
-                if ([weakSelf.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+                if ([strongSelf.stubsToRemoveAfterCount countForObject:requestIdentifier] == 0) {
                     [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
                 }
             }
