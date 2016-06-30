@@ -22,7 +22,6 @@ s.subspec 'Server' do |server|
 server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
 server.dependency 'GCDWebServer', '~> 3.0'
 server.dependency 'FXKeychain'
-server.dependency 'OHHTTPStubs'
 end
 
 s.subspec 'Client' do |client|

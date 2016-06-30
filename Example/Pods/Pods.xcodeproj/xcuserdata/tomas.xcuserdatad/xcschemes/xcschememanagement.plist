@@ -14,11 +14,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>OHHTTPStubs.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>Pods-SBTUITestTunnel_Example.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -42,11 +37,6 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>031AE354C08437F05F05A892941A0C01</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>1509DCDE89930E14534C67D2D9AB9DCA</key>
 		<dict>
 			<key>primary</key>
@@ -57,17 +47,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>35560C5E8F4B06D2DCEB4C4783B9594C</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>442F7E93E807A7134EFB2E17C1BDA42E</key>
+		<key>A32A6C5F640077368085ED92C0AD0FD4</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>D1F70CE1F35BBDF4AD9572A0044A0876</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D65E0468BFBCB15202083EECE0F85DA8</key>
 		<dict>
 			<key>primary</key>
 			<true/>

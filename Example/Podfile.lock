@@ -3,24 +3,10 @@ PODS:
   - GCDWebServer (3.3.2):
     - GCDWebServer/Core (= 3.3.2)
   - GCDWebServer/Core (3.3.2)
-  - OHHTTPStubs (5.1.0):
-    - OHHTTPStubs/Default (= 5.1.0)
-  - OHHTTPStubs/Core (5.1.0)
-  - OHHTTPStubs/Default (5.1.0):
-    - OHHTTPStubs/Core
-    - OHHTTPStubs/JSON
-    - OHHTTPStubs/NSURLSession
-    - OHHTTPStubs/OHPathHelpers
-  - OHHTTPStubs/JSON (5.1.0):
-    - OHHTTPStubs/Core
-  - OHHTTPStubs/NSURLSession (5.1.0):
-    - OHHTTPStubs/Core
-  - OHHTTPStubs/OHPathHelpers (5.1.0)
   - SBTUITestTunnel/Client (0.9.12)
   - SBTUITestTunnel/Server (0.9.12):
     - FXKeychain
     - GCDWebServer (~> 3.0)
-    - OHHTTPStubs
 
 DEPENDENCIES:
   - SBTUITestTunnel/Client (from `../`)
@@ -33,9 +19,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
   GCDWebServer: 2a375ec42839a41d7187d04e5b688d32fa5c4cd5
-  OHHTTPStubs: 592f74439d2d72615115cf99a954237a3fbe26e5
-  SBTUITestTunnel: 74585776e252f012606b475adced1b7df415b64b
+  SBTUITestTunnel: feb209ddf2c4e0f65323c6615179edb64cda0a80
 
 PODFILE CHECKSUM: ca9c3fa8ebce0fc6d241c1e2fa6ffc7aa5551ffa
 
-COCOAPODS: 1.0.0
+COCOAPODS: 1.0.1
