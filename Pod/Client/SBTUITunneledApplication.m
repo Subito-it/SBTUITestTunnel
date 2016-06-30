@@ -511,7 +511,7 @@ static NSString *ipAddress(NSNetService *service)
 
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: [@(enabled) stringValue]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [@(enabled) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimations params:params] boolValue];
 }
