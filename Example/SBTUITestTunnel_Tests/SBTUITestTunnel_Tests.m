@@ -125,7 +125,7 @@
     [app stubRequestsRemoveAll];
 }
 
-- (void)testStubAndRemoveCommands {
+- (void)testStubAndRemoveQueryCommands {
     [app stubRequestsWithQueryParams:@[@"p=us", @"l"]
                 returnJsonDictionary:@{@"request": @"stubbed"}
                           returnCode:200
@@ -135,6 +135,20 @@
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    [app stubRequestsRemoveAll];
+}
+
+- (void)testStubAndRemoveRegexCommands {
+    [app stubRequestsWithRegex:@"(.*)google"
+               returnJsonNamed:@"googleMockResponse.json"
+                    returnCode:200
+                  responseTime:0.0
+         removeAfterIterations:2];
+    
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Stubbed"];
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Stubbed"];
+    [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Not Stubbed"];
     
     [app stubRequestsRemoveAll];
 }
@@ -290,6 +304,26 @@
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:10.0 handler:nil];
+    NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
+    [app.buttons[@"OK"] tap];
+    
+    [app throttleRequestRemoveAll];
+}
+
+- (void)testMonitorAndThrottleWithQueryResponseDelay {
+    [app monitorRequestsWithQueryParams:@[@"p=us", @"l"]];
+    NSTimeInterval responseTime = 5.0;
+    [app throttleRequestsWithQueryParams:@[@"p=us", @"l"]
+                            responseTime:responseTime];
+    
+    [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+    [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
+    [self waitForExpectationsWithTimeout:10.0 handler:nil];
+    NSArray *requestsMonitored = [app monitoredRequestsFlushAll];
+    
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
     XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
