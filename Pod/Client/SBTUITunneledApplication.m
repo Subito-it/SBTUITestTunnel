@@ -21,9 +21,10 @@
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
-
 const NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
+
+const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 // it would have been more elegant to add a category on NSNetService, however Xcode 7.3 doesn't allow to do so
 static NSString *localIpAddress(void)
@@ -209,6 +210,7 @@ static NSString *ipAddress(NSNetService *service)
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatMatchesRegex params:params];
@@ -219,6 +221,7 @@ static NSString *ipAddress(NSNetService *service)
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:queryParams],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatContainsQueryParams params:params];
@@ -242,6 +245,7 @@ static NSString *ipAddress(NSNetService *service)
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex params:params] boolValue];
@@ -253,6 +257,7 @@ static NSString *ipAddress(NSNetService *service)
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatContainsQueryParams params:params] boolValue];

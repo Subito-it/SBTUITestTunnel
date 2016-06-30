@@ -21,9 +21,8 @@ s.frameworks = 'UIKit'
 s.subspec 'Server' do |server|
 server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
 server.dependency 'GCDWebServer', '~> 3.0'
-server.dependency 'OHHTTPStubs'
-server.dependency 'NSHash', '~> 1.0.2'
 server.dependency 'FXKeychain'
+server.dependency 'OHHTTPStubs'
 end
 
 s.subspec 'Client' do |client|

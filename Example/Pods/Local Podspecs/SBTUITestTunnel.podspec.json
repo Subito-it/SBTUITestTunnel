@@ -28,13 +28,10 @@
         "GCDWebServer": [
           "~> 3.0"
         ],
-        "OHHTTPStubs": [
+        "FXKeychain": [
 
         ],
-        "NSHash": [
-          "~> 1.0.2"
-        ],
-        "FXKeychain": [
+        "OHHTTPStubs": [
 
         ]
       }

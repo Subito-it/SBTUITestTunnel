@@ -175,8 +175,6 @@ You invoke the custom command by using the same identifier used on registration,
 Kudos to the developers of the following pods which we use in SBTUITestTunnel:
 
 * [GCDWebServer](https://github.com/swisspol/GCDWebServer)
-* [OHHTTPStubs](https://github.com/AliSoftware/OHHTTPStubs)
-* [NSHash](https://github.com/jerolimov/NSHash)
 * [FXKeychain](https://github.com/nicklockwood/FXKeychain)
 
 ## Contributions

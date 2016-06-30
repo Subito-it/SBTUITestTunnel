@@ -20,11 +20,11 @@
 #import "SBTUITestTunnel.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTProxyURLProtocol.h"
-#import <OHHTTPStubs/OHHTTPStubs.h>
+#import "SBTProxyStubResponse.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
-#import <NSHash/NSData+NSHash.h>
+#import "NSData+SHA1.h"
 #import <FXKeyChain/FXKeyChain.h>
 #import <CoreLocation/CoreLocation.h>
 
@@ -62,7 +62,6 @@ description:(desc), ##__VA_ARGS__]; \
 @interface SBTUITestTunnelServer()
 
 @property (nonatomic, strong) GCDWebServer *server;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSObject<OHHTTPStubsDescriptor> *> *activeStubs;
 @property (nonatomic, strong) NSCountedSet<NSString *> *stubsToRemoveAfterCount;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
@@ -80,7 +79,6 @@ description:(desc), ##__VA_ARGS__]; \
         if (sharedInstance == nil) {
             sharedInstance = [[SBTUITestTunnelServer alloc] init];
             sharedInstance.server = [[GCDWebServer alloc] init];
-            sharedInstance.activeStubs = [NSMutableDictionary dictionary];
             sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
             sharedInstance.monitoredRequests = [NSMutableArray array];
             sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
@@ -185,55 +183,52 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandStubPathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        // existing stub found, replacing with new one
-        NSLog(@"[UITestTunnelServer] Warning existing stub found, replacing it");
-    
-        [OHHTTPStubs removeStub:self.activeStubs[stubId]];
-    }
+    NSString *stubId = nil;
 
-    id<OHHTTPStubsDescriptor> stub = [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        if ([self validStubRequest:tunnelRequest]) {
-            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
-            NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-            
-            return [request matchesRegexPattern:regexPattern];
-        }
-        return NO;
+    if ([self validStubRequest:tunnelRequest]) {
+        NSData *regexPatternData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:regexPatternData];
+
+        SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
         
-    } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        return [self responseForStubRequest:tunnelRequest withStubId:stubId];
-    }];
+        __weak typeof(self)weakSelf = self;
+        stubId = [SBTProxyURLProtocol stubRequestsWithRegex:regexPattern stubResponse:response didStubRequest:^(NSURLRequest *request) {
+            if ([weakSelf.stubsToRemoveAfterCount containsObject:stubId]) {
+                [weakSelf.stubsToRemoveAfterCount removeObject:stubId];
+                
+                if ([weakSelf.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
+                }
+            }
+        }];
+
+    }
     
-    self.activeStubs[stubId] = stub;
     return stubId;
 }
 
 - (NSString *)commandStubPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        // existing stub found, replacing with new one
-        NSLog(@"[UITestTunnelServer] Warning existing stub found, replacing it");
+    NSString *stubId = nil;
+    
+    if ([self validStubRequest:tunnelRequest]) {
+        NSData *queriesData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:queriesData];
+
+        SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
         
-        [OHHTTPStubs removeStub:self.activeStubs[stubId]];
+        __weak typeof(self)weakSelf = self;
+        stubId = [SBTProxyURLProtocol stubRequestsWithQueryParams:queries stubResponse:response didStubRequest:^(NSURLRequest *request) {
+            if ([weakSelf.stubsToRemoveAfterCount containsObject:stubId]) {
+                [weakSelf.stubsToRemoveAfterCount removeObject:stubId];
+                
+                if ([weakSelf.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
+                }
+            }
+        }];
     }
     
-    id<OHHTTPStubsDescriptor> stub = [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        if ([self validStubRequest:tunnelRequest]) {
-            NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
-            NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-            
-            return [request matchesQueryParams:queries];
-        }
-        return NO;
-        
-    } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        return [self responseForStubRequest:tunnelRequest withStubId:stubId];
-    }];
-    
-    self.activeStubs[stubId] = stub;
     return stubId;
 }
 
@@ -274,30 +269,17 @@ description:(desc), ##__VA_ARGS__]; \
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
-    if (!self.activeStubs[stubId] || [self.stubsToRemoveAfterCount countForObject:stubId] > 0) {
+    if ([self.stubsToRemoveAfterCount countForObject:stubId] > 0) {
         return @"NO";
     }
     
-    if ([OHHTTPStubs removeStub:self.activeStubs[stubId]]) {
-        [self.activeStubs removeObjectForKey:stubId];
-    }
-    
-    return @"YES";
+    return [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId] ? @"YES" : @"NO";
 }
 
 - (NSString *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
-    NSMutableArray<NSString *> *keysToRemove = [NSMutableArray array];
-    [self.activeStubs enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<OHHTTPStubsDescriptor> stub, BOOL *stop) {
-        if ([key hasPrefix:@"stub-"]) {
-            [keysToRemove addObject:key];
-            [OHHTTPStubs removeStub:stub];
-        }
-    }];
+    [SBTProxyURLProtocol stubRequestsRemoveAll];
 
-    self.stubsToRemoveAfterCount = [NSCountedSet set];
-    [self.activeStubs removeObjectsForKeys:keysToRemove];
-    
     return @"YES";
 }
 
@@ -307,12 +289,6 @@ description:(desc), ##__VA_ARGS__]; \
 {
     NSString *reqId = nil;
 
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
-        return nil;
-    }
-    
     if ([self validMonitorRequest:tunnelRequest]) {
         NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
@@ -340,12 +316,6 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandMonitorPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = nil;
-    
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
-        return nil;
-    }
     
     if ([self validMonitorRequest:tunnelRequest]) {
         NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
@@ -437,12 +407,6 @@ description:(desc), ##__VA_ARGS__]; \
 {
     NSString *reqId = nil;
     
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
-        return nil;
-    }
-    
     if ([self validThrottleRequest:tunnelRequest]) {
         NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
@@ -457,12 +421,6 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandThrottlePathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = nil;
-    
-    NSString *stubId = [self identifierForStubRequest:tunnelRequest];
-    if (self.activeStubs[stubId]) {
-        NSLog(@"[UITestTunnelServer] Warning existing stub request found for monitor request, skipping");
-        return nil;
-    }
     
     if ([self validThrottleRequest:tunnelRequest]) {
         NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
@@ -738,21 +696,11 @@ description:(desc), ##__VA_ARGS__]; \
         return nil;
     }
     
-    return [@"stub-" stringByAppendingString:[[jsonData SHA1] base64EncodedStringWithOptions:0]];
+    return [@"stub-" stringByAppendingString:[jsonData SHA1]];
 }
 
-- (OHHTTPStubsResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest withStubId:(NSString *)stubId
+- (SBTProxyStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if ([self.stubsToRemoveAfterCount containsObject:stubId]) {
-        [self.stubsToRemoveAfterCount removeObject:stubId];
-        
-        if ([self.stubsToRemoveAfterCount countForObject:stubId] == 0) {
-            [OHHTTPStubs removeStub:self.activeStubs[stubId]]; // next time it won't fire
-            
-            [self.activeStubs removeObjectForKey:stubId];
-        }
-    }
-
     NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0];
     NSDictionary<NSString *, NSObject *> *responseDict = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
     
@@ -763,16 +711,23 @@ description:(desc), ##__VA_ARGS__]; \
         return nil;
     }
     
-    OHHTTPStubsResponse *response = [OHHTTPStubsResponse responseWithData:responseData statusCode:[tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] intValue] headers:@{@"Content-Type": @"application/json"}];
-    
+    NSUInteger responseStatusCode = [tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] intValue];
+    NSString *mimeType = tunnelRequest.parameters[SBTUITunnelStubQueryMimeTypeKey];
+    NSUInteger contentLength = responseData.length;
     NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
     
-    return [response responseTime:responseTime];
+    NSDictionary<NSString *, NSString *> *headers = @{ @"Content-Type": mimeType,
+                                                       @"Content-Length": @(contentLength).stringValue };
+    
+    SBTProxyStubResponse *response = [SBTProxyStubResponse responseWithData:responseData headers:headers statusCode:responseStatusCode responseTime:responseTime];
+    
+    return response;
 }
 
 - (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
     if (!tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] ||
+        !tunnelRequest.parameters[SBTUITunnelStubQueryMimeTypeKey] ||
         ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0] ||
         ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid stubRequest received!");

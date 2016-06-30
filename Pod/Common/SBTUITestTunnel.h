@@ -38,6 +38,7 @@ extern NSString * _Nonnull const SBTUITunnelStubQueryReturnDataKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryReturnCodeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryIterations;
 extern NSString * _Nonnull const SBTUITunnelStubQueryResponseTimeKey;
+extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
 
 extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryResponseTimeKey;
@@ -100,7 +101,7 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 
 #pragma mark - Classes
 
-@interface SBTUITunnelStartupCommand: NSObject
+@interface SBTUITunnelStartupCommand: NSObject<NSCoding>
 
 @property (nullable, nonatomic, strong) NSString *path;
 @property (nullable, nonatomic, strong) NSDictionary *headers;

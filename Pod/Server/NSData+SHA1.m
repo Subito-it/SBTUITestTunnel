@@ -1,4 +1,4 @@
-// main.m
+//  NSData+SHA1.m
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -14,12 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import UIKit;
-#import "SBTAppDelegate.h"
+// http://stackoverflow.com/a/7571583/574449
 
-int main(int argc, char *argv[])
+#import "NSData+SHA1.h"
+#import <CommonCrypto/CommonDigest.h>
+
+@implementation NSData (SHA1)
+
+- (NSString *)SHA1
 {
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([SBTAppDelegate class]));
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+    
+    CC_SHA1(self.bytes, self.length, digest);
+    
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+        [output appendFormat:@"%02x", digest[i]];
     }
+    
+    return output;
 }
+
+@end

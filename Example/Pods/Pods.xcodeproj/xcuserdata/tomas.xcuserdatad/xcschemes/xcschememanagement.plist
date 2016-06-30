@@ -14,11 +14,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>NSHash.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>OHHTTPStubs.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -47,6 +42,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>031AE354C08437F05F05A892941A0C01</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>1509DCDE89930E14534C67D2D9AB9DCA</key>
 		<dict>
 			<key>primary</key>
@@ -62,17 +62,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>49CA1719664113551E88356798B89D11</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>7880189788A66CB7DB65A3E0FEED2F26</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>C21BBB1F271BFF01027FDD3F90D25B78</key>
+		<key>442F7E93E807A7134EFB2E17C1BDA42E</key>
 		<dict>
 			<key>primary</key>
 			<true/>

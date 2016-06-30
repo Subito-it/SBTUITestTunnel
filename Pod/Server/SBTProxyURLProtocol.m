@@ -18,12 +18,14 @@
 
 #import "SBTProxyURLProtocol.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
-#import "NSString+NSHash.h"
+#import "NSData+SHA1.h"
+#import "SBTProxyStubResponse.h"
 
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
 static NSString * const SBTProxyURLProtocolRegexRuleKey = @"SBTProxyURLProtocolRegexRuleKey";
 static NSString * const SBTProxyURLProtocolQueryRuleKey = @"SBTProxyURLProtocolQueryRuleKey";
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
+static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
@@ -55,9 +57,19 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
     return sharedInstance;
 }
 
+# pragma mark - Proxying
+
 + (NSString *)proxyRequestsWithRegex:(NSString *)regexPattern delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolRegexRuleKey: regexPattern, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+            NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
+            return nil;
+        }
+    }
 
     [self.sharedInstance.matchingRules addObject:rule];
 
@@ -67,6 +79,14 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 + (NSString *)proxyRequestsWithQueryParams:(NSArray<NSString *> *)queryParams delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolQueryRuleKey: queryParams, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+            NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
+            return nil;
+        }
+    }
 
     [self.sharedInstance.matchingRules addObject:rule];
 
@@ -77,20 +97,82 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 {
     NSMutableArray *itemsToDelete = [NSMutableArray array];
     for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-        if ([[self identifierForRule:matchingRule] isEqualToString:reqId]) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
             [itemsToDelete addObject:matchingRule];
-            break;
         }
     }
 
     [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
 
-    return NO;
+    return itemsToDelete.count > 0;
 }
 
 + (void)proxyRequestsRemoveAll
 {
-    self.sharedInstance.matchingRules = [NSMutableArray array];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+            NSString *ruleIdentifier = [self identifierForRule:matchingRule];
+        }
+    }
+}
+
+#pragma mark - Stubbing
+
++ (NSString *)stubRequestsWithRegex:(NSString *)regexPattern stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
+{
+    NSDictionary *rule = @{SBTProxyURLProtocolRegexRuleKey: regexPattern, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            NSLog(@"[UITestTunnelServer] Warning existing stub request found, skipping");
+            return nil;
+        }
+    }
+    
+    [self.sharedInstance.matchingRules addObject:rule];
+    
+    return identifierToAdd;
+}
+
++ (NSString *)stubRequestsWithQueryParams:(NSArray<NSString *> *)queryParams stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
+{
+    NSDictionary *rule = @{SBTProxyURLProtocolQueryRuleKey: queryParams, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            NSLog(@"[UITestTunnelServer] Warning existing stub request found, skipping");
+            return nil;
+        }
+    }
+
+    [self.sharedInstance.matchingRules addObject:rule];
+    
+    return identifierToAdd;
+}
+
++ (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            [itemsToDelete addObject:matchingRule];
+        }
+    }
+    
+    [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    
+    return itemsToDelete.count > 0;
+}
+
++ (void)stubRequestsRemoveAll
+{
+    for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            NSString *ruleIdentifier = [self identifierForRule:matchingRule];
+        }
+    }
 }
 
 #pragma mark - NSURLProtocol
@@ -101,7 +183,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         return NO;
     }
 
-    return ([self matchingRuleForRequest:request] != nil);
+    return ([self matchingRulesForRequest:request] != nil);
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
@@ -116,15 +198,56 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 
 - (void)startLoading
 {
-    NSMutableURLRequest *newRequest = [self.request mutableCopy];
-    [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    NSDictionary *stubRule = nil;
+    for (NSDictionary *matchingRule in matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse]) {
+            NSAssert(stubRule == nil, @"Multiple stubs registered for request %@!", self.request);
+            stubRule = matchingRule;
+        }
+    }
+    
+    if (stubRule) {
+        // STUB REQUEST
+        NSInteger stubbingStatusCode = 0;
+        NSTimeInterval stubbingResponseTime = 0;
 
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    self.connection = [session dataTaskWithRequest:newRequest];
-
-    [SBTProxyURLProtocol sharedInstance].tasksTime[@(self.connection.taskIdentifier)] = [NSDate date];
-
-    [self.connection resume];
+        SBTProxyStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
+        
+        stubbingResponseTime = [stubRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+        if (stubbingResponseTime < 0) {
+            // When negative delayResponseTime is the faked response time expressed in KB/s
+            stubbingResponseTime = stubResponse.data.length / (1024 * ABS(stubbingResponseTime));
+        }
+        
+        __weak typeof(self)weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            NSString *length = [NSString stringWithFormat:@"%@", @(stubResponse.data.length)];
+            NSDictionary * headersDict = @{ @"Content-Length": length };
+            
+            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:weakSelf.request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:headersDict];
+            
+            [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [weakSelf.client URLProtocol:weakSelf didLoadData:stubResponse.data];
+            [weakSelf.client URLProtocolDidFinishLoading:weakSelf];
+        });
+#warning TODO: in realtà non ha senso così com'è attualmente.
+        return;
+    }
+    
+    BOOL shouldProxyRequest = (matchingRules.count - (stubRule != nil) > 0);
+    if (shouldProxyRequest) {
+        // PROXY REQUEST
+        NSMutableURLRequest *newRequest = [self.request mutableCopy];
+        [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
+        
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+        self.connection = [session dataTaskWithRequest:newRequest];
+        
+        [SBTProxyURLProtocol sharedInstance].tasksTime[@(self.connection.taskIdentifier)] = [NSDate date];
+        
+        [self.connection resume];
+    }
 }
 
 - (void)stopLoading
@@ -146,35 +269,37 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 {
     if (!error) {
         NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[@(task.taskIdentifier)] timeIntervalSinceNow];
-        NSDictionary *matchingRule = [SBTProxyURLProtocol matchingRuleForRequest:self.request];
+        NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
         
         NSData *responseData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
         [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
 
         __block typeof(self) weakSelf = self;
-        NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
-        if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
-            // When negative delayResponseTime is the faked response time expressed in KB/s
-            NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
-            
-            NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
-            
-            delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
-        }
         
-        NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            [weakSelf.client URLProtocolDidFinishLoading:weakSelf];
-
-            void(^block)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) = matchingRule[SBTProxyURLProtocolBlockKey];
+        for (NSDictionary *matchingRule in matchingRules) {
+            NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+            if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
+                // When negative delayResponseTime is the faked response time expressed in KB/s
+                NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
+                
+                NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
+                
+                delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
+            }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (![block isEqual:[NSNull null]] && block != nil) {
-                    block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, responseData, requestTime);
-                }
+            NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                [weakSelf.client URLProtocolDidFinishLoading:weakSelf];
+                
+                void(^block)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) = matchingRule[SBTProxyURLProtocolBlockKey];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (![block isEqual:[NSNull null]] && block != nil) {
+                        block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, responseData, requestTime);
+                    }
+                });
             });
-        });
-
+        }
     } else {
         [self.client URLProtocol:self didFailWithError:error];
     }
@@ -204,36 +329,40 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 
 #pragma mark - Helper Methods
 
-+ (NSDictionary *)matchingRuleForRequest:(NSURLRequest *)request
++ (NSArray<NSDictionary *> *)matchingRulesForRequest:(NSURLRequest *)request
 {
+    NSMutableArray *ret = [NSMutableArray array];
+    
     for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
         if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolRegexRuleKey]) {
             if ([request matchesRegexPattern:matchingRule[SBTProxyURLProtocolRegexRuleKey]]) {
-                return matchingRule;
+                [ret addObject:matchingRule];
             }
         } else if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolQueryRuleKey]) {
             if ([request matchesQueryParams:matchingRule[SBTProxyURLProtocolQueryRuleKey]]) {
-                return matchingRule;
+                [ret addObject:matchingRule];
             }
         } else {
             NSAssert(NO, @"???");
         }
     }
 
-    return nil;
+    return ret.count > 0 ? ret : nil;
 }
 
 + (NSString *)identifierForRule:(NSDictionary *)rule
 {
     NSString *identifier = nil;
     if ([rule.allKeys containsObject:SBTProxyURLProtocolRegexRuleKey]) {
-        identifier = [rule[SBTProxyURLProtocolRegexRuleKey] SHA1];
+        NSData *ruleData = [rule[SBTProxyURLProtocolRegexRuleKey] dataUsingEncoding:NSUTF8StringEncoding];
+        
+        identifier = [ruleData SHA1];
     } else if ([rule.allKeys containsObject:SBTProxyURLProtocolQueryRuleKey]) {
         NSError *error = nil;
         NSData *ruleData = [NSJSONSerialization dataWithJSONObject:rule[SBTProxyURLProtocolQueryRuleKey] options:NSJSONWritingPrettyPrinted error:&error];
         NSAssert(error == nil || !ruleData, @"???");
 
-        identifier = [[[NSString alloc] initWithData:ruleData encoding:NSUTF8StringEncoding] SHA1];
+        identifier = [ruleData SHA1];
     } else {
         NSAssert(NO, @"???");
     }

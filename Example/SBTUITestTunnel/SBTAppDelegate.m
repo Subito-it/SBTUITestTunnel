@@ -14,8 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import "SBTAppDelegate.h"
+#import "SBTUITestTunnelServer.h"
 
 @implementation SBTAppDelegate
+
++ (void)initialize
+{
+    [super initialize];
+    
+    [SBTUITestTunnelServer takeOff];
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {

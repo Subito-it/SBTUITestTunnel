@@ -1,8 +1,8 @@
 FRAMEWORK_SEARCH_PATHS = $(inherited) "$(PLATFORM_DIR)/Developer/Library/Frameworks"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/FXKeychain" "${PODS_ROOT}/Headers/Public/GCDWebServer" "${PODS_ROOT}/Headers/Public/NSHash" "${PODS_ROOT}/Headers/Public/OHHTTPStubs" "${PODS_ROOT}/Headers/Public/SBTUITestTunnel"
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/FXKeychain" "${PODS_ROOT}/Headers/Public/GCDWebServer" "${PODS_ROOT}/Headers/Public/OHHTTPStubs" "${PODS_ROOT}/Headers/Public/SBTUITestTunnel"
 LIBRARY_SEARCH_PATHS = $(inherited) "$PODS_CONFIGURATION_BUILD_DIR/SBTUITestTunnel-Client"
-OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/FXKeychain" -isystem "${PODS_ROOT}/Headers/Public/GCDWebServer" -isystem "${PODS_ROOT}/Headers/Public/NSHash" -isystem "${PODS_ROOT}/Headers/Public/OHHTTPStubs" -isystem "${PODS_ROOT}/Headers/Public/SBTUITestTunnel"
+OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/FXKeychain" -isystem "${PODS_ROOT}/Headers/Public/GCDWebServer" -isystem "${PODS_ROOT}/Headers/Public/OHHTTPStubs" -isystem "${PODS_ROOT}/Headers/Public/SBTUITestTunnel"
 OTHER_LDFLAGS = $(inherited) -ObjC -l"SBTUITestTunnel-Client" -framework "UIKit" -framework "XCTest"
 PODS_BUILD_DIR = $BUILD_DIR
 PODS_CONFIGURATION_BUILD_DIR = $PODS_BUILD_DIR/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)

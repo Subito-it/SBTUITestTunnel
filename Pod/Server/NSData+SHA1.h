@@ -1,4 +1,4 @@
-// main.m
+//  NSData+SHA1.h
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -14,12 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import UIKit;
-#import "SBTAppDelegate.h"
+// http://stackoverflow.com/a/7571583/574449
 
-int main(int argc, char *argv[])
-{
-    @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([SBTAppDelegate class]));
-    }
-}
+#import <Foundation/Foundation.h>
+
+@interface NSData (SHA1)
+
+- (NSString *)SHA1;
+
+@end
