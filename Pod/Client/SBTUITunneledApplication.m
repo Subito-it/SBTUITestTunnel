@@ -163,10 +163,21 @@ static NSString *ipAddress(NSNetService *service)
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
         self.launchArguments = launchArguments;
     }
-    
-    self.launchEnvironment = @{SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
-                               SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]};
-    
+
+    NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [[NSMutableDictionary alloc] init];
+    if (self.launchEnvironment) {
+        // Add any previously defined entries in launchEnvironment
+        [launchEnvironment addEntriesFromDictionary:self.launchEnvironment];
+    }
+
+    // Add tunnel-specific entries to launchEnvironment
+    NSDictionary<NSString *, NSString *> *tunnelLaunchEnvironment = @{
+                            SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
+                            SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]
+                            };
+    [launchEnvironment addEntriesFromDictionary:tunnelLaunchEnvironment];
+    self.launchEnvironment = [launchEnvironment copy];
+
     [self.bonjourBrowser searchForServicesOfType:@"_http._tcp" inDomain:@""];
     
     __block BOOL startupBlockCompleted = NO;
