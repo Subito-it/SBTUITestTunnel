@@ -119,6 +119,7 @@ description:(desc), ##__VA_ARGS__]; \
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         dispatch_async(weakSelf.commandDispatchQueue, ^{
+            __strong typeof(weakSelf)strongSelf = weakSelf;
             // NSLog(@"[UITestTunnelServer] received command %@", request.path);
             
             NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
@@ -128,14 +129,14 @@ description:(desc), ##__VA_ARGS__]; \
             NSString *response = nil;
             
             if (![self processCustomCommandIfNecessary:request]) {
-                if (![weakSelf respondsToSelector:commandSelector]) {
+                if (![strongSelf respondsToSelector:commandSelector]) {
                     BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
                 }
                 
-                IMP imp = [weakSelf methodForSelector:commandSelector];
+                IMP imp = [strongSelf methodForSelector:commandSelector];
                 
                 NSString * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
-                response = func(weakSelf, commandSelector, request);
+                response = func(strongSelf, commandSelector, request);
             }
                        
             ret = [GCDWebServerDataResponse responseWithJSONObject:@{ SBTUITunnelResponseResultKey: response ?: @"" }];

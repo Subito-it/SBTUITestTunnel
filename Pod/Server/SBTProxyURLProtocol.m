@@ -28,6 +28,9 @@ static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLP
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
+typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime);
+typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
+
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSessionDataTask *connection;
@@ -109,12 +112,14 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 
 + (void)proxyRequestsRemoveAll
 {
+    NSMutableArray<NSString *> *itemsToDelete = [NSMutableArray array];
     for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
-            NSString *ruleIdentifier = [self identifierForRule:matchingRule];
-            [self proxyRequestsRemoveWithId:ruleIdentifier];
+            [itemsToDelete addObject:matchingRule];
         }
     }
+    
+    [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
 }
 
 #pragma mark - Stubbing
@@ -169,12 +174,15 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 
 + (void)stubRequestsRemoveAll
 {
+    NSMutableArray<NSString *> *itemsToDelete = [NSMutableArray array];
     for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
-            NSString *ruleIdentifier = [self identifierForRule:matchingRule];
-            [self stubRequestsRemoveWithId:ruleIdentifier];
+            [itemsToDelete addObject:matchingRule];
         }
     }
+    
+    [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+
 }
 
 #pragma mark - NSURLProtocol
@@ -202,17 +210,20 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 {
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *stubRule = nil;
+    NSDictionary *proxyRule = nil;
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             NSAssert(stubRule == nil, @"Multiple stubs registered for request %@!", self.request);
             stubRule = matchingRule;
+        } else {
+            // we can have multiple matching rule here. For example if we throttle and monitor at the same time
+            proxyRule = matchingRule;
         }
     }
     
     if (stubRule) {
         // STUB REQUEST
-        
-        void(^didStubRequestBlock)(NSURLRequest *request) = stubRule[SBTProxyURLProtocolBlockKey];
+        SBTStubUpdateBlock didStubRequestBlock = stubRule[SBTProxyURLProtocolBlockKey];
         
         NSInteger stubbingStatusCode = 0;
         NSTimeInterval stubbingResponseTime = 0;
@@ -220,6 +231,11 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         SBTProxyStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
         
         stubbingResponseTime = stubResponse.responseTime;
+        if (stubbingResponseTime == 0.0 && proxyRule) {
+            // if response time is not set in stub but set in proxy
+            stubbingResponseTime = [proxyRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+        }
+
         if (stubbingResponseTime < 0) {
             // When negative delayResponseTime is the faked response time expressed in KB/s
             stubbingResponseTime = stubResponse.data.length / (1024 * ABS(stubbingResponseTime));
@@ -238,17 +254,30 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
             [strongSelf.client URLProtocol:strongSelf didLoadData:stubResponse.data];
             [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
             
+            // check if the request is also proxied, we might need to manually invoke the block here
+            if (proxyRule) {
+                for (NSDictionary *matchingRule in matchingRules) {
+                    SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^() {
+                        if (![block isEqual:[NSNull null]] && block != nil) {
+                            block(strongSelf.request, strongSelf.request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
+                        }                        
+                    });
+                }
+            }
+            
             if (![didStubRequestBlock isEqual:[NSNull null]] && didStubRequestBlock != nil) {
                 didStubRequestBlock(strongSelf.request);
             }
         });
-#warning TODO: in realtà non ha senso così com'è attualmente.
+
         return;
     }
     
     BOOL shouldProxyRequest = (matchingRules.count - (stubRule != nil) > 0);
     if (shouldProxyRequest) {
-        // PROXY REQUEST
+        // PROXY ONLY REQUEST (THROTTLE OR MONITORING)
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         
@@ -256,6 +285,7 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         self.connection = [session dataTaskWithRequest:newRequest];
         
         [SBTProxyURLProtocol sharedInstance].tasksTime[@(self.connection.taskIdentifier)] = [NSDate date];
+        [SBTProxyURLProtocol sharedInstance].tasksData[@(self.connection.taskIdentifier)] = [NSMutableData data];
         
         [self.connection resume];
     }
@@ -284,29 +314,22 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         
         NSData *responseData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
         [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
-
-        __block typeof(self) weakSelf = self;
+        
+        NSTimeInterval delayResponseTime = [self delayResponseTime];
         
         for (NSDictionary *matchingRule in matchingRules) {
-            NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
-            if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
-                // When negative delayResponseTime is the faked response time expressed in KB/s
-                NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
-                
-                NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
-                
-                delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
-            }
-            
             NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+
+            __weak typeof(self)weakSelf = self;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                [weakSelf.client URLProtocolDidFinishLoading:weakSelf];
+                __strong typeof(weakSelf)strongSelf = weakSelf;
+                [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
                 
-                void(^block)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) = matchingRule[SBTProxyURLProtocolBlockKey];
+                SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (![block isEqual:[NSNull null]] && block != nil) {
-                        block(weakSelf.request, task.originalRequest, (NSHTTPURLResponse *)weakSelf.response, responseData, requestTime);
+                        block(strongSelf.request, task.originalRequest, (NSHTTPURLResponse *)strongSelf.response, responseData, requestTime);
                     }
                 });
             });
@@ -314,17 +337,6 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
     } else {
         [self.client URLProtocol:self didFailWithError:error];
     }
-}
-
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
-{
-    [[SBTProxyURLProtocol sharedInstance].tasksData setObject:[[NSMutableData alloc] init] forKey:@(dataTask.taskIdentifier)];
-
-    self.response = response;
-
-    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-
-    completionHandler(NSURLSessionResponseAllow);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
@@ -339,6 +351,28 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
 }
 
 #pragma mark - Helper Methods
+
+- (NSTimeInterval)delayResponseTime
+{
+    NSTimeInterval retResponseTime = 0.0;
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    
+    for (NSDictionary *matchingRule in matchingRules) {
+        NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+        if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            // When negative delayResponseTime is the faked response time expressed in KB/s
+            NSHTTPURLResponse *requestResponse = self.response;
+            
+            NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
+            
+            delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
+        }
+        
+        retResponseTime = MAX(retResponseTime, delayResponseTime);
+    }
+    
+    return retResponseTime;
+}
 
 + (NSArray<NSDictionary *> *)matchingRulesForRequest:(NSURLRequest *)request
 {
@@ -378,8 +412,17 @@ static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlock
         NSAssert(NO, @"???");
     }
     
-    NSString *prefix = rule[SBTProxyURLProtocolStubResponse] ? @"stub-" : @"rec"; // prefix is useful just for debug purposes
-
+    NSString *prefix = nil;
+    if (rule[SBTProxyURLProtocolStubResponse]) {
+        prefix = @"stb-";
+    } else if ([rule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue] > 0) {
+        prefix = @"thr-";
+    } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull null]]) {
+        prefix = @"mon-";
+    }
+    
+    NSAssert(prefix, @"Prefix can't be nil!");
+    
     return [prefix stringByAppendingString:identifier];
 }
 
