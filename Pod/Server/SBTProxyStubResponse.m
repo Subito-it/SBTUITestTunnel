@@ -18,7 +18,7 @@
 
 @interface SBTProxyStubResponse()
 
-@property (nonnull, nonatomic, strong) NSString *data;
+@property (nonnull, nonatomic, strong) NSData *data;
 @property (nonnull, nonatomic, strong) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, assign) NSUInteger statusCode;
 @property (nonatomic, assign) NSTimeInterval responseTime;
@@ -60,7 +60,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"data-length: %d\nstatusCode:%d\nresponseTime: %.2f\nheaders: %@", self.data.length, self.statusCode, self.responseTime, self.headers];
+    return [NSString stringWithFormat:@"data-length: %lu\nstatusCode: %lu\nresponseTime: %.2f\nheaders: %@", (unsigned long)self.data.length, (unsigned long)self.statusCode, self.responseTime, self.headers];
 }
 
 @end

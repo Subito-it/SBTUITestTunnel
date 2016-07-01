@@ -23,7 +23,7 @@
                                         statusCode:(NSUInteger)statusCode
                                       responseTime:(NSTimeInterval)responseTime;
 
-@property (nonnull, nonatomic, strong, readonly) NSString *data;
+@property (nonnull, nonatomic, strong, readonly) NSData *data;
 @property (nonnull, nonatomic, strong, readonly) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, assign, readonly) NSUInteger statusCode;
 @property (nonatomic, assign, readonly) NSTimeInterval responseTime;
