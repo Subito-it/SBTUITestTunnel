@@ -1,5 +1,7 @@
 Use cocoapods 0.39.0 instead of 1.0.0 which is failing spec linting
 
+rm -rf ~/Library/Caches/CocoaPods/Pods/
+
 pod _0.39.0_ spec lint SBTUITestTunnel.podspec --verbose
 
 pod _0.39.0_ trunk push
