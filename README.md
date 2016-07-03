@@ -42,22 +42,28 @@ Add files in the *Server* and *Common* folder to your application's target, *Cli
 
 ### Application target
 
-Call `[SBTUITestTunnelServer takeOff]` from the application's `main` function
+Call `[SBTUITestTunnelServer takeOff]` inside the application's delegate `initialize` class method.
 
     #import "SBTAppDelegate.h"
-
     #import "SBTUITestTunnelServer.h"
 
-    int main(int argc, char *argv[])
-    {
-        [SBTUITestTunnelServer takeOff];
+    @implementation SBTAppDelegate
 
-        @autoreleasepool {
-            return UIApplicationMain(argc, argv, nil, NSStringFromClass([SBTAppDelegate class]));
-        }
+    + (void)initialize
+    {
+        [super initialize];
+
+        [SBTUITestTunnelServer takeOff];
     }
 
-**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros!
+    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+    {
+        return YES;
+    }
+
+    @end
+
+**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros, so that DEBUG does not exists in your release code!
 
 ### UI Testing target
 
@@ -82,12 +88,15 @@ At launch you can optionally provide some options and a startup block which will
 
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
 
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionAuthorizeLocation]
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]
                     startupBlock:^{
         [app setUserInterfaceAnimationsEnabled:NO];
         [app userDefaultsSetObject:@(YES) forKey:@"show_startup_warning"]
         ...
     }];
+
+`SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
+`SBTUITunneledApplicationLaunchOptionInhibitCoreLocation` will inhibit CoreLocation by conveniently swizzling some of it's startup methods. This is useful when you want to get rid from the initial authorization popups which may be tricky to handle otherwise.
 
 ### Stubbing
 
@@ -137,7 +146,7 @@ This may come handy when you need to check that specific network requests are ma
 
     [app monitorRequestsWithRegex:@"(.*)apple(.*)"];
 
-    ...  
+    ...
     // once ready flush calls and get the list of requests
 
     NSArray<SBTMonitoredNetworkRequest *> *requests = [app monitoredRequestsFlushAll];
@@ -161,7 +170,7 @@ You register a block of code that will be invoked from the test target as follow
         // [SBTUITunneledApplication performCustomCommandNamed:object:];
     }];
 
-**Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours
+**Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
 
 **Test target**
 

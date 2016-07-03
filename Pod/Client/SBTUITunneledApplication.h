@@ -42,7 +42,8 @@
  *  Valid options:
  *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
  *  SBTUITunneledApplicationLaunchOptionInhibitCoreLocation: will disable CoreLocation on app side. 
- *  This is useful when location updates are not mandatory for your application and you want to get rid from the initial authorization popups.
+ *  This is useful when you want to get rid from the initial authorization popups which may be tricky to handle otherwise.
+ *
  *  @param startupBlock Block that is executed before connection is estabilished.
  *  Useful to inject startup condition (user settings, preferences).
  *  Note: commands sent in the completionBlock will return nil
