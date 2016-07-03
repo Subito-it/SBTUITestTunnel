@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if DEBUG
+
 #import <Foundation/Foundation.h>
 
 @interface SBTProxyStubResponse: NSObject<NSCoding>
@@ -29,3 +31,5 @@
 @property (nonatomic, assign, readonly) NSTimeInterval responseTime;
 
 @end
+
+#endif

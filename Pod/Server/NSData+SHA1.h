@@ -16,6 +16,8 @@
 
 // http://stackoverflow.com/a/7571583/574449
 
+#if DEBUG
+
 #import <Foundation/Foundation.h>
 
 @interface NSData (SHA1)
@@ -23,3 +25,5 @@
 - (NSString *)SHA1;
 
 @end
+
+#endif

@@ -16,6 +16,8 @@
 
 // http://stackoverflow.com/a/7571583/574449
 
+#if DEBUG
+
 #import "NSData+SHA1.h"
 #import <CommonCrypto/CommonDigest.h>
 
@@ -37,3 +39,5 @@
 }
 
 @end
+
+#endif
