@@ -138,7 +138,7 @@ At launch you can optionally provide some options and a startup block which will
 
 There are several ways to stub network calls
 
-**Regex**
+#### Regex
 
 #### Objective-C
 
@@ -167,7 +167,7 @@ There are several ways to stub network calls
 
 ### NSUserDefaults
 
-**Set object**
+#### Set object
 
 #### Objective-C
 
@@ -177,7 +177,7 @@ There are several ways to stub network calls
 
     app.userDefaultsSetObject("test_value", forKey: "test_key");
 
-**Get object**
+#### Get object
 
 #### Objective-C
 
@@ -187,7 +187,7 @@ There are several ways to stub network calls
 
     let obj = app.userDefaultsObjectForKey("test_key")
 
-**Remove object**
+#### Remove object
 
 #### Objective-C
 
@@ -200,7 +200,7 @@ There are several ways to stub network calls
 
 ### Upload / Download items
 
-**Upload**
+#### Upload
 
 #### Objective-C
 
@@ -212,7 +212,7 @@ There are several ways to stub network calls
     let pathToFile = ... // path to file
     app.uploadItemAtPath(pathToFile, toPath: "test_file.txt", relativeTo: .DocumentDirectory)
 
-**Download**
+#### Download
 
 #### Objective-C
 
@@ -262,7 +262,7 @@ This may come handy when you need to check that specific network requests are ma
 
 You can easily add a custom block of code in the application target that can be conveniently invoked from the test target. An NSString identifies the block of code when registering and invoking it.
 
-**Application target**
+#### Application target
 
 You register a block of code that will be invoked from the test target as follows:
 
@@ -282,7 +282,7 @@ You register a block of code that will be invoked from the test target as follow
 
 **Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
 
-**Test target**
+#### Test target
 
 You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
 
