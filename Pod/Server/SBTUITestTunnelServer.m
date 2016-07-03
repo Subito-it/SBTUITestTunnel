@@ -21,6 +21,7 @@
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTProxyStubResponse.h"
+#import "CLLocationManager+Inhibit.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
@@ -676,19 +677,8 @@ description:(desc), ##__VA_ARGS__]; \
         [self commandNSUserDefaultsReset:nil];
         [self commandKeychainReset:nil];
     }
-    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionAuthorizeLocation]) {
-        // https://gist.github.com/daniel-beard/8238e12afd926a234813
-        SEL selector = NSSelectorFromString(@"setAuthorizationStatus:forBundleIdentifier:");
-        NSMethodSignature *methodSignature = [CLLocationManager methodSignatureForSelector:selector];
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-        invocation.selector = selector;
-        
-        CLAuthorizationStatus status = kCLAuthorizationStatusAuthorizedAlways;
-        NSString *identifier = [[NSBundle mainBundle] bundleIdentifier];
-        
-        [invocation setArgument:&status atIndex:2];
-        [invocation setArgument:&identifier atIndex:3];
-        [invocation invokeWithTarget:[CLLocationManager class]];
+    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
+        [CLLocationManager inhibit];
     }
 }
 

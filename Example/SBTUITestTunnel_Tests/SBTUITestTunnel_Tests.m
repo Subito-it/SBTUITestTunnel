@@ -34,7 +34,7 @@
     // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
     app = [[SBTUITunneledApplication alloc] init];
     
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionAuthorizeLocation]
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]
                     startupBlock:nil];
     
     // wait for app to start

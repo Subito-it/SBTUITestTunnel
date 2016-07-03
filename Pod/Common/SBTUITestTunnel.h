@@ -26,7 +26,7 @@ SBTUITunneltubsDownloadSpeed3GPlus,
 SBTUITunnelStubsDownloadSpeedWifi;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionResetFilesystem;
-extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionAuthorizeLocation;
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionInhibitCoreLocation;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentRemotePortKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupCommands;

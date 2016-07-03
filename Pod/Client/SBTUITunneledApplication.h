@@ -41,7 +41,8 @@
  *  @param options List of options to be passed on launch.
  *  Valid options:
  *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
- *  SBTUITunneledApplicationLaunchOptionAuthorizeLocation: automatically accept Location authorization
+ *  SBTUITunneledApplicationLaunchOptionInhibitCoreLocation: will disable CoreLocation on app side. 
+ *  This is useful when location updates are not mandatory for your application and you want to get rid from the initial authorization popups.
  *  @param startupBlock Block that is executed before connection is estabilished.
  *  Useful to inject startup condition (user settings, preferences).
  *  Note: commands sent in the completionBlock will return nil
