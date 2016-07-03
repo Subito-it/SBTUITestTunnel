@@ -42,7 +42,9 @@ Add files in the *Server* and *Common* folder to your application's target, *Cli
 
 ### Application target
 
-Call `[SBTUITestTunnelServer takeOff]` inside the application's delegate `initialize` class method.
+On the application's target call SBTUITestTunnelServer's `takeOff` method inside the application's delegate `initialize` class method.
+
+#### Objective-C
 
     #import "SBTAppDelegate.h"
     #import "SBTUITestTunnelServer.h"
@@ -51,7 +53,6 @@ Call `[SBTUITestTunnelServer takeOff]` inside the application's delegate `initia
 
     + (void)initialize {
         [super initialize];
-
         [SBTUITestTunnelServer takeOff];
     }
 
@@ -60,6 +61,25 @@ Call `[SBTUITestTunnelServer takeOff]` inside the application's delegate `initia
     }
 
     @end
+
+#### Swift
+
+    import UIKit
+    import SBTUITestTunnel
+
+    @UIApplicationMain
+    class AppDelegate: UIResponder, UIApplicationDelegate {
+        var window: UIWindow?
+
+        override class func initialize() {
+            SBTUITestTunnelServer.takeOff()
+            super.initialize()
+        }
+
+        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+            return true
+        }
+    }
 
 **Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros verifying that DEBUG is not defined in your release code!
 
@@ -79,10 +99,20 @@ At launch you can optionally provide some options and a startup block which will
 
 **Launch with no options**
 
+#### Objective-C
+
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
     [app launch];
 
+#### Swift
+
+    let app = SBTUITunneledApplication()
+    app.launch()
+
+
 **Launch with options and startupBlock**
+
+#### Objective-C
 
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
 
@@ -92,6 +122,14 @@ At launch you can optionally provide some options and a startup block which will
         [app userDefaultsSetObject:@(YES) forKey:@"show_startup_warning"]
         ...
     }];
+
+#### Swift
+
+    app = SBTUITunneledApplication()
+    app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
+        // do additional setup before the app launches
+        // i.e. prepare stub request, start monitoring requests
+    }
 
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
 - `SBTUITunneledApplicationLaunchOptionInhibitCoreLocation` will inhibit CoreLocation by conveniently swizzling some of it's startup methods. This is useful when you want to get rid from the initial authorization popups which may be tricky to handle otherwise.
