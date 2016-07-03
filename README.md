@@ -44,7 +44,7 @@ Add files in the *Server* and *Common* folder to your application's target, *Cli
 
 On the application's target call SBTUITestTunnelServer's `takeOff` method inside the application's delegate `initialize` class method.
 
-#### Objective-C
+**Objective-C**
 
     #import "SBTAppDelegate.h"
     #import "SBTUITestTunnelServer.h"
@@ -62,7 +62,7 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
 
     @end
 
-#### Swift
+**Swift**
 
     import UIKit
     import SBTUITestTunnel
@@ -97,22 +97,22 @@ Instead of using `XCUIApplication` use `SBTUITunneledApplication`.
 
 At launch you can optionally provide some options and a startup block which will be executed before the `applicationDidFinishLaunching` will be called. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
 
-**Launch with no options**
+#### Launch with no options
 
-#### Objective-C
+**Objective-C**
 
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
     [app launch];
 
-#### Swift
+**Swift**
 
     let app = SBTUITunneledApplication()
     app.launch()
 
 
-**Launch with options and startupBlock**
+#### Launch with options and startupBlock
 
-#### Objective-C
+**Objective-C**
 
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
 
@@ -123,7 +123,7 @@ At launch you can optionally provide some options and a startup block which will
         ...
     }];
 
-#### Swift
+**Swift**
 
     app = SBTUITunneledApplication()
     app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
@@ -140,7 +140,7 @@ There are several ways to stub network calls
 
 #### Regex
 
-#### Objective-C
+**Objective-C**
 
     NSString *stubId = [app stubRequestsWithRegex:@"(.*)apple(.*)"
                              returnJsonDictionary:@{@"request": @"stubbed"}
@@ -153,7 +153,7 @@ There are several ways to stub network calls
 
     [app stubRequestsRemoveAll]; // or remove all active stubs
 
-#### Swift
+**Swift**
 
     let stubId = app.stubRequestsWithRegex("(.*)apple(.*)", returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
 
@@ -169,31 +169,31 @@ There are several ways to stub network calls
 
 #### Set object
 
-#### Objective-C
+**Objective-C**
 
     [app userDefaultsSetObject:@"test_value" forKey:@"test_key"]);
 
-#### Swift
+**Swift**
 
     app.userDefaultsSetObject("test_value", forKey: "test_key");
 
 #### Get object
 
-#### Objective-C
+**Objective-C**
 
     id obj = [app userDefaultsObjectForKey:@"test_key"]
 
-#### Swift
+**Swift**
 
     let obj = app.userDefaultsObjectForKey("test_key")
 
 #### Remove object
 
-#### Objective-C
+**Objective-C**
 
     [app userDefaultsRemoveObjectForKey:@"test_key"]
 
-#### Swift
+**Swift**
 
     app.userDefaultsRemoveObjectForKey("test_key")
 
@@ -202,23 +202,23 @@ There are several ways to stub network calls
 
 #### Upload
 
-#### Objective-C
+**Objective-C**
 
     NSString *testFilePath = ... // path to file
     [app uploadItemAtPath:testFilePath toPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
 
-#### Swift
+**Swift**
 
     let pathToFile = ... // path to file
     app.uploadItemAtPath(pathToFile, toPath: "test_file.txt", relativeTo: .DocumentDirectory)
 
 #### Download
 
-#### Objective-C
+**Objective-C**
 
     NSData *uploadData = [app downloadItemFromPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
 
-#### Swift
+**Swift**
 
     let uploadData = app.downloadItemFromPath("test_file.txt", relativeTo: .DocumentDirectory)
 
@@ -226,7 +226,7 @@ There are several ways to stub network calls
 
 This may come handy when you need to check that specific network requests are made.
 
-#### Objective-C
+**Objective-C**
 
     [app monitorRequestsWithRegex:@"(.*)apple(.*)"];
 
@@ -242,7 +242,7 @@ This may come handy when you need to check that specific network requests are ma
 
     [app monitorRequestRemoveAll];
 
-#### Swift
+**Swift**
 
     app.monitorRequestsWithRegex("(.*)myserver(.*)")
 
@@ -266,14 +266,14 @@ You can easily add a custom block of code in the application target that can be 
 
 You register a block of code that will be invoked from the test target as follows:
 
-#### Objective-C
+**Objective-C**
 
     [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
         // the block of code that will be executed when the test target calls
         // [SBTUITunneledApplication performCustomCommandNamed:object:];
     }];
 
-#### Swift
+**Swift**
 
     SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandKey") {
         injectedObject in
@@ -286,11 +286,11 @@ You register a block of code that will be invoked from the test target as follow
 
 You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
 
-#### Objective-C
+**Objective-C**
 
     [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
 
-#### Swift
+**Swift**
 
     app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
 
