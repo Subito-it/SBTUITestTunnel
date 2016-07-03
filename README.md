@@ -140,6 +140,8 @@ There are several ways to stub network calls
 
 **Regex**
 
+#### Objective-C
+
     NSString *stubId = [app stubRequestsWithRegex:@"(.*)apple(.*)"
                              returnJsonDictionary:@{@"request": @"stubbed"}
                                        returnCode:200
@@ -151,47 +153,110 @@ There are several ways to stub network calls
 
     [app stubRequestsRemoveAll]; // or remove all active stubs
 
+#### Swift
+
+    let stubId = app.stubRequestsWithRegex("(.*)apple(.*)", returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
+
+    // from here on network request containing 'apple' will return a JSON {"request" : "stubbed" }
+    ...
+
+    app.stubRequestsRemoveWithId(stubId) // To remove the stub either use the identifier
+
+    app.stubRequestsRemoveAll() // or remove all active stubs
+
+
 ### NSUserDefaults
 
 **Set object**
 
+#### Objective-C
+
     [app userDefaultsSetObject:@"test_value" forKey:@"test_key"]);
+
+#### Swift
+
+    app.userDefaultsSetObject("test_value", forKey: "test_key");
 
 **Get object**
 
+#### Objective-C
+
     id obj = [app userDefaultsObjectForKey:@"test_key"]
+
+#### Swift
+
+    let obj = app.userDefaultsObjectForKey("test_key")
 
 **Remove object**
 
+#### Objective-C
+
     [app userDefaultsRemoveObjectForKey:@"test_key"]
+
+#### Swift
+
+    app.userDefaultsRemoveObjectForKey("test_key")
+
 
 ### Upload / Download items
 
 **Upload**
 
+#### Objective-C
+
     NSString *testFilePath = ... // path to file
     [app uploadItemAtPath:testFilePath toPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
 
+#### Swift
+
+    let pathToFile = ... // path to file
+    app.uploadItemAtPath(pathToFile, toPath: "test_file.txt", relativeTo: .DocumentDirectory)
+
 **Download**
 
+#### Objective-C
+
     NSData *uploadData = [app downloadItemFromPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
+
+#### Swift
+
+    let uploadData = app.downloadItemFromPath("test_file.txt", relativeTo: .DocumentDirectory)
 
 ### Network monitoring
 
 This may come handy when you need to check that specific network requests are made.
 
+#### Objective-C
+
     [app monitorRequestsWithRegex:@"(.*)apple(.*)"];
 
-    ...
-    // once ready flush calls and get the list of requests
+    // Interact with UI. Once ready flush calls and get the list of requests
 
     NSArray<SBTMonitoredNetworkRequest *> *requests = [app monitoredRequestsFlushAll];
 
     for (SBTMonitoredNetworkRequest *request in requests) {
-        // do things with the recorded requests
+        NSData *requestBody = request.request.HTTPBody; // HTTP Body in POST request?
+        NSDictionary *responseJSON = request.responseJSON;
+        NSTimeInterval requestTime = request.requestTime; // How long did the request take?
     }
 
     [app monitorRequestRemoveAll];
+
+#### Swift
+
+    app.monitorRequestsWithRegex("(.*)myserver(.*)")
+
+    // Interact with UI. Once ready flush calls and get the list of requests
+
+    let requests: [SBTMonitoredNetworkRequest] = app.monitoredRequestsFlushAll()
+
+    for request in requests {
+        let requestBody = request.request!.HTTPBody // HTTP Body in POST request?
+        let responseJSON = request.responseJSON
+        let requestTime = request.requestTime // How long did the request take?
+    }
+
+    app.monitorRequestRemoveAll()
 
 ### Custom defined blocks of code
 
@@ -201,10 +266,19 @@ You can easily add a custom block of code in the application target that can be 
 
 You register a block of code that will be invoked from the test target as follows:
 
+#### Objective-C
+
     [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
         // the block of code that will be executed when the test target calls
         // [SBTUITunneledApplication performCustomCommandNamed:object:];
     }];
+
+#### Swift
+
+    SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandKey") {
+        injectedObject in
+        // this block will be invoked from app.performCustomCommandNamed()
+    }
 
 **Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
 
@@ -212,8 +286,13 @@ You register a block of code that will be invoked from the test target as follow
 
 You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
 
+#### Objective-C
+
     [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
 
+#### Swift
+
+    app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
 
 ## Thanks
 
