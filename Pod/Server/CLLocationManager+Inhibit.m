@@ -25,8 +25,8 @@
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        SBTTestTunnelClassSwizzle(self, @selector(requestWhenInUseAuthorization), @selector(swz_inhibitClassMethod));
-        SBTTestTunnelClassSwizzle(self, @selector(requestAlwaysAuthorization), @selector(swz_inhibitClassMethod));
+        SBTTestTunnelInstanceSwizzle(self, @selector(requestWhenInUseAuthorization), @selector(swz_inhibitInstanceMethod));
+        SBTTestTunnelInstanceSwizzle(self, @selector(requestAlwaysAuthorization), @selector(swz_inhibitInstanceMethod));
         SBTTestTunnelInstanceSwizzle(self, @selector(startUpdatingLocation), @selector(swz_inhibitInstanceMethod));
         SBTTestTunnelInstanceSwizzle(self, @selector(startUpdatingHeading), @selector(swz_inhibitInstanceMethod));
         SBTTestTunnelInstanceSwizzle(self, @selector(startMonitoringSignificantLocationChanges), @selector(swz_inhibitInstanceMethod));
@@ -34,11 +34,6 @@
         SBTTestTunnelInstanceSwizzle(self, @selector(startMonitoringForRegion:), @selector(swz_inhibitInstanceMethodPar:));
         SBTTestTunnelInstanceSwizzle(self, @selector(startMonitoringForRegion:desiredAccuracy:), @selector(swz_inhibitInstanceMethodPar:par:));
     });
-}
-
-+ (void)swz_inhibitClassMethod
-{
-    return; // do nothing
 }
 
 - (void)swz_inhibitInstanceMethod
