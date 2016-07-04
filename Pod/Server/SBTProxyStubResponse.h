@@ -27,7 +27,7 @@
 
 @property (nonnull, nonatomic, strong, readonly) NSData *data;
 @property (nonnull, nonatomic, strong, readonly) NSDictionary<NSString *, NSString *> *headers;
-@property (nonatomic, assign, readonly) NSUInteger statusCode;
+@property (nonatomic, assign, readonly) NSInteger statusCode;
 @property (nonatomic, assign, readonly) NSTimeInterval responseTime;
 
 @end

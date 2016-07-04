@@ -225,12 +225,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         // STUB REQUEST
         SBTStubUpdateBlock didStubRequestBlock = stubRule[SBTProxyURLProtocolBlockKey];
         
-        NSInteger stubbingStatusCode = 0;
-        NSTimeInterval stubbingResponseTime = 0;
+        
 
         SBTProxyStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
+        NSInteger stubbingStatusCode = stubResponse.statusCode;
         
-        stubbingResponseTime = stubResponse.responseTime;
+        NSTimeInterval stubbingResponseTime = stubResponse.responseTime;
         if (stubbingResponseTime == 0.0 && proxyRule) {
             // if response time is not set in stub but set in proxy
             stubbingResponseTime = [proxyRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
@@ -246,9 +246,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
             NSString *length = [NSString stringWithFormat:@"%@", @(stubResponse.data.length)];
-            NSDictionary * headersDict = @{ @"Content-Length": length };
             
-            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:strongSelf.request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:headersDict];
+            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:strongSelf.request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
             
             [strongSelf.client URLProtocol:strongSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [strongSelf.client URLProtocol:strongSelf didLoadData:stubResponse.data];

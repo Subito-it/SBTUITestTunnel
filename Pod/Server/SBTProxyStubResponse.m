@@ -22,7 +22,7 @@
 
 @property (nonnull, nonatomic, strong) NSData *data;
 @property (nonnull, nonatomic, strong) NSDictionary<NSString *, NSString *> *headers;
-@property (nonatomic, assign) NSUInteger statusCode;
+@property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, assign) NSTimeInterval responseTime;
 
 @end
@@ -34,7 +34,7 @@
     if (self = [super init]) {
         self.data = [decoder decodeObjectForKey:@"data"];
         self.headers = [decoder decodeObjectForKey:@"headers"];
-        self.statusCode = [[decoder decodeObjectForKey:@"status_code"] unsignedIntegerValue];
+        self.statusCode = [[decoder decodeObjectForKey:@"status_code"] integerValue];
         self.responseTime = [[decoder decodeObjectForKey:@"response_time"] doubleValue];
     }
     return self;
