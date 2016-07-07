@@ -33,6 +33,8 @@ Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app
     target 'UITESTS_TARGET' do
       pod 'SBTUITestTunnel/Client'
     end
+    
+**🔥 If you’re using CocoaPods v1.0 and your UI Tests fail to start, you may need to add $(FRAMEWORK_SEARCH_PATHS) to your Runpath Search Paths in the Build Settings of the UI Test target!**
 
 ## Installation (Manual)
 
