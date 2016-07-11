@@ -422,28 +422,28 @@ static NSString *ipAddress(NSNetService *service)
 
 #pragma mark - Throttle Requests Commands
 
-- (nullable NSString *)throttleRequestsWithRegex:(nonnull NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
+- (NSString *)throttleRequestsWithRegex:(NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:regexPattern], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex params:params];
 }
 
-- (nullable NSString *)throttleRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams responseTime:(NSTimeInterval)responseTime;
+- (NSString *)throttleRequestsWithQueryParams:(NSArray<NSString *> *)queryParams responseTime:(NSTimeInterval)responseTime;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:queryParams], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathThatContainsQueryParams params:params];
 }
 
-- (BOOL)throttleRequestRemoveWithId:(nonnull NSString *)reqId;
+- (BOOL)throttleRequestRemoveWithId:(NSString *)reqId;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey:[self base64SerializeObject:reqId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleRemove params:params] boolValue];
 }
 
-- (BOOL)throttleRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
+- (BOOL)throttleRequestRemoveWithIds:(NSArray<NSString *> *)reqIds;
 {
     BOOL ret = YES;
     for (NSString *reqId in reqIds) {
@@ -565,7 +565,7 @@ static NSString *ipAddress(NSNetService *service)
 
 #pragma mark - Custom Commands
 
-- (BOOL)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject *)object
+- (BOOL)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCustomCommandKey: commandName,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};

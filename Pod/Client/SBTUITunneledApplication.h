@@ -189,7 +189,7 @@
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param regexPattern The regular expression
- *  @param returnJsonDcitionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
+ *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
