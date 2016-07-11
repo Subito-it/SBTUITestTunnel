@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
 s.name             = "SBTUITestTunnel"
-s.version          = "0.9.17"
+s.version          = "0.9.18"
 s.summary          = "Enable network mocks and more in UI Tests"
 
 s.description      = <<-DESC
 Use this library to easily setup an HTTP tunnel between our UI Tests cases and the app under test.
-The tunnel allows to inject data in order to enabale network mocking (via OHHTTPMock).
+The tunnel allows to inject data in order to enabale network mocking.
 DESC
 
 s.homepage         = "https://github.com/Subito-it/SBTUITestTunnel"
