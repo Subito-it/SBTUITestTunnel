@@ -19,6 +19,7 @@
 #import "SBTUITestTunnelServer.h"
 #import "SBTUITestTunnel.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "UITextField+DisableAutocomplete.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTProxyStubResponse.h"
 #import "CLLocationManager+Inhibit.h"
@@ -679,6 +680,10 @@ description:(desc), ##__VA_ARGS__]; \
     }
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
         [CLLocationManager inhibit];
+    }
+    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
+        [UITextField disableAutocompleteOnce];
+        
     }
 }
 

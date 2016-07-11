@@ -452,6 +452,37 @@
     XCTAssertNil([app userDefaultsObjectForKey:@"custom_command_test"]);
 }
 
+- (void)testAutocompleteEnabled {
+    NSString *text = @"Snell's Law";
+    XCUIElement *tf = app.textFields[@"textfield"];
+    [tf tap];
+    [tf typeText:text];
+    
+    NSString *tfText = tf.value;
+    
+    XCTAssert(![tfText isEqualToString:text]);
+}
+
+- (void)testAutocompleteDisabled {
+    [app terminate];
+    
+    app = [[SBTUITunneledApplication alloc] init];
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete] startupBlock:nil];
+    
+    // wait for app to start
+    [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] handler:nil];
+    [self waitForExpectationsWithTimeout:15.0 handler:nil];
+    
+    NSString *text = @"Snell's Law";
+    XCUIElement *tf = app.textFields[@"textfield"];
+    [tf tap];
+    [tf typeText:text];
+    
+    NSString *tfText = tf.value;
+    
+    XCTAssert([tfText isEqualToString:text]);
+}
+
 #pragma mark - Helper Methods
 
 - (void)afterTapping:(XCUIElement *)element assertAlertMessageEquals:(NSString *)message {

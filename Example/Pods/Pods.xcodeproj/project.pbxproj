@@ -65,6 +65,8 @@
 		B83B141ABAD4404E5D0688EF747C7E4A /* NSData+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = D9CE88E66E058D14A710E9EF491EBD31 /* NSData+SHA1.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BC45B18AE2C8CE2A17B4BBF18160C051 /* FXKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E931E0619BE68FE6BDA3D706916BBC7 /* FXKeychain.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
 		C1E72C272134C2B51E7DE51B75933B5C /* GCDWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 923B839C08A261EF2E103CE8DF788361 /* GCDWebServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C3274F9E1D32E02E006BC839 /* UITextField+DisableAutocomplete.h in Headers */ = {isa = PBXBuildFile; fileRef = C3274F9C1D32E02E006BC839 /* UITextField+DisableAutocomplete.h */; };
+		C3274F9F1D32E02E006BC839 /* UITextField+DisableAutocomplete.m in Sources */ = {isa = PBXBuildFile; fileRef = C3274F9D1D32E02E006BC839 /* UITextField+DisableAutocomplete.m */; };
 		C49ED31D5EF012707FC9DB3605753A9E /* NSString+SwiftDemangle.h in Headers */ = {isa = PBXBuildFile; fileRef = E3B36949F981DF4A49E739BFD4DF174D /* NSString+SwiftDemangle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4B8782E33D3647FA0413FF8050CCB84 /* SBTUITestTunnel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F098C7B5FD5FDBDC49A27F8E291075F /* SBTUITestTunnel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C5F68A398C7F4EE10074EC5AC7ABE407 /* SBTUITestTunnel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F098C7B5FD5FDBDC49A27F8E291075F /* SBTUITestTunnel.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -208,6 +210,8 @@
 		C152FFCD1CC23935013417BF389DD680 /* GCDWebServerMultiPartFormRequest.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GCDWebServerMultiPartFormRequest.h; path = GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.h; sourceTree = "<group>"; };
 		C226A98FF7E2371CB6D133601B20DAE8 /* Pods-SBTUITestTunnel_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-SBTUITestTunnel_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C23F59AB794CFF8095DBBEDFCF9E4AA2 /* FXKeychain.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = FXKeychain.xcconfig; sourceTree = "<group>"; };
+		C3274F9C1D32E02E006BC839 /* UITextField+DisableAutocomplete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+DisableAutocomplete.h"; sourceTree = "<group>"; };
+		C3274F9D1D32E02E006BC839 /* UITextField+DisableAutocomplete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextField+DisableAutocomplete.m"; sourceTree = "<group>"; };
 		C5F234B36021EF901D21C8EE8AA31841 /* GCDWebServerDataResponse.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerDataResponse.m; path = GCDWebServer/Responses/GCDWebServerDataResponse.m; sourceTree = "<group>"; };
 		CE7F2D53ED40D94240F8E1CE1E3E928E /* SBTProxyStubResponse.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = SBTProxyStubResponse.m; sourceTree = "<group>"; };
 		CF57ADEC50DB41E1F72DBFB6934DDCFC /* Pods-SBTUITestTunnel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-SBTUITestTunnel_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -343,6 +347,8 @@
 			children = (
 				B0F1E3AB7A9A473B3063A1DF2ED8F52D /* CLLocationManager+Inhibit.h */,
 				3AA19415D2496DB180752B3C88E4D2E8 /* CLLocationManager+Inhibit.m */,
+				C3274F9C1D32E02E006BC839 /* UITextField+DisableAutocomplete.h */,
+				C3274F9D1D32E02E006BC839 /* UITextField+DisableAutocomplete.m */,
 				D9CE88E66E058D14A710E9EF491EBD31 /* NSData+SHA1.h */,
 				73618D71C17D20F68D44ACE014A4D6BF /* NSData+SHA1.m */,
 				553B9F7CB008CB2E79A02E37FDFA0DA7 /* NSURLRequest+SBTUITestTunnelMatch.h */,
@@ -593,6 +599,7 @@
 				E63FE47F6EC400BBFA0CD20692664B58 /* SBTProxyStubResponse.h in Headers */,
 				816A59D20B63DDE1A32ADADE44CCDB6C /* SBTProxyURLProtocol.h in Headers */,
 				71AFEE0855B3A2D737B1110912E2021D /* SBTSwizzleHelpers.h in Headers */,
+				C3274F9E1D32E02E006BC839 /* UITextField+DisableAutocomplete.h in Headers */,
 				C5F68A398C7F4EE10074EC5AC7ABE407 /* SBTUITestTunnel.h in Headers */,
 				AD58A510CFD66DE6929B4F8D17BEA64A /* SBTUITestTunnelServer.h in Headers */,
 			);
@@ -834,6 +841,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3274F9F1D32E02E006BC839 /* UITextField+DisableAutocomplete.m in Sources */,
 				6DFE96771C8DDED0F2015BBFD0CF4A5C /* CLLocationManager+Inhibit.m in Sources */,
 				8EFCAC85A93B5E427642908B0EA92813 /* NSData+SHA1.m in Sources */,
 				542367397BF8695E44C10ABA975A12B1 /* NSURLRequest+HTTPBodyFix.m in Sources */,
