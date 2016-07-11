@@ -3,8 +3,8 @@ PODS:
   - GCDWebServer (3.3.2):
     - GCDWebServer/Core (= 3.3.2)
   - GCDWebServer/Core (3.3.2)
-  - SBTUITestTunnel/Client (0.9.13)
-  - SBTUITestTunnel/Server (0.9.13):
+  - SBTUITestTunnel/Client (0.9.17)
+  - SBTUITestTunnel/Server (0.9.17):
     - FXKeychain
     - GCDWebServer (~> 3.0)
 
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
   GCDWebServer: 2a375ec42839a41d7187d04e5b688d32fa5c4cd5
-  SBTUITestTunnel: d0b79659d5fcb7dd2e71518b29e62dadb2cabd46
+  SBTUITestTunnel: ba7b931c08afc8a1d677e52eefe53ce6d89b61bd
 
 PODFILE CHECKSUM: ca9c3fa8ebce0fc6d241c1e2fa6ffc7aa5551ffa
 
