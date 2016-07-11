@@ -708,7 +708,7 @@ description:(desc), ##__VA_ARGS__]; \
     NSData *responseData = nil;
     
     id responseObject = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
-    if ([responseObject isKindOfClass:[NSDictionary class]]) {
+    if ([responseObject isKindOfClass:[NSDictionary class]] || [responseObject isKindOfClass:[NSArray class]]) {
         NSError *error = nil;
         responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:&error];
         if (!responseData || error) {
