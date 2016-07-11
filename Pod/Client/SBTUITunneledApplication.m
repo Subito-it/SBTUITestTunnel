@@ -107,7 +107,7 @@ static NSString *ipAddress(NSNetService *service)
 @property (nonatomic, strong) NSNetService *remoteService;
 @property (nonatomic, strong) NSString *remoteHost;
 @property (nonatomic, assign) NSInteger remoteHostsFound;
-@property (nonnull, strong) NSMutableArray *stubOnceIds;
+@property (nonatomic, strong) NSMutableArray *stubOnceIds;
 
 @property (nonatomic, strong) dispatch_semaphore_t bonjourSemaphore;
 
