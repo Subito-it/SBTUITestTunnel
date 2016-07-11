@@ -483,6 +483,16 @@
     XCTAssert([tfText isEqualToString:text]);
 }
 
+- (void)testGenericReturnData {
+    NSString *genericReturnData = @"Hello world!";
+    
+    [app stubRequestsWithRegex:@"(.*)bing(.*)" returnData:[genericReturnData dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain" returnCode:200 responseTime:0.0];
+    
+    [app.buttons[@"https://www.bing.com/?q=retdata"] tap];
+    
+    XCTAssert([app.staticTexts[@"Hello world!"] exists]);
+}
+
 #pragma mark - Helper Methods
 
 - (void)afterTapping:(XCUIElement *)element assertAlertMessageEquals:(NSString *)message {

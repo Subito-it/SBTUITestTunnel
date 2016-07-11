@@ -216,6 +216,56 @@ static NSString *ipAddress(NSNetService *service)
 
 #pragma mark - Stub Commands
 
+- (NSString *)stubRequestsWithRegex:(NSString *)regexPattern returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatMatchesRegex params:params];
+}
+
+- (NSString *)stubRequestsWithQueryParams:(NSArray<NSString *> *)queryParams returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:queryParams],
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatContainsQueryParams params:params];
+}
+
+#pragma mark - Stub And Remove Commands
+
+- (BOOL)stubRequestsWithRegex:(NSString *)regexPattern returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex params:params] boolValue];
+}
+
+- (BOOL)stubRequestsWithQueryParams:(NSArray<NSString *> *)queryParams returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:queryParams],
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatContainsQueryParams params:params] boolValue];
+}
+
+#pragma mark - Stub Commands JSON
+
 - (NSString *)stubRequestsWithRegex:(NSString *)regexPattern returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
@@ -248,7 +298,7 @@ static NSString *ipAddress(NSNetService *service)
     return [self stubRequestsWithQueryParams:queryParams returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime];
 }
 
-#pragma mark - Stub And Remove Commands
+#pragma mark - Stub And Remove Commands JSON
 
 - (BOOL)stubRequestsWithRegex:(NSString *)regexPattern returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
 {

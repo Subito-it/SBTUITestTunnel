@@ -704,12 +704,21 @@ description:(desc), ##__VA_ARGS__]; \
 - (SBTProxyStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0];
-    NSDictionary<NSString *, NSObject *> *responseDict = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
     
-    NSError *error = nil;
-    NSData *responseData = [NSJSONSerialization dataWithJSONObject:responseDict options:NSJSONWritingPrettyPrinted error:&error];
-    if (!responseData || error) {
-        NSLog(@"[UITestTunnelServer] serialize response data");
+    NSData *responseData = nil;
+    
+    id responseObject = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
+    if ([responseObject isKindOfClass:[NSDictionary class]]) {
+        NSError *error = nil;
+        responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:&error];
+        if (!responseData || error) {
+            NSLog(@"[UITestTunnelServer] serialize response data");
+            return nil;
+        }
+    } else if ([responseObject isKindOfClass:[NSData class]]) {
+        responseData = responseObject;
+    } else {
+        NSLog(@"[UITestTunnelServer] invalid serialized object of class %@", NSStringFromClass([responseObject class]));
         return nil;
     }
     

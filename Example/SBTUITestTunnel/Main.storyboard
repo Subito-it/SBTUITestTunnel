@@ -45,20 +45,47 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="24c-lG-cmT">
+                                <rect key="frame" x="20" y="197" width="231" height="30"/>
+                                <state key="normal" title="https://www.bing.com/?q=retdata"/>
+                                <connections>
+                                    <action selector="doBingRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="2yl-JA-hmI"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jIL-ks-Hm8">
+                                <rect key="frame" x="20" y="227" width="560" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="leadingMargin" secondItem="PSK-Cl-LC4" secondAttribute="leading" id="26Y-lu-wyM"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="top" secondItem="hxn-N7-r9R" secondAttribute="bottom" constant="20" id="3pd-H5-qIR"/>
                             <constraint firstItem="fN1-x4-mFZ" firstAttribute="leading" secondItem="PEo-yp-LCA" secondAttribute="leading" id="9FC-m5-f0u"/>
+                            <constraint firstItem="Mvr-aV-6Um" firstAttribute="top" secondItem="jIL-ks-Hm8" secondAttribute="bottom" constant="10" id="LKG-Fw-doj"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="width" secondItem="hxn-N7-r9R" secondAttribute="width" id="O5v-yf-J2t"/>
+                            <constraint firstItem="24c-lG-cmT" firstAttribute="top" secondItem="PSK-Cl-LC4" secondAttribute="bottom" constant="21" id="OtZ-XO-tIP"/>
                             <constraint firstItem="PEo-yp-LCA" firstAttribute="top" secondItem="uEw-UM-LJ8" secondAttribute="bottom" id="Q34-hm-Nhd"/>
                             <constraint firstItem="hxn-N7-r9R" firstAttribute="top" secondItem="fN1-x4-mFZ" secondAttribute="bottom" constant="8" id="RNo-CS-H5d"/>
                             <constraint firstAttribute="leadingMargin" secondItem="PEo-yp-LCA" secondAttribute="leading" id="cBs-sL-hPg"/>
                             <constraint firstItem="hxn-N7-r9R" firstAttribute="leading" secondItem="fN1-x4-mFZ" secondAttribute="leading" id="flN-RQ-7nj"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="24c-lG-cmT" secondAttribute="leading" id="ngx-g3-zG6"/>
+                            <constraint firstItem="jIL-ks-Hm8" firstAttribute="top" secondItem="24c-lG-cmT" secondAttribute="bottom" id="o8t-4h-pfg"/>
                             <constraint firstItem="fN1-x4-mFZ" firstAttribute="top" secondItem="PEo-yp-LCA" secondAttribute="bottom" constant="8" id="p25-Pb-srJ"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="jIL-ks-Hm8" secondAttribute="trailing" id="sEl-Fc-9DN"/>
+                            <constraint firstItem="jIL-ks-Hm8" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" id="sh0-ax-YRt"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="LKG-Fw-doj"/>
+                            </mask>
+                        </variation>
                     </view>
+                    <connections>
+                        <outlet property="resultLabel" destination="jIL-ks-Hm8" id="KR5-ml-HnI"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tc2-Qw-aMS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

@@ -18,6 +18,7 @@
 #import "SBTUITestTunnelServer.h"
 
 @interface SBTViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *resultLabel;
 @property (nonatomic, strong) UIAlertController *alert;
 @end
 
@@ -34,6 +35,24 @@
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }];
+}
+
+- (IBAction)doBingRequestTapped:(id)sender
+{
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    NSURL *url = [NSURL URLWithString:@"https://www.bing.com/?q=retdata"];
+    
+    __block NSData *responseData = nil;
+    
+    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        responseData = data;
+        dispatch_semaphore_signal(sem);
+    }] resume];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    self.resultLabel.text = [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
 }
 
 - (IBAction)doGoogleNetRequestTapped:(id)sender
@@ -75,7 +94,6 @@
     }
     
     [self presentViewController:self.alert animated:YES completion:nil];
-    
 }
 
 @end

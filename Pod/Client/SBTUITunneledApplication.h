@@ -58,7 +58,76 @@
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param regexPattern The regular expression
- *  @param returnJsonDcitionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
+ *  @param returnData The return data to stub
+ *  @param contentType The return ContentType
+ *  @param returnCode The HTTP response code to be returned
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
+ */
+- (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+
+/**
+ *  Stub a request whose request parameters match the specified list.
+ *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
+ *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
+ *
+ *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param returnData The return data to stub
+ *  @param contentType The return ContentType
+ *  @param returnCode The HTTP response code to be returned
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
+ */
+- (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+
+#pragma mark - Stub And Remove Commands
+
+/**
+ *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
+ *
+ *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param regexPattern The regular expression
+ *  @param returnData The return data to stub
+ *  @param contentType The return ContentType
+ *  @param returnCode The HTTP response code to be returned
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *  @param iterations number of matches after which the stub will be automatically removed
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+
+/**
+ *  Stub a request whose request parameters match the specified list for a limited number of times.
+ *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
+ *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
+ *
+ *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param returnData The return data to stub
+ *  @param contentType The return ContentType
+ *  @param returnCode The HTTP response code to be returned
+ *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+
+#pragma mark - Stub Commands JSON
+
+/**
+ *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
+ *
+ *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
+ *
+ *  @param regexPattern The regular expression
+ *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
@@ -112,7 +181,7 @@
  */
 - (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
-#pragma mark - Stub And Remove Commands
+#pragma mark - Stub And Remove Commands JSON
 
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
