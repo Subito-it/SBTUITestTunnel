@@ -303,7 +303,6 @@ description:(desc), ##__VA_ARGS__]; \
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
         reqId = [SBTProxyURLProtocol proxyRequestsWithRegex:regexPattern delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
-            NSAssert([NSThread isMainThread], @"Should be main thread"); // synchronize using main thread
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
             monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
@@ -331,7 +330,6 @@ description:(desc), ##__VA_ARGS__]; \
         NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
         
         reqId = [SBTProxyURLProtocol proxyRequestsWithQueryParams:queries delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
-            NSAssert([NSThread isMainThread], @"Should be main thread"); // synchronize using main thread
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
             monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
@@ -615,7 +613,7 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_async(self.commandDispatchQueue, ^{
-         [self.server stop];
+        [self.server stop];
     });
     
     return @"YES";
