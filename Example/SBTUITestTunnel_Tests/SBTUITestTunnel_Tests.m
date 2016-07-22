@@ -458,9 +458,11 @@
     [tf tap];
     [tf typeText:text];
     
+    [NSThread sleepForTimeInterval:1.0];
+    
     NSString *tfText = tf.value;
     
-    XCTAssert(![tfText isEqualToString:text]);
+    XCTAssertNotEqual(tfText, text);
 }
 
 - (void)testAutocompleteDisabled {
