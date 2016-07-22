@@ -290,7 +290,7 @@
     [app.buttons[@"https://www.google.com/?q=tennis"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"Got %.2f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
@@ -307,7 +307,7 @@
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"Got %.2f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
