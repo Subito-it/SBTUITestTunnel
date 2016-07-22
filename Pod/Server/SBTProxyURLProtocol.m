@@ -365,6 +365,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     completionHandler(mRequest);
 }
 
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
+{
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+    
+    completionHandler(NSURLSessionResponseAllow);
+}
+
 #pragma mark - Helper Methods
 
 - (NSTimeInterval)delayResponseTime
