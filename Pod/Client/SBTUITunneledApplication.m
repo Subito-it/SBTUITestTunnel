@@ -26,78 +26,6 @@ const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
 
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
-// it would have been more elegant to add a category on NSNetService, however Xcode 7.3 doesn't allow to do so
-static NSString *localIpAddress(void)
-{
-    NSString *address = nil;
-    struct ifaddrs *interfaces = NULL;
-    struct ifaddrs *temp_addr = NULL;
-    int success = 0;
-    // retrieve the current interfaces - returns 0 on success
-    success = getifaddrs(&interfaces);
-    if (success == 0) {
-        // Loop through linked list of interfaces
-        temp_addr = interfaces;
-        while (temp_addr != NULL) {
-            if (temp_addr->ifa_addr->sa_family == AF_INET) {
-                // Check if interface is en0 which is the wifi connection on the iPhone
-                if ([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"]) {
-                    // Get NSString from C String
-                    address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
-                }
-            }
-            
-            temp_addr = temp_addr->ifa_next;
-        }
-    }
-    // Free memory
-    freeifaddrs(interfaces);
-    
-    return address;
-}
-
-static NSString *ipAddress(NSNetService *service)
-{
-    char addressBuffer[INET6_ADDRSTRLEN];
-    
-    for (NSData *data in service.addresses) {
-        memset(addressBuffer, 0, INET6_ADDRSTRLEN);
-        
-        typedef union {
-            struct sockaddr sa;
-            struct sockaddr_in ipv4;
-            struct sockaddr_in6 ipv6;
-        } ip_socket_address;
-        
-        ip_socket_address *socketAddress = (ip_socket_address *)[data bytes];
-        
-        if (socketAddress && (socketAddress->sa.sa_family == AF_INET || socketAddress->sa.sa_family == AF_INET6)) {
-            const char *addressStr = inet_ntop(
-                                               socketAddress->sa.sa_family,
-                                               (socketAddress->sa.sa_family == AF_INET ? (void *)&(socketAddress->ipv4.sin_addr) : (void *)&(socketAddress->ipv6.sin6_addr)),
-                                               addressBuffer,
-                                               sizeof(addressBuffer));
-            
-            int port = ntohs(socketAddress->sa.sa_family == AF_INET ? socketAddress->ipv4.sin_port : socketAddress->ipv6.sin6_port);
-            
-            if (addressStr && port) {
-                // further workaround for http://www.openradar.me/23048120
-                NSString *localAddress = localIpAddress();
-                NSString *remoteAddress = [NSString stringWithCString:addressStr encoding:NSUTF8StringEncoding];
-
-                NSString *validAddressRegex = @"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
-                NSPredicate *validAddressPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", validAddressRegex];
-
-                if ([validAddressPredicate evaluateWithObject:remoteAddress]) {
-                    return [localAddress isEqualToString:remoteAddress] ? @"127.0.0.1" : remoteAddress;
-                }
-            }
-        }
-    }
-    
-    return nil;
-}
-
 @interface SBTUITunneledApplication() <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
 
 @property (nonatomic, strong) NSNetServiceBrowser *bonjourBrowser;
@@ -192,6 +120,10 @@ static NSString *ipAddress(NSNetService *service)
         });
         
         dispatch_semaphore_wait(self.bonjourSemaphore, DISPATCH_TIME_FOREVER);
+        
+        [self.bonjourBrowser stop];
+        
+        NSLog(@"STOPPING BONJOUR!");
         
         if (startupBlock) {
             startupBlock(); // this will eventually add some commands in the startup command queue
@@ -584,29 +516,20 @@ static NSString *ipAddress(NSNetService *service)
 
 #pragma mark - Bonjour Delegates
 
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
-{
-    if (ipAddress(sender).length > 0 && sender.port > 0) {
-        // for some reasons using hostname to contact the server during startupBlock doesn't work
-        // we'll instead use the plain IP address which kinda works :-/
-        self.remoteHost = ipAddress(sender);
-        self.remotePort = sender.port;
-        
-        dispatch_semaphore_signal(self.bonjourSemaphore);
-    } else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.remoteService resolveWithTimeout:15.0];
-        });
-    }
-}
-
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing
 {
     if ([service.name isEqualToString:self.bonjourName] && !self.remoteService) {
+        NSLog(@"[UITestTunnelApplication] found service %@, expecting %@. Remote Service %d", service.name, self.bonjourName, self.remoteService);
+              
         self.remoteService = service;
         self.remoteService.delegate = self;
-        [self.remoteService resolveWithTimeout:15.0];
+        
+        self.remoteHost = @"127.0.0.1";
+        self.remotePort = SBTUITunneledApplicationDefaultPort;
+        
         self.remoteHostsFound++;
+        
+        dispatch_semaphore_signal(self.bonjourSemaphore);
     }
 }
 
