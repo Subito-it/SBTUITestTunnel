@@ -258,7 +258,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
             NSString *length = [NSString stringWithFormat:@"%@", @(stubResponse.data.length)];
@@ -273,11 +273,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             if (proxyRule) {
                 for (NSDictionary *matchingRule in matchingRules) {
                     SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
-
+                    
                     if (![block isEqual:[NSNull null]] && block != nil) {
-                        dispatch_async(dispatch_get_main_queue(), ^() {
-                            block(strongSelf.request, strongSelf.request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
-                        });
+                        block(strongSelf.request, strongSelf.request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
                     }
                 }
             }
@@ -336,7 +334,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
             
             __weak typeof(self)weakSelf = self;
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 __strong typeof(weakSelf)strongSelf = weakSelf;
                 
                 [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
@@ -344,10 +342,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    dispatch_async(dispatch_get_main_queue(), ^() {
-                        block(strongSelf.request, task.originalRequest, strongSelf.response, responseData, requestTime);
-                    });
-                }                
+                    block(strongSelf.request, task.originalRequest, strongSelf.response, responseData, requestTime);
+                }
             });
         }
     } else {
