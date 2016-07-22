@@ -273,12 +273,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             if (proxyRule) {
                 for (NSDictionary *matchingRule in matchingRules) {
                     SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^() {
-                        if (![block isEqual:[NSNull null]] && block != nil) {
+
+                    if (![block isEqual:[NSNull null]] && block != nil) {
+                        dispatch_async(dispatch_get_main_queue(), ^() {
                             block(strongSelf.request, strongSelf.request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
-                        }
-                    });
+                        });
+                    }
                 }
             }
             
@@ -338,15 +338,16 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             __weak typeof(self)weakSelf = self;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 __strong typeof(weakSelf)strongSelf = weakSelf;
+                
                 [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
                 
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (![block isEqual:[NSNull null]] && block != nil) {
-                        block(strongSelf.request, task.originalRequest, (NSHTTPURLResponse *)strongSelf.response, responseData, requestTime);
-                    }
-                });
+                if (![block isEqual:[NSNull null]] && block != nil) {
+                    dispatch_async(dispatch_get_main_queue(), ^() {
+                        block(strongSelf.request, task.originalRequest, strongSelf.response, responseData, requestTime);
+                    });
+                }                
             });
         }
     } else {
