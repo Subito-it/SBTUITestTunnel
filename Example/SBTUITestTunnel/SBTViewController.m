@@ -39,20 +39,24 @@
 
 - (IBAction)doBingRequestTapped:(id)sender
 {
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    NSURL *url = [NSURL URLWithString:@"https://www.bing.com/?q=retdata"];
+        NSURL *url = [NSURL URLWithString:@"https://www.bing.com/?q=retdata"];
+        
+        __block NSData *responseData = nil;    
     
-    __block NSData *responseData = nil;
-    
-    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        responseData = data;
-        dispatch_semaphore_signal(sem);
-    }] resume];
-    
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-    
-    self.resultLabel.text = [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
+        [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            responseData = data;
+            dispatch_semaphore_signal(sem);
+        }] resume];
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^() {
+            self.resultLabel.text = [[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
+        });
+    });
 }
 
 - (IBAction)doGoogleNetRequestTapped:(id)sender
@@ -72,28 +76,32 @@
 
 - (void)requestURLAndShowAlertView:(NSString *)urlString
 {
-    NSURL *url = [NSURL URLWithString:urlString];
-    
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    
-    __block NSData *responseData = nil;
-    
-    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        responseData = data;
-        dispatch_semaphore_signal(sem);
-    }] resume];
-    
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-    
-    id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
-    
-    if ([object[@"request"] isEqualToString:@"stubbed"])  {
-        self.alert.message = @"Stubbed";
-    } else {
-        self.alert.message = @"Not Stubbed";
-    }
-    
-    [self presentViewController:self.alert animated:YES completion:nil];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+        NSURL *url = [NSURL URLWithString:urlString];
+        
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        
+        __block NSData *responseData = nil;
+        
+        [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            responseData = data;
+            dispatch_semaphore_signal(sem);
+        }] resume];
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        
+        id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
+        
+        if ([object[@"request"] isEqualToString:@"stubbed"])  {
+            self.alert.message = @"Stubbed";
+        } else {
+            self.alert.message = @"Not Stubbed";
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^() {
+            [self presentViewController:self.alert animated:YES completion:nil];
+        });
+    });
 }
 
 @end
