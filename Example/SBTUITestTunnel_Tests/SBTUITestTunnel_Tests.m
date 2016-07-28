@@ -34,7 +34,7 @@
     // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
     app = [[SBTUITunneledApplication alloc] init];
     
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem]
                     startupBlock:nil];
     
     // wait for app to start
@@ -492,7 +492,7 @@
     [app terminate];
     
     app = [[SBTUITunneledApplication alloc] init];
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete] startupBlock:nil];
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete] startupBlock:nil];
     
     // wait for app to start
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] handler:nil];

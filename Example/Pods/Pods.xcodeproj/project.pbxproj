@@ -8,12 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		06E38092082F4DE2E78E5484355DE4F0 /* GCDWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A9F732CA81729314E2DABFFFF174F47 /* GCDWebServer.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
-		09E4EB2C1C0A8B606134C54E7D118959 /* CLLocationManager+Inhibit.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DF66A682E8E9FB749793460B63C5EB9 /* CLLocationManager+Inhibit.m */; };
 		0BDAA3DEC34A43A3D880CC0AB86A83B0 /* SBTUITunneledApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EFD9D441B12388DA3AF0D0D45973D2C /* SBTUITunneledApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DBC0974F2F75FFB016F355C7D649612 /* GCDWebServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 394725711D436CA04CE3FFE48064CB9A /* GCDWebServerResponse.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
 		0E9B1DF9347FDF8021D7E3F208897893 /* FXKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = C0A40383C847A023B4D2BC55AA16A57C /* FXKeychain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0EE070B5333BA1C1874049E03E2B9A21 /* NSURLSession+HTTPBodyFix.h in Headers */ = {isa = PBXBuildFile; fileRef = B90672A7B503D5E7ED483A28B90AF047 /* NSURLSession+HTTPBodyFix.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		10A42578243DC8C3AF5D5705431FFD2B /* CLLocationManager+Inhibit.h in Headers */ = {isa = PBXBuildFile; fileRef = 38466A0B896BC31C27BE8F05C6C4EAF2 /* CLLocationManager+Inhibit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		155ACA27B4858EA8352BBE5CEA30F915 /* NSString+SwiftDemangle.m in Sources */ = {isa = PBXBuildFile; fileRef = 860AC141B3CF22D01C4F622A1937AE22 /* NSString+SwiftDemangle.m */; };
 		17241C495E9AA8BC12079D3DEA83C214 /* GCDWebServerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 305E938707988DA231233A89C9BDD851 /* GCDWebServerFunctions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1854E7745E7D1FF11345A2DA0FBA05A6 /* NSData+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = A202CFB799D9191637573B89297D24A5 /* NSData+SHA1.m */; };
@@ -157,7 +155,6 @@
 		321EBA2580BABBC90858FD3DF3DB3C9F /* SBTProxyURLProtocol.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = SBTProxyURLProtocol.m; sourceTree = "<group>"; };
 		346552845F3EF3486B2E4F6C7D5D919D /* SBTUITestTunnel-Server-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "SBTUITestTunnel-Server-prefix.pch"; path = "../SBTUITestTunnel-Server/SBTUITestTunnel-Server-prefix.pch"; sourceTree = "<group>"; };
 		3737A32D8091BD30FF38677FB36C208C /* SBTUITestTunnel-Client-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SBTUITestTunnel-Client-dummy.m"; sourceTree = "<group>"; };
-		38466A0B896BC31C27BE8F05C6C4EAF2 /* CLLocationManager+Inhibit.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "CLLocationManager+Inhibit.h"; sourceTree = "<group>"; };
 		394725711D436CA04CE3FFE48064CB9A /* GCDWebServerResponse.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerResponse.m; path = GCDWebServer/Core/GCDWebServerResponse.m; sourceTree = "<group>"; };
 		3A931000BBC1CF8E20EB965892123085 /* GCDWebServerFunctions.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerFunctions.m; path = GCDWebServer/Core/GCDWebServerFunctions.m; sourceTree = "<group>"; };
 		3A9F732CA81729314E2DABFFFF174F47 /* GCDWebServer.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServer.m; path = GCDWebServer/Core/GCDWebServer.m; sourceTree = "<group>"; };
@@ -184,7 +181,6 @@
 		88C864BCD37EFDCB769E3AEB2967C537 /* libPods-SBTUITestTunnel_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SBTUITestTunnel_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		89F2E6C1FC91B556B3A4529E32EBFD1D /* GCDWebServerRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerRequest.m; path = GCDWebServer/Core/GCDWebServerRequest.m; sourceTree = "<group>"; };
 		8D8A4934B4AC13349DAF4EFB02713EAF /* Pods-SBTUITestTunnel_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SBTUITestTunnel_Tests-resources.sh"; sourceTree = "<group>"; };
-		8DF66A682E8E9FB749793460B63C5EB9 /* CLLocationManager+Inhibit.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "CLLocationManager+Inhibit.m"; sourceTree = "<group>"; };
 		8E931E0619BE68FE6BDA3D706916BBC7 /* FXKeychain.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = FXKeychain.m; path = FXKeychain/FXKeychain.m; sourceTree = "<group>"; };
 		9131BD7988263FD8AC39C1EFB3E129CB /* GCDWebServerHTTPStatusCodes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GCDWebServerHTTPStatusCodes.h; path = GCDWebServer/Core/GCDWebServerHTTPStatusCodes.h; sourceTree = "<group>"; };
 		923B839C08A261EF2E103CE8DF788361 /* GCDWebServer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GCDWebServer.h; path = GCDWebServer/Core/GCDWebServer.h; sourceTree = "<group>"; };
@@ -326,8 +322,6 @@
 		1829DF255CB5CC9DDC346E32D5E308A4 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				38466A0B896BC31C27BE8F05C6C4EAF2 /* CLLocationManager+Inhibit.h */,
-				8DF66A682E8E9FB749793460B63C5EB9 /* CLLocationManager+Inhibit.m */,
 				2DBE0FFFE0CD3D0C7F896DA974D85B97 /* NSData+SHA1.h */,
 				A202CFB799D9191637573B89297D24A5 /* NSData+SHA1.m */,
 				ACF930F4B9DA1D11EA1F80A3196DAB69 /* NSURLRequest+SBTUITestTunnelMatch.h */,
@@ -598,7 +592,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10A42578243DC8C3AF5D5705431FFD2B /* CLLocationManager+Inhibit.h in Headers */,
 				77E55DC8D3F23308FC12610DA60372A2 /* NSData+SHA1.h in Headers */,
 				A79289DB3470C92C2997249082B6BCB1 /* NSURLRequest+HTTPBodyFix.h in Headers */,
 				4FD18575A60C38886103063A668575E5 /* NSURLRequest+SBTUITestTunnelMatch.h in Headers */,
@@ -850,7 +843,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				09E4EB2C1C0A8B606134C54E7D118959 /* CLLocationManager+Inhibit.m in Sources */,
 				1854E7745E7D1FF11345A2DA0FBA05A6 /* NSData+SHA1.m in Sources */,
 				7D64A06521D93BC5E8744FD15A50CAD0 /* NSURLRequest+HTTPBodyFix.m in Sources */,
 				70CE11D1A72100126660FE52AD83AA9D /* NSURLRequest+SBTUITestTunnelMatch.m in Sources */,

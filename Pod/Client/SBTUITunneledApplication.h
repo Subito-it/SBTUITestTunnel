@@ -41,8 +41,7 @@
  *  @param options List of options to be passed on launch.
  *  Valid options:
  *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
- *  SBTUITunneledApplicationLaunchOptionInhibitCoreLocation: will disable CoreLocation on app side. 
- *  This is useful when you want to get rid from the initial authorization popups which may be tricky to handle otherwise.
+ *  SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
  *
  *  @param startupBlock Block that is executed before connection is estabilished.
  *  Useful to inject startup condition (user settings, preferences).

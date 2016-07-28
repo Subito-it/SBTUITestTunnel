@@ -680,9 +680,6 @@ description:(desc), ##__VA_ARGS__]; \
         [self commandNSUserDefaultsReset:nil];
         [self commandKeychainReset:nil];
     }
-    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
-        [CLLocationManager inhibit];
-    }
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
         

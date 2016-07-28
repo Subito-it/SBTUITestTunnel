@@ -118,7 +118,7 @@ At launch you can optionally provide some options and a startup block which will
 
     SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
 
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]
+    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem]
                     startupBlock:^{
         [app setUserInterfaceAnimationsEnabled:NO];
         [app userDefaultsSetObject:@(YES) forKey:@"show_startup_warning"]
@@ -128,13 +128,12 @@ At launch you can optionally provide some options and a startup block which will
 **Swift**
 
     app = SBTUITunneledApplication()
-    app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionInhibitCoreLocation]) {
+    app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
         // do additional setup before the app launches
         // i.e. prepare stub request, start monitoring requests
     }
 
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
-- `SBTUITunneledApplicationLaunchOptionInhibitCoreLocation` will inhibit CoreLocation by conveniently swizzling some of it's startup methods. This is useful when you want to get rid from the initial authorization popups which may be tricky to handle otherwise.
 - `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
 
 ### Stubbing
