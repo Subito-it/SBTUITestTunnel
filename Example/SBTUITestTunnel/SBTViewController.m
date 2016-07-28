@@ -31,9 +31,17 @@
     self.alert = [UIAlertController alertControllerWithTitle:@"Result" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     [self.alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
     
-    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
         [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        return nil;
+    }];
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturn123" block:^NSObject *(NSObject *object) {
+        [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        return @"123";
     }];
 }
 

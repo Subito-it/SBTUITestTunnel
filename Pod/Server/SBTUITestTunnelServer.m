@@ -130,7 +130,7 @@ description:(desc), ##__VA_ARGS__]; \
             SEL commandSelector = NSSelectorFromString(commandString);
             NSString *response = nil;
             
-            if (![self processCustomCommandIfNecessary:request]) {
+            if (![self processCustomCommandIfNecessary:request returnObject:&response]) {
                 if (![strongSelf respondsToSelector:commandSelector]) {
                     BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
                 }
@@ -160,18 +160,22 @@ description:(desc), ##__VA_ARGS__]; \
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
 
-- (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request
+- (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request returnObject:(NSObject **)returnObject
 {
     NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
     
     if ([command isEqualToString:SBTUITunneledApplicationCommandCustom]) {
         NSString *customCommandName = request.parameters[SBTUITunnelCustomCommandKey];
         NSData *objData = [[NSData alloc] initWithBase64EncodedString:request.parameters[SBTUITunnelObjectKey] options:0];
-        NSObject *obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
+        NSObject *inObj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
         
-        void(^block)(NSObject *) = [[SBTUITestTunnelServer customCommands] objectForKey:customCommandName];
+        NSObject *(^block)(NSObject *) = [[SBTUITestTunnelServer customCommands] objectForKey:customCommandName];
         if (block) {
-            block(obj);
+            NSObject *outObject = block(inObj);
+            
+            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:outObject];
+            
+            *returnObject = data ? [data base64EncodedStringWithOptions:0] : nil;
             
             return YES;
         }
@@ -639,7 +643,7 @@ description:(desc), ##__VA_ARGS__]; \
     return customCommandsDict;
 }
 
-+ (void)registerCustomCommandNamed:(NSString *)commandName block:(void (^)(NSObject *object))block;
++ (void)registerCustomCommandNamed:(NSString *)commandName block:(NSObject *(^)(NSObject *object))block
 {
     if ([self respondsToSelector:NSSelectorFromString([commandName stringByAppendingString:@":"])]) {
         NSAssert(NO, @"Command name already taken");

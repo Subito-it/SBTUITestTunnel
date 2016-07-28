@@ -497,12 +497,20 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Custom Commands
 
-- (BOOL)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object
+- (id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCustomCommandKey: commandName,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCustom params:params] boolValue];
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCustom params:params];
+    
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+    }
+    
+    return nil;
 }
 
 #pragma mark - Other Commands

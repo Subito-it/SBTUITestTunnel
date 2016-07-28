@@ -98,7 +98,7 @@
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -115,7 +115,7 @@
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -194,7 +194,7 @@
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -210,7 +210,7 @@
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -224,7 +224,7 @@
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -240,7 +240,7 @@
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
@@ -251,7 +251,7 @@
  *
  *  @param stubId The identifier that was returned when adding the stub
  *
- *  @return `YES` on success. If `NO` the specified identifier wasn't associated to an active stub or request failed
+ *  @return `YES` on success If `NO` the specified identifier wasn't associated to an active stub or request failed
  */
 - (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId;
 
@@ -260,14 +260,14 @@
  *
  *  @param stubIds The identifiers that were returned when adding the stub
  *
- *  @return `YES` on success. If `NO` one of the specified identifier were not associated to an active stub or request failed
+ *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active stub or request failed
  */
 - (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds;
 
 /**
  *  Remove all active stubs
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)stubRequestsRemoveAll;
 
@@ -320,7 +320,7 @@
  *
  *  @param reqId The identifier that was returned when adding the monitor request
  *
- *  @return `YES` on success. If `NO` one of the specified identifier was not associated to an active monitor request or request failed
+ *  @return `YES` on success If `NO` one of the specified identifier was not associated to an active monitor request or request failed
  */
 - (BOOL)monitorRequestRemoveWithId:(nonnull NSString *)reqId;
 
@@ -329,14 +329,14 @@
  *
  *  @param reqIds The identifiers that were returned when adding the monitor requests
  *
- *  @return `YES` on success. If `NO` one of the specified identifier were not associated to an active monitor request or request failed
+ *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active monitor request or request failed
  */
 - (BOOL)monitorRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 
 /**
  *  Remove all active request monitors
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)monitorRequestRemoveAll;
 
@@ -377,7 +377,7 @@
  *
  *  @param reqId The identifier that was returned when adding the throttle request
  *
- *  @return `YES` on success. If `NO` one of the specified identifier was not associated to an active throttle request or request failed
+ *  @return `YES` on success If `NO` one of the specified identifier was not associated to an active throttle request or request failed
  */
 - (BOOL)throttleRequestRemoveWithId:(nonnull NSString *)reqId;
 
@@ -386,14 +386,14 @@
  *
  *  @param reqIds The identifiers that were returned when adding the throttle requests
  *
- *  @return `YES` on success. If `NO` one of the specified identifier were not associated to an active throttle request or request failed
+ *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active throttle request or request failed
  */
 - (BOOL)throttleRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 
 /**
  *  Remove all active request throttles
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)throttleRequestRemoveAll;
 
@@ -405,7 +405,7 @@
  *  @param object Object to be added
  *  @param key Key associated to object
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)userDefaultsSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
 
@@ -415,7 +415,7 @@
  *  @param object Object to be added
  *  @param key Key associated to object
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)userDefaultsRemoveObjectForKey:(nonnull NSString *)key;
 
@@ -431,7 +431,7 @@
 /**
  *  Reset NSUserDefaults
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)userDefaultsReset;
 
@@ -443,7 +443,7 @@
  *  @param object Object to be added
  *  @param key Key associated to object
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)keychainSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
 
@@ -452,7 +452,7 @@
  *
  *  @param key Key associated to object
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)keychainRemoveObjectForKey:(nonnull NSString *)key;
 
@@ -468,7 +468,7 @@
 /**
  *  Reset Keychain
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)keychainReset;
 
@@ -481,7 +481,7 @@
  *  @param destPath destination path relative to baseFolder
  *  @param baseFolder base folder for destPath
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)uploadItemAtPath:(nonnull NSString *)srcPath toPath:(nullable NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder;
 
@@ -504,9 +504,9 @@
  *  @param commandName custom name that will match [SBTUITestTunnelServer registerCustomCommandNamed:block:]
  *  @param data optional data to be attached to request
  *
- *  @return `YES` on success.
+ *  @return object returned from custom block
  */
-- (BOOL)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject<NSCoding> *)object;
+- (id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object;
 
 #pragma mark - Other Commands
 
@@ -515,7 +515,7 @@
  *
  *  @param enabled enable animations
  *
- *  @return `YES` on success.
+ *  @return `YES` on success
  */
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled;
 

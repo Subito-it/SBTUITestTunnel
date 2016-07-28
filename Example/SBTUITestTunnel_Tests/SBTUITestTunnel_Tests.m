@@ -180,7 +180,7 @@
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"got %f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
@@ -290,7 +290,7 @@
     [app.buttons[@"https://www.google.com/?q=tennis"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"Got %.2f", delta - responseTime);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 3.0, @"Got %.2f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
@@ -307,7 +307,7 @@
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"Got %.2f", delta - responseTime);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 3.0, @"Got %.2f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
@@ -347,7 +347,7 @@
     [app.buttons[@"https://www.google.com/?q=tennis"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 3.0);
     
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
@@ -389,7 +389,7 @@
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"got %f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     
     NSArray<SBTMonitoredNetworkRequest *> *requestsMonitored = [app monitoredRequestsFlushAll];
@@ -431,7 +431,7 @@
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"got %f", delta - responseTime);
     
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
@@ -440,16 +440,39 @@
 }
 
 - (void)testCustomCommand {
-    NSString *rndString = [NSString stringWithFormat:@"%f", CFAbsoluteTimeGetCurrent()];
-    [app performCustomCommandNamed:@"myCustomCommand" object:rndString];
+    NSString *rndString;
+    id retObj;
+    NSString *rndStringRemote;
     
-    NSString *rndStringRemote = [app userDefaultsObjectForKey:@"custom_command_test"];
+    rndString = [NSString stringWithFormat:@"%f", CFAbsoluteTimeGetCurrent()];
+    
+    retObj = [app performCustomCommandNamed:@"myCustomCommandReturnNil" object:rndString];
+    
+    rndStringRemote = [app userDefaultsObjectForKey:@"custom_command_test"];
     
     XCTAssertEqualObjects(rndString, rndStringRemote);
+    XCTAssertNil(retObj);
     
-    [app performCustomCommandNamed:@"myCustomCommand" object:nil];
+    retObj = [app performCustomCommandNamed:@"myCustomCommandReturnNil" object:nil];
     
     XCTAssertNil([app userDefaultsObjectForKey:@"custom_command_test"]);
+    XCTAssertNil(retObj);
+    
+    // test return value @"123"
+    
+    rndString = [NSString stringWithFormat:@"%f", CFAbsoluteTimeGetCurrent()];
+    
+    retObj = [app performCustomCommandNamed:@"myCustomCommandReturn123" object:rndString];
+    
+    rndStringRemote = [app userDefaultsObjectForKey:@"custom_command_test"];
+    
+    XCTAssertEqualObjects(rndString, rndStringRemote);
+    XCTAssertEqualObjects(retObj, @"123");
+    
+    retObj = [app performCustomCommandNamed:@"myCustomCommandReturn123" object:nil];
+    
+    XCTAssertNil([app userDefaultsObjectForKey:@"custom_command_test"]);
+    XCTAssertEqualObjects(retObj, @"123");
 }
 
 - (void)testAutocompleteEnabled {

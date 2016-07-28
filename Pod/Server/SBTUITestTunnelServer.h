@@ -31,7 +31,7 @@
  *  @param commandName that will match [SBTUITunneledApplication performCustomCommandNamed:object:]
  *  @param block the block of code that will be executed once the command is received
  */
-+ (void)registerCustomCommandNamed:(NSString *)commandName block:(void (^)(NSObject *object))block;
++ (void)registerCustomCommandNamed:(NSString *)commandName block:(NSObject *(^)(NSObject *object))block;
 
 /**
  *  Unregister a custom command.
