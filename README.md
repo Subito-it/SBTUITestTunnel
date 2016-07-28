@@ -271,9 +271,11 @@ You register a block of code that will be invoked from the test target as follow
 
 **Objective-C**
 
-    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^(NSObject *object) {
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^NSObject *(NSObject *object) {
         // the block of code that will be executed when the test target calls
         // [SBTUITunneledApplication performCustomCommandNamed:object:];
+        
+        return @"Any object you want to pass back to test target";
     }];
 
 **Swift**
@@ -281,6 +283,8 @@ You register a block of code that will be invoked from the test target as follow
     SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandKey") {
         injectedObject in
         // this block will be invoked from app.performCustomCommandNamed()
+        
+        return "Any object you want to pass back to test target"
     }
 
 **Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
@@ -291,11 +295,11 @@ You invoke the custom command by using the same identifier used on registration,
 
 **Objective-C**
 
-    [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
+    NSObject *objReturnedByBlock = [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
 
 **Swift**
 
-    app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
+    let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
 
 ## Thanks
 
