@@ -411,7 +411,7 @@ description:(desc), ##__VA_ARGS__]; \
     return ret;
 }
 
-#pragma mark - Throttle Monitor Commands
+#pragma mark - Request Throttle Commands
 
 - (NSString *)commandThrottlePathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
 {

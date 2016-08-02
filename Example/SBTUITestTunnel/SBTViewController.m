@@ -112,4 +112,16 @@
     });
 }
 
+- (IBAction)delayedBingRequestTapped:(id)sender {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSURL *url = [NSURL URLWithString:@"https://www.bing.com/?q=retdata"];
+        
+        __block NSData *responseData = nil;
+        
+        [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            responseData = data;
+        }] resume];
+    });
+}
+
 @end

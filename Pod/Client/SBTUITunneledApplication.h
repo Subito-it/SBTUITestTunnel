@@ -339,6 +339,90 @@
  */
 - (BOOL)monitorRequestRemoveAll;
 
+#pragma mark - Asynchronously Wait for Requests Commands
+
+/**
+ *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param regexPattern The regular expression
+ *  @param timeout How long to wait for the request to happen
+ *  @param completionHandler will be invoked once the requests is matched or timed out
+ */
+- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+
+/**
+ *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param regexPattern The regular expression
+ *  @param timeout How long to wait for the request to happen
+ *  @param iterations How often the request should happen before timing out
+ *  @param completionHandler will be invoked once the requests is matched or timed out
+ */
+- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+
+/**
+ *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param timeout How long to wait for the request to happen
+ *  @param completionHandler will be invoked once the requests is matched or timed out
+ */
+- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+
+/**
+ *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param timeout How long to wait for the request to happen
+ *  @param iterations How often the request should happen before timing out
+ *  @param completionHandler will be invoked once the requests is matched or timed out
+ */
+- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+
+#pragma mark - Synchronously Wait for Requests Commands
+
+/**
+ *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param regexPattern The regular expression
+ *  @param timeout How long to wait for the request to happen
+ *
+ *  @return `YES` on success, `NO` on timeout
+ */
+- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout;
+
+/**
+ *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param regexPattern The regular expression
+ *  @param timeout How long to wait for the request to happen
+ *  @param iterations How often the request should happen before timing out
+ *
+ *  @return `YES` on success, `NO` on timeout
+ */
+- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
+
+/**
+ *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param timeout How long to wait for the request to happen
+ *
+ *  @return `YES` on success, `NO` on timeout
+ */
+- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout;
+
+/**
+ *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param queryParams The list of query params that should be present in the request
+ *  @param timeout How long to wait for the request to happen
+ *  @param iterations How often the request should happen before timing out
+ *
+ *  @return `YES` on success, `NO` on timeout
+ */
+- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
+
 #pragma mark - Throttle Requests Commands
 
 /**

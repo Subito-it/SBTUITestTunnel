@@ -18,6 +18,7 @@
 
 #import "SBTUITunneledApplication.h"
 #import "NSString+SwiftDemangle.h"
+#import "NSURLRequest+SBTUITestTunnelMatch.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -350,6 +351,109 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (BOOL)monitorRequestRemoveAll
 {
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorRemoveAll params:nil] boolValue];
+}
+
+#pragma mark - Asynchronously Wait for Requests Commands
+
+- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+{
+    [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:1 completionBlock:completionBlock];
+}
+
+- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+{
+    [self waitForMonitoredRequestsWithMatchingBlock:^BOOL(SBTMonitoredNetworkRequest *request) {
+        return [request.request matchesRegexPattern:regexPattern];
+    } timeout:timeout iterations:iterations completionBlock:completionBlock];
+}
+
+- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+{
+    [self waitForMonitoredRequestsWithQueryParams:queryParams timeout:timeout iterations:1 completionBlock:completionBlock];
+}
+
+- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock
+{
+    [self waitForMonitoredRequestsWithMatchingBlock:^BOOL(SBTMonitoredNetworkRequest *request) {
+        return [request.request matchesQueryParams:queryParams];
+    } timeout:timeout iterations:iterations completionBlock:completionBlock];
+}
+
+- (void)waitForMonitoredRequestsWithMatchingBlock:(BOOL(^)(SBTMonitoredNetworkRequest *))matchingBlock timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL))completionBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+        NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+        NSUInteger localIterations = iterations;
+        
+        BOOL timedout = NO;
+        
+        for(;;) {
+            NSArray<SBTMonitoredNetworkRequest *> *requests = [self monitoredRequestsPeekAll];
+            
+            for (SBTMonitoredNetworkRequest *request in requests) {
+                if (matchingBlock(request)) {
+                    if (--localIterations == 0) {
+                        break;
+                    }
+                }
+            }
+            
+            if (localIterations < 1) {
+                break;
+            } else if (CFAbsoluteTimeGetCurrent() - start > timeout) {
+                timedout =YES;
+                break;
+            }
+            
+            [NSThread sleepForTimeInterval:0.5];
+        }
+                
+        if (completionBlock) {
+            completionBlock(timedout);
+        }
+    });
+}
+
+#pragma mark - Synchronously Wait for Requests Commands
+
+- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout;
+{
+    return [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:1];
+}
+
+- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
+{
+    __block BOOL result = NO;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:iterations completionBlock:^(BOOL timeout) {
+        result = !timeout;
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    return result;
+}
+
+- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout
+{
+    return [self waitForMonitoredRequestsWithQueryParams:queryParams timeout:timeout iterations:1];
+}
+
+- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations
+{
+    __block BOOL result = NO;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [self waitForMonitoredRequestsWithQueryParams:queryParams timeout:timeout iterations:iterations completionBlock:^(BOOL timeout) {
+        result = !timeout;
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    return result;
 }
 
 #pragma mark - Throttle Requests Commands

@@ -518,6 +518,106 @@
     XCTAssert([app.staticTexts[@"Hello world!"] exists]);
 }
 
+- (void)testWaitForMonitoredRequestDoesNotTimeout {
+    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:30.0 completionBlock:^(BOOL timeout) {
+        XCTAssertFalse(timeout);
+        
+        NSTimeInterval delta = CFAbsoluteTimeGetCurrent() - start;
+        
+        XCTAssert(delta > 5 && delta < 7);
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+}
+
+- (void)testWaitForMonitoredRequestWrongRegexDoesTimeout {
+    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [app waitForMonitoredRequestsWithRegex:@"(.*)aaa(.*)" timeout:10.0 completionBlock:^(BOOL timeout) {
+        XCTAssertTrue(timeout);
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    [NSThread sleepForTimeInterval:4.0];
+}
+
+- (void)testWaitForMonitoredRequestDoesTimeout {
+    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:1.0 completionBlock:^(BOOL timeout) {
+        XCTAssertTrue(timeout);
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    [NSThread sleepForTimeInterval:4.0];
+}
+
+- (void)testWaitForMonitoredRequestIterationTimeout {
+    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [app waitForMonitoredRequestsWithRegex:@"" timeout:10.0 iterations:2 completionBlock:^(BOOL timeout) {
+        XCTAssertTrue(timeout);
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    [NSThread sleepForTimeInterval:4.0];
+}
+
+- (void)testWaitForMonitoredRequestIterationDoesNotTimeout {
+    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    [app.buttons[@"delayed bing request (5s)"] tap];
+    
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:30.0 iterations:2 completionBlock:^(BOOL timeout) {
+        XCTAssertFalse(timeout);
+        
+        NSTimeInterval delta = CFAbsoluteTimeGetCurrent() - start;
+        
+        XCTAssert(delta > 5 && delta < 7);
+        
+        dispatch_semaphore_signal(sem);
+    }];
+    
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    
+    [NSThread sleepForTimeInterval:4.0];
+}
+
 #pragma mark - Helper Methods
 
 - (void)afterTapping:(XCUIElement *)element assertAlertMessageEquals:(NSString *)message {

@@ -55,18 +55,27 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jIL-ks-Hm8">
                                 <rect key="frame" x="20" y="227" width="560" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BTw-uF-1zU">
+                                <rect key="frame" x="20" y="258" width="175" height="30"/>
+                                <state key="normal" title="delayed bing request (5s)"/>
+                                <connections>
+                                    <action selector="delayedBingRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="g2V-GP-J0f"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="leadingMargin" secondItem="PSK-Cl-LC4" secondAttribute="leading" id="26Y-lu-wyM"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="top" secondItem="hxn-N7-r9R" secondAttribute="bottom" constant="20" id="3pd-H5-qIR"/>
+                            <constraint firstItem="BTw-uF-1zU" firstAttribute="leading" secondItem="jIL-ks-Hm8" secondAttribute="leading" id="6Mk-9F-DQo"/>
                             <constraint firstItem="fN1-x4-mFZ" firstAttribute="leading" secondItem="PEo-yp-LCA" secondAttribute="leading" id="9FC-m5-f0u"/>
                             <constraint firstItem="Mvr-aV-6Um" firstAttribute="top" secondItem="jIL-ks-Hm8" secondAttribute="bottom" constant="10" id="LKG-Fw-doj"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="width" secondItem="hxn-N7-r9R" secondAttribute="width" id="O5v-yf-J2t"/>
                             <constraint firstItem="24c-lG-cmT" firstAttribute="top" secondItem="PSK-Cl-LC4" secondAttribute="bottom" constant="21" id="OtZ-XO-tIP"/>
+                            <constraint firstItem="BTw-uF-1zU" firstAttribute="top" secondItem="jIL-ks-Hm8" secondAttribute="bottom" constant="10" id="PLP-ic-DsY"/>
                             <constraint firstItem="PEo-yp-LCA" firstAttribute="top" secondItem="uEw-UM-LJ8" secondAttribute="bottom" id="Q34-hm-Nhd"/>
                             <constraint firstItem="hxn-N7-r9R" firstAttribute="top" secondItem="fN1-x4-mFZ" secondAttribute="bottom" constant="8" id="RNo-CS-H5d"/>
                             <constraint firstAttribute="leadingMargin" secondItem="PEo-yp-LCA" secondAttribute="leading" id="cBs-sL-hPg"/>
