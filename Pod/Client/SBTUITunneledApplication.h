@@ -589,7 +589,7 @@
  *
  *  @return object returned from custom block
  */
-- (id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object;
+- (nullable id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object;
 
 #pragma mark - Other Commands
 
