@@ -101,9 +101,9 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
     // Add tunnel-specific entries to launchEnvironment
     NSDictionary<NSString *, NSString *> *tunnelLaunchEnvironment = @{
-                            SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
-                            SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]
-                            };
+                                                                      SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
+                                                                      SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]
+                                                                      };
     [launchEnvironment addEntriesFromDictionary:tunnelLaunchEnvironment];
     self.launchEnvironment = [launchEnvironment copy];
 
@@ -111,19 +111,9 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     
     __block BOOL startupBlockCompleted = NO;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // 1 UI Test: (main thread) request app launch
-            // 1 App: (main thread) GCD server is fired up and app will lock until the SBTUITunneledApplicationCommandStartupCommandsCompleted (if any)
-            // 2 UI Test: (main thread) lock until startupBlock is completed
-            // 2 UI Test: (background thread) bonjour delegates (here) will trigger once the GCD server is up
-            // 3 UI Test: (background thread!) self.bonjourSemaphore is signalled and startup Block is executed
-            [self launch];
-        });
-        
         dispatch_semaphore_wait(self.bonjourSemaphore, DISPATCH_TIME_FOREVER);
         
         [self.bonjourBrowser stop];
-        
         NSLog(@"STOPPING BONJOUR!");
         
         if (startupBlock) {
@@ -133,6 +123,13 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         }
         startupBlockCompleted = YES;
     });
+    
+    // 1 UI Test: (main thread) request app launch
+    // 1 App: (main thread) GCD server is fired up and app will lock until the SBTUITunneledApplicationCommandStartupCommandsCompleted (if any)
+    // 2 UI Test: (main thread) lock until startupBlock is completed
+    // 2 UI Test: (background thread) bonjour delegates (here) will trigger once the GCD server is up
+    // 3 UI Test: (background thread!) self.bonjourSemaphore is signalled and startup Block is executed
+    [self launch];
     
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (!startupBlockCompleted) {
@@ -694,7 +691,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
                 break;
             }
         } else {
-//#warning objective-c frameworks TODO.
+            //#warning objective-c frameworks TODO.
         }
     }
     
