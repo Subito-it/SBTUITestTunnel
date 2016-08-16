@@ -100,11 +100,38 @@
     
     [app uploadItemAtPath:testFilePath toPath:@"test_file_b.txt" relativeTo:NSDocumentDirectory];
     
-    NSData *uploadData = [app downloadItemFromPath:@"test_file_b.txt" relativeTo:NSDocumentDirectory];
+    NSData *uploadData = [[app downloadItemsFromPath:@"test_file_b.txt" relativeTo:NSDocumentDirectory] firstObject];
     
     NSString *uploadedString = [[NSString alloc] initWithData:uploadData encoding:NSUTF8StringEncoding];
     
     XCTAssertTrue([randomString isEqualToString:uploadedString]);
+}
+
+- (void)testMultipleDownload {
+    NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *testFilePath = [[paths firstObject] stringByAppendingPathComponent:@"test_file_a.txt"];
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    if ([fm fileExistsAtPath:testFilePath]) {
+        [fm removeItemAtPath:testFilePath error:nil];
+    }
+    [[randomString dataUsingEncoding:NSUTF8StringEncoding] writeToFile:testFilePath atomically:YES];
+    
+    [app uploadItemAtPath:testFilePath toPath:@"test_file_1.txt" relativeTo:NSDocumentDirectory];
+    [app uploadItemAtPath:testFilePath toPath:@"test_file_2.txt" relativeTo:NSDocumentDirectory];
+    [app uploadItemAtPath:testFilePath toPath:@"test_file_3.txt" relativeTo:NSDocumentDirectory];
+    
+    NSArray<NSData *>*uploadDatas = [app downloadItemsFromPath:@"test_file_*.txt" relativeTo:NSDocumentDirectory];
+    
+    XCTAssertEqual(uploadDatas.count, 3);
+    
+    for (NSData *uploadData in uploadDatas) {
+        NSString *uploadedString = [[NSString alloc] initWithData:uploadData encoding:NSUTF8StringEncoding];
+    
+        XCTAssertTrue([randomString isEqualToString:uploadedString]);
+    }
 }
 
 - (void)testStubCommands {

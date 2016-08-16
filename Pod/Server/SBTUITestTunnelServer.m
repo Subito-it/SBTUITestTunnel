@@ -589,15 +589,26 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandDownload:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *srcPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelDownloadPathKey] options:0]];
-    NSSearchPathDirectory basePath = [tunnelRequest.parameters[SBTUITunnelDownloadBasePathKey] intValue];
+    NSSearchPathDirectory basePathDirectory = [tunnelRequest.parameters[SBTUITunnelDownloadBasePathKey] intValue];
     
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(basePath, NSUserDomainMask, YES);
-    NSString *path = [[paths firstObject] stringByAppendingPathComponent:srcPath];
+    NSString *basePath = [NSSearchPathForDirectoriesInDomains(basePathDirectory, NSUserDomainMask, YES) firstObject];
     
-    NSData *fileData = [NSData dataWithContentsOfFile:path];
+    NSArray *basePathContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:basePath error:nil];
     
-    return [fileData base64EncodedStringWithOptions:0];
+    NSString *filesToMatch = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelDownloadPathKey] options:0]];
+    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"SELF like %@", filesToMatch];
+    NSArray *matchingFiles = [basePathContent filteredArrayUsingPredicate:filterPredicate];
+    
+    NSMutableArray *filesDataArr = [NSMutableArray array];
+    for (NSString *matchingFile in matchingFiles) {
+        NSData *fileData = [NSData dataWithContentsOfFile:[basePath stringByAppendingPathComponent:matchingFile]];
+        
+        [filesDataArr addObject:fileData];
+    }
+    
+    NSData *filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr];
+    
+    return [filesDataArrData base64EncodedStringWithOptions:0];
 }
 
 #pragma mark - Other Commands 

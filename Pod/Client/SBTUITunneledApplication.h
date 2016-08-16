@@ -569,15 +569,15 @@
 - (BOOL)uploadItemAtPath:(nonnull NSString *)srcPath toPath:(nullable NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder;
 
 /**
- *  Download item from remote host
+ *  Download one or more files from remote host
  *
- *  @param path source path
+ *  @param path source path (may include wildcard *, i.e ('*.jpg')
  *  @param destPath destination path relative to baseFolder
  *  @param baseFolder base folder for destPath
  *
  *  @return The data associated to the requested item
  */
-- (nullable NSData *)downloadItemFromPath:(nonnull NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder;
+- (nullable NSArray<NSData *> *)downloadItemsFromPath:(nonnull NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder;
 
 #pragma mark - Custom Commands
 

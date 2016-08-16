@@ -582,15 +582,17 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandUploadData params:params] boolValue];
 }
 
-- (NSData *)downloadItemFromPath:(NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder
+- (NSArray<NSData *> *)downloadItemsFromPath:(NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelDownloadPathKey: [self base64SerializeObject:path ?: @""],
                                                      SBTUITunnelDownloadBasePathKey: [@(baseFolder) stringValue]};
     
-    NSString *fileBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandDownloadData params:params];
+    NSString *itemsBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandDownloadData params:params];
     
-    if (fileBase64) {
-        return [[NSData alloc] initWithBase64EncodedString:fileBase64 options:0];
+    if (itemsBase64) {
+        NSData *itemsData = [[NSData alloc] initWithBase64EncodedString:itemsBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:itemsData];
     }
     
     return nil;
