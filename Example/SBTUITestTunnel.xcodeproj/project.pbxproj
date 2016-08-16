@@ -21,6 +21,7 @@
 		C384FBA61CB65ACE00661D9D /* googleMockResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = C384FBA51CB65ACE00661D9D /* googleMockResponse.json */; };
 		C39B79FB1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = C39B79FA1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m */; };
 		C3E81DF51CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */; };
+		C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		C39B79FA1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SBTUITestTunnel_Tests.m; sourceTree = "<group>"; };
 		C39B79FC1CB41C3A000C8B0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SBTUITestTunnel_Tests-Info.plist"; sourceTree = "<group>"; };
+		C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		E6A87F86CCE500F03DF809C9 /* SBTUITestTunnel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SBTUITestTunnel.podspec; path = ../SBTUITestTunnel.podspec; sourceTree = "<group>"; };
 		E79B7E601E5A4B2D80BC77B2 /* Pods-SBTUITestTunnel_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 		6003F593195388D20070C39A /* Example for SBTUITestTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */,
 				6003F59C195388D20070C39A /* SBTAppDelegate.h */,
 				6003F59D195388D20070C39A /* SBTAppDelegate.m */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
@@ -266,6 +269,7 @@
 				C3E81DF51CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist in Resources */,
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
+				C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
