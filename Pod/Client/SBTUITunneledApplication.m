@@ -146,66 +146,66 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Stub Commands
 
-- (NSString *)stubRequestsWithRegex:(NSString *)regexPattern returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryMimeTypeKey: contentType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatMatchesRegex params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
 }
 
 #pragma mark - Stub And Remove Commands
 
-- (BOOL)stubRequestsWithRegex:(NSString *)regexPattern returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
                                                      SBTUITunnelStubQueryMimeTypeKey: contentType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex params:params] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params] boolValue];
 }
 
 #pragma mark - Stub Commands JSON
 
-- (NSString *)stubRequestsWithRegex:(NSString *)regexPattern returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathThatMatchesRegex params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
 }
 
-- (NSString *)stubRequestsWithRegex:(NSString *)regexPattern returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
 {
-    return [self stubRequestsWithRegex:regexPattern returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime];
+    return [self stubRequestsMatching:match returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime];
 }
 
 #pragma mark - Stub And Remove Commands JSON
 
-- (BOOL)stubRequestsWithRegex:(NSString *)regexPattern returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:regexPattern],
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
                                                      SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
                                                      SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
                                                      SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex params:params] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params] boolValue];
 }
 
-- (BOOL)stubRequestsWithRegex:(NSString *)regexPattern returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
 {
-    return [self stubRequestsWithRegex:regexPattern returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime removeAfterIterations:iterations];
+    return [self stubRequestsMatching:match returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime removeAfterIterations:iterations];
 }
 
 #pragma mark - Stub Remove Commands
@@ -234,11 +234,11 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Monitor Requests Commands
 
-- (NSString *)monitorRequestsWithRegex:(NSString *)regexPattern
+- (NSString *)monitorRequestsMatching:(SBTRequestMatch *)match
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:regexPattern]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathMatching params:params];
 }
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
@@ -289,19 +289,19 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Asynchronously Wait for Requests Commands
 
-- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+- (void)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout completionBlock:(void (^)(BOOL timeout))completionBlock;
 {
-    [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:1 completionBlock:completionBlock];
+    [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:1 completionBlock:completionBlock];
 }
 
-- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+- (void)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(void (^)(BOOL timeout))completionBlock;
 {
     [self waitForMonitoredRequestsWithMatchingBlock:^BOOL(SBTMonitoredNetworkRequest *request) {
-        return [request.request matchesRegexPattern:regexPattern];
+        return [request.request matches:match];
     } timeout:timeout iterations:iterations completionBlock:completionBlock];
 }
 
-- (void)waitForMonitoredRequestsWithMatchingBlock:(BOOL(^)(SBTMonitoredNetworkRequest *))matchingBlock timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL))completionBlock
+- (void)waitForMonitoredRequestsWithMatchingBlock:(BOOL(^)(SBTMonitoredNetworkRequest *))matchingBlock timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(void (^)(BOOL))completionBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
         NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -338,17 +338,17 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Synchronously Wait for Requests Commands
 
-- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout;
+- (BOOL)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout;
 {
-    return [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:1];
+    return [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:1];
 }
 
-- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
+- (BOOL)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
 {
     __block BOOL result = NO;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [self waitForMonitoredRequestsWithRegex:regexPattern timeout:timeout iterations:iterations completionBlock:^(BOOL timeout) {
+    [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:iterations completionBlock:^(BOOL timeout) {
         result = !timeout;
         dispatch_semaphore_signal(sem);
     }];
@@ -360,11 +360,11 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Throttle Requests Commands
 
-- (NSString *)throttleRequestsWithRegex:(NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
+- (NSString *)throttleRequestsMatching:(SBTRequestMatch *)match responseTime:(NSTimeInterval)responseTime;
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:regexPattern], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathMatching params:params];
 }
 
 - (BOOL)throttleRequestRemoveWithId:(NSString *)reqId;

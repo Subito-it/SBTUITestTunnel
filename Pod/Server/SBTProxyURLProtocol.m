@@ -21,8 +21,9 @@
 #import "NSData+SHA1.h"
 #import "SBTProxyStubResponse.h"
 
+static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
-static NSString * const SBTProxyURLProtocolRegexRuleKey = @"SBTProxyURLProtocolRegexRuleKey";
+static NSString * const SBTProxyURLProtocolMatchingRuleKey = @"SBTProxyURLProtocolMatchingRuleKey";
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
@@ -61,9 +62,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 # pragma mark - Proxying
 
-+ (NSString *)proxyRequestsWithRegex:(NSString *)regexPattern delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
++ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolRegexRuleKey: regexPattern, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     
     @synchronized (self.sharedInstance) {
         NSString *identifierToAdd = [self identifierForRule:rule];
@@ -114,9 +115,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Stubbing
 
-+ (NSString *)stubRequestsWithRegex:(NSString *)regexPattern stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolRegexRuleKey: regexPattern, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -317,6 +318,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSMutableURLRequest *mRequest = [request mutableCopy];
     
     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:mRequest];
+    if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:mRequest]) {
+        // don't handle double (or more) redirects
+        [NSURLProtocol setProperty:self.request forKey:SBTProxyURLOriginalRequestKey inRequest:mRequest];
+    }
     
     [self.client URLProtocol:self wasRedirectedToRequest:mRequest redirectResponse:response];
     
@@ -360,8 +365,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolRegexRuleKey]) {
-                if ([request matchesRegexPattern:matchingRule[SBTProxyURLProtocolRegexRuleKey]]) {
+            if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
+                NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+                
+                NSLog(@"%@", originalRequest);
+                NSLog(@"%@", (originalRequest ?: request));
+                
+                if ([(originalRequest ?: request) matches:matchingRule[SBTProxyURLProtocolMatchingRuleKey]]) {
                     [ret addObject:matchingRule];
                 }
             } else {
@@ -376,8 +386,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 + (NSString *)identifierForRule:(NSDictionary *)rule
 {
     NSString *identifier = nil;
-    if ([rule.allKeys containsObject:SBTProxyURLProtocolRegexRuleKey]) {
-        NSData *ruleData = [rule[SBTProxyURLProtocolRegexRuleKey] dataUsingEncoding:NSUTF8StringEncoding];
+    if ([rule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
+        NSData *ruleData = [NSKeyedArchiver archivedDataWithRootObject:rule[SBTProxyURLProtocolMatchingRuleKey]];
         
         identifier = [ruleData SHA1];
     } else {

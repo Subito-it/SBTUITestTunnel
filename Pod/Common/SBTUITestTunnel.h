@@ -57,18 +57,18 @@ extern NSString * _Nonnull const SBTUITunnelResponseResultKey;
 
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathThatMatchesRegex;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandstubRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubRequestsRemoveAll;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorRemoveAll;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorPeek;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorFlush;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandThrottleRemoveAll;
 
@@ -122,6 +122,10 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 @end
 
 @interface SBTRequestMatch : NSObject<NSCoding>
+
+@property (nullable, nonatomic, readonly) NSString *url;
+@property (nullable, nonatomic, readonly) NSString *query;
+@property (nullable, nonatomic, readonly) NSString *method;
 
 + (nonnull instancetype)URL:(nonnull NSString *)url;
 + (nonnull instancetype)URL:(nullable NSString *)url query:(nonnull NSString *)query;

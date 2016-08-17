@@ -135,17 +135,17 @@
 }
 
 - (void)testStubCommands {
-    NSString *stubId1 = [app stubRequestsWithRegex:@"p=us(.*)l="
-                              returnJsonDictionary:@{@"request": @"stubbed"}
-                                        returnCode:200
-                                      responseTime:0.0];
+    NSString *stubId1 = [app stubRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]
+                             returnJsonDictionary:@{@"request": @"stubbed"}
+                                       returnCode:200
+                                     responseTime:0.0];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Stubbed"];
     [app stubRequestsRemoveWithId:stubId1];
     
-    NSString *stubId2 = [app stubRequestsWithRegex:@"(.*)google(.*)"
-                                   returnJsonNamed:@"googleMockResponse.json"
-                                        returnCode:200
-                                      responseTime:0.0];
+    NSString *stubId2 = [app stubRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+                                  returnJsonNamed:@"googleMockResponse.json"
+                                       returnCode:200
+                                     responseTime:0.0];
     [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Stubbed"];
     [app stubRequestsRemoveWithId:stubId2];
     
@@ -155,11 +155,11 @@
 }
 
 - (void)testStubAndRemoveRegexCommands {
-    [app stubRequestsWithRegex:@"(.*)google(.*)"
-               returnJsonNamed:@"googleMockResponse.json"
-                    returnCode:200
-                  responseTime:0.0
-         removeAfterIterations:2];
+    [app stubRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+              returnJsonNamed:@"googleMockResponse.json"
+                   returnCode:200
+                 responseTime:0.0
+        removeAfterIterations:2];
     
     [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Stubbed"];
     [self afterTapping:app.buttons[@"https://www.google.com/?q=tennis"] assertAlertMessageEquals:@"Stubbed"];
@@ -169,10 +169,10 @@
 }
 
 - (void)testStubRemoval {
-    NSString *stubId = [app stubRequestsWithRegex:@"p=us(.*)l="
-                             returnJsonDictionary:@{@"request": @"stubbed"}
-                                       returnCode:200
-                                     responseTime:0.0];
+    NSString *stubId = [app stubRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]
+                            returnJsonDictionary:@{@"request": @"stubbed"}
+                                      returnCode:200
+                                    responseTime:0.0];
     
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Stubbed"];
     
@@ -183,17 +183,17 @@
 
 - (void)testStubResponseDelay {
     NSTimeInterval responseTime = 5.0;
-    [app stubRequestsWithRegex:@"p=us(.*)l="
-          returnJsonDictionary:@{@"request": @"stubbed"}
-                    returnCode:200
-                  responseTime:responseTime];
+    [app stubRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]
+         returnJsonDictionary:@{@"request": @"stubbed"}
+                   returnCode:200
+                 responseTime:responseTime];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"got %f", delta - responseTime);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 3.0, @"got %f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Stubbed"] exists]);
     [app.buttons[@"OK"] tap];
     
@@ -203,7 +203,7 @@
 - (void)testMonitorFlushRegexCommandsResponseString {
     XCTAssertTrue([app monitoredRequestsFlushAll].count == 0);
     
-    [app monitorRequestsWithRegex:@"(.*)google(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"google.com"]];
     
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
@@ -234,7 +234,7 @@
 - (void)testMonitorPeekRegexCommandsResponseString {
     XCTAssertTrue([app monitoredRequestsPeekAll].count == 0);
     
-    [app monitorRequestsWithRegex:@"(.*)google(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"google.com"]];
     
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
@@ -262,14 +262,14 @@
 - (void)testMonitorCommandsResponseString {
     XCTAssertTrue([app monitoredRequestsFlushAll].count == 0);
     
-    [app monitorRequestsWithRegex:@"p=us(.*)np="];
+    [app monitorRequestsMatching:[SBTRequestMatch query:@"(?=.*np=)(?=.*p=us)"]];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
     
     XCTAssertTrue([app monitoredRequestsFlushAll].count == 0);
     [app monitorRequestRemoveAll];
     
-    [app monitorRequestsWithRegex:@"p=us(.*)l="];
+    [app monitorRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]];
     
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
     [self afterTapping:app.buttons[@"https://us.yahoo.com/?p=us&l=1"] assertAlertMessageEquals:@"Not Stubbed"];
@@ -295,8 +295,8 @@
 
 - (void)testThrottleWithRegexResponseDelay {
     NSTimeInterval responseTime = 5.0;
-    [app throttleRequestsWithRegex:@"(.*)google(.*)"
-                      responseTime:responseTime];
+    [app throttleRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+                     responseTime:responseTime];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -311,11 +311,11 @@
 }
 
 - (void)testMonitorAndStubWitRegexCommands {
-    [app stubRequestsWithRegex:@"(.*)google(.*)"
-               returnJsonNamed:@"googleMockResponse.json"
-                    returnCode:200
-                  responseTime:0.0];
-    [app monitorRequestsWithRegex:@"(.*)google(.*)"];
+    [app stubRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+              returnJsonNamed:@"googleMockResponse.json"
+                   returnCode:200
+                 responseTime:0.0];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"google.com"]];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     [app.buttons[@"https://www.google.com/?q=tennis"] tap];
@@ -331,12 +331,12 @@
 
 - (void)testThrottleResponseTimeOverridesRegexStub {
     NSTimeInterval responseTime = 5.0;
-    [app stubRequestsWithRegex:@"(.*)google(.*)"
-               returnJsonNamed:@"googleMockResponse.json"
-                    returnCode:200
-                  responseTime:0.0];
-    [app throttleRequestsWithRegex:@"(.*)google(.*)"
-                      responseTime:responseTime];
+    [app stubRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+              returnJsonNamed:@"googleMockResponse.json"
+                   returnCode:200
+                 responseTime:0.0];
+    [app throttleRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+                     responseTime:responseTime];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -352,10 +352,10 @@
 }
 
 - (void)testMonitorAndThrottleWithRegexCommands {
-    [app monitorRequestsWithRegex:@"(.*)google(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"google.com"]];
     NSTimeInterval responseTime = 5.0;
-    [app throttleRequestsWithRegex:@"(.*)google(.*)"
-                      responseTime:responseTime];
+    [app throttleRequestsMatching:[SBTRequestMatch URL:@"google.com"]
+                     responseTime:responseTime];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -363,7 +363,7 @@
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
     
     NSTimeInterval delta = ABS(CFAbsoluteTimeGetCurrent() - start);
-    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 2.0, @"got %f", delta - responseTime);
+    XCTAssertTrue(delta - responseTime > 0 && delta - responseTime < 3.0, @"got %f", delta - responseTime);
     XCTAssertTrue([[app.alerts[@"Result"] staticTexts][@"Not Stubbed"] exists]);
     
     NSArray<SBTMonitoredNetworkRequest *> *requestsMonitored = [app monitoredRequestsFlushAll];
@@ -374,11 +374,11 @@
 }
 
 - (void)testMonitorAndStubWithRegexCommands {
-    [app stubRequestsWithRegex:@"p=us(.*)l="
-          returnJsonDictionary:@{@"request": @"stubbed"}
-                    returnCode:200
-                  responseTime:0.0];
-    [app monitorRequestsWithRegex:@"p=us(.*)l="];
+    [app stubRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]
+         returnJsonDictionary:@{@"request": @"stubbed"}
+                   returnCode:200
+                 responseTime:0.0];
+    [app monitorRequestsMatching:[SBTRequestMatch query:@"(?=.*l=)(?=.*p=us)"]];
     
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     [app.buttons[@"https://us.yahoo.com/?p=us&l=1"] tap];
@@ -464,7 +464,7 @@
 - (void)testGenericReturnData {
     NSString *genericReturnData = @"Hello world!";
     
-    [app stubRequestsWithRegex:@"(.*)bing(.*)" returnData:[genericReturnData dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain" returnCode:200 responseTime:0.0];
+    [app stubRequestsMatching:[SBTRequestMatch URL:@"bing"] returnData:[genericReturnData dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain" returnCode:200 responseTime:0.0];
     
     [app.buttons[@"https://www.bing.com/?q=retdata"] tap];
     
@@ -472,14 +472,14 @@
 }
 
 - (void)testWaitForMonitoredRequestDoesNotTimeout {
-    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"bing"]];
     
     [app.buttons[@"delayed bing request (5s)"] tap];
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:30.0 completionBlock:^(BOOL timeout) {
+    [app waitForMonitoredRequestsMatching:[SBTRequestMatch URL:@"bing"] timeout:30.0 completionBlock:^(BOOL timeout) {
         XCTAssertFalse(timeout);
         
         NSTimeInterval delta = CFAbsoluteTimeGetCurrent() - start;
@@ -493,13 +493,13 @@
 }
 
 - (void)testWaitForMonitoredRequestWrongRegexDoesTimeout {
-    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"bing"]];
     
     [app.buttons[@"delayed bing request (5s)"] tap];
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [app waitForMonitoredRequestsWithRegex:@"(.*)aaa(.*)" timeout:10.0 completionBlock:^(BOOL timeout) {
+    [app waitForMonitoredRequestsMatching:[SBTRequestMatch URL:@"aaa"] timeout:10.0 completionBlock:^(BOOL timeout) {
         XCTAssertTrue(timeout);
         
         dispatch_semaphore_signal(sem);
@@ -511,13 +511,13 @@
 }
 
 - (void)testWaitForMonitoredRequestDoesTimeout {
-    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"bing"]];
     
     [app.buttons[@"delayed bing request (5s)"] tap];
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:1.0 completionBlock:^(BOOL timeout) {
+    [app waitForMonitoredRequestsMatching:[SBTRequestMatch URL:@"bing"] timeout:1.0 completionBlock:^(BOOL timeout) {
         XCTAssertTrue(timeout);
         
         dispatch_semaphore_signal(sem);
@@ -529,13 +529,13 @@
 }
 
 - (void)testWaitForMonitoredRequestIterationTimeout {
-    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"bing"]];
     
     [app.buttons[@"delayed bing request (5s)"] tap];
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [app waitForMonitoredRequestsWithRegex:@"" timeout:10.0 iterations:2 completionBlock:^(BOOL timeout) {
+    [app waitForMonitoredRequestsMatching:[SBTRequestMatch URL:@""] timeout:10.0 iterations:2 completionBlock:^(BOOL timeout) {
         XCTAssertTrue(timeout);
         
         dispatch_semaphore_signal(sem);
@@ -547,7 +547,7 @@
 }
 
 - (void)testWaitForMonitoredRequestIterationDoesNotTimeout {
-    [app monitorRequestsWithRegex:@"(.*)bing(.*)"];
+    [app monitorRequestsMatching:[SBTRequestMatch URL:@"bing"]];
     
     [app.buttons[@"delayed bing request (5s)"] tap];
     [app.buttons[@"delayed bing request (5s)"] tap];
@@ -556,7 +556,7 @@
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    [app waitForMonitoredRequestsWithRegex:@"(.*)bing(.*)" timeout:30.0 iterations:2 completionBlock:^(BOOL timeout) {
+    [app waitForMonitoredRequestsMatching:[SBTRequestMatch URL:@"bing"] timeout:30.0 iterations:2 completionBlock:^(BOOL timeout) {
         XCTAssertFalse(timeout);
         
         NSTimeInterval delta = CFAbsoluteTimeGetCurrent() - start;
@@ -572,21 +572,65 @@
 }
 
 - (void)testPostRequest {
-    [app stubRequestsWithRegex:@"(.*)\"k1\":\"v1\"(.*)"
-          returnJsonDictionary:@{@"request": @"stubbed"}
-                    returnCode:200
-                  responseTime:0.0];
+    NSString *stubId1 = [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\""]
+                             returnJsonDictionary:@{@"request": @"stubbed"}
+                                       returnCode:200
+                                     responseTime:0.0];
     
     [self afterTapping:app.buttons[@"POST REQUEST"] assertAlertMessageEquals:@"Stubbed"];
+    
+    [app stubRequestsRemoveWithId:stubId1];
+    
+    [self afterTapping:app.buttons[@"POST REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    NSString *stubId2 = [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\"" method:@"POST"]
+                             returnJsonDictionary:@{@"request": @"stubbed"}
+                                       returnCode:200
+                                     responseTime:0.0];
+    
+    [self afterTapping:app.buttons[@"POST REQUEST"] assertAlertMessageEquals:@"Stubbed"];
+    
+    [app stubRequestsRemoveWithId:stubId2];
+    
+    [self afterTapping:app.buttons[@"POST REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\"" method:@"GET"]
+         returnJsonDictionary:@{@"request": @"stubbed"}
+                   returnCode:200
+                 responseTime:0.0];
+    
+    [self afterTapping:app.buttons[@"POST REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
 }
 
 - (void)testPutRequest {
-    [app stubRequestsWithRegex:@"(.*)\"k1\":\"v1\"(.*)"
-          returnJsonDictionary:@{@"request": @"stubbed"}
-                    returnCode:200
-                  responseTime:0.0];
+    NSString *stubId1 = [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\""]
+                             returnJsonDictionary:@{@"request": @"stubbed"}
+                                       returnCode:200
+                                     responseTime:0.0];
     
     [self afterTapping:app.buttons[@"PUT REQUEST"] assertAlertMessageEquals:@"Stubbed"];
+    
+    [app stubRequestsRemoveWithId:stubId1];
+    
+    [self afterTapping:app.buttons[@"PUT REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    NSString *stubId2 = [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\"" method:@"PUT"]
+                             returnJsonDictionary:@{@"request": @"stubbed"}
+                                       returnCode:200
+                                     responseTime:0.0];
+    
+    [self afterTapping:app.buttons[@"PUT REQUEST"] assertAlertMessageEquals:@"Stubbed"];
+    
+    [app stubRequestsRemoveWithId:stubId2];
+    
+    [self afterTapping:app.buttons[@"PUT REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
+    
+    [app stubRequestsMatching:[SBTRequestMatch query:@"\"k1\":\"v1\"" method:@"GET"]
+         returnJsonDictionary:@{@"request": @"stubbed"}
+                   returnCode:200
+                 responseTime:0.0];
+    
+    [self afterTapping:app.buttons[@"PUT REQUEST"] assertAlertMessageEquals:@"Not Stubbed"];
 }
 
 #pragma mark - Helper Methods
@@ -595,7 +639,10 @@
     [self expectationForPredicate:[NSPredicate predicateWithFormat:@"exists == true"] evaluatedWithObject:app.alerts.element handler:nil];
     [element tap];
     [self waitForExpectationsWithTimeout:15.0 handler:nil];
-    XCTAssertTrue([[app.alerts[@"Result"] staticTexts][message] exists]);
+    
+    XCUIElementQuery *st = [app.alerts[@"Result"] staticTexts];
+    
+    XCTAssertTrue([st[message] exists]);
     [app.buttons[@"OK"] tap];
 }
 

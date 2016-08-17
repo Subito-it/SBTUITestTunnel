@@ -56,7 +56,7 @@
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
  *  @param returnCode The HTTP response code to be returned
@@ -64,7 +64,7 @@
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 #pragma mark - Stub And Remove Commands
 
@@ -73,7 +73,7 @@
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
  *  @param returnCode The HTTP response code to be returned
@@ -82,7 +82,7 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Stub Commands JSON
 
@@ -91,28 +91,28 @@
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 /**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 #pragma mark - Stub And Remove Commands JSON
 
@@ -121,7 +121,7 @@
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
@@ -129,21 +129,21 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return `YES` on success
  */
-- (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Stub Remove Commands
 
@@ -181,11 +181,11 @@
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when using -(BOOL)monitorRequestRemoveWithId:
  */
-- (nullable NSString *)monitorRequestsWithRegex:(nonnull NSString *)regexPattern;
+- (nullable NSString *)monitorRequestsMatching:(nonnull SBTRequestMatch *)match;
 
 /**
  *  Peek (retrieve) the current list of collected requests
@@ -231,44 +231,44 @@
 /**
  *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *  @param completionHandler will be invoked once the requests is matched or timed out
  */
-- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
 
 /**
  *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *  @param iterations How often the request should happen before timing out
  *  @param completionHandler will be invoked once the requests is matched or timed out
  */
-- (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
+- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
 
 #pragma mark - Synchronously Wait for Requests Commands
 
 /**
  *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *
  *  @return `YES` on success, `NO` on timeout
  */
-- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout;
+- (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout;
 
 /**
  *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *  @param iterations How often the request should happen before timing out
  *
  *  @return `YES` on success, `NO` on timeout
  */
-- (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
+- (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
 
 #pragma mark - Throttle Requests Commands
 
@@ -279,12 +279,12 @@
  *
  *  Note: you cannot have a throttle request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
- *  @param regexPattern The regular expression
+ *  @param match The match object that contains the matching rules
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
  */
-- (nullable NSString *)throttleRequestsWithRegex:(nonnull NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)throttleRequestsMatching:(nonnull SBTRequestMatch *)match responseTime:(NSTimeInterval)responseTime;
 
 /**
  *  Remove a request throttle

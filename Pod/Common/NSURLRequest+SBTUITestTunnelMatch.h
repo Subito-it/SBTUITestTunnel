@@ -17,10 +17,11 @@
 #if DEBUG
 
 #import <Foundation/Foundation.h>
+#import "SBTUITestTunnel.h"
 
 @interface NSURLRequest (SBTUITestTunnelMatch)
 
-- (BOOL)matchesRegexPattern:(NSString *)regexPattern;
+- (BOOL)matches:(nonnull SBTRequestMatch *)match;
 
 @end
 

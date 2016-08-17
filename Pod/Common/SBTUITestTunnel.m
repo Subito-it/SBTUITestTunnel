@@ -56,18 +56,18 @@ NSString * const SBTUITunnelResponseResultKey = @"result";
 
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
-NSString * const SBTUITunneledApplicationCommandStubPathThatMatchesRegex = @"commandStubPathThathMatchesRegex";
-NSString * const SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex = @"commandStubAndRemovePathThathMatchesRegex";
+NSString * const SBTUITunneledApplicationCommandStubPathMatching = @"commandStubPathMatching";
+NSString * const SBTUITunneledApplicationcommandStubAndRemovePathMatching = @"commandStubAndRemovePathMatching";
 NSString * const SBTUITunneledApplicationCommandstubRequestsRemove = @"commandStubRequestsRemove";
 NSString * const SBTUITunneledApplicationcommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
 
-NSString * const SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex = @"commandMonitorPathThathMatchesRegex";
+NSString * const SBTUITunneledApplicationCommandMonitorPathMatching = @"commandMonitorPathMatching";
 NSString * const SBTUITunneledApplicationCommandMonitorRemove = @"commandMonitorRemove";
 NSString * const SBTUITunneledApplicationcommandMonitorRemoveAll = @"commandMonitorsRemoveAll";
 NSString * const SBTUITunneledApplicationcommandMonitorPeek = @"commandMonitorPeek";
 NSString * const SBTUITunneledApplicationcommandMonitorFlush = @"commandMonitorFlush";
 
-NSString * const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex = @"commandThrottlePathThathMatchesRegex";
+NSString * const SBTUITunneledApplicationCommandThrottlePathMatching = @"commandThrottlePathMatching";
 NSString * const SBTUITunneledApplicationCommandThrottleRemove = @"commandThrottleRemove";
 NSString * const SBTUITunneledApplicationcommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
 
@@ -169,9 +169,9 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
 
 @interface SBTRequestMatch()
 
-@property (nonatomic, strong, nullable) NSString *url;
-@property (nonatomic, strong, nullable) NSString *query;
-@property (nonatomic, strong, nullable) NSString *method;
+@property (nonatomic, strong) NSString *url;
+@property (nonatomic, strong) NSString *query;
+@property (nonatomic, strong) NSString *method;
 
 @end
 
@@ -193,6 +193,11 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
     [encoder encodeObject:self.url forKey:@"url"];
     [encoder encodeObject:self.query forKey:@"query"];
     [encoder encodeObject:self.method forKey:@"method"];
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A"];
 }
 
 + (instancetype)URL:(NSString *)url
