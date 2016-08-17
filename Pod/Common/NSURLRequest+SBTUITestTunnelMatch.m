@@ -42,7 +42,7 @@
         } else if ([self.HTTPMethod isEqualToString:@"GET"] || [self.HTTPMethod isEqualToString:@"DELETE"]) {
             NSURLComponents *components = [NSURLComponents componentsWithURL:self.URL resolvingAgainstBaseURL:NO];
             
-            queryString = components.query;
+            queryString = components.query ?: @"";
         }
         
         NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.query options:NSRegularExpressionCaseInsensitive error:nil];
