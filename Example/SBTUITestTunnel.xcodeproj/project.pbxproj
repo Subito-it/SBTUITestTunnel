@@ -20,6 +20,7 @@
 		981118601BB1489159B11C21 /* libPods-SBTUITestTunnel_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A89E637BB156EC903F0F4115 /* libPods-SBTUITestTunnel_Tests.a */; };
 		C384FBA61CB65ACE00661D9D /* googleMockResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = C384FBA51CB65ACE00661D9D /* googleMockResponse.json */; };
 		C39B79FB1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = C39B79FA1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m */; };
+		C3E3D8201D6478BC004F4595 /* SBTUITestTunnel_SwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3D81F1D6478BC004F4595 /* SBTUITestTunnel_SwiftTests.swift */; };
 		C3E81DF51CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */; };
 		C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,8 @@
 		C39B79F81CB41C3A000C8B0D /* SBTUITestTunnel_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C39B79FA1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SBTUITestTunnel_Tests.m; sourceTree = "<group>"; };
 		C39B79FC1CB41C3A000C8B0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C3E3D81E1D6478BC004F4595 /* SBTUITestTunnel_Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SBTUITestTunnel_Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		C3E3D81F1D6478BC004F4595 /* SBTUITestTunnel_SwiftTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBTUITestTunnel_SwiftTests.swift; sourceTree = "<group>"; };
 		C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SBTUITestTunnel_Tests-Info.plist"; sourceTree = "<group>"; };
 		C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -177,8 +180,10 @@
 			isa = PBXGroup;
 			children = (
 				C39B79FA1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m */,
+				C3E3D81F1D6478BC004F4595 /* SBTUITestTunnel_SwiftTests.swift */,
 				C384FBA51CB65ACE00661D9D /* googleMockResponse.json */,
 				C39B79FC1CB41C3A000C8B0D /* Info.plist */,
+				C3E3D81E1D6478BC004F4595 /* SBTUITestTunnel_Tests-Bridging-Header.h */,
 			);
 			path = SBTUITestTunnel_Tests;
 			sourceTree = "<group>";
@@ -377,6 +382,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3E3D8201D6478BC004F4595 /* SBTUITestTunnel_SwiftTests.swift in Sources */,
 				C39B79FB1CB41C3A000C8B0D /* SBTUITestTunnel_Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
