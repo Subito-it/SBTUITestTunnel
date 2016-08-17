@@ -420,7 +420,7 @@
  *
  *  @return object returned from custom block
  */
-- (nullable id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object;
+- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(NSObject *)object;
 
 #pragma mark - Other Commands
 
