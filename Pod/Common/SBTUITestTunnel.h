@@ -127,15 +127,15 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 @property (nullable, nonatomic, readonly) NSString *query;
 @property (nullable, nonatomic, readonly) NSString *method;
 
-+ (nonnull instancetype)URL:(nonnull NSString *)url;
-+ (nonnull instancetype)URL:(nullable NSString *)url query:(nonnull NSString *)query;
-+ (nonnull instancetype)URL:(nullable NSString *)url query:(nullable NSString *)query method:(nonnull NSString *)method;
-+ (nonnull instancetype)URL:(nullable NSString *)url method:(nonnull NSString *)method;
++ (nonnull instancetype)URL:(nonnull NSString *)url; // any request matching the specified regex on the request URL
++ (nonnull instancetype)URL:(nonnull NSString *)url query:(nonnull NSString *)query; // same as above additionally matching the query (params in GET and DELETE, body in POST and PUT)
++ (nonnull instancetype)URL:(nonnull NSString *)url query:(nonnull NSString *)query method:(nonnull NSString *)method; // same as above additionally matching the HTTP method
++ (nonnull instancetype)URL:(nonnull NSString *)url method:(nonnull NSString *)method; // any request matching the specified regex on the request URL and HTTP method
 
-+ (nonnull instancetype)query:(nonnull NSString *)query;
-+ (nonnull instancetype)query:(nullable NSString *)query method:(nonnull NSString *)method;
++ (nonnull instancetype)query:(nonnull NSString *)query; // any request matching the specified regex on the query (params in GET and DELETE, body in POST and PUT)
++ (nonnull instancetype)query:(nullable NSString *)query method:(nonnull NSString *)method; // same as above additionally matching the HTTP method
 
-+ (nonnull instancetype)method:(nonnull NSString *)method;
++ (nonnull instancetype)method:(nonnull NSString *)method; // any request matching the HTTP method
 
 @end
 
