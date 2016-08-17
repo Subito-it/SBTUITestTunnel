@@ -66,23 +66,6 @@
  */
 - (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
-/**
- *  Stub a request whose request parameters match the specified list.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param returnData The return data to stub
- *  @param contentType The return ContentType
- *  @param returnCode The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
- */
-- (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
 #pragma mark - Stub And Remove Commands
 
 /**
@@ -101,23 +84,6 @@
  */
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
-/**
- *  Stub a request whose request parameters match the specified list for a limited number of times.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param returnData The return data to stub
- *  @param contentType The return ContentType
- *  @param returnCode The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return `YES` on success
- */
-- (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
-
 #pragma mark - Stub Commands JSON
 
 /**
@@ -135,22 +101,6 @@
 - (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 /**
-*  Stub a request whose request parameters match the specified list.
-*  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key 
-*  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
-*  @param queryParams The list of query params that should be present in the request
-*  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
-*  @param returnCode The HTTP response code to be returned
-*  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
-*
-*  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
-*/
-- (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
-/**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
@@ -163,22 +113,6 @@
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
 - (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
-/**
- *  Stub a request whose request parameters match the specified list.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
- */
-- (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 #pragma mark - Stub And Remove Commands JSON
 
@@ -198,22 +132,6 @@
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 /**
- *  Stub a request whose request parameters match the specified list for a limited number of times.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return `YES` on success
- */
-- (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
-
-/**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
@@ -226,22 +144,6 @@
  *  @return `YES` on success
  */
 - (BOOL)stubRequestsWithRegex:(nonnull NSString *)regexPattern returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
-
-/**
- *  Stub a request whose request parameters match the specified list for a limited number of times.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return `YES` on success
- */
-- (BOOL)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Stub Remove Commands
 
@@ -284,21 +186,6 @@
  *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when using -(BOOL)monitorRequestRemoveWithId:
  */
 - (nullable NSString *)monitorRequestsWithRegex:(nonnull NSString *)regexPattern;
-
-/**
- *  Start monitoring requests whose parameters match the specified list.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *
- *  The monitored events can be successively polled using the monitoredRequestsFlushAll method.
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created monitor probe. Should be used when using -(BOOL)monitorRequestRemoveWithId:
- */
-- (nullable NSString *)monitorRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams;
 
 /**
  *  Peek (retrieve) the current list of collected requests
@@ -360,25 +247,6 @@
  */
 - (void)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
 
-/**
- *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param timeout How long to wait for the request to happen
- *  @param completionHandler will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
-/**
- *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param timeout How long to wait for the request to happen
- *  @param iterations How often the request should happen before timing out
- *  @param completionHandler will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
 #pragma mark - Synchronously Wait for Requests Commands
 
 /**
@@ -402,27 +270,6 @@
  */
 - (BOOL)waitForMonitoredRequestsWithRegex:(nonnull NSString *)regexPattern timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
 
-/**
- *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param timeout How long to wait for the request to happen
- *
- *  @return `YES` on success, `NO` on timeout
- */
-- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout;
-
-/**
- *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param timeout How long to wait for the request to happen
- *  @param iterations How often the request should happen before timing out
- *
- *  @return `YES` on success, `NO` on timeout
- */
-- (BOOL)waitForMonitoredRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
-
 #pragma mark - Throttle Requests Commands
 
 /**
@@ -438,22 +285,6 @@
  *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
  */
 - (nullable NSString *)throttleRequestsWithRegex:(nonnull NSString *)regexPattern responseTime:(NSTimeInterval)responseTime;
-
-/**
- *  Start throttling requests whose parameters match the specified list.
- *  Params can be either key only: @[@"param1", @"param2"...] in which case we'll just check for the key
- *  or key + value @[@"param1=value1", @"param2=value2"...] in which case we'll check that also the value
- *s
- *  The throttled events can be successively polled using the throttledRequestsFlushAll method.
- *
- *  Note: you cannot have a throttle request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
- *  @param queryParams The list of query params that should be present in the request
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
- */
-- (nullable NSString *)throttleRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams responseTime:(NSTimeInterval)responseTime;
 
 /**
  *  Remove a request throttle

@@ -23,7 +23,6 @@
 
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
 static NSString * const SBTProxyURLProtocolRegexRuleKey = @"SBTProxyURLProtocolRegexRuleKey";
-static NSString * const SBTProxyURLProtocolQueryRuleKey = @"SBTProxyURLProtocolQueryRuleKey";
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
@@ -81,25 +80,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return [self identifierForRule:rule];
 }
 
-+ (NSString *)proxyRequestsWithQueryParams:(NSArray<NSString *> *)queryParams delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
-{
-    NSDictionary *rule = @{SBTProxyURLProtocolQueryRuleKey: queryParams, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
-    
-    @synchronized (self.sharedInstance) {
-        NSString *identifierToAdd = [self identifierForRule:rule];
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
-                NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
-                return nil;
-            }
-        }
-        
-        [self.sharedInstance.matchingRules addObject:rule];
-    }
-    
-    return [self identifierForRule:rule];
-}
-
 + (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId
 {
     NSMutableArray *itemsToDelete = [NSMutableArray array];
@@ -137,25 +117,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 + (NSString *)stubRequestsWithRegex:(NSString *)regexPattern stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolRegexRuleKey: regexPattern, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
-    NSString *identifierToAdd = [self identifierForRule:rule];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
-                NSLog(@"[UITestTunnelServer] Warning existing stub request found, skipping");
-                return nil;
-            }
-        }
-        
-        [self.sharedInstance.matchingRules addObject:rule];
-    }
-    
-    return identifierToAdd;
-}
-
-+ (NSString *)stubRequestsWithQueryParams:(NSArray<NSString *> *)queryParams stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
-{
-    NSDictionary *rule = @{SBTProxyURLProtocolQueryRuleKey: queryParams, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -403,10 +364,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 if ([request matchesRegexPattern:matchingRule[SBTProxyURLProtocolRegexRuleKey]]) {
                     [ret addObject:matchingRule];
                 }
-            } else if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolQueryRuleKey]) {
-                if ([request matchesQueryParams:matchingRule[SBTProxyURLProtocolQueryRuleKey]]) {
-                    [ret addObject:matchingRule];
-                }
             } else {
                 NSAssert(NO, @"???");
             }
@@ -421,12 +378,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSString *identifier = nil;
     if ([rule.allKeys containsObject:SBTProxyURLProtocolRegexRuleKey]) {
         NSData *ruleData = [rule[SBTProxyURLProtocolRegexRuleKey] dataUsingEncoding:NSUTF8StringEncoding];
-        
-        identifier = [ruleData SHA1];
-    } else if ([rule.allKeys containsObject:SBTProxyURLProtocolQueryRuleKey]) {
-        NSError *error = nil;
-        NSData *ruleData = [NSJSONSerialization dataWithJSONObject:rule[SBTProxyURLProtocolQueryRuleKey] options:NSJSONWritingPrettyPrinted error:&error];
-        NSAssert(error == nil || !ruleData, @"???");
         
         identifier = [ruleData SHA1];
     } else {

@@ -23,13 +23,11 @@
 @interface SBTProxyURLProtocol : NSURLProtocol
 
 + (nullable NSString *)proxyRequestsWithRegex:(nonnull NSString *)regexPattern delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval))block;
-+ (nullable NSString *)proxyRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval))block;
 
 + (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)proxyRequestsRemoveAll;
 
 + (nullable NSString *)stubRequestsWithRegex:(nonnull NSString *)regexPattern stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
-+ (nullable NSString *)stubRequestsWithQueryParams:(nonnull NSArray<NSString *> *)queryParams stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;

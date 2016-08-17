@@ -216,34 +216,6 @@ description:(desc), ##__VA_ARGS__]; \
     return stubId;
 }
 
-- (NSString *)commandStubPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
-{
-    __block NSString *stubId = nil;
-    
-    if ([self validStubRequest:tunnelRequest]) {
-        NSData *queriesData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
-        NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:queriesData];
-
-        SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
-        NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
-        
-        __weak typeof(self)weakSelf = self;
-        stubId = [SBTProxyURLProtocol stubRequestsWithQueryParams:queries stubResponse:response didStubRequest:^(NSURLRequest *request) {
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-
-            if ([strongSelf.stubsToRemoveAfterCount containsObject:requestIdentifier]) {
-                [strongSelf.stubsToRemoveAfterCount removeObject:requestIdentifier];
-                
-                if ([strongSelf.stubsToRemoveAfterCount countForObject:requestIdentifier] == 0) {
-                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
-                }
-            }
-        }];
-    }
-    
-    return stubId;
-}
-
 #pragma mark - Stub and Remove Commands
 
 - (NSString *)commandStubAndRemovePathThathMatchesRegex:(GCDWebServerRequest *)tunnelRequest
@@ -256,21 +228,6 @@ description:(desc), ##__VA_ARGS__]; \
         }
         
         return [self commandStubPathThathMatchesRegex:tunnelRequest].length > 0 ? @"YES" : @"NO";
-    }
-    
-    return @"NO";
-}
-
-- (NSString *)commandStubAndRemovePathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
-{
-    if ([self validStubRequest:tunnelRequest]) {
-        NSInteger stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
-        
-        for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
-            [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
-        }
-        
-        return [self commandStubPathThathContainsQueryParams:tunnelRequest].length > 0 ? @"YES" : @"NO";
     }
     
     return @"NO";
@@ -306,33 +263,6 @@ description:(desc), ##__VA_ARGS__]; \
         NSString *regexPattern = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
 
         reqId = [SBTProxyURLProtocol proxyRequestsWithRegex:regexPattern delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
-            SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
-            
-            monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
-            monitoredRequest.requestTime = requestTime;
-            monitoredRequest.request = request;
-            monitoredRequest.originalRequest = originalRequest;
-            
-            monitoredRequest.response = response;
-            
-            monitoredRequest.responseData = responseData;
-            
-            [self.monitoredRequests addObject:monitoredRequest];
-        }];
-    }
-    
-    return reqId;
-}
-
-- (NSString *)commandMonitorPathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
-{
-    NSString *reqId = nil;
-    
-    if ([self validMonitorRequest:tunnelRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
-        NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-        
-        reqId = [SBTProxyURLProtocol proxyRequestsWithQueryParams:queries delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
             monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
@@ -423,21 +353,6 @@ description:(desc), ##__VA_ARGS__]; \
         NSTimeInterval responseDelayTime = [tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
         
         reqId = [SBTProxyURLProtocol proxyRequestsWithRegex:regexPattern delayResponse:responseDelayTime responseBlock:nil];
-    }
-    
-    return reqId;
-}
-
-- (NSString *)commandThrottlePathThathContainsQueryParams:(GCDWebServerRequest *)tunnelRequest
-{
-    NSString *reqId = nil;
-    
-    if ([self validThrottleRequest:tunnelRequest]) {
-        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
-        NSArray<NSString *> *queries = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-        NSTimeInterval responseDelayTime = [tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
-        
-        reqId = [SBTProxyURLProtocol proxyRequestsWithQueryParams:queries delayResponse:responseDelayTime responseBlock:nil];
     }
     
     return reqId;

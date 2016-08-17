@@ -17,58 +17,30 @@
 #if DEBUG
 
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "SBTUITestTunnel.h"
 
 @implementation NSURLRequest (SBTUITestTunnelMatch)
 
 - (BOOL)matchesRegexPattern:(NSString *)regexPattern
 {
-    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:regexPattern options:NSRegularExpressionCaseInsensitive error:nil];
-    NSString *requestAbsoluteString = self.URL.absoluteString;
-    NSUInteger regexMatches = [regex numberOfMatchesInString:requestAbsoluteString options:0 range:NSMakeRange(0, [requestAbsoluteString length])];
+    NSString *requestString = nil;
     
-    return regexMatches > 0;
-}
-
-- (BOOL)matchesQueryParams:(NSArray<NSString *> *)queries
-{
-    NSDictionary<NSString *, NSString *> *requestParams = nil;
-    
-    if ([self.HTTPMethod isEqualToString:@"POST"]) {
-        requestParams = [NSURLProtocol propertyForKey:@"parameters" inRequest:self];
-    } else if ([self.HTTPMethod isEqualToString:@"GET"]) {
+    if ([self.HTTPMethod isEqualToString:@"POST"] || [self.HTTPMethod isEqualToString:@"PUT"]) {
+        NSData *requestData = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+        requestString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
+    } else if ([self.HTTPMethod isEqualToString:@"GET"] || [self.HTTPMethod isEqualToString:@"DELETE"]) {
         NSURLComponents *components = [NSURLComponents componentsWithURL:self.URL resolvingAgainstBaseURL:NO];
         
-        NSMutableDictionary<NSString *, NSString *> *mRequestParams = [NSMutableDictionary dictionary];
-        for (NSURLQueryItem *queryItem in components.queryItems) {
-            mRequestParams[queryItem.name] = queryItem.value;
-        }
-        
-        requestParams = mRequestParams;
+        requestString = components.query;
     }
     
-    for (NSString *query in queries) {
-        __block BOOL found = NO;
-        
-        NSArray *queryComponents = [query componentsSeparatedByString:@"="];
-        NSString *queryKey = [queryComponents firstObject];
-        NSString *queryValue = nil;
-        if (queryComponents.count == 2) {
-            queryValue = [queryComponents lastObject];
-        }
-        
-        [requestParams enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
-            if ([key isEqualToString:queryKey] && (!queryValue || [value isEqualToString:queryValue])) {
-                found = YES;
-                *stop = YES;
-            }
-        }];
-        
-        if (!found) {
-            return NO;
-        }
-    }
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:regexPattern options:NSRegularExpressionCaseInsensitive error:nil];
+    NSString *requestURLString = self.URL.absoluteString;
+    NSUInteger regexMatchesURL = [regex numberOfMatchesInString:requestURLString options:0 range:NSMakeRange(0, requestURLString.length)];
     
-    return YES;
+    NSUInteger regexMatchesRequest = [regex numberOfMatchesInString:requestString options:0 range:NSMakeRange(0, requestString.length)];
+    
+    return regexMatchesURL > 0 || regexMatchesRequest > 0;
 }
 
 @end

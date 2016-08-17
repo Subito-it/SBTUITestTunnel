@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G19a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="whP-gf-Uak">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11198.2" systemVersion="15G19a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="whP-gf-Uak">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -15,69 +16,78 @@
                         <viewControllerLayoutGuide type="bottom" id="Mvr-aV-6Um"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="TpU-gO-2f1">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PEo-yp-LCA">
-                                <rect key="frame" x="20" y="20" width="240" height="30"/>
                                 <state key="normal" title="https://www.google.com/?q=tennis"/>
                                 <connections>
                                     <action selector="doGoogleNetRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="1X4-n6-Ar2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hxn-N7-r9R">
-                                <rect key="frame" x="20" y="96" width="232" height="30"/>
                                 <state key="normal" title="http://duckduckgo.com/?q=tennis"/>
                                 <connections>
                                     <action selector="doYahooNetRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="Iui-rb-kpf"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fN1-x4-mFZ">
-                                <rect key="frame" x="20" y="58" width="222" height="30"/>
                                 <state key="normal" title="https://us.yahoo.com/?p=us&amp;l=1"/>
                                 <connections>
                                     <action selector="doYahooNetRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="eJn-cf-w0z"/>
                                 </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PSK-Cl-LC4">
-                                <rect key="frame" x="20" y="146" width="232" height="30"/>
                                 <accessibility key="accessibilityConfiguration" label="textfield"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="24c-lG-cmT">
-                                <rect key="frame" x="20" y="197" width="231" height="30"/>
                                 <state key="normal" title="https://www.bing.com/?q=retdata"/>
                                 <connections>
                                     <action selector="doBingRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="2yl-JA-hmI"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jIL-ks-Hm8">
-                                <rect key="frame" x="20" y="227" width="560" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BTw-uF-1zU">
-                                <rect key="frame" x="20" y="258" width="175" height="30"/>
                                 <state key="normal" title="delayed bing request (5s)"/>
                                 <connections>
                                     <action selector="delayedBingRequestTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="g2V-GP-J0f"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kzu-x8-g0b">
+                                <state key="normal" title="POST REQUEST"/>
+                                <connections>
+                                    <action selector="doPostRequest:" destination="whP-gf-Uak" eventType="touchUpInside" id="u2L-vs-9VG"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zd2-yL-hZz">
+                                <state key="normal" title="PUT REQUEST"/>
+                                <connections>
+                                    <action selector="doPutRequest:" destination="whP-gf-Uak" eventType="touchUpInside" id="FrJ-f5-8ev"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="leadingMargin" secondItem="PSK-Cl-LC4" secondAttribute="leading" id="26Y-lu-wyM"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="top" secondItem="hxn-N7-r9R" secondAttribute="bottom" constant="20" id="3pd-H5-qIR"/>
                             <constraint firstItem="BTw-uF-1zU" firstAttribute="leading" secondItem="jIL-ks-Hm8" secondAttribute="leading" id="6Mk-9F-DQo"/>
                             <constraint firstItem="fN1-x4-mFZ" firstAttribute="leading" secondItem="PEo-yp-LCA" secondAttribute="leading" id="9FC-m5-f0u"/>
+                            <constraint firstItem="kzu-x8-g0b" firstAttribute="leading" secondItem="BTw-uF-1zU" secondAttribute="leading" id="GU8-4u-ZXu"/>
                             <constraint firstItem="Mvr-aV-6Um" firstAttribute="top" secondItem="jIL-ks-Hm8" secondAttribute="bottom" constant="10" id="LKG-Fw-doj"/>
+                            <constraint firstItem="kzu-x8-g0b" firstAttribute="top" secondItem="BTw-uF-1zU" secondAttribute="bottom" constant="8" id="NrZ-pR-LEd"/>
                             <constraint firstItem="PSK-Cl-LC4" firstAttribute="width" secondItem="hxn-N7-r9R" secondAttribute="width" id="O5v-yf-J2t"/>
                             <constraint firstItem="24c-lG-cmT" firstAttribute="top" secondItem="PSK-Cl-LC4" secondAttribute="bottom" constant="21" id="OtZ-XO-tIP"/>
+                            <constraint firstItem="Zd2-yL-hZz" firstAttribute="top" secondItem="kzu-x8-g0b" secondAttribute="bottom" constant="2.5" id="PEu-fN-ydu"/>
                             <constraint firstItem="BTw-uF-1zU" firstAttribute="top" secondItem="jIL-ks-Hm8" secondAttribute="bottom" constant="10" id="PLP-ic-DsY"/>
                             <constraint firstItem="PEo-yp-LCA" firstAttribute="top" secondItem="uEw-UM-LJ8" secondAttribute="bottom" id="Q34-hm-Nhd"/>
                             <constraint firstItem="hxn-N7-r9R" firstAttribute="top" secondItem="fN1-x4-mFZ" secondAttribute="bottom" constant="8" id="RNo-CS-H5d"/>
+                            <constraint firstItem="Zd2-yL-hZz" firstAttribute="leading" secondItem="kzu-x8-g0b" secondAttribute="leading" id="adP-qA-Bim"/>
                             <constraint firstAttribute="leadingMargin" secondItem="PEo-yp-LCA" secondAttribute="leading" id="cBs-sL-hPg"/>
                             <constraint firstItem="hxn-N7-r9R" firstAttribute="leading" secondItem="fN1-x4-mFZ" secondAttribute="leading" id="flN-RQ-7nj"/>
                             <constraint firstAttribute="leadingMargin" secondItem="24c-lG-cmT" secondAttribute="leading" id="ngx-g3-zG6"/>

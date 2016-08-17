@@ -124,4 +124,76 @@
     });
 }
 
+- (IBAction)doPostRequest:(id)sender {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        
+        NSURL *url = [NSURL URLWithString:@"http://httpbin.org/post"];
+        
+        __block NSData *responseData = nil;
+        
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+        request.HTTPMethod = @"POST";
+        
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"k1": @"v1", @"k2": @"v2", @"k3": @"v3" }
+                                                       options:kNilOptions error:&error];
+
+        [[[NSURLSession sharedSession] uploadTaskWithRequest:request fromData:data completionHandler:^(NSData *data,NSURLResponse *response,NSError *error) {
+            responseData = data;
+            dispatch_semaphore_signal(sem);
+        }] resume];
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+        id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
+        
+        if ([object[@"request"] isEqualToString:@"stubbed"])  {
+            self.alert.message = @"Stubbed";
+        } else {
+            self.alert.message = @"Not Stubbed";
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^() {
+            [self presentViewController:self.alert animated:YES completion:nil];
+        });
+    });
+}
+
+- (IBAction)doPutRequest:(id)sender {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        
+        NSURL *url = [NSURL URLWithString:@"http://httpbin.org/put"];
+        
+        __block NSData *responseData = nil;
+        
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+        request.HTTPMethod = @"PUT";
+        
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"k1": @"v1", @"k2": @"v2", @"k3": @"v3" }
+                                                       options:kNilOptions error:&error];
+        
+        [[[NSURLSession sharedSession] uploadTaskWithRequest:request fromData:data completionHandler:^(NSData *data,NSURLResponse *response,NSError *error) {
+            responseData = data;
+            dispatch_semaphore_signal(sem);
+        }] resume];
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        
+        id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
+        
+        if ([object[@"request"] isEqualToString:@"stubbed"])  {
+            self.alert.message = @"Stubbed";
+        } else {
+            self.alert.message = @"Not Stubbed";
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^() {
+            [self presentViewController:self.alert animated:YES completion:nil];
+        });
+    });
+}
+
 @end

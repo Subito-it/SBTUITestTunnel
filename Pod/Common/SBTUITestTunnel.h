@@ -58,21 +58,17 @@ extern NSString * _Nonnull const SBTUITunnelResponseResultKey;
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathThatMatchesRegex;
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathThatMatchesRegex;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandstubRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubRequestsRemoveAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathThatMatchesRegex;
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorRemoveAll;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorPeek;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorFlush;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathThatMatchesRegex;
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathThatContainsQueryParams;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationcommandThrottleRemoveAll;
 

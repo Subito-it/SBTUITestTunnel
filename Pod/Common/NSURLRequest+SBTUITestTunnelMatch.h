@@ -21,7 +21,6 @@
 @interface NSURLRequest (SBTUITestTunnelMatch)
 
 - (BOOL)matchesRegexPattern:(NSString *)regexPattern;
-- (BOOL)matchesQueryParams:(NSArray<NSString *> *)queries;
 
 @end
 
