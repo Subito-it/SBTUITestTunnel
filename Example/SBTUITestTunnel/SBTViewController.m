@@ -100,13 +100,13 @@
         
         id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
         
-        if ([object[@"request"] isEqualToString:@"stubbed"])  {
-            self.alert.message = @"Stubbed";
-        } else {
-            self.alert.message = @"Not Stubbed";
-        }
-        
         dispatch_async(dispatch_get_main_queue(), ^() {
+            if ([object[@"request"] isEqualToString:@"stubbed"])  {
+                self.alert.message = @"Stubbed";
+            } else {
+                self.alert.message = @"Not Stubbed";
+            }
+
             [self presentViewController:self.alert animated:YES completion:nil];
         });
     });
@@ -148,13 +148,13 @@
 
         id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
         
-        if ([object[@"request"] isEqualToString:@"stubbed"])  {
-            self.alert.message = @"Stubbed";
-        } else {
-            self.alert.message = @"Not Stubbed";
-        }
-        
         dispatch_async(dispatch_get_main_queue(), ^() {
+            if ([object[@"request"] isEqualToString:@"stubbed"])  {
+                self.alert.message = @"Stubbed";
+            } else {
+                self.alert.message = @"Not Stubbed";
+            }
+
             [self presentViewController:self.alert animated:YES completion:nil];
         });
     });
@@ -184,13 +184,13 @@
         
         id object = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:nil];
         
-        if ([object[@"request"] isEqualToString:@"stubbed"])  {
-            self.alert.message = @"Stubbed";
-        } else {
-            self.alert.message = @"Not Stubbed";
-        }
-        
         dispatch_async(dispatch_get_main_queue(), ^() {
+            if ([object[@"request"] isEqualToString:@"stubbed"])  {
+                self.alert.message = @"Stubbed";
+            } else {
+                self.alert.message = @"Not Stubbed";
+            }
+
             [self presentViewController:self.alert animated:YES completion:nil];
         });
     });
