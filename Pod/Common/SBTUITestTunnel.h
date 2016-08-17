@@ -105,7 +105,7 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 
 @end
 
-@interface SBTMonitoredNetworkRequest : NSObject
+@interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
 
 - (nullable NSString *)responseString;
 - (nullable id)responseJSON;
@@ -118,6 +118,20 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 @property (nullable, nonatomic, strong) NSHTTPURLResponse *response;
 
 @property (nullable, nonatomic, strong) NSData *responseData;
+
+@end
+
+@interface SBTRequestMatch : NSObject<NSCoding>
+
++ (nonnull instancetype)URL:(nonnull NSString *)url;
++ (nonnull instancetype)URL:(nullable NSString *)url query:(nonnull NSString *)query;
++ (nonnull instancetype)URL:(nullable NSString *)url query:(nullable NSString *)query method:(nonnull NSString *)method;
++ (nonnull instancetype)URL:(nullable NSString *)url method:(nonnull NSString *)method;
+
++ (nonnull instancetype)query:(nonnull NSString *)query;
++ (nonnull instancetype)query:(nullable NSString *)query method:(nonnull NSString *)method;
+
++ (nonnull instancetype)method:(nonnull NSString *)method;
 
 @end
 

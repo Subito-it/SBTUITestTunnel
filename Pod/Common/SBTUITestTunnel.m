@@ -167,4 +167,78 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
 
 @end
 
+@interface SBTRequestMatch()
+
+@property (nonatomic, strong, nullable) NSString *url;
+@property (nonatomic, strong, nullable) NSString *query;
+@property (nonatomic, strong, nullable) NSString *method;
+
+@end
+
+@implementation SBTRequestMatch : NSObject
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    if (self = [super init]) {
+        self.url = [decoder decodeObjectForKey:@"url"];
+        self.query = [decoder decodeObjectForKey:@"query"];
+        self.method = [decoder decodeObjectForKey:@"method"];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeObject:self.url forKey:@"url"];
+    [encoder encodeObject:self.query forKey:@"query"];
+    [encoder encodeObject:self.method forKey:@"method"];
+}
+
++ (instancetype)URL:(NSString *)url
+{
+    SBTRequestMatch *ret = [[SBTRequestMatch alloc] init];
+    ret.url = url;
+    
+    return ret;
+}
+
++ (instancetype)URL:(NSString *)url query:(NSString *)query
+{
+    SBTRequestMatch *ret = [self URL:url];
+    ret.query = query;
+    
+    return ret;
+}
+
++ (instancetype)URL:(NSString *)url query:(NSString *)query method:(NSString *)method
+{
+    SBTRequestMatch *ret = [self URL:url query:query];
+    ret.method = method;
+    
+    return ret;
+}
+
++ (instancetype)URL:(NSString *)url method:(NSString *)method
+{
+    return [self URL:url query:nil method:method];
+}
+
++ (instancetype)query:(NSString *)query
+{
+    return [self URL:nil query:query method:nil];
+}
+
++ (instancetype)query:(NSString *)query method:(NSString *)method
+{
+    return [self URL:nil query:query method:method];
+}
+
++ (instancetype)method:(nonnull NSString *)method
+{
+    return [self URL:nil query:nil method:method];
+}
+
+@end
+
 #endif
