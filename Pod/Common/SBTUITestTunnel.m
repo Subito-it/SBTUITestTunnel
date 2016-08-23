@@ -224,6 +224,9 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
     return ret;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+
 + (instancetype)URL:(NSString *)url method:(NSString *)method
 {
     return [self URL:url query:nil method:method];
@@ -239,10 +242,12 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
     return [self URL:nil query:query method:method];
 }
 
-+ (instancetype)method:(nonnull NSString *)method
++ (instancetype)method:(NSString *)method
 {
     return [self URL:nil query:nil method:method];
 }
+
+#pragma clang diagnostic pop
 
 @end
 

@@ -389,6 +389,7 @@
 #pragma mark - Copy Commands
 
 /**
+ 
  *  Upload item to remote host
  *
  *  @param srcPath source path
@@ -420,7 +421,7 @@
  *
  *  @return object returned from custom block
  */
-- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(NSObject *)object;
+- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject *)object;
 
 #pragma mark - Other Commands
 
