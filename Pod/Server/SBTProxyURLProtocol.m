@@ -368,9 +368,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
                 NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
                 
-                NSLog(@"%@", originalRequest);
-                NSLog(@"%@", (originalRequest ?: request));
-                
                 if ([(originalRequest ?: request) matches:matchingRule[SBTProxyURLProtocolMatchingRuleKey]]) {
                     [ret addObject:matchingRule];
                 }
