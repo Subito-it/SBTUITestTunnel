@@ -220,16 +220,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         __weak typeof(self)weakSelf = self;
+        id<NSURLProtocolClient>client = self.client;
+        NSURLRequest *request = self.request;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
             NSString *length = [NSString stringWithFormat:@"%@", @(stubResponse.data.length)];
             
-            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:strongSelf.request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
+            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
             
-            [strongSelf.client URLProtocol:strongSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-            [strongSelf.client URLProtocol:strongSelf didLoadData:stubResponse.data];
-            [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
+            [client URLProtocol:strongSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [client URLProtocol:strongSelf didLoadData:stubResponse.data];
+            [client URLProtocolDidFinishLoading:strongSelf];
             
             // check if the request is also proxied, we might need to manually invoke the block here
             if (proxyRule) {
@@ -237,13 +239,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                     SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                     
                     if (![block isEqual:[NSNull null]] && block != nil) {
-                        block(strongSelf.request, strongSelf.request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
+                        block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
                     }
                 }
             }
             
             if (![didStubRequestBlock isEqual:[NSNull null]] && didStubRequestBlock != nil) {
-                didStubRequestBlock(strongSelf.request);
+                didStubRequestBlock(request);
             }
         });
         
@@ -296,15 +298,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
             
             __weak typeof(self)weakSelf = self;
+            id<NSURLProtocolClient>client = self.client;
+            NSURLRequest *request = self.request;
+            NSURLResponse *response = self.response;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 __strong typeof(weakSelf)strongSelf = weakSelf;
                 
-                [strongSelf.client URLProtocolDidFinishLoading:strongSelf];
+                [client URLProtocolDidFinishLoading:strongSelf];
                 
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    block(strongSelf.request, task.originalRequest, strongSelf.response, responseData, requestTime);
+                    block(request, task.originalRequest, response, responseData, requestTime);
                 }
             });
         }
