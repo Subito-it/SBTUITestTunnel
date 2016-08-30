@@ -250,7 +250,7 @@
 #pragma mark - Synchronously Wait for Requests Commands
 
 /**
- *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *  Synchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
  *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
@@ -260,7 +260,7 @@
 - (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout;
 
 /**
- *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *  Synchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
  *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
