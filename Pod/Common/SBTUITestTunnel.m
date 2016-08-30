@@ -84,6 +84,7 @@ NSString * const SBTUITunneledApplicationCommandKeychainReset = @"commandKeychai
 NSString * const SBTUITunneledApplicationCommandCustom = @"commandCustom";
 
 NSString * const SBTUITunneledApplicationCommandSetUserInterfaceAnimations = @"commandSetUIAnimations";
+NSString * const SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed = @"commandSetUIAnimationSpeed";
 
 NSString * const SBTUITunneledApplicationCommandUploadData = @"commandUpload";
 NSString * const SBTUITunneledApplicationCommandDownloadData = @"commandDownload";

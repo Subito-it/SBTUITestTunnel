@@ -523,6 +523,13 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimations params:params] boolValue];
 }
 
+- (BOOL)setUserInterfaceAnimationSpeed:(NSInteger)speed
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [@(speed) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed params:params] boolValue];
+}
+
 #pragma mark - Bonjour Delegates
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing

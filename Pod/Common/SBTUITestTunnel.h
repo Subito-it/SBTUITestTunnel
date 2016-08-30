@@ -85,6 +85,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainReset;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCustom;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandSetUserInterfaceAnimations;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandUploadData;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandDownloadData;

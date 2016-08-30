@@ -532,9 +532,18 @@ description:(desc), ##__VA_ARGS__]; \
 {
     BOOL enableAnimations = [tunnelRequest.parameters[SBTUITunnelObjectKey] boolValue];
     
+    [UIView setAnimationsEnabled:enableAnimations];
+    
+    return @"YES";
+}
+
+- (NSString *)commandSetUIAnimationSpeed:(GCDWebServerRequest *)tunnelRequest
+{
+    NSInteger animationSpeed = [tunnelRequest.parameters[SBTUITunnelObjectKey] integerValue];
+    
     // Replacing [UIView setAnimationsEnabled:] as per
     // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
-    UIApplication.sharedApplication.keyWindow.layer.speed = enableAnimations ? 1 : 100;
+    UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
     
     return @"YES";
 }

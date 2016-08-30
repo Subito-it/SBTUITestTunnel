@@ -426,13 +426,23 @@
 #pragma mark - Other Commands
 
 /**
- *  Set user iterface animations. Should imporve test execution speed When enabled
+ *  Set user iterface animations through [UIView setAnimationsEnabled:]. Should imporve test execution speed When enabled
+ *  Sometimes useful as per https://forums.developer.apple.com/thread/6503
  *
  *  @param enabled enable animations
  *
  *  @return `YES` on success
  */
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled;
+
+/**
+ *  Set user iterface animations through UIApplication.sharedApplication.keyWindow.layer.speed. Should imporve test execution speed When enabled
+ *
+ *  @param enabled enable animations
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)setUserInterfaceAnimationSpeed:(NSInteger)speed;
 
 @end
 
