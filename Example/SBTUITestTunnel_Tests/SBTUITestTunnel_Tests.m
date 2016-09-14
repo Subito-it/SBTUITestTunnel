@@ -70,22 +70,6 @@
     XCTAssertNil([app keychainObjectForKey:@"test_key"]);
 }
 
-- (void)testNSUserDefaultsCommands {
-    NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
-    // add and retrieve random string
-    XCTAssertTrue([app userDefaultsSetObject:randomString forKey:@"test_key"]);
-    XCTAssertEqualObjects([app userDefaultsObjectForKey:@"test_key"], randomString);
-    
-    // remove and check for nil
-    XCTAssertTrue([app userDefaultsRemoveObjectForKey:@"test_key"]);
-    XCTAssertNil([app userDefaultsObjectForKey:@"test_key"]);
-    
-    // add again, remove all keys and check for nil item
-    XCTAssertTrue([app userDefaultsSetObject:randomString forKey:@"test_key"]);
-    [app userDefaultsReset];
-    XCTAssertNil([app userDefaultsObjectForKey:@"test_key"]);
-}
-
 - (void)testDownloadUpload {
     NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
     

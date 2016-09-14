@@ -1,1 +1,0 @@
-../../../../../Pod/Server/SBTProxyStubResponse.h

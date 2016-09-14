@@ -1,8 +1,8 @@
 {
   "name": "SBTUITestTunnel",
-  "version": "0.9.17",
+  "version": "1.0.2",
   "summary": "Enable network mocks and more in UI Tests",
-  "description": "Use this library to easily setup an HTTP tunnel between our UI Tests cases and the app under test.\nThe tunnel allows to inject data in order to enabale network mocking (via OHHTTPMock).",
+  "description": "Use this library to easily setup an HTTP tunnel between our UI Tests cases and the app under test.\nThe tunnel allows to inject data in order to enabale network mocking.",
   "homepage": "https://github.com/Subito-it/SBTUITestTunnel",
   "license": "Apache License, Version 2.0",
   "authors": {
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/Subito-it/SBTUITestTunnel.git",
-    "tag": "0.9.17"
+    "tag": "1.0.2"
   },
   "platforms": {
     "ios": "8.0"
