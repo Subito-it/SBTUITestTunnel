@@ -305,11 +305,11 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
         NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-        NSUInteger localIterations = iterations;
         
         BOOL timedout = NO;
         
         for(;;) {
+            NSUInteger localIterations = iterations;
             NSArray<SBTMonitoredNetworkRequest *> *requests = [self monitoredRequestsPeekAll];
             
             for (SBTMonitoredNetworkRequest *request in requests) {
@@ -323,7 +323,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             if (localIterations < 1) {
                 break;
             } else if (CFAbsoluteTimeGetCurrent() - start > timeout) {
-                timedout =YES;
+                timedout = YES;
                 break;
             }
             
@@ -346,14 +346,16 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (BOOL)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations;
 {
     __block BOOL result = NO;
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block BOOL done = NO;
     
-    [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:iterations completionBlock:^(BOOL timeout) {
-        result = !timeout;
-        dispatch_semaphore_signal(sem);
+    [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:iterations completionBlock:^(BOOL didTimeout) {
+        result = !didTimeout;
+        done = YES;
     }];
     
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    while (!done) {
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+    }
     
     return result;
 }

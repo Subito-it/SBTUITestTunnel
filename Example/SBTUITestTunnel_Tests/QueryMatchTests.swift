@@ -1,4 +1,4 @@
-// SBTViewController.h
+// QueryMatchTests.swift
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -14,8 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import UIKit;
+import SBTUITestTunnel
+import Foundation
 
-@interface SBTViewController : UIViewController
-
-@end
+class QueryMatchTests: XCTestCase {
+    
+    var app: SBTUITunneledApplication = SBTUITunneledApplication()
+    
+    override func setUp() {
+        super.setUp()
+        
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+        
+        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
+        waitForExpectations(timeout: 15.0, handler: nil)
+        
+        Thread.sleep(forTimeInterval: 1.0)
+    }
+    
+    // TODO
+}

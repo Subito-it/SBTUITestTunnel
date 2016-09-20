@@ -1,4 +1,4 @@
-// SBTAppDelegate.h
+// SBTNetworkTestViewController.swift
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -14,10 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import UIKit;
+import UIKit
 
-@interface SBTAppDelegate : UIResponder <UIApplicationDelegate>
+class SBTNetworkTestViewController: UIViewController {
 
-@property (strong, nonatomic) UIWindow *window;
-
-@end
+    @IBOutlet weak var networkResult: UITextView!
+    var networkResultString: String = ""
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        networkResult.text = networkResultString
+    }
+}

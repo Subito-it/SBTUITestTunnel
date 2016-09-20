@@ -1,31 +1,373 @@
+// SBTTableViewController.swift
 //
-//  SBTTableViewController.swift
-//  SBTUITestTunnel
+// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
-//  Created by Tomas on 14/09/16.
-//  Copyright © 2016 Tomas Camin. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import UIKit
+import SBTUITestTunnel
+
+class BaseTest {
+    var testSelector: Selector
+    
+    init(testSelector: Selector) {
+        self.testSelector = testSelector
+    }
+}
+
+class NetworkTest: BaseTest {}
+class AutocompleteTest: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     
-    private let testList = ["A",
-                            "B"]
+    fileprivate var sessionTask: URLSessionTask!
+    fileprivate var sessionSemaphore: DispatchSemaphore?
+    fileprivate var sessionData: Data?
+    fileprivate var sessionResponse: HTTPURLResponse?
+    
+    private let testList: [BaseTest] = [NetworkTest(testSelector: #selector(executeDataTaskRequest)),
+                                        NetworkTest(testSelector: #selector(executeDataTaskRequest2)),
+                                        NetworkTest(testSelector: #selector(executeDataTaskRequest3)),
+                                        NetworkTest(testSelector: #selector(executeUploadDataTaskRequest)),
+                                        NetworkTest(testSelector: #selector(executeUploadDataTaskRequest2)),
+                                        NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequest)),
+                                        NetworkTest(testSelector: #selector(executePostDataTaskRequestWithHTTPBody)),
+                                        NetworkTest(testSelector: #selector(executeUploadDataTaskRequestWithHTTPBody)),
+                                        NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
+                                        AutocompleteTest(testSelector: #selector(showAutocompleteForm))]
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnNil") {
+            obj in
+            UserDefaults.standard.set(obj, forKey:"custom_command_test")
+            UserDefaults.standard.synchronize()
+            
+            return nil
+        }
+        SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturn123") {
+            obj in
+            UserDefaults.standard.set(obj, forKey:"custom_command_test")
+            UserDefaults.standard.synchronize()
+            
+            return NSString(string: "123")
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
     }
-
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-
-        cell.textLabel?.text = testList[indexPath.row]
-
+        let cell: UITableViewCell
+        if testList[indexPath.row] is NetworkTest {
+            cell = tableView.dequeueReusableCell(withIdentifier: "networkConnectionCell", for: indexPath)
+        } else if testList[indexPath.row] is AutocompleteTest {
+            cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
+        } else {
+            cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
+        }
+        cell.textLabel?.text = testList[indexPath.row].testSelector.description
+        cell.accessibilityIdentifier = testList[indexPath.row].testSelector.description
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        perform(Selector(testList[indexPath.row]))
+        perform(testList[indexPath.row].testSelector)
+    }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        return false
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch (segue.destination, sender) {
+        case (is SBTNetworkTestViewController, is Data):
+            let vc = segue.destination as! SBTNetworkTestViewController
+            let resultData = sender as! Data
+            
+            vc.networkResultString = resultData.base64EncodedString()
+        default:
+            break
+        }
+    }
+}
+
+extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate {
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        sessionSemaphore?.signal()
+        sessionSemaphore = nil
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        sessionData?.append(data)
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        sessionResponse = response as? HTTPURLResponse
+    }
+}
+
+
+extension SBTTableViewController {
+    
+    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            let sem = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+            
+            var retData: Data! = nil
+            var retResponse: HTTPURLResponse! = nil
+            URLSession.shared.dataTask(with: request) {
+                data, response, error in
+                
+                retResponse = response as! HTTPURLResponse
+                retData = data
+                
+                sem.signal()
+                }
+                .resume()
+            
+            sem.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            let sem = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+
+            var retData: Data! = nil
+            var retResponse: HTTPURLResponse! = nil
+            URLSession.shared.uploadTask(with: request, from: data) {
+                data, response, error in
+                
+                retResponse = response as! HTTPURLResponse
+                retData = data
+                
+                sem.signal()
+                }
+                .resume()
+            
+            sem.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func downloadTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            let sem = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+            
+            var retData: Data! = nil
+            var retResponse: HTTPURLResponse! = nil
+            URLSession.shared.downloadTask(with: request) {
+                dataUrl, response, error in
+                
+                retResponse = response as! HTTPURLResponse
+                if let dataUrl = dataUrl {
+                    retData = try? Data(contentsOf: dataUrl)
+                }
+                
+                sem.signal()
+                }
+                .resume()
+            
+            sem.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            self.sessionSemaphore = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+            
+            self.sessionData = Data()
+            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration1")
+            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
+            self.sessionTask.resume()
+            
+            self.sessionSemaphore?.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            self.sessionSemaphore = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+            
+            self.sessionData = Data()
+            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration2")
+            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
+            self.sessionTask.resume()
+            
+            self.sessionSemaphore?.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+            self.sessionSemaphore = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+            
+            self.sessionData = Data()
+            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration3")
+            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
+            self.sessionTask.resume()
+            
+            self.sessionSemaphore?.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async {
+                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
+                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+}
+
+extension SBTTableViewController {
+    
+    func executeDataTaskRequest() {
+        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+    }
+    
+    func executeDataTaskRequest2() {
+        dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+    }
+    
+    func executeDataTaskRequest3() {
+        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: false, delay: 0.0, shouldPushResult: false)
+    }
+    
+    func executeUploadDataTaskRequest() {
+        let data = "This is a test".data(using: .utf8)
+        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!)
+    }
+
+    func executeUploadDataTaskRequest2() {
+        let data = "This is a test".data(using: .utf8)
+        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "PUT")
+    }
+
+    func executeBackgroundUploadDataTaskRequest() {
+        let data = "This is a test".data(using: .utf8)
+        
+        let fileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
+        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)!
+        
+        try! data?.write(to: fileURL)
+        
+        backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+    }
+    
+    func executePostDataTaskRequestWithHTTPBody() {
+        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: true)
+    }
+
+    func executeUploadDataTaskRequestWithHTTPBody() {
+        let data = "This is a test".data(using: .utf8)
+        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "POST", httpBody: true)
+    }
+    
+    func executeBackgroundUploadDataTaskRequestWithHTTPBody() {
+        let data = "This is a test".data(using: .utf8)
+        
+        let fileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
+        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)!
+        
+        try! data?.write(to: fileURL)
+        
+        backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+    }
+}
+
+extension SBTTableViewController {
+    
+    func showAutocompleteForm() {
+        self.performSegue(withIdentifier: "autocompleteSegue", sender: nil)
     }
 }

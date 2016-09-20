@@ -67,13 +67,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTProxyURLProtocol.m"
-            timestampString = "488994450.528392"
+            filePath = "SBTUITestTunnel/SBTViewController.m"
+            timestampString = "495913946.018228"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
-            landmarkName = "-startLoading"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "-viewDidLoad"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -83,13 +83,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTProxyURLProtocol.m"
-            timestampString = "488994450.528392"
+            filePath = "SBTUITestTunnel/SBTViewController.m"
+            timestampString = "495913947.015818"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "270"
-            endingLineNumber = "270"
-            landmarkName = "-stopLoading"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
+            landmarkName = "-viewDidLoad"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -99,13 +99,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SBTUITestTunnel_Tests/MiscellaneousTests.swift"
-            timestampString = "495584329.731219"
+            filePath = "../Pod/Server/NSURLSession+HTTPBodyFix.m"
+            timestampString = "496066903.377656"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "24"
-            endingLineNumber = "24"
-            landmarkName = "testStartupCommands()"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "-swz_uploadTaskWithRequest:fromData:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../Pod/Server/NSURLSession+HTTPBodyFix.m"
+            timestampString = "496066905.023523"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "36"
+            endingLineNumber = "36"
+            landmarkName = "-swz_uploadTaskWithRequest:fromFile:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

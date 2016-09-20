@@ -26,6 +26,8 @@
 {
     NSData *ret = [self swz_HTTPBody];
     
+    NSLog(@"%@", [[NSString alloc] initWithData:ret encoding:NSUTF8StringEncoding]);
+    
     return ret ?: [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
 }
 
