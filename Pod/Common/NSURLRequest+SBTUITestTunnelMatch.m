@@ -45,10 +45,11 @@
             queryString = components.query ?: @"";
         }
         
-        NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.query options:NSRegularExpressionCaseInsensitive error:nil];
-        NSUInteger regexMatches = [regex numberOfMatchesInString:queryString options:0 range:NSMakeRange(0, queryString.length)];
-        
-        matchesQuery = regexMatches > 0;
+        if (queryString) {
+            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.query options:NSRegularExpressionCaseInsensitive error:nil];
+            NSUInteger regexMatches = [regex numberOfMatchesInString:queryString options:0 range:NSMakeRange(0, queryString.length)];
+            matchesQuery = regexMatches > 0;
+        }
     }
 
     BOOL matchesMethod = YES;
