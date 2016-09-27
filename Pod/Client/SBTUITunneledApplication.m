@@ -100,10 +100,8 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     }
 
     // Add tunnel-specific entries to launchEnvironment
-    NSDictionary<NSString *, NSString *> *tunnelLaunchEnvironment = @{
-                                                                      SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
-                                                                      SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]
-                                                                      };
+    NSDictionary<NSString *, NSString *> *tunnelLaunchEnvironment = @{SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
+                                                                      SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]};
     [launchEnvironment addEntriesFromDictionary:tunnelLaunchEnvironment];
     self.launchEnvironment = [launchEnvironment copy];
 
