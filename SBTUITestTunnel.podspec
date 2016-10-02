@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name             = "SBTUITestTunnel"
-s.version          = "1.0.5"
+s.version          = "1.0.6"
 s.summary          = "Enable network mocks and more in UI Tests"
 
 s.description      = <<-DESC
