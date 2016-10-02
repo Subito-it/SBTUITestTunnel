@@ -535,7 +535,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing
 {
     if ([service.name isEqualToString:self.bonjourName] && !self.remoteService) {
-        NSLog(@"[UITestTunnelApplication] found service %@, expecting %@. Remote Service %@", service.name, self.bonjourName, self.remoteService);
+        NSLog(@"[UITestTunnelApplication] found service %@, expecting %@", service.name, self.bonjourName);
               
         self.remoteService = service;
         self.remoteService.delegate = self;
