@@ -261,8 +261,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
         self.connection = [session dataTaskWithRequest:newRequest];
         
-        [SBTProxyURLProtocol sharedInstance].tasksTime[@(self.connection.taskIdentifier)] = [NSDate date];
-        [SBTProxyURLProtocol sharedInstance].tasksData[@(self.connection.taskIdentifier)] = [NSMutableData data];
+        [SBTProxyURLProtocol sharedInstance].tasksTime[self.connection] = [NSDate date];
+        [SBTProxyURLProtocol sharedInstance].tasksData[self.connection] = [NSMutableData data];
         
         [self.connection resume];
     }
@@ -279,18 +279,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 {
     [self.client URLProtocol:self didLoadData:data];
     
-    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:@(dataTask.taskIdentifier)];
+    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:dataTask];
+    NSAssert(taskData != nil, @"Should not be nil");
     [taskData appendData:data];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     if (!error) {
-        NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[@(task.taskIdentifier)] timeIntervalSinceNow];
+        NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
         NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
         
-        NSData *responseData = [SBTProxyURLProtocol sharedInstance].tasksData[@(task.taskIdentifier)];
-        [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:@(task.taskIdentifier)];
+        NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
+        NSAssert(responseData != nil, @"Should not be nil");
+        [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
         
         NSTimeInterval delayResponseTime = [self delayResponseTime];
         
