@@ -44,7 +44,7 @@ class ThrottleTests: XCTestCase {
     }
 
     func testThrottleOverridesStubResponseTime() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 5.0)
         
         app.cells["executeDataTaskRequest"].tap()
@@ -57,7 +57,7 @@ class ThrottleTests: XCTestCase {
 
     func testThrottleOverridesStubResponseTime2() {
         app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 5.0)
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         
         app.cells["executeDataTaskRequest"].tap()
         let start = Date()

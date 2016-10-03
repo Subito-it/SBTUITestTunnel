@@ -110,7 +110,7 @@ class MonitorTests: XCTestCase {
     }
     
     func testMonitorAndStub() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         app.monitorRequests(matching: SBTRequestMatch.url("httpbin.org"))
         
         app.cells["executeDataTaskRequest"].tap()

@@ -33,7 +33,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubRemoveWithID() {
-        let stubId = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -44,7 +44,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubRemoveAll() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -55,7 +55,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubAndRemoveCommand() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0, removeAfterIterations: 2)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0, removeAfterIterations: 2)
 
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -70,14 +70,14 @@ class StubTests: XCTestCase {
     }
     
     func testStubDataTask() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
     }
     
     func testStubUploadDataTask() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -85,14 +85,14 @@ class StubTests: XCTestCase {
     
     func testStubBackgroundUploadDataTask() {
         // background tasks are not managed by the app itself and therefore cannot be stubbed 
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
         
         app.cells["executeBackgroundUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
     }
     
     func testStubResponseDelay() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 5.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 5.0)
         
         app.cells["executeDataTaskRequest"].tap()
         let start = Date()
@@ -102,7 +102,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubResponseCode() {
-        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 401, responseTime: 5.0)
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 401, responseTime: 5.0)
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(networkReturnCode() == 401)
@@ -130,7 +130,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubPostRequest() {
-        let stubId1 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId1 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
         
@@ -138,7 +138,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId2 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "POST"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId2 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "POST"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
 
@@ -146,7 +146,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
 
-        let stubId3 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "GET"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId3 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
@@ -156,7 +156,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubPutRequest() {
-        let stubId1 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "PUT"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId1 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "PUT"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssert(isNetworkResultStubbed())
         
@@ -164,7 +164,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId2 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "POST"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId2 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "POST"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
@@ -172,7 +172,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId3 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "GET"), returnJsonDictionary: ["stubbed": 1 as NSObject], returnCode: 200, responseTime: 0.0) ?? ""
+        let stubId3 = app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", method: "GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0) ?? ""
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         

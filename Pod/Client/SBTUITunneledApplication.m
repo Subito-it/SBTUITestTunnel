@@ -171,7 +171,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Stub Commands JSON
 
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
@@ -189,7 +189,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Stub And Remove Commands JSON
 
-- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
@@ -391,7 +391,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - NSUserDefaults Commands
 
-- (BOOL)userDefaultsSetObject:(NSObject *)object forKey:(NSString *)key
+- (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};
@@ -428,7 +428,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Keychain Commands
 
-- (BOOL)keychainSetObject:(NSObject *)object forKey:(NSString *)key
+- (BOOL)keychainSetObject:(id)object forKey:(NSString *)key
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};
@@ -498,7 +498,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Custom Commands
 
-- (id)performCustomCommandNamed:(NSString *)commandName object:(NSObject *)object
+- (id)performCustomCommandNamed:(NSString *)commandName object:(id)object
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCustomCommandKey: commandName,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};
@@ -556,7 +556,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return self.remoteHost.length > 0 && self.remotePort > 0;
 }
 
-- (NSDictionary<NSString *, NSObject *> *)dictionaryFromJSONInBundle:(NSString *)jsonFilename
+- (NSDictionary<NSString *, id> *)dictionaryFromJSONInBundle:(NSString *)jsonFilename
 {
     NSString *jsonName = [jsonFilename stringByDeletingPathExtension];
     NSString *jsonExtension = [jsonFilename pathExtension];
@@ -567,7 +567,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         data = [self dataFromFrameworksWithName:jsonFilename];
     }
     
-    NSDictionary<NSString *, NSObject *> *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+    NSDictionary<NSString *, id> *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
     if (!dict || error) {
         NSAssert(NO, @"[SBTUITestTunnel] Failed to deserialize json file %@", jsonFilename);
     }
@@ -605,7 +605,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return data;
 }
 
-- (NSString *)base64SerializeObject:(NSObject *)obj
+- (NSString *)base64SerializeObject:(id)obj
 {
     NSData *objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
     

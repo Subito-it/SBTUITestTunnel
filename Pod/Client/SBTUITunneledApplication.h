@@ -92,13 +92,13 @@
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
+ *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
 
 /**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
@@ -122,14 +122,14 @@
  *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonDictionary An NSDictionary<NSString *, NSObject *> * to be returned as JSON
+ *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
  *
  *  @return `YES` on success
  */
-- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, NSObject *> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
 
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
@@ -321,7 +321,7 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)userDefaultsSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
+- (BOOL)userDefaultsSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key;
 
 /**
  *  Remove object from NSUSerDefaults.
@@ -359,7 +359,7 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)keychainSetObject:(nonnull NSObject<NSCoding> *)object forKey:(nonnull NSString *)key;
+- (BOOL)keychainSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key;
 
 /**
  *  Remove object from keychain. For simplicity we're using FXKeychain using the BunleID as default service
@@ -421,7 +421,7 @@
  *
  *  @return object returned from custom block
  */
-- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable NSObject *)object;
+- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable id)object;
 
 #pragma mark - Other Commands
 
