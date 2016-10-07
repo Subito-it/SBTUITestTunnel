@@ -193,7 +193,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *proxyRule = nil;
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
-            NSAssert(stubRule == nil, @"Multiple stubs registered for request %@!", self.request);
+            if (stubRule != nil) {
+                NSLog(@"Multiple stubs registered for request %@!", self.request);
+                for (NSDictionary *dMatchingRule in matchingRules) {
+                    NSLog(@"-> %@", dMatchingRule);
+                }
+            }
+            
             stubRule = matchingRule;
         } else {
             // we can have multiple matching rule here. For example if we throttle and monitor at the same time
