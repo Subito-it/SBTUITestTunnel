@@ -29,7 +29,7 @@
 /**
  *  Launch application synchronously waiting for the tunnel server connection to be established.
  *
- *  @param startupBlock Block that is executed before connection is estabilished. 
+ *  @param startupBlock Block that is executed before connection is estabilished.
  *  Useful to inject startup condition (user settings, preferences).
  *  Note: commands sent in the completionBlock will return nil
  */
@@ -54,8 +54,6 @@
 /**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
  *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
@@ -70,8 +68,6 @@
 
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
@@ -89,8 +85,6 @@
 /**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
  *  @param match The match object that contains the matching rules
  *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
@@ -102,8 +96,6 @@
 
 /**
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
  *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
@@ -119,8 +111,6 @@
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
- *
  *  @param match The match object that contains the matching rules
  *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
  *  @param returnCode The HTTP response code to be returned
@@ -133,8 +123,6 @@
 
 /**
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
  *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
@@ -178,8 +166,6 @@
  *  Start monitoring requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
  *
  *  The monitored events can be successively polled using the monitoredRequestsFlushAll method.
- *
- *  Note: you cannot have a monitor request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
  *
@@ -276,8 +262,6 @@
  *  Start throttling requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
  *
  *  The throttled events can be successively polled using the throttledRequestsFlushAll method.
- *
- *  Note: you cannot have a throttle request and a stub request that matches the same regex active at the same time, the last added will be skipped.
  *
  *  @param match The match object that contains the matching rules
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
@@ -389,7 +373,7 @@
 #pragma mark - Copy Commands
 
 /**
- 
+
  *  Upload item to remote host
  *
  *  @param srcPath source path
