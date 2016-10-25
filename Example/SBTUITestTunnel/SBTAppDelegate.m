@@ -21,9 +21,9 @@
 
 + (void)initialize
 {
-    [super initialize];
-    
+#if DEBUG
     [SBTUITestTunnelServer takeOff];
+#endif
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
