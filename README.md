@@ -54,8 +54,9 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
     @implementation SBTAppDelegate
 
     + (void)initialize {
-        [super initialize];
-        [SBTUITestTunnelServer takeOff];
+        #if DEBUG
+            [SBTUITestTunnelServer takeOff];
+        #endif
     }
 
     - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -74,8 +75,9 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
         var window: UIWindow?
 
         override class func initialize() {
-            SBTUITestTunnelServer.takeOff()
-            super.initialize()
+            #if DEBUG
+                SBTUITestTunnelServer.takeOff()
+            #endif
         }
 
         func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -83,7 +85,7 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
         }
     }
 
-**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros verifying that DEBUG is not defined in your release code!
+**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros verifying that DEBUG is not defined in your release code! **For safety you _NEED_ to wrap the `takeOff` method around DEBUG pre-processor macro**
 
 ### UI Testing target
 
