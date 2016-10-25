@@ -85,7 +85,9 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
         }
     }
 
-**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros verifying that DEBUG is not defined in your release code! **For safety you _NEED_ to wrap the `takeOff` method around DEBUG pre-processor macro**
+**Note** Each and every file of the framework is wrapped around #if DEBUG pre-processor directive to avoid that any of its code accidentally ends in production when releasing. Check your pre-processor macros verifying that DEBUG is not defined in your release code!
+
+**🔥 For safety you _NEED_ to wrap the `takeOff` method around DEBUG pre-processor macro**
 
 ### UI Testing target
 
