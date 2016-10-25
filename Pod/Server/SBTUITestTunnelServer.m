@@ -302,9 +302,12 @@ description:(desc), ##__VA_ARGS__]; \
     
     __block NSString *ret = nil;
     
+    __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
         // we use main thread to synchronize access to self.monitoredRequests
-        NSArray *requestsToPeek = [self.monitoredRequests copy];
+        NSArray *requestsToPeek = [strongSelf.monitoredRequests copy];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToPeek];
         if (data) {
@@ -324,10 +327,13 @@ description:(desc), ##__VA_ARGS__]; \
     
     __block NSString *ret = nil;
     
+    __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         // we use main thread to synchronize access to self.monitoredRequests
-        NSArray *requestsToFlush = [self.monitoredRequests copy];
-        self.monitoredRequests = [NSMutableArray array];
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        NSArray *requestsToFlush = [strongSelf.monitoredRequests copy];
+        strongSelf.monitoredRequests = [NSMutableArray array];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush];
         if (data) {

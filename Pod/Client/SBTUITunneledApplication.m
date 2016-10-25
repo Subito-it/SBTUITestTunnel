@@ -107,17 +107,18 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
     [self.bonjourBrowser searchForServicesOfType:@"_http._tcp" inDomain:@""];
     
+    __weak typeof(self)weakSelf = self;
     __block BOOL startupBlockCompleted = NO;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        dispatch_semaphore_wait(self.bonjourSemaphore, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(weakSelf.bonjourSemaphore, DISPATCH_TIME_FOREVER);
         
-        [self.bonjourBrowser stop];
+        [weakSelf.bonjourBrowser stop];
         NSLog(@"STOPPING BONJOUR!");
         
         if (startupBlock) {
             startupBlock(); // this will eventually add some commands in the startup command queue
             
-            [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+            [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
         }
         startupBlockCompleted = YES;
     });
