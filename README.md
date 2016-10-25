@@ -87,7 +87,7 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
 
 ### 🔥 DEBUG pre-processor macro
 
-To avoid shipping test code in production each and every file of the framework is wrapped around #if DEBUG pre-processor macro. **Therefore you have to wrap the `takeOff` method around the DEBUG pre-processor macro** or you'll end up getting the following linking error when trying to build your application:
+To avoid shipping test code in production each and every file of the framework is surrounded with a #if DEBUG statement. **Therefore you have to wrap the `takeOff` method around the DEBUG pre-processor macro** as shown in the code above or you'll end up getting the following linking error when trying to build your application:
 ```
 Undefined symbols for architecture i386:
   "_OBJC_CLASS_$_SBTUITestTunnelServer", referenced from:
@@ -95,6 +95,8 @@ Undefined symbols for architecture i386:
 ld: symbol(s) not found for architecture i386
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 ```
+
+**Also make sure that your target/build configuration defines the DEBUG pre-processor macro**
 
 ### UI Testing target
 
