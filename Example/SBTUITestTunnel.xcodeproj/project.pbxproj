@@ -18,6 +18,7 @@
 		8587F1FD736BBA7EC36E0DB6 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		C326BC611D8FC5B8001CFB9D /* QueryMatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C326BC601D8FC5B8001CFB9D /* QueryMatchTests.swift */; };
+		C39B3EF61DC1032C005A8CA1 /* MiscellaneousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */; };
 		C3CD0A7C1DC0D0FF009C18A1 /* MainBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3CD0A7B1DC0D0FF009C18A1 /* MainBundle.swift */; };
 		C3E3DFC81D89F739003D6BB2 /* SBTTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFC71D89F739003D6BB2 /* SBTTableViewController.swift */; };
 		C3E3DFD21D89FA75003D6BB2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD11D89FA75003D6BB2 /* UserDefaultsTests.swift */; };
@@ -414,6 +415,7 @@
 			files = (
 				C3E3DFD41D8A0056003D6BB2 /* KeychainTests.swift in Sources */,
 				C3E3DFE01D8ECA9A003D6BB2 /* MonitorTests.swift in Sources */,
+				C39B3EF61DC1032C005A8CA1 /* MiscellaneousTests.swift in Sources */,
 				C3CD0A7C1DC0D0FF009C18A1 /* MainBundle.swift in Sources */,
 				C3E3DFDE1D8DFD21003D6BB2 /* StubTests.swift in Sources */,
 				C3E3DFDA1D8A78B5003D6BB2 /* DownloadUploadTests.swift in Sources */,
