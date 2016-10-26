@@ -477,6 +477,18 @@ description:(desc), ##__VA_ARGS__]; \
     return @"YES";
 }
 
+#pragma mark - NSBundle
+
+- (NSString *)commandMainBundleInfoDictionary:(GCDWebServerRequest *)tunnelRequest
+{
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary]];
+    if (data) {
+        return [data base64EncodedStringWithOptions:0];
+    }
+    
+    return nil;
+}
+
 #pragma mark - Copy Commands
 
 - (NSString *)commandUpload:(GCDWebServerRequest *)tunnelRequest

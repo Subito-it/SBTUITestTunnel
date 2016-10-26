@@ -82,6 +82,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainRemoveObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandKeychainReset;
 
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMainBundleInfoDictionary;
+
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCustom;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandSetUserInterfaceAnimations;

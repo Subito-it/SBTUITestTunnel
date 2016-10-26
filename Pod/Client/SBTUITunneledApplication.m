@@ -464,6 +464,21 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainReset params:nil] boolValue];
 }
 
+#pragma mark - NSBundle
+
+- (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;
+{
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMainBundleInfoDictionary params:nil];
+    
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+    }
+    
+    return nil;    
+}
+
 #pragma mark - Copy Commands
 
 - (BOOL)uploadItemAtPath:(NSString *)srcPath toPath:(NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder

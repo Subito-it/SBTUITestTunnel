@@ -81,6 +81,8 @@ NSString * const SBTUITunneledApplicationCommandKeychainRemoveObject = @"command
 NSString * const SBTUITunneledApplicationCommandKeychainObject = @"commandKeychainObject";
 NSString * const SBTUITunneledApplicationCommandKeychainReset = @"commandKeychainReset";
 
+NSString * const SBTUITunneledApplicationCommandMainBundleInfoDictionary = @"commandMainBundleInfoDictionary";
+
 NSString * const SBTUITunneledApplicationCommandCustom = @"commandCustom";
 
 NSString * const SBTUITunneledApplicationCommandSetUserInterfaceAnimations = @"commandSetUIAnimations";

@@ -370,6 +370,10 @@
  */
 - (BOOL)keychainReset;
 
+#pragma mark - NSBundle
+
+- (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;
+
 #pragma mark - Copy Commands
 
 /**
