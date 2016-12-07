@@ -141,6 +141,11 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             return;
         }
     }
+#pragma mark - Ping Command
+
+- (NSString *)ping
+{
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil assertOnError:NO];
 }
 
 #pragma mark - Stub Commands

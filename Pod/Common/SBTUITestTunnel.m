@@ -56,6 +56,8 @@ NSString * const SBTUITunnelResponseResultKey = @"result";
 
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
+NSString * const SBTUITunneledApplicationCommandPing = @"commandPing";
+
 NSString * const SBTUITunneledApplicationCommandStubPathMatching = @"commandStubPathMatching";
 NSString * const SBTUITunneledApplicationcommandStubAndRemovePathMatching = @"commandStubAndRemovePathMatching";
 NSString * const SBTUITunneledApplicationCommandstubRequestsRemove = @"commandStubRequestsRemove";
