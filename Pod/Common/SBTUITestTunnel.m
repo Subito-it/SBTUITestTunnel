@@ -18,6 +18,9 @@
 
 #import "SBTUITestTunnel.h"
 
+const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
+NSString *  const SBTUITunneledApplicationDefaultHost = @"localhost.charlesproxy.com";
+
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
 const double SBTUITunnelStubsDownloadSpeedEDGE   =-   128 / 8; // kbps -> KB/s
 const double SBTUITunnelStubsDownloadSpeed3G     =-  3200 / 8; // kbps -> KB/s
@@ -26,8 +29,6 @@ const double SBTUITunnelStubsDownloadSpeedWifi   =- 12000 / 8; // kbps -> KB/s
 
 NSString * const SBTUITunneledApplicationLaunchOptionResetFilesystem = @"SBTUITunneledApplicationLaunchOptionResetFilesystem";
 NSString * const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete = @"SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete";
-NSString * const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey = @"SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey";
-NSString * const SBTUITunneledApplicationLaunchEnvironmentRemotePortKey = @"SBTUITunneledApplicationLaunchEnvironmentRemotePortKey";
 NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTUITunneledApplicationLaunchOptionHasStartupCommands";
 
 NSString * const SBTUITunnelHTTPMethod = @"POST";

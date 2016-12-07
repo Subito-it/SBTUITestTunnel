@@ -18,6 +18,9 @@
 
 #import <Foundation/Foundation.h>
 
+extern const uint16_t SBTUITunneledApplicationDefaultPort;
+extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;
+
 extern const double
 SBTUITunnelStubsDownloadSpeedGPRS,
 SBTUITunnelStubsDownloadSpeedEDGE,
@@ -27,8 +30,6 @@ SBTUITunnelStubsDownloadSpeedWifi;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionResetFilesystem;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete;
-extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
-extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentRemotePortKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupCommands;
 
 extern NSString * _Nonnull const SBTUITunnelHTTPMethod;

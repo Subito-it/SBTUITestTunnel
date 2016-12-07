@@ -23,22 +23,17 @@
 #include <arpa/inet.h>
 
 const NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
-const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
 
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
-@interface SBTUITunneledApplication() <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
+@interface SBTUITunneledApplication()
 
-@property (nonatomic, strong) NSNetServiceBrowser *bonjourBrowser;
-@property (nonatomic, strong) NSString *bonjourName;
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
 @property (nonatomic, assign) NSUInteger remotePort;
 @property (nonatomic, strong) NSNetService *remoteService;
 @property (nonatomic, strong) NSString *remoteHost;
 @property (nonatomic, assign) NSInteger remoteHostsFound;
 @property (nonatomic, strong) NSMutableArray *stubOnceIds;
-
-@property (nonatomic, strong) dispatch_semaphore_t bonjourSemaphore;
 
 @end
 
@@ -49,14 +44,10 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     self = [super init];
     
     if (self) {
-        _bonjourBrowser = [[NSNetServiceBrowser alloc] init];
-        _bonjourBrowser.delegate = self;
-        // create a unique bonjourName (must be less than 63 characters)
-        _bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
         _connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
         _remotePort = SBTUITunneledApplicationDefaultPort;
+        _remoteHost = SBTUITunneledApplicationDefaultHost;
         _remoteHostsFound = 0;
-        _bonjourSemaphore = dispatch_semaphore_create(0);
     }
     
     return self;
@@ -65,12 +56,13 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (void)terminate
 {
     if (!self.ready) {
+        [super terminate];
         return;
     }
-    self.remoteHost = nil;
-    self.remotePort = 0;
     
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil];
+    
+    [super terminate];
 }
 
 - (void)launchTunnel
@@ -98,49 +90,60 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         // Add any previously defined entries in launchEnvironment
         [launchEnvironment addEntriesFromDictionary:self.launchEnvironment];
     }
-
-    // Add tunnel-specific entries to launchEnvironment
-    NSDictionary<NSString *, NSString *> *tunnelLaunchEnvironment = @{SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey: self.bonjourName,
-                                                                      SBTUITunneledApplicationLaunchEnvironmentRemotePortKey: [@(_remotePort) stringValue]};
-    [launchEnvironment addEntriesFromDictionary:tunnelLaunchEnvironment];
-    self.launchEnvironment = [launchEnvironment copy];
-
-    [self.bonjourBrowser searchForServicesOfType:@"_http._tcp" inDomain:@""];
+    
+    __block BOOL startupBlockCompleted = NO;
+    NSLock *startupBlockCompletedLock = [[NSLock alloc] init];
     
     __weak typeof(self)weakSelf = self;
-    __block BOOL startupBlockCompleted = NO;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        dispatch_semaphore_wait(weakSelf.bonjourSemaphore, DISPATCH_TIME_FOREVER);
+        [weakSelf waitForServer];
         
-        [weakSelf.bonjourBrowser stop];
-        NSLog(@"STOPPING BONJOUR!");
+        NSLog(@"[UITestTunnel] Server detected!");
         
         if (startupBlock) {
             startupBlock(); // this will eventually add some commands in the startup command queue
             
             [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
         }
+        
+        [startupBlockCompletedLock lock];
         startupBlockCompleted = YES;
+        [startupBlockCompletedLock unlock];
     });
     
-    // 1 UI Test: (main thread) request app launch
-    // 1 App: (main thread) GCD server is fired up and app will lock until the SBTUITunneledApplicationCommandStartupCommandsCompleted (if any)
-    // 2 UI Test: (main thread) lock until startupBlock is completed
-    // 2 UI Test: (background thread) bonjour delegates (here) will trigger once the GCD server is up
-    // 3 UI Test: (background thread!) self.bonjourSemaphore is signalled and startup Block is executed
     [self launch];
     
-    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-    while (!startupBlockCompleted) {
-        // NSNetServiceBrowserDelegate, NSNetServiceDelegate delegate methods are dispatched on main thread
-        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    for (int i = 0; i < 2.0 * self.connectionTimeout; i++) {
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
         
-        if (CFAbsoluteTimeGetCurrent() - start > self.connectionTimeout) {
-            NSAssert(NO, @"[SBTUITestTunnel] could not connect to client app. Did you launch the bridge on the app?");
-            [self terminate];
+        [startupBlockCompletedLock lock];
+        BOOL localStartupBlockCompleted = startupBlockCompleted;
+        [startupBlockCompletedLock unlock];
+        
+        if (localStartupBlockCompleted) {
             return;
         }
     }
+    
+    NSAssert(NO, @"[SBTUITestTunnel] could not connect to client app. Did you launch the bridge on the app?");
+    [self terminate];
+}
+
+- (void)waitForServer
+{
+    const timeout = 30;
+    int i = 0;
+    for (i = 0; i < timeout; i++) {
+        [NSThread sleepForTimeInterval:1.0];
+        if ([self ping]) {
+            return;
+        }
+    }
+    
+    NSAssert(NO, @"[SBTUITestTunnel] failed to connect to client app.");
+    [self terminate];
+}
+
 #pragma mark - Ping Command
 
 - (NSString *)ping
@@ -333,7 +336,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             
             [NSThread sleepForTimeInterval:0.5];
         }
-                
+        
         if (completionBlock) {
             completionBlock(timedout);
         }
@@ -352,13 +355,25 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     __block BOOL result = NO;
     __block BOOL done = NO;
     
+    NSLock *doneLock = [[NSLock alloc] init];
+    
     [self waitForMonitoredRequestsMatching:match timeout:timeout iterations:iterations completionBlock:^(BOOL didTimeout) {
         result = !didTimeout;
+        
+        [doneLock lock];
         done = YES;
+        [doneLock unlock];
     }];
     
-    while (!done) {
+    for (;;) {
         [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+
+        [doneLock lock];
+        if (done) {
+            [doneLock unlock];
+            break;
+        }
+        [doneLock unlock];
     }
     
     return result;
@@ -551,25 +566,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed params:params] boolValue];
 }
 
-#pragma mark - Bonjour Delegates
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing
-{
-    if ([service.name isEqualToString:self.bonjourName] && !self.remoteService) {
-        NSLog(@"[UITestTunnelApplication] found service %@, expecting %@", service.name, self.bonjourName);
-              
-        self.remoteService = service;
-        self.remoteService.delegate = self;
-        
-        self.remoteHost = @"127.0.0.1";
-        self.remotePort = SBTUITunneledApplicationDefaultPort;
-        
-        self.remoteHostsFound++;
-        
-        dispatch_semaphore_signal(self.bonjourSemaphore);
-    }
-}
-
 #pragma mark - Helper Methods
 
 - (BOOL)ready
@@ -644,7 +640,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     }
 }
 
-- (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params
+- (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
     if (self.ready) {
         NSString *urlString = [NSString stringWithFormat:@"http://%@:%d/%@", self.remoteHost, (unsigned int)self.remotePort, path];
@@ -678,17 +674,21 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         dispatch_semaphore_t synchRequestSemaphore = dispatch_semaphore_create(0);
         
         NSURLSession *session = [NSURLSession sharedSession];
-        
         __block NSString *responseId = nil;
+
         [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSAssert(NO, @"[SBTUITestTunnel] Failed to get http response");
-                [self terminate];
+                if (assertOnError) {
+                    NSAssert(NO, @"[SBTUITestTunnel] Failed to get http response");
+                    [self terminate];
+                }
             } else {
                 NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
                 responseId = jsonData[SBTUITunnelResponseResultKey];
                 
-                NSAssert(((NSHTTPURLResponse *)response).statusCode == 200, @"[SBTUITestTunnel] Message sending failed");
+                if (assertOnError) {
+                    NSAssert(((NSHTTPURLResponse *)response).statusCode == 200, @"[SBTUITestTunnel] Message sending failed");
+                }
             }
             
             dispatch_semaphore_signal(synchRequestSemaphore);
@@ -700,6 +700,11 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     }
     
     return nil;
+}
+
+- (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params
+{
+    return [self sendSynchronousRequestWithPath:path params:params assertOnError:YES];
 }
 
 @end

@@ -100,16 +100,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (void)takeOffOnce
 {
-    NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-    NSString *bonjourName = environment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey];
-    NSString *portString = environment[SBTUITunneledApplicationLaunchEnvironmentRemotePortKey];
-    NSInteger serverPort = [portString integerValue];
-    
-    if (!bonjourName || !portString) {
-        // Required methods missing, presumely app wasn't launched from ui test
-        NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
-        return;
-    }
+    NSInteger serverPort = SBTUITunneledApplicationDefaultPort;
     
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
@@ -153,7 +144,9 @@ description:(desc), ##__VA_ARGS__]; \
     [self processLaunchOptionsIfNeeded];
     
     [GCDWebServer setLogLevel:3];
-    [self.server startWithPort:serverPort bonjourName:bonjourName];
+    if (![self.server startWithPort:SBTUITunneledApplicationDefaultPort bonjourName:@""]) {
+        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server");
+    }
     
     [self processStartupCommandsIfNeeded];
     
