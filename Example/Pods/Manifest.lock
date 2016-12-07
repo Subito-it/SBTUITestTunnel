@@ -1,12 +1,12 @@
 PODS:
   - FXKeychain (1.5.3)
-  - GCDWebServer (3.3.2):
-    - GCDWebServer/Core (= 3.3.2)
-  - GCDWebServer/Core (3.3.2)
-  - SBTUITestTunnel/Client (1.0.2)
-  - SBTUITestTunnel/Server (1.0.2):
+  - GCDWebServer (3.3.3):
+    - GCDWebServer/Core (= 3.3.3)
+  - GCDWebServer/Core (3.3.3)
+  - SBTUITestTunnel/Client (1.1.0)
+  - SBTUITestTunnel/Server (1.1.0):
     - FXKeychain
-    - GCDWebServer (~> 3.0)
+    - GCDWebServer
 
 DEPENDENCIES:
   - SBTUITestTunnel/Client (from `../`)
@@ -14,13 +14,13 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   SBTUITestTunnel:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
-  GCDWebServer: 2a375ec42839a41d7187d04e5b688d32fa5c4cd5
-  SBTUITestTunnel: 2ab3917cd90157d622c0dc7d06cf976bd74b96fe
+  GCDWebServer: 1c39a1f0763e4eb492bee021e4270fce097d3555
+  SBTUITestTunnel: 668aa2374a7180378fc55ee4621af6fad3eb5980
 
 PODFILE CHECKSUM: 61571cf3bde5bea27b9e1d19bfb1ec137eb3eba9
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.2.0.beta.1
