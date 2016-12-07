@@ -576,9 +576,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
-    dispatch_async(self.commandDispatchQueue, ^{
-        [self.server stop];
-    });
+    [self.server stop];
     
     return @"YES";
 }
