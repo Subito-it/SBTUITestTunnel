@@ -47,16 +47,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (SBTProxyURLProtocol *)sharedInstance
 {
+    static dispatch_once_t once;
     static SBTProxyURLProtocol *sharedInstance;
-    @synchronized(self) {
-        if (sharedInstance == nil) {
-            sharedInstance = [[SBTProxyURLProtocol alloc] init];
-            sharedInstance.matchingRules = [NSMutableArray array];
-            sharedInstance.tasksData = [NSMutableDictionary dictionary];
-            sharedInstance.tasksTime = [NSMutableDictionary dictionary];
-        }
-    }
-    
+    dispatch_once(&once, ^{
+        sharedInstance = [[SBTProxyURLProtocol alloc] init];
+        sharedInstance.matchingRules = [NSMutableArray array];
+        sharedInstance.tasksData = [NSMutableDictionary dictionary];
+        sharedInstance.tasksTime = [NSMutableDictionary dictionary];
+    });
     return sharedInstance;
 }
 

@@ -75,17 +75,17 @@ description:(desc), ##__VA_ARGS__]; \
 
 + (SBTUITestTunnelServer *)sharedInstance
 {
+    static dispatch_once_t once;
     static SBTUITestTunnelServer *sharedInstance;
-    @synchronized(self) {
-        if (sharedInstance == nil) {
-            sharedInstance = [[SBTUITestTunnelServer alloc] init];
-            sharedInstance.server = [[GCDWebServer alloc] init];
-            sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
-            sharedInstance.monitoredRequests = [NSMutableArray array];
-            sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
-            sharedInstance.startupCommandsCompleted = YES;
-        }
-    }
+    dispatch_once(&once, ^{
+        sharedInstance = [[SBTUITestTunnelServer alloc] init];
+        sharedInstance.server = [[GCDWebServer alloc] init];
+        sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
+        sharedInstance.monitoredRequests = [NSMutableArray array];
+        sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
+        sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
+        sharedInstance.startupCommandsCompleted = YES;
+    });
     return sharedInstance;
 }
 
