@@ -55,6 +55,11 @@ class MiscellaneousTests: XCTestCase {
     func testAutocompleteEnabled() {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
+        guard let preferredLanguages = app.userDefaultsObject(forKey: "AppleLanguages") as? [String]
+            , preferredLanguages.count > 0 && preferredLanguages.first?.hasPrefix("en") == true else {
+                fatalError("Please ensure your device's primary language is set to english")
+        }
+        
         let text = "Tesling things" // Telling things
         
         app.cells["showAutocompleteForm"].tap()
