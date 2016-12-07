@@ -66,6 +66,7 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSCountedSet<NSString *> *stubsToRemoveAfterCount;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
+@property (nonatomic, strong) NSLock *startupCommandsCompletedLock;
 @property (nonatomic, assign) BOOL startupCommandsCompleted;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 
@@ -584,7 +585,9 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    self.startupCommandsCompleted = YES;
+    [self.startupCommandsCompletedLock lock];
+    _startupCommandsCompleted = YES;
+    [self.startupCommandsCompletedLock unlock];
     
     return @"YES";
 }
@@ -624,10 +627,18 @@ description:(desc), ##__VA_ARGS__]; \
 - (void)processStartupCommandsIfNeeded
 {
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands]) {
-        self.startupCommandsCompleted = NO;
-        while (!self.startupCommandsCompleted) {
+        [self.startupCommandsCompletedLock lock];
+        _startupCommandsCompleted = NO;
+        [self.startupCommandsCompletedLock unlock];
+        
+        BOOL localStartupCommandsCompleted = NO;
+        do {
             [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-        }
+            [self.startupCommandsCompletedLock lock];
+            localStartupCommandsCompleted = _startupCommandsCompleted;
+            [self.startupCommandsCompletedLock unlock];
+        } while (!localStartupCommandsCompleted);
+        
         NSLog(@"[UITestTunnelServer] Startup commands completed");
     }
 }
