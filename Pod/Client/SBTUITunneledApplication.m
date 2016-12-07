@@ -483,7 +483,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (BOOL)uploadItemAtPath:(NSString *)srcPath toPath:(NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder
 {
-    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:srcPath]];
+    NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:srcPath]];
     
     if (!data) {
         return NO;
