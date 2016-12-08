@@ -60,7 +60,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         return;
     }
     
-    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil];
+    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil assertOnError:NO];
     
     [super terminate];
 }
