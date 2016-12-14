@@ -143,9 +143,15 @@ description:(desc), ##__VA_ARGS__]; \
     
     [self processLaunchOptionsIfNeeded];
     
+    if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
+        NSLog(@"[UITestTunnelServer] Signal launch option missing, safely landing!");
+        return;
+    }
+    
     [GCDWebServer setLogLevel:3];
-    if (![self.server startWithPort:SBTUITunneledApplicationDefaultPort bonjourName:@""]) {
+    if (![self.server startWithPort:SBTUITunneledApplicationDefaultPort bonjourName:nil]) {
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server");
+        return;
     }
     
     [self processStartupCommandsIfNeeded];
@@ -643,7 +649,6 @@ description:(desc), ##__VA_ARGS__]; \
     }
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
-        
     }
 }
 
