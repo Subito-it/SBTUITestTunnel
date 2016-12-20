@@ -1,4 +1,4 @@
-// QueryMatchTests.swift
+// XCTestCase+Extension.h
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -14,22 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnel
-import Foundation
+#if DEBUG
 
-class QueryMatchTests: XCTestCase {
-        
-    override func setUp() {
-        super.setUp()
-        
-        app = SBTUITunneledApplication()
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
-    
-    // TODO
-}
+#import <XCTest/XCTest.h>
+#import <SBTUITestTunnel/SBTUITunneledApplication.h>
+
+@interface XCTestCase (Extension)
+
+@property (nonatomic, strong) SBTUITunneledApplication *app;
+
+@end
+
+#endif

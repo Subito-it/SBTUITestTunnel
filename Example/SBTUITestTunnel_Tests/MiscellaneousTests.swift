@@ -19,11 +19,11 @@ import Foundation
 
 class MiscellaneousTests: XCTestCase {
     
-    var app: SBTUITunneledApplication = SBTUITunneledApplication()
-    
     func testStartupCommands() {
         let keychainKey = "test_kc_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
+        
+        app = SBTUITunneledApplication()
         app.launchTunnel() {
             self.app.keychainSetObject(randomString as NSCoding & NSObjectProtocol, forKey: keychainKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
@@ -33,6 +33,7 @@ class MiscellaneousTests: XCTestCase {
     }
     
     func testCustomCommand() {
+        app = SBTUITunneledApplication()
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         let randomString = ProcessInfo.processInfo.globallyUniqueString
@@ -53,6 +54,7 @@ class MiscellaneousTests: XCTestCase {
     }
     
     func testAutocompleteEnabled() {
+        app = SBTUITunneledApplication()
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         guard let preferredLanguages = app.userDefaultsObject(forKey: "AppleLanguages") as? [String]
@@ -75,6 +77,7 @@ class MiscellaneousTests: XCTestCase {
     }
 
     func testAutocompleteDisabled() {
+        app = SBTUITunneledApplication()
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete])
         
         let text = "Tesling things" // Telling things

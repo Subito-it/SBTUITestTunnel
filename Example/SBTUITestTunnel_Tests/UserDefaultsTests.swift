@@ -18,12 +18,11 @@ import SBTUITestTunnel
 import Foundation
 
 class UserDefaultsTest: XCTestCase {
-    
-    var app: SBTUITunneledApplication = SBTUITunneledApplication()
 
     override func setUp() {
         super.setUp()
         
+        app = SBTUITunneledApplication()
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
