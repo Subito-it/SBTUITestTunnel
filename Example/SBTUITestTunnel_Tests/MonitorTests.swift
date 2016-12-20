@@ -22,7 +22,6 @@ class MonitorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        app = SBTUITunneledApplication()
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)

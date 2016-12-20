@@ -690,7 +690,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 if (assertOnError) {
                     NSLog(NO, @"[SBTUITestTunnel] Failed to get http response: %@", request);
-                    //[self terminate];
+                    //[weakSelf terminate];
                 }
             } else {
                 NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];

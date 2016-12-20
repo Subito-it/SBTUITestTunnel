@@ -30,7 +30,12 @@ static char kAppAssociatedKey;
 
 - (SBTUITunneledApplication *)app
 {
-    return objc_getAssociatedObject(self, &kAppAssociatedKey);
+    SBTUITunneledApplication *ret = objc_getAssociatedObject(self, &kAppAssociatedKey);
+    if (!ret) {
+        ret = [[SBTUITunneledApplication alloc] init];
+        objc_setAssociatedObject(self, &kAppAssociatedKey, ret, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return ret;
 }
 
 - (void)swz_tearDown
