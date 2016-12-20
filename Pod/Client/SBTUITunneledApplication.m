@@ -78,14 +78,14 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (void)launchTunnelWithOptions:(NSArray<NSString *> *)options startupBlock:(void (^)(void))startupBlock
 {
     NSMutableArray *launchArguments = [options mutableCopy];
-
+    
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
-
+    
     if (startupBlock) {
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
-     
+        
     }
-
+    
     self.launchArguments = launchArguments;
     
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [[NSMutableDictionary alloc] init];
@@ -149,9 +149,16 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Ping Command
 
-- (NSString *)ping
+- (BOOL)ping
 {
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil assertOnError:NO];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil assertOnError:NO] isEqualToString:@"YES"];
+}
+
+#pragma mark - Kill Command
+
+- (void)quit
+{
+    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandQuit params:nil assertOnError:NO];
 }
 
 #pragma mark - Stub Commands
@@ -223,7 +230,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 - (BOOL)stubRequestsRemoveWithId:(NSString *)stubId
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey:[self base64SerializeObject:stubId]};
-
+    
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandstubRequestsRemove params:params] boolValue];
 }
 
@@ -370,7 +377,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     
     for (;;) {
         [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-
+        
         [doneLock lock];
         if (done) {
             [doneLock unlock];
@@ -456,7 +463,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
                                                      SBTUITunnelObjectKey: [self base64SerializeObject:object]};
-
+    
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainSetObject params:params] boolValue];
 }
 
@@ -499,7 +506,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
     }
     
-    return nil;    
+    return nil;
 }
 
 #pragma mark - Copy Commands
@@ -673,24 +680,26 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             [self terminate];
             return nil;
         }
-    
+        
         dispatch_semaphore_t synchRequestSemaphore = dispatch_semaphore_create(0);
         
         NSURLSession *session = [NSURLSession sharedSession];
         __block NSString *responseId = nil;
-
+        
         [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 if (assertOnError) {
-                    NSAssert(NO, @"[SBTUITestTunnel] Failed to get http response");
-                    [self terminate];
+                    NSLog(NO, @"[SBTUITestTunnel] Failed to get http response: %@", request);
+                    //[self terminate];
                 }
             } else {
                 NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
                 responseId = jsonData[SBTUITunnelResponseResultKey];
                 
                 if (assertOnError) {
-                    NSAssert(((NSHTTPURLResponse *)response).statusCode == 200, @"[SBTUITestTunnel] Message sending failed");
+                    if (((NSHTTPURLResponse *)response).statusCode != 200) {
+                        NSLog(@"[SBTUITestTunnel] Message sending failed: %@", request);
+                    }
                 }
             }
             

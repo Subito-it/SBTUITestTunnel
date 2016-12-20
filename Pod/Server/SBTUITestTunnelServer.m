@@ -131,7 +131,7 @@ description:(desc), ##__VA_ARGS__]; \
                 NSString * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request);
             }
-                       
+            
             ret = [GCDWebServerDataResponse responseWithJSONObject:@{ SBTUITunnelResponseResultKey: response ?: @"" }];
             
             dispatch_semaphore_signal(sem);
@@ -192,16 +192,24 @@ description:(desc), ##__VA_ARGS__]; \
     return @"YES";
 }
 
+#pragma mark - Ping Command
+
+- (NSString *)commandQuit:(GCDWebServerRequest *)tunnelRequest
+{
+    exit(0);
+    return @"YES";
+}
+
 #pragma mark - Stubs Commands
 
 - (NSString *)commandStubPathMatching:(GCDWebServerRequest *)tunnelRequest
 {
     __block NSString *stubId = nil;
-
+    
     if ([self validStubRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
         SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-
+        
         SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
         NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
@@ -217,7 +225,7 @@ description:(desc), ##__VA_ARGS__]; \
                 }
             }
         }];
-
+        
     }
     
     return stubId;
@@ -255,7 +263,7 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTProxyURLProtocol stubRequestsRemoveAll];
-
+    
     return @"YES";
 }
 
@@ -264,11 +272,11 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandMonitorPathMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = nil;
-
+    
     if ([self validMonitorRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-
+        
         reqId = [SBTProxyURLProtocol proxyRequestsMatching:requestMatch delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime) {
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
@@ -292,7 +300,7 @@ description:(desc), ##__VA_ARGS__]; \
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-
+    
     return [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
 }
 
@@ -463,7 +471,7 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSString *)commandKeychainObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
-
+    
     NSObject *obj = [[FXKeychain defaultKeychain] objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
     if (data) {
@@ -522,7 +530,7 @@ description:(desc), ##__VA_ARGS__]; \
     if (error) {
         return @"NO";
     }
-
+    
     
     return [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
 }
@@ -551,7 +559,7 @@ description:(desc), ##__VA_ARGS__]; \
     return [filesDataArrData base64EncodedStringWithOptions:0];
 }
 
-#pragma mark - Other Commands 
+#pragma mark - Other Commands
 
 - (NSString *)commandSetUIAnimations:(GCDWebServerRequest *)tunnelRequest
 {
@@ -657,7 +665,7 @@ description:(desc), ##__VA_ARGS__]; \
     NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
-
+    
     if (!jsonData || error) {
         NSLog(@"[UITestTunnelServer] Failed to create identifierForStubRequest");
         return nil;

@@ -49,6 +49,13 @@
  */
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
+#pragma mark - Quit Command
+
+/**
+ *  Quits application by sending an abort(). Useful to use in tearDown() to make sure the current test ends
+ */
+- (void)quit;
+
 #pragma mark - Stub Commands
 
 /**
@@ -377,7 +384,7 @@
 #pragma mark - Copy Commands
 
 /**
-
+ 
  *  Upload item to remote host
  *
  *  @param srcPath source path
