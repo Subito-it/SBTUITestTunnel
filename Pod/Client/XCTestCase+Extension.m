@@ -14,6 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// WHAT IS THIS?
+// 
+// This swizzling is a hack which increases reliability of testing sessions.
+// As of Xcode 8.2 (and earlier) it appears that randomly tests do not end completely.
+// As a consequence the next test starts with the device in an unclean status which xcodebuild
+// is able to fix *most of the times*.
+// The trick is simple, on tearDown we send a quit command to the server which invokes an
+// exit(0), forcing app to quit
+
 #if DEBUG
 
 #import "XCTestCase+Extension.h"
