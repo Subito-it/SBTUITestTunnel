@@ -90,7 +90,7 @@ At launch you can optionally provide some options and a startup block which will
 
 #### Launch with no options
 
-You launch your tests in a similar fashion as you're used to. _Note how we don't need to instantiate the `app` property_ 
+You launch your tests in a similar fashion as you're used to.
 
     import SBTUITestTunnel
 
@@ -105,6 +105,8 @@ You launch your tests in a similar fashion as you're used to. _Note how we don't
             // ... 
         }
     }
+
+_Note how we don't need to instantiate the `app` property_ 
 
 #### Launch with options and startupBlock
 
