@@ -44,28 +44,7 @@ Add files in the *Server* and *Common* folder to your application's target, *Cli
 
 ### Application target
 
-On the application's target call SBTUITestTunnelServer's `takeOff` method inside the application's delegate `initialize` class method.
-
-**Objective-C**
-
-    #import "SBTAppDelegate.h"
-    #import "SBTUITestTunnelServer.h"
-
-    @implementation SBTAppDelegate
-
-    + (void)initialize {
-        #if DEBUG
-            [SBTUITestTunnelServer takeOff];
-        #endif
-    }
-
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-        return YES;
-    }
-
-    @end
-
-**Swift**
+On the application's target call SBTUITestTunnelServer's `takeOff` method on top of `application(_:didFinishLaunchingWithOptions:)`.
 
     import UIKit
     import SBTUITestTunnel
@@ -74,13 +53,11 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method inside
     class AppDelegate: UIResponder, UIApplicationDelegate {
         var window: UIWindow?
 
-        override class func initialize() {
+        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
             #if DEBUG
                 SBTUITestTunnelServer.takeOff()
             #endif
-        }
 
-        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
             return true
         }
     }
@@ -100,8 +77,7 @@ clang: error: linker command failed with exit code 1 (use -v to see invocation)
 
 ### UI Testing target
 
-Instead of using `XCUIApplication` use `SBTUITunneledApplication`.
-
+On the testing target no setup is required. You don't even need to instantiate an `XCUIApplication`, the framework automatically adds an `app` (`SBTUITunneledApplication`) ready to use.
 
 ## Usage
 
@@ -110,37 +86,28 @@ Instead of using `XCUIApplication` use `SBTUITunneledApplication`.
 
 ### Startup
 
-At launch you can optionally provide some options and a startup block which will be executed before the `applicationDidFinishLaunching` will be called. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
+At launch you can optionally provide some options and a startup block which will be executed synchronously with app's launch. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
 
 #### Launch with no options
 
-**Objective-C**
+You launch your tests in a similar fashion as you're used to. _Note how we don't need to instantiate the `app` property_ 
 
-    SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
-    [app launch];
+    import SBTUITestTunnel
 
-**Swift**
-
-    let app = SBTUITunneledApplication()
-    app.launch()
-
+    class MyTestClass: XCTestCase {xw
+        override func setUp() {
+            super.setUp()
+            
+            app.launchTunnel()
+        }
+        
+        func testStuff() {
+            // ... 
+        }
+    }
 
 #### Launch with options and startupBlock
 
-**Objective-C**
-
-    SBTUITunneledApplication *app = [[SBTUITunneledApplication alloc] init];
-
-    [app launchTunnelWithOptions:@[SBTUITunneledApplicationLaunchOptionResetFilesystem]
-                    startupBlock:^{
-        [app setUserInterfaceAnimationsEnabled:NO];
-        [app userDefaultsSetObject:@(YES) forKey:@"show_startup_warning"]
-        ...
-    }];
-
-**Swift**
-
-    app = SBTUITunneledApplication()
     app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
         // do additional setup before the app launches
         // i.e. prepare stub request, start monitoring requests
@@ -154,20 +121,6 @@ At launch you can optionally provide some options and a startup block which will
 The stubbing/monitoring/throttling methods of the library require a `SBTRequestMatch` object in order to determine whether they should react to a network request.
 
 You can specify url, query (parameter in GET and DELETE, body in POST and PUT) and HTTP method using one of the several class methods available
-
-**Objective-C**
-
-    + (nonnull instancetype)URL:(nonnull NSString *)url; // any request matching the specified regex on the request URL
-    + (nonnull instancetype)URL:(nonnull NSString *)url query:(nonnull NSString *)query; // same as above additionally matching the query (params in GET and DELETE, body in POST and PUT)
-    + (nonnull instancetype)URL:(nonnull NSString *)url query:(nonnull NSString *)query method:(nonnull NSString *)method; // same as above additionally matching the HTTP method
-    + (nonnull instancetype)URL:(nonnull NSString *)url method:(nonnull NSString *)method; // any request matching the specified regex on the request URL and HTTP method
-
-    + (nonnull instancetype)query:(nonnull NSString *)query; // any request matching the specified regex on the query (params in GET and DELETE, body in POST and PUT)
-    + (nonnull instancetype)query:(nullable NSString *)query method:(nonnull NSString *)method; // same as above additionally matching the HTTP method
-
-    + (nonnull instancetype)method:(nonnull NSString *)method; // any request matching the HTTP method
-
-**Swift**
 
     public class func URL(url: String) -> Self // any request matching the specified regex on the request URL
     public class func URL(url: String, query: String) -> Self // same as above additionally matching the query (params in GET and DELETE, body in POST and PUT)
@@ -184,21 +137,6 @@ You can specify url, query (parameter in GET and DELETE, body in POST and PUT) a
 
 To stub a network request you pass the appropriate `SBTRequestMatch` object
 
-**Objective-C**
-
-    NSString *stubId = [app stubRequestsMatching:[SBTRequestMatch URL:@"google.com"]
-                             returnJsonDictionary:@{@"request": @"stubbed"}
-                                       returnCode:200
-                                     responseTime:SBTUITunnelStubsDownloadSpeed3G];
-    // from here on network request containing 'apple' will return a JSON {"request" : "stubbed" }
-    ...
-
-    [app stubRequestsRemoveWithId:stubId]; // To remove the stub either use the identifier
-
-    [app stubRequestsRemoveAll]; // or remove all active stubs
-
-**Swift**
-
     let stubId = app.stubRequestsMatching:SBTRequestMatch(SBTRequestMatch.URL("google.com"), returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
 
     // from here on network request containing 'apple' will return a JSON {"request" : "stubbed" }
@@ -213,31 +151,13 @@ To stub a network request you pass the appropriate `SBTRequestMatch` object
 
 #### Set object
 
-**Objective-C**
-
-    [app userDefaultsSetObject:@"test_value" forKey:@"test_key"]);
-
-**Swift**
-
     app.userDefaultsSetObject("test_value", forKey: "test_key");
 
 #### Get object
 
-**Objective-C**
-
-    id obj = [app userDefaultsObjectForKey:@"test_key"]
-
-**Swift**
-
     let obj = app.userDefaultsObjectForKey("test_key")
 
 #### Remove object
-
-**Objective-C**
-
-    [app userDefaultsRemoveObjectForKey:@"test_key"]
-
-**Swift**
 
     app.userDefaultsRemoveObjectForKey("test_key")
 
@@ -246,47 +166,16 @@ To stub a network request you pass the appropriate `SBTRequestMatch` object
 
 #### Upload
 
-**Objective-C**
-
-    NSString *testFilePath = ... // path to file
-    [app uploadItemAtPath:testFilePath toPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
-
-**Swift**
-
     let pathToFile = ... // path to file
     app.uploadItemAtPath(pathToFile, toPath: "test_file.txt", relativeTo: .DocumentDirectory)
 
 #### Download
-
-**Objective-C**
-
-    NSData *uploadData = [app downloadItemFromPath:@"test_file.txt" relativeTo:NSDocumentDirectory];
-
-**Swift**
 
     let uploadData = app.downloadItemFromPath("test_file.txt", relativeTo: .DocumentDirectory)
 
 ### Network monitoring
 
 This may come handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
-
-**Objective-C**
-
-    [app monitorRequestsMatching:[SBTRequestMatch URL:@"apple.com"]];
-
-    // Interact with UI. Once ready flush calls and get the list of requests
-
-    NSArray<SBTMonitoredNetworkRequest *> *requests = [app monitoredRequestsFlushAll];
-
-    for (SBTMonitoredNetworkRequest *request in requests) {
-        NSData *requestBody = request.request.HTTPBody; // HTTP Body in POST request?
-        NSDictionary *responseJSON = request.responseJSON;
-        NSTimeInterval requestTime = request.requestTime; // How long did the request take?
-    }
-
-    [app monitorRequestRemoveAll];
-
-**Swift**
 
     app.monitorRequestsMatching(SBTRequestMatch.URL("apple.com"))
 
@@ -306,14 +195,6 @@ This may come handy when you need to check that specific network requests are ma
 
 The library allows to throttle network calls by specifying a response time, which can be a positive number of seconds or one of the predefined `SBTUITunnelStubsDownloadSpeed*`constants. You pass an `SBTRequestMatch` like for stubbing methods.
 
-**Objective-C**
-
-    NSString *throttleId = [app throttleRequestsMatching:[SBTRequestMatch URL:@"apple.com"] responseTime:SBTUITunnelStubsDownloadSpeed3G];
-
-    [app throttleRequestRemoveWithId:throttleId];
-
-**Swift**
-
     let throttleId = app.throttleRequestsMatching(SBTRequestMatch.URL("apple.com"), responseTime:SBTUITunnelStubsDownloadSpeed3G) ?? ""
 
     app.throttleRequestRemoveWithId(throttleId)
@@ -325,17 +206,6 @@ You can easily add a custom block of code in the application target that can be 
 #### Application target
 
 You register a block of code that will be invoked from the test target as follows:
-
-**Objective-C**
-
-    [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommand" block:^NSObject *(NSObject *object) {
-        // the block of code that will be executed when the test target calls
-        // [SBTUITunneledApplication performCustomCommandNamed:object:];
-
-        return @"Any object you want to pass back to test target";
-    }];
-
-**Swift**
 
     SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandKey") {
         injectedObject in
@@ -349,12 +219,6 @@ You register a block of code that will be invoked from the test target as follow
 #### Test target
 
 You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
-
-**Objective-C**
-
-    NSObject *objReturnedByBlock = [app performCustomCommandNamed:@"myCustomCommand" object:someObject];
-
-**Swift**
 
     let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
 
