@@ -77,7 +77,7 @@ clang: error: linker command failed with exit code 1 (use -v to see invocation)
 
 ### UI Testing target
 
-On the testing target no setup is required. You don't even need to instantiate an `XCUIApplication`, the framework automatically adds an `app` (`SBTUITunneledApplication`) ready to use.
+On the testing target no setup is required. You don't even need to instantiate an `XCUIApplication`, the framework automatically adds an `app` property (`SBTUITunneledApplication`) ready to use.
 
 ## Usage
 
