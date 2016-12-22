@@ -224,7 +224,7 @@ You invoke the custom command by using the same identifier used on registration,
 
     let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
     
-## [Workaround] UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204
+## Workarounding _UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204_
 
 To workaround this issue, which seem to occur more frequently in apps with long startup, an additional step  is required during the setup of your tunnel
 
