@@ -223,6 +223,31 @@ You register a block of code that will be invoked from the test target as follow
 You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
 
     let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
+    
+## [Workaround] UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204
+
+To workaround this issue, which seem to occur more frequently in apps with long startup, an additional step  is required during the setup of your tunnel
+
+In your application target you call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
+
+    import UIKit
+    import SBTUITestTunnel
+
+    @UIApplicationMain
+    class AppDelegate: UIResponder, UIApplicationDelegate {
+        var window: UIWindow?
+
+        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+            #if DEBUG
+                SBTUITestTunnelServer.takeOff()
+                SBTUITestTunnelServer.takeOffCompleted(false)
+            #endif
+
+            return true
+        }
+    }
+
+You then call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.
 
 ## Thanks
 
