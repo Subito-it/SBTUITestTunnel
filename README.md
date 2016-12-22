@@ -226,9 +226,9 @@ You invoke the custom command by using the same identifier used on registration,
     
 ## Workarounding _UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204_
 
-To workaround this issue, which seem to occur more frequently in apps with long startup, an additional step  is required during the setup of your tunnel
+To workaround this issue, which seem to occur more frequently in apps with long startup, an additional step is required during the setup of the tunnel in the application target:
 
-In your application target you call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
+Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
 
     import UIKit
     import SBTUITestTunnel
@@ -248,6 +248,8 @@ In your application target you call `SBTUITestTunnelServer.takeOffCompleted(fals
     }
 
 You then call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.
+
+This will guarantee that the tests will start executing once the view hierarchy of the app is ready.
 
 ## Thanks
 
