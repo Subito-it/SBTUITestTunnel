@@ -55,11 +55,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)terminate
 {
-    if (!self.ready) {
-        [super terminate];
-        return;
-    }
-    
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil assertOnError:NO];
     
     [super terminate];
@@ -99,7 +94,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [weakSelf waitForServer];
+        [weakSelf waitForServerUp];
         
         NSLog(@"[UITestTunnel] Server detected!");
         
@@ -124,6 +119,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         [startupBlockCompletedLock unlock];
         
         if (localStartupBlockCompleted) {
+            [self waitForServerReady];
             return;
         }
     }
@@ -132,7 +128,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     [self terminate];
 }
 
-- (void)waitForServer
+- (void)waitForServerUp
 {
     const timeout = 30;
     int i = 0;
@@ -144,6 +140,21 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     }
     
     NSAssert(NO, @"[SBTUITestTunnel] failed to connect to client app.");
+    [self terminate];
+}
+
+- (void)waitForServerReady
+{
+    const timeout = 30;
+    int i = 0;
+    for (i = 0; i < timeout; i++) {
+        [NSThread sleepForTimeInterval:1.0];
+        if ([self isAppCruising]) {
+            return;
+        }
+    }
+    
+    NSAssert(NO, @"[SBTUITestTunnel] failed waiting app to be ready");
     [self terminate];
 }
 
@@ -160,6 +171,14 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 {
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandQuit params:nil assertOnError:NO];
 }
+
+#pragma mark - Ready Command
+
+- (BOOL)isAppCruising
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCruising params:nil] isEqualToString:@"YES"];
+}
+
 
 #pragma mark - Stub Commands
 
@@ -578,11 +597,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Helper Methods
 
-- (BOOL)ready
-{
-    return self.remoteHost.length > 0 && self.remotePort > 0;
-}
-
 - (NSDictionary<NSString *, id> *)dictionaryFromJSONInBundle:(NSString *)jsonFilename
 {
     NSString *jsonName = [jsonFilename stringByDeletingPathExtension];
@@ -625,7 +639,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
                 break;
             }
         } else {
-            //#warning objective-c frameworks TODO.
+            // #warning objective-c frameworks TODO.
         }
     }
     
@@ -652,66 +666,62 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
-    if (self.ready) {
-        NSString *urlString = [NSString stringWithFormat:@"http://%@:%d/%@", self.remoteHost, (unsigned int)self.remotePort, path];
+    NSString *urlString = [NSString stringWithFormat:@"http://%@:%d/%@", self.remoteHost, (unsigned int)self.remotePort, path];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    NSMutableURLRequest *request = nil;
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    
+    NSMutableArray *queryItems = [NSMutableArray array];
+    [params enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
+    }];
+    components.queryItems = queryItems;
+    
+    if ([SBTUITunnelHTTPMethod isEqualToString:@"GET"]) {
+        request = [NSMutableURLRequest requestWithURL:components.URL];
+    } else if  ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) {
+        request = [NSMutableURLRequest requestWithURL:url];
         
-        NSURL *url = [NSURL URLWithString:urlString];
-        
-        NSMutableURLRequest *request = nil;
-        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-        
-        NSMutableArray *queryItems = [NSMutableArray array];
-        [params enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
-            [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
-        }];
-        components.queryItems = queryItems;
-        
-        if ([SBTUITunnelHTTPMethod isEqualToString:@"GET"]) {
-            request = [NSMutableURLRequest requestWithURL:components.URL];
-        } else if  ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) {
-            request = [NSMutableURLRequest requestWithURL:url];
-            
-            request.HTTPBody = [components.query dataUsingEncoding:NSUTF8StringEncoding];
-        }
-        request.HTTPMethod = SBTUITunnelHTTPMethod;
-        
-        if (!request) {
-            NSAssert(NO, @"[SBTUITestTunnel] Did fail to create url component");
-            [self terminate];
-            return nil;
-        }
-        
-        dispatch_semaphore_t synchRequestSemaphore = dispatch_semaphore_create(0);
-        
-        NSURLSession *session = [NSURLSession sharedSession];
-        __block NSString *responseId = nil;
-        
-        [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                if (assertOnError) {
-                    NSLog(NO, @"[SBTUITestTunnel] Failed to get http response: %@", request);
-                    //[weakSelf terminate];
-                }
-            } else {
-                NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-                responseId = jsonData[SBTUITunnelResponseResultKey];
-                
-                if (assertOnError) {
-                    if (((NSHTTPURLResponse *)response).statusCode != 200) {
-                        NSLog(@"[SBTUITestTunnel] Message sending failed: %@", request);
-                    }
-                }
-            }
-            
-            dispatch_semaphore_signal(synchRequestSemaphore);
-        }] resume];
-        
-        dispatch_semaphore_wait(synchRequestSemaphore, DISPATCH_TIME_FOREVER);
-        
-        return responseId;
+        request.HTTPBody = [components.query dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    request.HTTPMethod = SBTUITunnelHTTPMethod;
+    
+    if (!request) {
+        NSAssert(NO, @"[SBTUITestTunnel] Did fail to create url component");
+        [self terminate];
+        return nil;
     }
     
-    return nil;
+    dispatch_semaphore_t synchRequestSemaphore = dispatch_semaphore_create(0);
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    __block NSString *responseId = nil;
+    
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+            if (assertOnError) {
+                NSLog(NO, @"[SBTUITestTunnel] Failed to get http response: %@", request);
+                // [weakSelf terminate];
+            }
+        } else {
+            NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            responseId = jsonData[SBTUITunnelResponseResultKey];
+            
+            if (assertOnError) {
+                if (((NSHTTPURLResponse *)response).statusCode != 200) {
+                    NSLog(@"[SBTUITestTunnel] Message sending failed: %@", request);
+                }
+            }
+        }
+        
+        dispatch_semaphore_signal(synchRequestSemaphore);
+    }] resume];
+    
+    dispatch_semaphore_wait(synchRequestSemaphore, DISPATCH_TIME_FOREVER);
+    
+    return responseId;
 }
 
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params

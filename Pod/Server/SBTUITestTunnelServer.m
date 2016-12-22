@@ -69,6 +69,7 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSLock *startupCommandsCompletedLock;
 @property (nonatomic, assign) BOOL startupCommandsCompleted;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
+@property (nonatomic, assign) BOOL cruising;
 
 @end
 
@@ -86,6 +87,7 @@ description:(desc), ##__VA_ARGS__]; \
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
         sharedInstance.startupCommandsCompleted = YES;
+        sharedInstance.cruising = YES;
     });
     return sharedInstance;
 }
@@ -159,6 +161,11 @@ description:(desc), ##__VA_ARGS__]; \
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
 
++ (void)takeOffCompleted:(BOOL)completed
+{
+    self.sharedInstance.cruising = completed;
+}
+
 - (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request returnObject:(NSObject **)returnObject
 {
     NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
@@ -199,6 +206,13 @@ description:(desc), ##__VA_ARGS__]; \
     exit(0);
     return @"YES";
 }
+
+#pragma mark - Ready Command
+
+- (NSString *)commandCruising:(GCDWebServerRequest *)tunnelRequest
+{
+    return self.cruising ? @"YES" : @"NO";}
+
 
 #pragma mark - Stubs Commands
 
