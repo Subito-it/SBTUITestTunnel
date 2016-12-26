@@ -34,6 +34,8 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, strong) NSString *remoteHost;
 @property (nonatomic, assign) NSInteger remoteHostsFound;
 @property (nonatomic, strong) NSMutableArray *stubOnceIds;
+@property (nonatomic, assign) BOOL startupBlockCompleted;
+@property (nonatomic, strong) NSLock *startupBlockCompletedLock;
 
 @end
 
@@ -48,6 +50,8 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         _remotePort = SBTUITunneledApplicationDefaultPort;
         _remoteHost = SBTUITunneledApplicationDefaultHost;
         _remoteHostsFound = 0;
+        _startupBlockCompleted = NO;
+        _startupBlockCompletedLock = [[NSLock alloc] init];
     }
     
     return self;
@@ -55,6 +59,10 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)terminate
 {
+    [self.startupBlockCompletedLock lock];
+    self.startupBlockCompleted = YES;
+    [self.startupBlockCompletedLock unlock];
+    
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil assertOnError:NO];
     
     [super terminate];
@@ -89,9 +97,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
         [launchEnvironment addEntriesFromDictionary:self.launchEnvironment];
     }
     
-    __block BOOL startupBlockCompleted = NO;
-    NSLock *startupBlockCompletedLock = [[NSLock alloc] init];
-    
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [weakSelf waitForServerUp];
@@ -104,9 +109,9 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
             [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
         }
         
-        [startupBlockCompletedLock lock];
-        startupBlockCompleted = YES;
-        [startupBlockCompletedLock unlock];
+        [weakSelf.startupBlockCompletedLock lock];
+        weakSelf.startupBlockCompleted = YES;
+        [weakSelf.startupBlockCompletedLock unlock];
     });
     
     [self launch];
@@ -114,9 +119,9 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     for (int i = 0; i < 2.0 * self.connectionTimeout; i++) {
         [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
         
-        [startupBlockCompletedLock lock];
-        BOOL localStartupBlockCompleted = startupBlockCompleted;
-        [startupBlockCompletedLock unlock];
+        [self.startupBlockCompletedLock lock];
+        BOOL localStartupBlockCompleted = self.startupBlockCompleted;
+        [self.startupBlockCompletedLock unlock];
         
         if (localStartupBlockCompleted) {
             [self waitForServerReady];
