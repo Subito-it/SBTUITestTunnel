@@ -72,13 +72,13 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)launchTunnelWithOptions:(NSArray<NSString *> *)options startupBlock:(void (^)(void))startupBlock
 {
-    NSMutableArray *launchArguments = [options mutableCopy];
+    NSMutableArray *launchArguments = [self.launchArguments mutableCopy];
+    [launchArguments addObjectsFromArray:options];
     
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
     
     if (startupBlock) {
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
-        
     }
     
     self.launchArguments = launchArguments;
