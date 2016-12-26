@@ -52,6 +52,9 @@ class MiscellaneousTests: XCTestCase {
     }
     
     func testAutocompleteEnabled() {
+        app.launchArguments = ["-AppleLanguages", "(en)",
+                               "-AppleLocale", "en_EN"]
+        
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         guard let preferredLanguages = app.userDefaultsObject(forKey: "AppleLanguages") as? [String]
@@ -72,14 +75,14 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertNotEqual(text, textFieldText)
     }
-
+    
     func testAutocompleteDisabled() {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete])
         
         let text = "Tesling things" // Telling things
         
         app.cells["showAutocompleteForm"].tap()
-
+        
         let textField = app.textFields.element(boundBy: 0)
         textField.tap()
         app.typeText(text)

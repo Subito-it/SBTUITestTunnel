@@ -21,7 +21,7 @@ class UserDefaultsTest: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        
+                
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
