@@ -247,7 +247,7 @@ Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (whic
         }
     }
 
-You then call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.
+🔥🔥🔥**You then HAVE TO call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.**
 
 This will guarantee that the tests will start executing once the view hierarchy of the app is ready.
 
