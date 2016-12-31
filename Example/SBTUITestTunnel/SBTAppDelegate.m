@@ -19,15 +19,10 @@
 
 @implementation SBTAppDelegate
 
-+ (void)initialize
-{
-#if DEBUG
-    [SBTUITestTunnelServer takeOff];
-#endif
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [SBTUITestTunnelServer takeOff];
+
     return YES;
 }
 
