@@ -17,6 +17,12 @@
 // https://github.com/AliSoftware/OHHTTPStubs/blob/master/OHHTTPStubs/Sources/NSURLSession/OHHTTPStubs%2BNSURLSessionConfiguration.m
 
 #if DEBUG
+    #ifndef ENABLE_UITUNNEL 
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
 
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
 #import "SBTSwizzleHelpers.h"

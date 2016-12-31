@@ -24,6 +24,12 @@
 // exit(0), forcing app to quit
 
 #if DEBUG
+    #ifndef ENABLE_UITUNNEL 
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
 
 #import "XCTestCase+Extension.h"
 #import "SBTSwizzleHelpers.h"
