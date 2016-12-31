@@ -62,9 +62,13 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method on top
         }
     }
 
-### 🔥 DEBUG pre-processor macro
+### 🔥 Preprocessor macros  
 
-To avoid shipping test code in production each and every file of the framework is surrounded with an #if DEBUG statement. **Therefore you have to wrap the `takeOff` method around the DEBUG pre-processor macro** as shown in the code above or you'll end up getting the following linking error when trying to build your application:
+To use the framework you're required to define `DEBUG=1` or `ENABLE_UITUNNEL=1` in your preprocessor macros build settings. This is needed to make sure that test code doesn't end by mistake in production. Make sure that these macros should be defined in both your application target and Pods project.
+
+#### Basic usage
+
+Nothing particular needs to be done if you'll be running your test code with a build configuration that already defines `DEBUG=1`. This is the case of the default debug build configuration which is the one used in most cases when running test. Just make sure to **wrap all calls to the framework around `#if DEBUG`s** as shown in the example above or you may end up getting linking errors that might look something like:
 ```
 Undefined symbols for architecture i386:
   "_OBJC_CLASS_$_SBTUITestTunnelServer", referenced from:
@@ -73,7 +77,24 @@ ld: symbol(s) not found for architecture i386
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 ```
 
-**Also make sure that your target/build configuration defines the DEBUG pre-processor macro!**
+#### Advanced usage
+
+In some advanced cases the `DEBUG=1` may not be defined in your application's target or Pods project. This can happen when using some customly named build_configurations (ie QA) where Cocoapods doesn't automatically set the `DEBUG` preprocessors for you.
+
+
+
+In that case you'll need to add `ENABLE_UITUNNEL=1` in your application target build setting as shown above and modify your Podfile by adding the following `post_install` action (and re running `pod install`):
+
+    post_install do |installer|
+        installer.pods_project.targets.each do |target|
+            target.build_configurations.each do |config|
+                if config.name == 'QA' # the name of your build configuration
+                    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'ENABLE_UITUNNEL=1']
+                end
+            end
+        end
+    end
+
 
 ### UI Testing target
 
