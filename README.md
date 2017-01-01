@@ -131,9 +131,9 @@ _Note how we don't need to instantiate the `app` property_
 
 #### Launch with options and startupBlock
 
-    app.launchTunnelWithOptions([SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
-        // do additional setup before the app launches
-        // i.e. prepare stub request, start monitoring requests
+    app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
+         // do additional setup before the app launches
+         // i.e. prepare stub request, start monitoring requests
     }
 
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
@@ -174,15 +174,15 @@ To stub a network request you pass the appropriate `SBTRequestMatch` object
 
 #### Set object
 
-    app.userDefaultsSetObject("test_value", forKey: "test_key");
+    app.userDefaultsSetObject("test_value" as NSCoding, forKey: "test_key");
 
 #### Get object
 
-    let obj = app.userDefaultsObjectForKey("test_key")
-
+    let obj = app.userDefaultsObject(forKey: "test_key")
+    
 #### Remove object
 
-    app.userDefaultsRemoveObjectForKey("test_key")
+    app.userDefaultsRemoveObject(forKey: "test_key")
 
 
 ### Upload / Download items
@@ -190,37 +190,37 @@ To stub a network request you pass the appropriate `SBTRequestMatch` object
 #### Upload
 
     let pathToFile = ... // path to file
-    app.uploadItemAtPath(pathToFile, toPath: "test_file.txt", relativeTo: .DocumentDirectory)
+    app.uploadItem(atPath: pathToFile, toPath: "test_file.txt", relativeTo: .documentDirectory)
 
 #### Download
 
-    let uploadData = app.downloadItemFromPath("test_file.txt", relativeTo: .DocumentDirectory)
+    let uploadData = app.downloadItems(fromPath: "test_file.txt", relativeTo: .documentDirectory)
 
 ### Network monitoring
 
 This may come handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
 
-    app.monitorRequestsMatching(SBTRequestMatch.URL("apple.com"))
-
+    app.monitorRequests(matching: SBTRequestMatch.url("apple.com"))
+        
     // Interact with UI. Once ready flush calls and get the list of requests
-
+        
     let requests: [SBTMonitoredNetworkRequest] = app.monitoredRequestsFlushAll()
-
+        
     for request in requests {
-        let requestBody = request.request!.HTTPBody // HTTP Body in POST request?
+        let requestBody  = request.request!.HTTPBody // HTTP Body in POST request?
         let responseJSON = request.responseJSON
-        let requestTime = request.requestTime // How long did the request take?
+        let requestTime  = request.requestTime // How long did the request take?
     }
-
+        
     app.monitorRequestRemoveAll()
 
 ### Throttling
 
 The library allows to throttle network calls by specifying a response time, which can be a positive number of seconds or one of the predefined `SBTUITunnelStubsDownloadSpeed*`constants. You pass an `SBTRequestMatch` like for stubbing methods.
 
-    let throttleId = app.throttleRequestsMatching(SBTRequestMatch.URL("apple.com"), responseTime:SBTUITunnelStubsDownloadSpeed3G) ?? ""
-
-    app.throttleRequestRemoveWithId(throttleId)
+    let throttleId = app.throttleRequests(matching: SBTRequestMatch.url("apple.com"), responseTime:SBTUITunnelStubsDownloadSpeed3G) ?? ""
+        
+     app.throttleRequestRemove(withId: throttleId)
 
 ### Custom defined blocks of code
 
