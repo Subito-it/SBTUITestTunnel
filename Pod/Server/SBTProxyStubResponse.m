@@ -38,20 +38,20 @@
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.data = [decoder decodeObjectForKey:@"data"];
-        self.headers = [decoder decodeObjectForKey:@"headers"];
-        self.statusCode = [[decoder decodeObjectForKey:@"status_code"] integerValue];
-        self.responseTime = [[decoder decodeObjectForKey:@"response_time"] doubleValue];
+        self.data = [decoder decodeObjectForKey:NSStringFromSelector(@selector(data))];
+        self.headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
+        self.statusCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(statusCode))];
+        self.responseTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(responseTime))];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeObject:self.data forKey:@"data"];
-    [encoder encodeObject:self.headers forKey:@"headers"];
-    [encoder encodeObject:@(self.statusCode) forKey:@"status_code"];
-    [encoder encodeObject:@(self.responseTime) forKey:@"response_time"];
+    [encoder encodeObject:self.data forKey:NSStringFromSelector(@selector(data))];
+    [encoder encodeObject:self.headers forKey:NSStringFromSelector(@selector(headers))];
+    [encoder encodeInteger:self.statusCode forKey:NSStringFromSelector(@selector(statusCode))];
+    [encoder encodeDouble:self.responseTime forKey:NSStringFromSelector(@selector(responseTime))];
 }
 
 + (nonnull SBTProxyStubResponse *)responseWithData:(nonnull NSData*)data headers:(nonnull NSDictionary<NSString *, NSString *> *)headers statusCode:(NSUInteger)statusCode responseTime:(NSTimeInterval)responseTime

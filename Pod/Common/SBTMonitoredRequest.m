@@ -29,12 +29,12 @@
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.timestamp = [[decoder decodeObjectForKey:@"timestamp"] doubleValue];
-        self.requestTime = [[decoder decodeObjectForKey:@"requestTime"] doubleValue];
-        self.request = [decoder decodeObjectForKey:@"request"];
-        self.originalRequest = [decoder decodeObjectForKey:@"originalRequest"];
-        self.response = [decoder decodeObjectForKey:@"response"];
-        self.responseData = [decoder decodeObjectForKey:@"responseData"];
+        self.timestamp = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(timestamp))];
+        self.requestTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(requestTime))];
+        self.request = [decoder decodeObjectForKey:NSStringFromSelector(@selector(request))];
+        self.originalRequest = [decoder decodeObjectForKey:NSStringFromSelector(@selector(originalRequest))];
+        self.response = [decoder decodeObjectForKey:NSStringFromSelector(@selector(response))];
+        self.responseData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseData))];
     }
     
     return self;
@@ -42,12 +42,12 @@
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeObject:@(self.timestamp) forKey:@"timestamp"];
-    [encoder encodeObject:@(self.requestTime) forKey:@"requestTime"];
-    [encoder encodeObject:self.request forKey:@"request"];
-    [encoder encodeObject:self.originalRequest forKey:@"originalRequest"];
-    [encoder encodeObject:self.response forKey:@"response"];
-    [encoder encodeObject:self.responseData forKey:@"responseData"];
+    [encoder encodeDouble:self.timestamp forKey:NSStringFromSelector(@selector(timestamp))];
+    [encoder encodeDouble:self.requestTime forKey:NSStringFromSelector(@selector(requestTime))];
+    [encoder encodeObject:self.request forKey:NSStringFromSelector(@selector(request))];
+    [encoder encodeObject:self.originalRequest forKey:NSStringFromSelector(@selector(originalRequest))];
+    [encoder encodeObject:self.response forKey:NSStringFromSelector(@selector(response))];
+    [encoder encodeObject:self.responseData forKey:NSStringFromSelector(@selector(responseData))];
 }
 
 - (NSString *)responseString

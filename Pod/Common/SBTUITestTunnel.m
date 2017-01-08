@@ -115,18 +115,18 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.path = [decoder decodeObjectForKey:@"path"];
-        self.headers = [decoder decodeObjectForKey:@"headers"];
-        self.query = [decoder decodeObjectForKey:@"query"];
+        self.path = [decoder decodeObjectForKey:NSStringFromSelector(@selector(path))];
+        self.headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
+        self.query = [decoder decodeObjectForKey:NSStringFromSelector(@selector(query))];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeObject:self.path forKey:@"path"];
-    [encoder encodeObject:self.headers forKey:@"headers"];
-    [encoder encodeObject:self.query forKey:@"query"];
+    [encoder encodeObject:self.path forKey:NSStringFromSelector(@selector(path))];
+    [encoder encodeObject:self.headers forKey:NSStringFromSelector(@selector(headers))];
+    [encoder encodeObject:self.query forKey:NSStringFromSelector(@selector(query))];
 }
 
 - (NSString *)description

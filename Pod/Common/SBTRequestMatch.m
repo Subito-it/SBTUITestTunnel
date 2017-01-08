@@ -27,7 +27,7 @@
 @interface SBTRequestMatch()
 
 @property (nonatomic, strong) NSString *url;
-@property (nonatomic, strong) NSString *query;
+@property (nonatomic, strong) NSArray<NSString *> *query;
 @property (nonatomic, strong) NSString *method;
 
 @end
@@ -37,9 +37,9 @@
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.url = [decoder decodeObjectForKey:@"url"];
-        self.query = [decoder decodeObjectForKey:@"query"];
-        self.method = [decoder decodeObjectForKey:@"method"];
+        self.url = [decoder decodeObjectForKey:NSStringFromSelector(@selector(url))];
+        self.query = [decoder decodeObjectForKey:NSStringFromSelector(@selector(query))];
+        self.method = [decoder decodeObjectForKey:NSStringFromSelector(@selector(method))];
     }
     
     return self;
@@ -47,9 +47,9 @@
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeObject:self.url forKey:@"url"];
-    [encoder encodeObject:self.query forKey:@"query"];
-    [encoder encodeObject:self.method forKey:@"method"];
+    [encoder encodeObject:self.url forKey:NSStringFromSelector(@selector(url))];
+    [encoder encodeObject:self.query forKey:NSStringFromSelector(@selector(query))];
+    [encoder encodeObject:self.method forKey:NSStringFromSelector(@selector(method))];
 }
 
 - (NSString *)description
