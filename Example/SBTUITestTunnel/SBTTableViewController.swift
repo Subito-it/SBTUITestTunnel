@@ -123,15 +123,15 @@ extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate
 
 extension SBTTableViewController {
     
-    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
             var request = URLRequest(url: url)
             request.httpMethod = httpMethod
-            if httpBody {
-                request.httpBody = "The http body".data(using: .utf8)
+            if let httpBody = httpBody {
+                request.httpBody = httpBody.data(using: .utf8)
             }
             
             var retData: Data! = nil
@@ -320,7 +320,7 @@ extension SBTTableViewController {
     }
     
     func executeDataTaskRequest3() {
-        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: false, delay: 0.0, shouldPushResult: false)
+        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
     
     func executeUploadDataTaskRequest() {
@@ -345,7 +345,7 @@ extension SBTTableViewController {
     }
     
     func executePostDataTaskRequestWithHTTPBody() {
-        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: true)
+        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "param5=val5&param6=val6")
     }
 
     func executeUploadDataTaskRequestWithHTTPBody() {

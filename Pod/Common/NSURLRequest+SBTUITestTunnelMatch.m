@@ -52,9 +52,14 @@
         }
         
         if (queryString) {
-            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.query options:NSRegularExpressionCaseInsensitive error:nil];
-            NSUInteger regexMatches = [regex numberOfMatchesInString:queryString options:0 range:NSMakeRange(0, queryString.length)];
-            matchesQuery = regexMatches > 0;
+            for (NSString *matchQuery in match.query) {
+                NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:matchQuery options:NSRegularExpressionCaseInsensitive error:nil];
+                NSUInteger regexMatches = [regex numberOfMatchesInString:queryString options:0 range:NSMakeRange(0, queryString.length)];
+                matchesQuery = regexMatches > 0;
+                if (!matchesQuery) {
+                    break;
+                }
+            }
         }
     }
 
