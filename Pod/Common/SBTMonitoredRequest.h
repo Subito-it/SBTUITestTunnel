@@ -1,4 +1,4 @@
-// NSURLRequest+SBTUITestTunnelMatch.h
+// SBTMonitoredRequest.h
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -15,19 +15,28 @@
 // limitations under the License.
 
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
-        #define ENABLE_UITUNNEL 1
-    #endif
+#ifndef ENABLE_UITUNNEL
+#define ENABLE_UITUNNEL 1
+#endif
 #endif
 
 #if ENABLE_UITUNNEL
 
 #import <Foundation/Foundation.h>
-#import "SBTRequestMatch.h"
 
-@interface NSURLRequest (SBTUITestTunnelMatch)
+@interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
 
-- (BOOL)matches:(nonnull SBTRequestMatch *)match;
+- (nullable NSString *)responseString;
+- (nullable id)responseJSON;
+
+@property (nonatomic, assign) NSTimeInterval timestamp;
+@property (nonatomic, assign) NSTimeInterval requestTime;
+
+@property (nullable, nonatomic, strong) NSURLRequest *request;
+@property (nullable, nonatomic, strong) NSURLRequest *originalRequest;
+@property (nullable, nonatomic, strong) NSHTTPURLResponse *response;
+
+@property (nullable, nonatomic, strong) NSData *responseData;
 
 @end
 

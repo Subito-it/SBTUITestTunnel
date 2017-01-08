@@ -23,7 +23,7 @@
 #if ENABLE_UITUNNEL
 
 #import <Foundation/Foundation.h>
-#import "SBTUITestTunnel.h"
+#import "SBTRequestMatch.h"
 
 @class SBTProxyStubResponse;
 
