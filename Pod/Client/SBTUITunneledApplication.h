@@ -23,7 +23,8 @@
 #if ENABLE_UITUNNEL
 
 #import <XCTest/XCTest.h>
-#import "SBTUITestTunnel.h"
+#import "SBTRequestMatch.h"
+#import "SBTMonitoredNetworkRequest.h"
 
 @interface SBTUITunneledApplication : XCUIApplication
 

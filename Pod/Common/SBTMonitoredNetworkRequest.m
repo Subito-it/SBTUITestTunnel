@@ -1,4 +1,4 @@
-// SBTMonitoredRequest.m
+// SBTMonitoredNetworkRequest.m
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -22,7 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
-#import "SBTMonitoredRequest.h"
+#import "SBTMonitoredNetworkRequest.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 

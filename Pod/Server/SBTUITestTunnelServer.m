@@ -28,7 +28,7 @@
 #import "UITextField+DisableAutocomplete.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTProxyStubResponse.h"
-#import "SBTMonitoredRequest.h"
+#import "SBTMonitoredNetworkRequest.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>

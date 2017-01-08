@@ -23,6 +23,7 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTUITunneledApplication.h"
+#import "SBTUITestTunnel.h"
 #import "NSString+SwiftDemangle.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #include <ifaddrs.h>
