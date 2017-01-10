@@ -27,7 +27,10 @@
 @interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
 
 - (nullable NSString *)responseString;
-- (nullable id)responseJSON;
+- (nullable NSDictionary<NSString *, id> *)responseJSON;
+
+- (nullable NSString *)requestString;
+- (nullable NSDictionary<NSString *, id> *)requestJSON;
 
 @property (nonatomic, assign) NSTimeInterval timestamp;
 @property (nonatomic, assign) NSTimeInterval requestTime;

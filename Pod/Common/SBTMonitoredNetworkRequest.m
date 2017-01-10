@@ -61,10 +61,29 @@
     return ret;
 }
 
-- (id)responseJSON
+- (NSDictionary<NSString *, id> *)responseJSON
 {
     NSError *error = nil;
     NSDictionary *ret = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingMutableContainers error:&error];
+    
+    return (ret && !error) ? ret : nil;
+}
+
+- (NSString *)requestString
+{
+    NSString *ret = [[NSString alloc] initWithData:self.originalRequest.HTTPBody encoding:NSUTF8StringEncoding];
+    
+    if (!ret) {
+        ret = [[NSString alloc] initWithData:self.originalRequest.HTTPBody encoding:NSASCIIStringEncoding];
+    }
+    
+    return ret;
+}
+
+- (NSDictionary<NSString *, id> *)requestJSON
+{
+    NSError *error = nil;
+    NSDictionary *ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
