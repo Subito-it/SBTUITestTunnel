@@ -53,9 +53,14 @@
         
         if (queryString) {
             for (NSString *matchQuery in match.query) {
-                NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:matchQuery options:NSRegularExpressionCaseInsensitive error:nil];
+                BOOL invertMatch = [matchQuery hasPrefix:@"!"];
+
+                // skip first char for inverted matches
+                NSString *pattern = [matchQuery substringFromIndex:invertMatch ? 1 : 0];
+                
+                NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
                 NSUInteger regexMatches = [regex numberOfMatchesInString:queryString options:0 range:NSMakeRange(0, queryString.length)];
-                matchesQuery = regexMatches > 0;
+                matchesQuery = invertMatch ? (regexMatches == 0) : (regexMatches > 0);
                 if (!matchesQuery) {
                     break;
                 }

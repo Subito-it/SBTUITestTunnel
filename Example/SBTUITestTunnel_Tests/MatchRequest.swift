@@ -113,6 +113,48 @@ class MatchRequest: XCTestCase {
         XCTAssertFalse(isNetworkResultStubbed())
         app.stubRequestsRemoveAll()
     }
+
+    func testInvertQueryGetOnly() {
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["!param1=val1", "param2=val2"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+        
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["param1=val1", "!param2=val2"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["!param1=val1", "!param2=val2"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["!param9=val9", "param1=val1"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["param1=val1", "!param9=val9"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["param1=val1", "param2=val2", "!param9=val9"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+        
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["param1=val1", "!param9=val9", "param2=val2"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+        
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org", query: ["!param9=val9", "param1=val1", "param2=val2"], method:"GET"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0)
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+    }
 }
 
 extension MatchRequest {
