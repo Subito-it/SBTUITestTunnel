@@ -143,7 +143,13 @@ _Note how we don't need to instantiate the `app` property_
 
 The stubbing/monitoring/throttling methods of the library require a `SBTRequestMatch` object in order to determine whether they should react to a network request.
 
-You can specify a regex on the URL, multiple regex on the query (in `POST` and `PUT` requests it will match the body) and HTTP method using one of the several class methods available.
+You can specify a regex on the URL, multiple regex on the query (in `POST` and `PUT` requests they will match against the body) and HTTP method using one of the several class methods available.
+
+#### Query parameter
+
+The `query` parameter found in different `SBTRequestMatch` initializers is an array of regex strings that are checked with the request [query](https://tools.ietf.org/html/rfc3986#section-3.4). If all regex in array match the request is stubbed/monitored/throttled.
+
+In a kind of unconventional syntax you can prefix the regex with and exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
 
 #### Examples
 
@@ -152,26 +158,32 @@ The regex in `GET` and `DELETE` requests will match the entire URL including que
 Below some matches for a sample request like http://wwww.myhost.com/v1/user/281218/info?param1=val1&param2=val2 :
 
     // this will match the request independently of the query parameters
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/281218\/info")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/281218/info")
     // this will match the request independently of the query parameters for any user id
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info")
     // this will match the request containing query parameters
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info\?param1=val1&param2=val2")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info\?param1=val1&param2=val2")
     // this will match the request containing only param1 = val1 query
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info\?.*param1=val1")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info\?.*param1=val1")
 
 **Given that parameter order isn't guaranteed** it is recommended to specify the `query` parameter in the `SBTRequestMatch`'s initializer. This is an array of regex that need to fulfill all for the request to match.
 
-Back to the previous example the following `SBTRequestMatch` both of these will match:
+Considering the previous example the following `SBTRequestMatch` will match if the request contains `param1=val1` AND `param2=val2`.
 
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info", query: ["param1=val1", "param2=val2"])
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info", query: ["param2=val2", "param1=val1"])
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2"])
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param2=val2", "param1=val1"])
+    
+You can additionally specify that the query should not contain something by prefixing the regex with an exclamantion mark `!`:
+
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2", "!param3=val3"])
+
+This will match if the query contains `param1=val1` AND `param2=val2` AND NOT `param3=val3`
 
 Finally you can limit a specific HTTP method by specifying it in the `method` parameter.
 
     // will match GET request only
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info", query: ["param1=val1", "param2=val2"], method: "GET")
-    let sr = SBTRequestMatch.url("myhost.com\/v1\/user\/.*\/info", method: "GET")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2"], method: "GET")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
 
 
 ### Stubbing
