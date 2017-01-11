@@ -345,7 +345,7 @@ extension SBTTableViewController {
     }
     
     func executePostDataTaskRequestWithHTTPBody() {
-        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "param5=val5&param6=val6")
+        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
     }
 
     func executeUploadDataTaskRequestWithHTTPBody() {

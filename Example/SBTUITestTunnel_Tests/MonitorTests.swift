@@ -154,7 +154,7 @@ class MonitorTests: XCTestCase {
                 continue
             }
             
-            XCTAssertEqual(String(data: httpBody, encoding: .utf8), "param5=val5&param6=val6")
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), "&param5=val5&param6=val6")
             
             XCTAssert((request.responseString() ?? "").contains("httpbin.org"))
             XCTAssert(request.timestamp > 0.0)

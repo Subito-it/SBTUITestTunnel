@@ -170,19 +170,19 @@ Below some matches for a sample request like http://wwww.myhost.com/v1/user/2812
 
 Considering the previous example the following `SBTRequestMatch` will match if the request contains `param1=val1` AND `param2=val2`.
 
-    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2"])
-    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param2=val2", "param1=val1"])
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"])
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param2=val2", "&param1=val1"])
     
 You can additionally specify that the query should not contain something by prefixing the regex with an exclamantion mark `!`:
 
-    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2", "!param3=val3"])
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2", "!param3=val3"])
 
 This will match if the query contains `param1=val1` AND `param2=val2` AND NOT `param3=val3`
 
 Finally you can limit a specific HTTP method by specifying it in the `method` parameter.
 
     // will match GET request only
-    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["param1=val1", "param2=val2"], method: "GET")
+    let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"], method: "GET")
     let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
 
 

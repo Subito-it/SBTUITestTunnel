@@ -49,6 +49,7 @@
             NSURLComponents *components = [NSURLComponents componentsWithURL:self.URL resolvingAgainstBaseURL:NO];
             
             queryString = components.query ?: @"";
+            queryString = [@"&" stringByAppendingString:queryString]; // prepend & to allow always prepending `&` in SBTMatchRequest's queries 
         }
         
         if (queryString) {
