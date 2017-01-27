@@ -65,7 +65,7 @@
     return ret;
 }
 
-+ (instancetype)URL:(NSString *)url query:(NSString *)query
++ (instancetype)URL:(NSString *)url query:(NSArray<NSString *> *)query
 {
     SBTRequestMatch *ret = [self URL:url];
     ret.query = query;
@@ -73,7 +73,7 @@
     return ret;
 }
 
-+ (instancetype)URL:(NSString *)url query:(NSString *)query method:(NSString *)method
++ (instancetype)URL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
 {
     SBTRequestMatch *ret = [self URL:url query:query];
     ret.method = method;
@@ -82,19 +82,19 @@
 }
 
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullability-completeness"
+#pragma clang diagnostic ignored "-Wnonnull"
 
 + (instancetype)URL:(NSString *)url method:(NSString *)method
 {
     return [self URL:url query:nil method:method];
 }
 
-+ (instancetype)query:(NSString *)query
++ (instancetype)query:(NSArray<NSString *> *)query
 {
     return [self URL:nil query:query method:nil];
 }
 
-+ (instancetype)query:(NSString *)query method:(NSString *)method
++ (instancetype)query:(NSArray<NSString *> *)query method:(NSString *)method
 {
     return [self URL:nil query:query method:method];
 }

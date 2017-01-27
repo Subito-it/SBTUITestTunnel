@@ -31,7 +31,7 @@ class ThrottleTests: XCTestCase {
     }
     
     func testThrottle() {
-        app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 5.0)
+        app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 0.0)
         
         app.cells["executeDataTaskRequest"].tap()
         let start = Date()
@@ -69,7 +69,7 @@ class ThrottleTests: XCTestCase {
 extension ThrottleTests {
  
     func waitForNetworkRequest() {
-        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
+        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.navigationBars.buttons.element(boundBy: 0), handler: nil)
         waitForExpectations(timeout: 10.0, handler: nil)
         
         app.navigationBars.buttons.element(boundBy: 0).tap()

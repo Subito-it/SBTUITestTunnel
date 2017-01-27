@@ -59,9 +59,7 @@
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL completionHandler:(void (^)(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error))completionHandler;
-{
-    NSData *data = [NSData dataWithContentsOfURL:fileURL];
-    
+{    
     return [self uploadTaskWithRequest:request fromFile:fileURL completionHandler:completionHandler];
 }
 

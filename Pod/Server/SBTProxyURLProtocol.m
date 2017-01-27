@@ -40,8 +40,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSessionDataTask *connection;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSMutableData *> *tasksData;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *tasksTime;
+@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSMutableData *> *tasksData;
+@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSDate *> *tasksTime;
 
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
 
@@ -104,7 +104,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (void)proxyRequestsRemoveAll
 {
-    NSMutableArray<NSString *> *itemsToDelete = [NSMutableArray array];
+    NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
     
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
@@ -158,7 +158,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 + (void)stubRequestsRemoveAll
 {
     @synchronized (self.sharedInstance) {
-        NSMutableArray<NSString *> *itemsToDelete = [NSMutableArray array];
+        NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
                 [itemsToDelete addObject:matchingRule];
@@ -234,8 +234,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSURLRequest *request = self.request;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
-            
-            NSString *length = [NSString stringWithFormat:@"%@", @(stubResponse.data.length)];
             
             NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
             
@@ -321,7 +319,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    block(request, task.originalRequest, response, responseData, requestTime);
+                    block(request, task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime);
                 }
             });
         }
@@ -363,7 +361,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
         if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
             // When negative delayResponseTime is the faked response time expressed in KB/s
-            NSHTTPURLResponse *requestResponse = self.response;
+            NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
             
             NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
             
@@ -413,7 +411,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         prefix = @"stb-";
     } else if ([rule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue] > 0) {
         prefix = @"thr-";
-    } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull null]]) {
+    } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull class]]) {
         prefix = @"mon-";
     }
     

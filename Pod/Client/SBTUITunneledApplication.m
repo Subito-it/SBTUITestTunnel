@@ -142,7 +142,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)waitForServerUp
 {
-    const timeout = 30;
+    const int timeout = 30;
     int i = 0;
     for (i = 0; i < timeout; i++) {
         [NSThread sleepForTimeInterval:1.0];
@@ -157,7 +157,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)waitForServerReady
 {
-    const timeout = 30;
+    const int timeout = 30;
     int i = 0;
     for (i = 0; i < timeout; i++) {
         [NSThread sleepForTimeInterval:1.0];
@@ -716,7 +716,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
             if (assertOnError) {
-                NSLog(NO, @"[SBTUITestTunnel] Failed to get http response: %@", request);
+                NSLog(@"[SBTUITestTunnel] Failed to get http response: %@", request);
                 // [weakSelf terminate];
             }
         } else {

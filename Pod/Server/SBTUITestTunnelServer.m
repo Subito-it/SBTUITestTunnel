@@ -109,8 +109,6 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (void)takeOffOnce
 {
-    NSInteger serverPort = SBTUITunneledApplicationDefaultPort;
-    
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
@@ -130,7 +128,7 @@ description:(desc), ##__VA_ARGS__]; \
             SEL commandSelector = NSSelectorFromString(commandString);
             NSString *response = nil;
             
-            if (![self processCustomCommandIfNecessary:request returnObject:&response]) {
+            if (![weakSelf processCustomCommandIfNecessary:request returnObject:&response]) {
                 if (![strongSelf respondsToSelector:commandSelector]) {
                     BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
                 }
