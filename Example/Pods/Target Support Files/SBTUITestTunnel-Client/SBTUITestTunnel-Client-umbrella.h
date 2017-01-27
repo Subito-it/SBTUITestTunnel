@@ -15,6 +15,8 @@
 #import "XCTestCase+Extension.h"
 #import "NSURLRequest+HTTPBodyFix.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "SBTMonitoredNetworkRequest.h"
+#import "SBTRequestMatch.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
 

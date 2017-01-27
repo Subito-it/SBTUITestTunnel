@@ -4,6 +4,7 @@ use_frameworks!
 
 target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnel/Server', :path => '../'
+  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
 end
 
 target 'SBTUITestTunnel_Tests' do
