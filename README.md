@@ -190,7 +190,7 @@ Finally you can limit a specific HTTP method by specifying it in the `method` pa
 
 To stub a network request you pass the appropriate `SBTRequestMatch` object
 
-    let stubId = app.stubRequestsMatching:SBTRequestMatch(SBTRequestMatch.URL("google.com"), returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
+    let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
 
     // from here on network request containing 'apple' will return a JSON {"request" : "stubbed" }
     ...
