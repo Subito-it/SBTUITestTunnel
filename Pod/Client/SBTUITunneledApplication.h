@@ -71,7 +71,7 @@
  *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
- *  @param returnCode The HTTP response code to be returned
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
@@ -86,7 +86,7 @@
  *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
- *  @param returnCode The HTTP response code to be returned
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
  *
@@ -100,8 +100,8 @@
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
+ *  @param json An NSDictionary<NSString *, id> * to be returned as JSON
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
@@ -112,8 +112,8 @@
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
+ *  @param jsonFilename The filename of a file in bundle to be returned as JSON
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
@@ -126,8 +126,8 @@
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonDictionary An NSDictionary<NSString *, id> * to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
+ *  @param json An NSDictionary<NSString *, id> * to be returned as JSON
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *  @param iterations number of matches after which the stub will be automatically removed
  *
@@ -139,8 +139,8 @@
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnJsonNamed The filename of a file in bundle to be returned as JSON
- *  @param returnCode The HTTP response code to be returned
+ *  @param jsonFilename The filename of a file in bundle to be returned as JSON
+ *  @param code The HTTP response code to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return `YES` on success
@@ -233,7 +233,7 @@
  *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
- *  @param completionHandler will be invoked once the requests is matched or timed out
+ *  @param completionBlock will be invoked once the requests is matched or timed out
  */
 - (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
 
@@ -243,7 +243,7 @@
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *  @param iterations How often the request should happen before timing out
- *  @param completionHandler will be invoked once the requests is matched or timed out
+ *  @param completionBlock will be invoked once the requests is matched or timed out
  */
 - (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
 
@@ -324,7 +324,6 @@
 /**
  *  Remove object from NSUSerDefaults.
  *
- *  @param object Object to be added
  *  @param key Key associated to object
  *
  *  @return `YES` on success
@@ -406,7 +405,6 @@
  *  Download one or more files from remote host
  *
  *  @param path source path (may include wildcard *, i.e ('*.jpg')
- *  @param destPath destination path relative to baseFolder
  *  @param baseFolder base folder for destPath
  *
  *  @return The data associated to the requested item
@@ -419,7 +417,7 @@
  *  Perform custom command.
  *
  *  @param commandName custom name that will match [SBTUITestTunnelServer registerCustomCommandNamed:block:]
- *  @param data optional data to be attached to request
+ *  @param object optional data to be attached to request
  *
  *  @return object returned from custom block
  */
@@ -440,7 +438,7 @@
 /**
  *  Set user iterface animations through UIApplication.sharedApplication.keyWindow.layer.speed. Should imporve test execution speed When enabled
  *
- *  @param enabled enable animations
+ *  @param speed speed of animation animations
  *
  *  @return `YES` on success
  */
