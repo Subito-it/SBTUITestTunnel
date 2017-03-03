@@ -105,6 +105,22 @@ class StubTests: XCTestCase {
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(networkReturnCode() == 401)
     }
+
+    func testStubHeaders() {
+      let customHeaders = ["X-Custom": "Custom"]
+      let genericReturnString = "Hello world"
+      let genericReturnData = genericReturnString.data(using: .utf8)!
+
+      app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), return: genericReturnData,
+                       contentType: "text/plain", returnCode: 200, returnHeaders: customHeaders, responseTime: 5.0)
+
+      var expectedHeaders = customHeaders
+      expectedHeaders["Content-Length"] = String(genericReturnData.count)
+      expectedHeaders["Content-Type"] = "text/plain"
+
+      app.cells["executeDataTaskRequest"].tap()
+      XCTAssert(networkReturnHeaders() == expectedHeaders)
+    }
     
     func testStubGenericReturnData() {
         let genericReturnString = "Hello world"
@@ -213,5 +229,18 @@ extension StubTests {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         
         return (resultDict["responseCode"] as? Int) ?? 0
+    }
+
+    func networkReturnHeaders() -> [String: String] {
+        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
+        waitForExpectations(timeout: 10.0, handler: nil)
+
+        let result = app.textViews["result"].value as! String
+        let resultData = Data(base64Encoded: result)!
+        let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        return (resultDict["responseHeaders"] as? [String: String]) ?? [:]
     }
 }
