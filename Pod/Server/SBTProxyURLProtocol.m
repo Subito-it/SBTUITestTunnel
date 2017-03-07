@@ -244,10 +244,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             // check if the request is also proxied, we might need to manually invoke the block here
             if (proxyRule) {
                 for (NSDictionary *matchingRule in matchingRules) {
-                    SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
-                    
-                    if (![block isEqual:[NSNull null]] && block != nil) {
-                        block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
+                    if (!matchingRule[SBTProxyURLProtocolStubResponse]) {
+                        SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
+                        
+                        if (![block isEqual:[NSNull null]] && block != nil) {
+                            block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
+                        }
                     }
                 }
             }

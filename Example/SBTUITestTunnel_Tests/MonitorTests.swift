@@ -120,6 +120,23 @@ class MonitorTests: XCTestCase {
         app.stubRequestsRemoveAll()
         app.monitorRequestRemoveAll()
     }
+    
+    func testMonitorAndStubWithRemoveAfterTwoIterations() {
+        app.stubRequests(matching: SBTRequestMatch.url("httpbin.org"), returnJsonDictionary: ["stubbed": 1], returnCode: 200, responseTime: 0.0, removeAfterIterations: 2)
+        app.monitorRequests(matching: SBTRequestMatch.url("httpbin.org"))
+        
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 2)
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
  
     func testMonitorAndThrottle() {
         app.monitorRequests(matching: SBTRequestMatch.url("httpbin.org"))
