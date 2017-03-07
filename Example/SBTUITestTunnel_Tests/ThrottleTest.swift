@@ -31,7 +31,7 @@ class ThrottleTests: XCTestCase {
     }
     
     func testThrottle() {
-        app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 0.0)
+        app.throttleRequests(matching: SBTRequestMatch.url("httpbin.org"), responseTime: 5.0)
         
         app.cells["executeDataTaskRequest"].tap()
         let start = Date()
