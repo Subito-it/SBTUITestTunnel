@@ -90,7 +90,7 @@
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code returnHeaders:(NSDictionary *)headers responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code returnHeaders:(nonnull NSDictionary *)headers responseTime:(NSTimeInterval)responseTime;
 
 #pragma mark - Stub And Remove Commands
 
