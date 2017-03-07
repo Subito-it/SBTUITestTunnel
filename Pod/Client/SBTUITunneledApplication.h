@@ -84,8 +84,8 @@
  *  @param match The match object that contains the matching rules
  *  @param returnData The return data to stub
  *  @param contentType The return ContentType
- *  @param returnCode The HTTP response code to be returned
- *  @param returnHeaders The HTTP response headers to be returned
+ *  @param code The HTTP response code to be returned
+ *  @param headers The HTTP response headers to be returned
  *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
