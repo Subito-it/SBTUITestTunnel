@@ -205,6 +205,21 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
 }
 
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code returnHeaders:(NSDictionary *)headers responseTime:(NSTimeInterval)responseTime
+{
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:headers options:0 error:NULL];
+    NSString *headersSerialized = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
+                                                     SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
+}
+
 #pragma mark - Stub And Remove Commands
 
 - (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations

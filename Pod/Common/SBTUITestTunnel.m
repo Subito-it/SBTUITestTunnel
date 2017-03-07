@@ -43,6 +43,7 @@ NSString * const SBTUITunnelHTTPMethod = @"POST";
 NSString * const SBTUITunnelStubQueryRuleKey = @"rule";
 NSString * const SBTUITunnelStubQueryReturnDataKey = @"ret_data";
 NSString * const SBTUITunnelStubQueryReturnCodeKey = @"ret_code";
+NSString * const SBTUITunnelStubQueryReturnHeadersKey = @"ret_headers";
 NSString * const SBTUITunnelStubQueryIterations = @"iterations";
 NSString * const SBTUITunnelStubQueryResponseTimeKey = @"time_response";
 NSString * const SBTUITunnelStubQueryMimeTypeKey = @"mime_type";
