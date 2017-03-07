@@ -122,6 +122,11 @@ extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate
 
 
 extension SBTTableViewController {
+    func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
+        return ["responseCode": status ?? 0,
+                "responseHeaders": headers ?? [:],
+                "data": data?.base64EncodedString() ?? ""] as [String : Any]
+    }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
@@ -136,10 +141,13 @@ extension SBTTableViewController {
             
             var retData: Data! = nil
             var retResponse: HTTPURLResponse! = nil
+            var retHeaders: [String: String]! = nil
+            
             URLSession.shared.dataTask(with: request) {
                 data, response, error in
                 
                 retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
                 retData = data
                 
                 sem.signal()
@@ -150,7 +158,7 @@ extension SBTTableViewController {
             
             if shouldPushResult {
                 DispatchQueue.main.async {
-                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
                     self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
@@ -170,10 +178,13 @@ extension SBTTableViewController {
 
             var retData: Data! = nil
             var retResponse: HTTPURLResponse! = nil
+            var retHeaders: [String: String]! = nil
+            
             URLSession.shared.uploadTask(with: request, from: data) {
                 data, response, error in
                 
                 retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
                 retData = data
                 
                 sem.signal()
@@ -184,7 +195,7 @@ extension SBTTableViewController {
             
             if shouldPushResult {
                 DispatchQueue.main.async {
-                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
                     self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
@@ -204,10 +215,13 @@ extension SBTTableViewController {
             
             var retData: Data! = nil
             var retResponse: HTTPURLResponse! = nil
+            var retHeaders: [String: String]! = nil
+            
             URLSession.shared.downloadTask(with: request) {
                 dataUrl, response, error in
                 
                 retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
                 if let dataUrl = dataUrl {
                     retData = try? Data(contentsOf: dataUrl)
                 }
@@ -219,8 +233,8 @@ extension SBTTableViewController {
             sem.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retDict = ["responseCode": retResponse.statusCode, "data": retData.base64EncodedString()] as [String : Any]
+              DispatchQueue.main.async {
+                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
                     self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
@@ -247,7 +261,8 @@ extension SBTTableViewController {
             
             if shouldPushResult {
                 DispatchQueue.main.async {
-                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
+                    let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
+                    let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
                     self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
@@ -273,9 +288,10 @@ extension SBTTableViewController {
             self.sessionSemaphore?.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+              DispatchQueue.main.async {
+                        let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
+                        let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
+                        self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -301,7 +317,8 @@ extension SBTTableViewController {
             
             if shouldPushResult {
                 DispatchQueue.main.async {
-                    let retDict = ["responseCode": self.sessionResponse?.statusCode ?? 0, "data": self.sessionData?.base64EncodedString() ?? ""] as [String : Any]
+                    let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
+                    let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
                     self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }

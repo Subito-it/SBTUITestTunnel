@@ -718,9 +718,18 @@ description:(desc), ##__VA_ARGS__]; \
     NSString *mimeType = tunnelRequest.parameters[SBTUITunnelStubQueryMimeTypeKey];
     NSUInteger contentLength = responseData.length;
     NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
-    
-    NSDictionary<NSString *, NSString *> *headers = @{ @"Content-Type": mimeType,
-                                                       @"Content-Length": @(contentLength).stringValue };
+
+    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary dictionaryWithDictionary:@{ @"Content-Type": mimeType,
+                                                                                                            @"Content-Length": @(contentLength).stringValue }];
+
+    NSString *serializedResponseHeaders = tunnelRequest.parameters[SBTUITunnelStubQueryReturnHeadersKey];
+    NSData *serializedResponseHeadersData = [serializedResponseHeaders dataUsingEncoding:NSUTF8StringEncoding];
+    if (serializedResponseHeadersData) {
+      NSDictionary *responseHeaders = [NSJSONSerialization JSONObjectWithData:serializedResponseHeadersData options:0 error:NULL];
+      if ([responseHeaders isKindOfClass:[NSDictionary class]]) {
+        [headers addEntriesFromDictionary:responseHeaders];
+      }
+    }
     
     SBTProxyStubResponse *response = [SBTProxyStubResponse responseWithData:responseData headers:headers statusCode:responseStatusCode responseTime:responseTime];
     
