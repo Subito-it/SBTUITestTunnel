@@ -245,6 +245,8 @@
 /**
  *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
  *
+ *  Note: you have to start a monitor request before calling this method
+ *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *  @param completionBlock will be invoked once the requests is matched or timed out
@@ -253,6 +255,8 @@
 
 /**
  *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  Note: you have to start a monitor request before calling this method
  *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
@@ -266,6 +270,8 @@
 /**
  *  Synchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
  *
+ *  Note: you have to start a monitor request before calling this method
+ *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
  *
@@ -275,6 +281,8 @@
 
 /**
  *  Synchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  Note: you have to start a monitor request before calling this method
  *
  *  @param match The match object that contains the matching rules
  *  @param timeout How long to wait for the request to happen
