@@ -412,7 +412,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     if (rule[SBTProxyURLProtocolStubResponse]) {
         prefix = @"stb-";
     } else if (rule[SBTProxyURLProtocolDelayResponseTimeKey]) {
-        NSAssert([rule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue] > 0, @"Throttle delay has to be > 0!");
         prefix = @"thr-";
     } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull class]]) {
         prefix = @"mon-";
