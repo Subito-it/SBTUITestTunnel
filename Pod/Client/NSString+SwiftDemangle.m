@@ -40,6 +40,8 @@
     
     if ([self hasPrefix:@"_T"]) {
         // Swift class
+        mangledClassName = [mangledClassName substringWithRange:[mangledClassName firstRangeForRegEx:@"_TF(.*)"]]; // Skip Function signature specialization of a generic specialization if present ('_TTS', see https://github.com/apple/swift/blob/master/utils/cmpcodesize/cmpcodesize/compare.py)
+
         NSRange moduleLengthRange = [mangledClassName firstRangeForRegEx:@"\\d{1,}"];
         NSInteger moduleLength = [[mangledClassName substringWithRange:moduleLengthRange] integerValue];
         
