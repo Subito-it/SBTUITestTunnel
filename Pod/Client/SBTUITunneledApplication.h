@@ -247,7 +247,7 @@
  *
  *  Note: you have to start a monitor request before calling this method
  *
- *  @param match The match object that contains the matching rules
+ *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
  *  @param timeout How long to wait for the request to happen
  *  @param completionBlock will be invoked once the requests is matched or timed out
  */
@@ -258,7 +258,7 @@
  *
  *  Note: you have to start a monitor request before calling this method
  *
- *  @param match The match object that contains the matching rules
+ *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
  *  @param timeout How long to wait for the request to happen
  *  @param iterations How often the request should happen before timing out
  *  @param completionBlock will be invoked once the requests is matched or timed out
@@ -272,7 +272,7 @@
  *
  *  Note: you have to start a monitor request before calling this method
  *
- *  @param match The match object that contains the matching rules
+ *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
  *  @param timeout How long to wait for the request to happen
  *
  *  @return `YES` on success, `NO` on timeout
@@ -284,7 +284,7 @@
  *
  *  Note: you have to start a monitor request before calling this method
  *
- *  @param match The match object that contains the matching rules
+ *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
  *  @param timeout How long to wait for the request to happen
  *  @param iterations How often the request should happen before timing out
  *
