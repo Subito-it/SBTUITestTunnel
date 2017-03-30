@@ -24,6 +24,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class SBTRequestMatch;
+
 @interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
 
 - (nullable NSString *)responseString;
@@ -31,6 +33,8 @@
 
 - (nullable NSString *)requestString;
 - (nullable NSDictionary<NSString *, id> *)requestJSON;
+
+- (BOOL)matches:(nonnull SBTRequestMatch *)match;
 
 @property (nonatomic, assign) NSTimeInterval timestamp;
 @property (nonatomic, assign) NSTimeInterval requestTime;

@@ -23,6 +23,8 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTMonitoredNetworkRequest.h"
+#import "SBTRequestMatch.h"
+#import "NSURLRequest+SBTUITestTunnelMatch.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 
@@ -86,6 +88,11 @@
     NSDictionary *ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
+}
+
+- (BOOL)matches:(SBTRequestMatch *)match
+{
+    return [self.originalRequest matches:match];
 }
 
 @end
