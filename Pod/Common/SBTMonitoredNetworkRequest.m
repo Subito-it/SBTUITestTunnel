@@ -37,6 +37,7 @@
         self.originalRequest = [decoder decodeObjectForKey:NSStringFromSelector(@selector(originalRequest))];
         self.response = [decoder decodeObjectForKey:NSStringFromSelector(@selector(response))];
         self.responseData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseData))];
+        self.isStubbed = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isStubbed))];
     }
     
     return self;
@@ -50,6 +51,18 @@
     [encoder encodeObject:self.originalRequest forKey:NSStringFromSelector(@selector(originalRequest))];
     [encoder encodeObject:self.response forKey:NSStringFromSelector(@selector(response))];
     [encoder encodeObject:self.responseData forKey:NSStringFromSelector(@selector(responseData))];
+    [encoder encodeBool:self.isStubbed forKey:NSStringFromSelector(@selector(isStubbed))];
+}
+
+- (NSString *)description
+{
+    NSString *ret = [NSString stringWithFormat:@"SBTUITestTunnel[%.4f] %@ %@", self.timestamp, self.originalRequest.HTTPMethod, self.originalRequest.URL.absoluteString];
+    
+    if (self.isStubbed) {
+        return [ret stringByAppendingString:@" (Stubbed)"];
+    } else {
+        return ret;
+    }
 }
 
 - (NSString *)responseString

@@ -29,7 +29,7 @@
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
-+ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval))block;
++ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL))block;
 
 + (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)proxyRequestsRemoveAll;

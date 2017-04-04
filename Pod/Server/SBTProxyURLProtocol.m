@@ -34,7 +34,7 @@ static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLP
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
-typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime);
+typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed);
 typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
@@ -66,7 +66,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 # pragma mark - Proxying
 
-+ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime))block;
++ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     
@@ -248,7 +248,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                         SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                         
                         if (![block isEqual:[NSNull null]] && block != nil) {
-                            block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime);
+                            block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime, YES);
                         }
                     }
                 }
@@ -321,7 +321,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    block(request, task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime);
+                    block(request, task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
                 }
             });
         }
