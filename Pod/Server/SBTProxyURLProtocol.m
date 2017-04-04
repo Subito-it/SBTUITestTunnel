@@ -75,7 +75,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
                 NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
-                return nil;
+                // return nil; remove this to handle throttle and monitor
             }
         }
         

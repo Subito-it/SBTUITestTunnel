@@ -134,8 +134,8 @@ class MonitorTests: XCTestCase {
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 2)
         
-        XCTAssert(requests[0].description.hasSuffix("(Stubbed)"))
-        XCTAssertFalse(requests[1].description.hasSuffix("(Stubbed)"))
+        XCTAssert(requests[0].description.hasSuffix(" (Stubbed)"))
+        XCTAssertFalse(requests[1].description.hasSuffix(" (Stubbed)"))
         
         app.stubRequestsRemoveAll()
         app.monitorRequestRemoveAll()
