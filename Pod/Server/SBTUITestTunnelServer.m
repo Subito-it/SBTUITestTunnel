@@ -208,7 +208,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSString *)commandQuit:(GCDWebServerRequest *)tunnelRequest
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     exit(0);
 #endif
     return @"YES";
