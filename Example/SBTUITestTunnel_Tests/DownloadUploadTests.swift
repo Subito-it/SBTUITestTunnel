@@ -34,7 +34,7 @@ class DownloadUploadTests: XCTestCase {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        let testFilePath = paths.first!.appending("test_file_a.txt")
+        let testFilePath = paths.first!.appending("/test_file_a.txt")
         
         if FileManager.default.fileExists(atPath: testFilePath) {
            try! FileManager.default.removeItem(atPath: testFilePath)
@@ -55,7 +55,7 @@ class DownloadUploadTests: XCTestCase {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        let testFilePath = paths.first!.appending("test_file_a.txt")
+        let testFilePath = paths.first!.appending("/test_file_a.txt")
         
         if FileManager.default.fileExists(atPath: testFilePath) {
             try! FileManager.default.removeItem(atPath: testFilePath)
