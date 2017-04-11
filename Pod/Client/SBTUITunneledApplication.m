@@ -66,6 +66,9 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 - (void)terminate
 {
+    self.launchArguments = @[];
+    self.launchEnvironment = @{};
+    
     [self.startupBlockCompletedLock lock];
     self.startupBlockCompleted = YES;
     [self.startupBlockCompletedLock unlock];
