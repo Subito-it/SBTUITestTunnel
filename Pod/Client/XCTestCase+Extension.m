@@ -53,21 +53,6 @@ static char kAppAssociatedKey;
     return ret;
 }
 
-- (void)swz_tearDown
-{
-    [self.app quit];
-    [self swz_tearDown];
-}
-
-+ (void)load
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelInstanceSwizzle(self, @selector(tearDown), @selector(swz_tearDown));
-    });
-}
-
-
 @end
 
 #endif
