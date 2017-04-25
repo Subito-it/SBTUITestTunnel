@@ -17,9 +17,9 @@ With SBTUITestTunnel we extended UI testing functionality allowing to dynamicall
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application and the other in the testing code. A web server inside the application is used to create the link between the two components allowing test code to send requests to the application.
 
-## Why should I use this?
+## Should I use this?
 
-SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a subclass of XCUIApplication which comes with additional features, so it very easy to integrate it (or at least try it out 😉) with your existing testing code.
+SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a subclass of XCUIApplication which comes with additional features, so it is very easy to integrate (or at least try it out 😉) with your existing testing code.
 
 ## Requirements
 
