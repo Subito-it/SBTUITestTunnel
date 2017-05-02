@@ -28,4 +28,5 @@ s.subspec 'Client' do |client|
 client.frameworks = 'XCTest'
 client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'
 end
+
 end

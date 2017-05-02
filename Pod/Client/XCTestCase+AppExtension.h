@@ -1,4 +1,4 @@
-// XCTestCase+Extension.h
+// XCTestCase+AppExtension.h
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -25,7 +25,7 @@
 #import <XCTest/XCTest.h>
 #import <SBTUITestTunnel/SBTUITunneledApplication.h>
 
-@interface XCTestCase (Extension)
+@interface XCTestCase (AppExtension)
 
 @property (nonatomic, strong) SBTUITunneledApplication *app;
 
