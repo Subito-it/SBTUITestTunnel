@@ -21,6 +21,13 @@ The library consists of two separated components which communicate with each oth
 
 SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a subclass of XCUIApplication which comes with additional features, so it is very easy to integrate (or at least try it out 😉) with your existing testing code.
 
+## What's more?
+
+We made additional resources available to improve the UI Testing experience:
+
+- [sbtuitestbrowser](https://github.com/Subito-it/sbtuitestbrowser): parse and visualize xcodebuild's test results in your web browser
+- [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost): access the mac host from your test target
+
 ## Requirements
 
 Requires iOS 8.0 or higher.
@@ -307,10 +314,6 @@ Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (whic
 🔥🔥🔥**You then HAVE TO call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.**
 
 This will guarantee that the tests will start executing once the view hierarchy of the app is ready.
-
-## Additional resources
-
-If you need to access the mac host from your test target try [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost).
 
 ## Thanks
 
