@@ -308,6 +308,10 @@ Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (whic
 
 This will guarantee that the tests will start executing once the view hierarchy of the app is ready.
 
+## Additional resources
+
+If you need to access the mac host from your test target try [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost).
+
 ## Thanks
 
 Kudos to the developers of the following pods which we use in SBTUITestTunnel:
