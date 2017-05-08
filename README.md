@@ -8,14 +8,14 @@
 
 Apple introduced a new UI Testing feature starting from Xcode 7 that is, quoting Will Turner [on stage at the WWDC](https://developer.apple.com/videos/play/wwdc2015/406/), a huge expansion of the testing technology in the developer tools. The framework is easy to use and the integration with the IDE is great however there is a major problem with the way tests are launched. Testing code runs as a separate process which prevents to directly share data with the app under test making it hard to do things like dynamically inject data or stub network calls.
 
-With SBTUITestTunnel we extended UI testing functionality allowing to dynamically:
+SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * stub network calls
 * interact with NSUserDefaults and Keychain
 * download/upload files from/to the app's sandbox
 * monitor network calls
 * define custom blocks of codes executed in the application target
 
-The library consists of two separated components which communicate with each other, one to be instantiate in the application and the other in the testing code. A web server inside the application is used to create the link between the two components allowing test code to send requests to the application.
+The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.
 
 ## Should I use this?
 
@@ -34,7 +34,7 @@ Requires iOS 8.0 or higher.
 
 ## Installation (CocoaPods)
 
-We strongly suggest to use [cocoapods](https://cocoapods.org) being the easiest way to embed the library inside your project.
+It is strongly suggested to use [cocoapods](https://cocoapods.org) as it is the easiest way to embed the library in your project.
 
 Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app target and `SBTUITestTunnel/Client` for the UI test target.
 
@@ -81,7 +81,7 @@ To use the framework you're required to define `DEBUG=1` or `ENABLE_UITUNNEL=1` 
 
 #### Basic usage
 
-Nothing particular needs to be done if you'll be running your test code with a build configuration that already defines `DEBUG=1`. This is the case of the default debug build configuration which is the one used in most cases when running test. Just make sure to **wrap all calls to the framework around `#if DEBUG`s** as shown in the example above or you may end up getting linking errors that might look something like:
+Nothing particular needs to be done if you'll be running your test code with a build configuration that already defines `DEBUG=1` and remember to **wrap all calls to the framework around `#if DEBUG`s** as shown in the example above or you may end up getting linking errors that might look something like:
 ```
 Undefined symbols for architecture i386:
   "_OBJC_CLASS_$_SBTUITestTunnelServer", referenced from:
