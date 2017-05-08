@@ -23,7 +23,7 @@
 #if ENABLE_UITUNNEL
 
 #import "XCTestCase+AppExtension.h"
-#import "SBTSwizzleHelpers.h"
+#import <objc/runtime.h>
 
 @implementation XCTestCase (AppExtension)
 
