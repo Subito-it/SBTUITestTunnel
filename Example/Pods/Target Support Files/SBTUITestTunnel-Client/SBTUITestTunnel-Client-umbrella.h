@@ -12,7 +12,7 @@
 
 #import "NSString+SwiftDemangle.h"
 #import "SBTUITunneledApplication.h"
-#import "XCTestCase+Extension.h"
+#import "XCTestCase+AppExtension.h"
 #import "NSURLRequest+HTTPBodyFix.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTMonitoredNetworkRequest.h"
