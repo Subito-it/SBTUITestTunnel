@@ -62,6 +62,7 @@ NSString * const SBTUITunnelDownloadPathKey = @"path";
 NSString * const SBTUITunnelDownloadBasePathKey = @"base";
 
 NSString * const SBTUITunnelResponseResultKey = @"result";
+NSString * const SBTUITunnelResponseDebugKey = @"debug";
 
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 

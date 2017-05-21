@@ -63,6 +63,7 @@ extern NSString * _Nonnull const SBTUITunnelDownloadPathKey;
 extern NSString * _Nonnull const SBTUITunnelDownloadBasePathKey;
 
 extern NSString * _Nonnull const SBTUITunnelResponseResultKey;
+extern NSString * _Nonnull const SBTUITunnelResponseDebugKey;
 
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 

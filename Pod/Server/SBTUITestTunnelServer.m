@@ -126,7 +126,7 @@ description:(desc), ##__VA_ARGS__]; \
             
             NSString *commandString = [command stringByAppendingString:@":"];
             SEL commandSelector = NSSelectorFromString(commandString);
-            NSString *response = nil;
+            NSDictionary *response = nil;
             
             if (![weakSelf processCustomCommandIfNecessary:request returnObject:&response]) {
                 if (![strongSelf respondsToSelector:commandSelector]) {
@@ -135,11 +135,11 @@ description:(desc), ##__VA_ARGS__]; \
                 
                 IMP imp = [strongSelf methodForSelector:commandSelector];
                 
-                NSString * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
+                NSDictionary * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request);
             }
             
-            ret = [GCDWebServerDataResponse responseWithJSONObject:@{ SBTUITunnelResponseResultKey: response ?: @"" }];
+            ret = [GCDWebServerDataResponse responseWithJSONObject:response];
             
             dispatch_semaphore_signal(sem);
         });
@@ -186,7 +186,8 @@ description:(desc), ##__VA_ARGS__]; \
             
             NSData *data = [NSKeyedArchiver archivedDataWithRootObject:outObject];
             
-            *returnObject = data ? [data base64EncodedStringWithOptions:0] : nil;
+            NSString *ret = data ? [data base64EncodedStringWithOptions:0] : @"";            
+            *returnObject = @{ SBTUITunnelResponseResultKey: ret };
             
             return YES;
         }
@@ -199,35 +200,37 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Ping Command
 
-- (NSString *)commandPing:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandPing:(GCDWebServerRequest *)tunnelRequest
 {
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Ping Command
 
-- (NSString *)commandQuit:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandQuit:(GCDWebServerRequest *)tunnelRequest
 {
     exit(0);
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Ready Command
 
-- (NSString *)commandCruising:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandCruising:(GCDWebServerRequest *)tunnelRequest
 {
-    return self.cruising ? @"YES" : @"NO";}
+    return @{ SBTUITunnelResponseResultKey: self.cruising ? @"YES" : @"NO" };
+}
 
 
 #pragma mark - Stubs Commands
 
-- (NSString *)commandStubPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubPathMatching:(GCDWebServerRequest *)tunnelRequest
 {
-    __block NSString *stubId = nil;
+    __block NSString *stubId = @"";
+    __block SBTRequestMatch *requestMatch = nil;
     
     if ([self validStubRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
-        SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+        requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
         NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
@@ -247,54 +250,59 @@ description:(desc), ##__VA_ARGS__]; \
         
     }
     
-    return stubId;
+    return @{ SBTUITunnelResponseResultKey: stubId, SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
 #pragma mark - Stub and Remove Commands
 
-- (NSString *)commandStubAndRemovePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubAndRemovePathMatching:(GCDWebServerRequest *)tunnelRequest
 {
+    NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
+    NSInteger stubRequestsRemoveAfterCount = 0;
+    
     if ([self validStubRequest:tunnelRequest]) {
-        NSInteger stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
+        stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
         
         for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
             [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
         }
         
-        return [self commandStubPathMatching:tunnelRequest].length > 0 ? @"YES" : @"NO";
+        ret = [self commandStubPathMatching:tunnelRequest];
     }
     
-    return @"NO";
+    return ret;
 }
 
-- (NSString *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
-    
-    if ([self.stubsToRemoveAfterCount countForObject:stubId] > 0) {
-        return @"NO";
+ 
+    NSString *ret = @"NO";
+    if ([self.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+        ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId] ? @"YES" : @"NO";
     }
     
-    return [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId] ? @"YES" : @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTProxyURLProtocol stubRequestsRemoveAll];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Request Monitor Commands
 
-- (NSString *)commandMonitorPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorPathMatching:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *reqId = nil;
+    NSString *reqId = @"";
+    SBTRequestMatch *requestMatch = nil;
     
     if ([self validMonitorRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
-        SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+        requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         reqId = [SBTProxyURLProtocol proxyRequestsMatching:requestMatch delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed) {
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
@@ -314,36 +322,39 @@ description:(desc), ##__VA_ARGS__]; \
         }];
     }
     
-    return reqId;
+    return @{ SBTUITunnelResponseResultKey: reqId, SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
-- (NSString *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
-    return [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandMonitorsRemoveAll:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorsRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTProxyURLProtocol proxyRequestsRemoveAll];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
-- (NSString *)commandMonitorPeek:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorPeek:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    __block NSString *ret = nil;
+    __block NSString *ret = @"";
+    __block NSArray *requestsToPeek = @[];
     
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         // we use main thread to synchronize access to self.monitoredRequests
-        NSArray *requestsToPeek = [strongSelf.monitoredRequests copy];
+        requestsToPeek = [strongSelf.monitoredRequests copy];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToPeek];
         if (data) {
@@ -354,21 +365,23 @@ description:(desc), ##__VA_ARGS__]; \
     
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
-    return ret;
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", requestsToPeek.count];
+    return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
-- (NSString *)commandMonitorFlush:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorFlush:(GCDWebServerRequest *)tunnelRequest
 {
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-    __block NSString *ret = nil;
+    __block NSString *ret = @"";
+    __block NSArray *requestsToFlush = @[];
     
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         // we use main thread to synchronize access to self.monitoredRequests
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        NSArray *requestsToFlush = [strongSelf.monitoredRequests copy];
+        requestsToFlush = [strongSelf.monitoredRequests copy];
         strongSelf.monitoredRequests = [NSMutableArray array];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush];
@@ -380,129 +393,138 @@ description:(desc), ##__VA_ARGS__]; \
     
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
-    return ret;
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", requestsToFlush.count];
+    return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
 #pragma mark - Request Throttle Commands
 
-- (NSString *)commandThrottlePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandThrottlePathMatching:(GCDWebServerRequest *)tunnelRequest
 {
-    NSString *reqId = nil;
+    NSString *reqId = @"";
+    SBTRequestMatch *requestMatch = nil;
     
     if ([self validThrottleRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
-        SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+        requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         NSTimeInterval responseDelayTime = [tunnelRequest.parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
         
         reqId = [SBTProxyURLProtocol proxyRequestsMatching:requestMatch delayResponse:responseDelayTime responseBlock:nil];
     }
     
-    return reqId;
+    return @{ SBTUITunnelResponseResultKey: reqId, SBTUITunnelResponseDebugKey: [requestMatch description] ?: @""};
 }
 
-- (NSString *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
-    return [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandThrottlesRemoveAll:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandThrottlesRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTProxyURLProtocol proxyRequestsRemoveAll];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - NSUSerDefaults Commands
 
-- (NSString *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
     
+    NSString *ret = @"NO";
     if (objKey) {
         [[NSUserDefaults standardUserDefaults] setObject:obj forKey:objKey];
-        return [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
+        ret = [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
     }
     
-    return @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandNSUserDefaultsRemoveObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandNSUserDefaultsRemoveObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
+    NSString *ret = @"NO";
     if (objKey) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:objKey];
-        return [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
+        ret = [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
     }
     
-    return @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandNSUserDefaultsObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandNSUserDefaultsObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
     NSObject *obj = [[NSUserDefaults standardUserDefaults] objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    NSString *ret = @"";
     if (data) {
-        return [data base64EncodedStringWithOptions:0];
+        ret = [data base64EncodedStringWithOptions:0];
     }
     
-    return nil;
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandNSUserDefaultsReset:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandNSUserDefaultsReset:(GCDWebServerRequest *)tunnelRequest
 {
     resetUserDefaults();
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Keychain Commands
 
-- (NSString *)commandKeychainSetObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandKeychainSetObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
     
+    NSString *ret = @"NO";
     if (obj && objKey) {
-        return [[FXKeychain defaultKeychain] setObject:obj forKey:objKey] ? @"YES" : @"NO";
+        ret = [[FXKeychain defaultKeychain] setObject:obj forKey:objKey] ? @"YES" : @"NO";
     }
     
-    return @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandKeychainRemoveObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandKeychainRemoveObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
+    NSString *ret = @"NO";
     if (objKey) {
-        return [[FXKeychain defaultKeychain] removeObjectForKey:objKey] ? @"YES" : @"NO";
+        ret = [[FXKeychain defaultKeychain] removeObjectForKey:objKey] ? @"YES" : @"NO";
     }
     
-    return @"NO";
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandKeychainObject:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandKeychainObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     
     NSObject *obj = [[FXKeychain defaultKeychain] objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    NSString *ret = @"";
     if (data) {
-        return [data base64EncodedStringWithOptions:0];
+        ret = [data base64EncodedStringWithOptions:0];
     }
     
-    return nil;
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSString *)commandKeychainReset:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandKeychainReset:(GCDWebServerRequest *)tunnelRequest
 {
     deleteAllKeysForSecClass(kSecClassGenericPassword);
     deleteAllKeysForSecClass(kSecClassInternetPassword);
@@ -510,24 +532,25 @@ description:(desc), ##__VA_ARGS__]; \
     deleteAllKeysForSecClass(kSecClassKey);
     deleteAllKeysForSecClass(kSecClassIdentity);
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - NSBundle
 
-- (NSString *)commandMainBundleInfoDictionary:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMainBundleInfoDictionary:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary]];
+    NSString *ret = @"";
     if (data) {
-        return [data base64EncodedStringWithOptions:0];
+        ret = [data base64EncodedStringWithOptions:0];
     }
     
-    return nil;
+    return @{ SBTUITunnelResponseResultKey: ret };
 }
 
 #pragma mark - Copy Commands
 
-- (NSString *)commandUpload:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandUpload:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *fileData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelUploadDataKey] options:0];
     NSString *destPath = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelUploadDestPathKey] options:0]];
@@ -541,7 +564,7 @@ description:(desc), ##__VA_ARGS__]; \
         [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
         
         if (error) {
-            return @"NO";
+            return @{ SBTUITunnelResponseResultKey: @"NO" };
         }
     }
     
@@ -549,14 +572,17 @@ description:(desc), ##__VA_ARGS__]; \
                               withIntermediateDirectories:YES
                                                attributes:nil error:&error];
     if (error) {
-        return @"NO";
+        return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
     
     
-    return [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
+    NSString *ret = [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
+
+    NSString *debugInfo = [NSString stringWithFormat:@"Writing %ld bytes to file %@", fileData.length, path ?: @""];
+    return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo };
 }
 
-- (NSString *)commandDownload:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandDownload:(GCDWebServerRequest *)tunnelRequest
 {
     NSSearchPathDirectory basePathDirectory = [tunnelRequest.parameters[SBTUITunnelDownloadBasePathKey] intValue];
     
@@ -577,21 +603,24 @@ description:(desc), ##__VA_ARGS__]; \
     
     NSData *filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr];
     
-    return [filesDataArrData base64EncodedStringWithOptions:0];
+    NSString *ret = [filesDataArrData base64EncodedStringWithOptions:0];
+    
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld files matching download request@", matchingFiles.count];
+    return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo };
 }
 
 #pragma mark - Other Commands
 
-- (NSString *)commandSetUIAnimations:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandSetUIAnimations:(GCDWebServerRequest *)tunnelRequest
 {
     BOOL enableAnimations = [tunnelRequest.parameters[SBTUITunnelObjectKey] boolValue];
     
     [UIView setAnimationsEnabled:enableAnimations];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
-- (NSString *)commandSetUIAnimationSpeed:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandSetUIAnimationSpeed:(GCDWebServerRequest *)tunnelRequest
 {
     NSInteger animationSpeed = [tunnelRequest.parameters[SBTUITunnelObjectKey] integerValue];
     
@@ -599,23 +628,25 @@ description:(desc), ##__VA_ARGS__]; \
     // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
     UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
     
-    return @"YES";
+    
+    NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", animationSpeed];
+    return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
-- (NSString *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
     [self.server stop];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
-- (NSString *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
     [self.startupCommandsCompletedLock lock];
     _startupCommandsCompleted = YES;
     [self.startupCommandsCompletedLock unlock];
     
-    return @"YES";
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Custom Commands
