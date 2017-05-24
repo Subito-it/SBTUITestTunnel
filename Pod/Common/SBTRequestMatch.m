@@ -57,51 +57,54 @@
     return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A"];
 }
 
-+ (instancetype)URL:(NSString *)url
+- (nonnull instancetype)initWithURL:(NSString *)url
 {
-    SBTRequestMatch *ret = [[SBTRequestMatch alloc] init];
-    ret.url = url;
+    if ((self = [super init])) {
+        _url = url;
+    }
     
-    return ret;
+    return self;
 }
 
-+ (instancetype)URL:(NSString *)url query:(NSArray<NSString *> *)query
+- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query
 {
-    SBTRequestMatch *ret = [self URL:url];
-    ret.query = query;
+    if ((self = [self initWithURL:url])) {
+        _query = query;
+    }
     
-    return ret;
+    return self;
 }
 
-+ (instancetype)URL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
+- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
 {
-    SBTRequestMatch *ret = [self URL:url query:query];
-    ret.method = method;
+    if ((self = [self initWithURL:url query:query])) {
+        _method = method;
+    }
     
-    return ret;
+    return self;
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 
-+ (instancetype)URL:(NSString *)url method:(NSString *)method
+- (nonnull instancetype)initWithURL:(NSString *)url method:(NSString *)method
 {
-    return [self URL:url query:nil method:method];
+    return [self initWithURL:url query:nil method:method];
 }
 
-+ (instancetype)query:(NSArray<NSString *> *)query
+- (nonnull instancetype)initWithQuery:(NSArray<NSString *> *)query
 {
-    return [self URL:nil query:query method:nil];
+    return [self initWithURL:nil query:query method:nil];
 }
 
-+ (instancetype)query:(NSArray<NSString *> *)query method:(NSString *)method
+- (nonnull instancetype)initWithQuery:(NSArray<NSString *> *)query method:(NSString *)method
 {
-    return [self URL:nil query:query method:method];
+    return [self initWithURL:nil query:query method:method];
 }
 
-+ (instancetype)method:(NSString *)method
+- (nonnull instancetype)initWithMethod:(NSString *)method
 {
-    return [self URL:nil query:nil method:method];
+    return [self initWithURL:nil query:nil method:method];
 }
 
 #pragma clang diagnostic pop

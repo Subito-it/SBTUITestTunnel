@@ -24,6 +24,7 @@
 
 #import <XCTest/XCTest.h>
 #import "SBTRequestMatch.h"
+#import "SBTStubResponse.h"
 #import "SBTMonitoredNetworkRequest.h"
 
 @interface SBTUITunneledApplication : XCUIApplication
@@ -69,28 +70,11 @@
  *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnData The return data to stub
- *  @param contentType The return ContentType
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *  @param response The object that represents the stubbed response
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
  */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
-/**
- *  Stub a request matching a regular expression pattern with custom headers in the response. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param returnData The return data to stub
- *  @param contentType The return ContentType
- *  @param code The HTTP response code to be returned
- *  @param headers The HTTP response headers to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
- */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code returnHeaders:(nonnull NSDictionary *)headers responseTime:(NSTimeInterval)responseTime;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response;
 
 #pragma mark - Stub And Remove Commands
 
@@ -98,68 +82,12 @@
  *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
  *
  *  @param match The match object that contains the matching rules
- *  @param returnData The return data to stub
- *  @param contentType The return ContentType
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
+ *  @param response The object that represents the stubbed response
  *  @param iterations number of matches after which the stub will be automatically removed
  *
  *  @return `YES` on success
  */
-- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnData:(nonnull NSData *)returnData contentType:(nonnull NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
-
-#pragma mark - Stub Commands JSON
-
-/**
- *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param json An NSDictionary<NSString *, id> * to be returned as JSON
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
- */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
-/**
- *  Stub a request matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param jsonFilename The filename of a file in bundle to be returned as JSON
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return If nil request failed. Otherwise an identifier associated to the newly created stub. Should be used when removing stub using -(BOOL)stubRequestsRemoveWithId:
- */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-
-#pragma mark - Stub And Remove Commands JSON
-
-/**
- *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param json An NSDictionary<NSString *, id> * to be returned as JSON
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *  @param iterations number of matches after which the stub will be automatically removed
- *
- *  @return `YES` on success
- */
-- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonDictionary:(nonnull NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
-
-/**
- *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param jsonFilename The filename of a file in bundle to be returned as JSON
- *  @param code The HTTP response code to be returned
- *  @param responseTime If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
- *
- *  @return `YES` on success
- */
-- (BOOL)stubRequestsMatching:(nonnull SBTRequestMatch *)match returnJsonNamed:(nonnull NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations;
+- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Stub Remove Commands
 

@@ -37,19 +37,21 @@ _Note how we don't need to instantiate the `app` property_
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
 - `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
 
-## SBTRequestMatch
+## Framework classes
+
+### SBTRequestMatch
 
 The stubbing/monitoring/throttling methods of the library require a `SBTRequestMatch` object in order to determine whether they should react to a network request.
 
 You can specify a regex on the URL, multiple regex on the query (in `POST` and `PUT` requests they will match against the body) and HTTP method using one of the several class methods available.
 
-### Query parameter
+#### Query parameter
 
 The `query` parameter found in different `SBTRequestMatch` initializers is an array of regex strings that are checked with the request [query](https://tools.ietf.org/html/rfc3986#section-3.4). If all regex in array match the request is stubbed/monitored/throttled.
 
 In a kind of unconventional syntax you can prefix the regex with and exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
 
-### Examples
+#### Examples
 
 The regex in `GET` and `DELETE` requests will match the entire URL including query parameters.
 
@@ -83,19 +85,32 @@ Finally you can limit a specific HTTP method by specifying it in the `method` pa
     let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"], method: "GET")
     let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
 
+### SBTStubResponse
+
+The stubbing methods of the library require a `SBTStubResponse` object in order to determine what to return for network requests that have to be stubbed.
+
+The class has a wide set of initializers that allow to specify data, HTTP headers, contentType, HTTP return code and response time of the stubbed request. For convenience some initializers omit some parameters which default to predefined values.
 
 ## Stubbing
 
-To stub a network request you pass the appropriate `SBTRequestMatch` object
+To stub a network request you pass the appropriate `SBTRequestMatch` and `SBTStubResponse` objects
 
-    let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), returnJsonDictionary: ["key": "value"], returnCode: 200, responseTime: SBTUITunnelStubsDownloadSpeed3G)
+    let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: SBTStubResponse(response: ["key": "value"])
 
-    // from here on network request containing 'apple' will return a JSON {"request" : "stubbed" }
+    // from here on network requests containing 'google.com' will return a JSON {"key" : "value" }
     ...
 
     app.stubRequestsRemoveWithId(stubId) // To remove the stub either use the identifier
 
     app.stubRequestsRemoveAll() // or remove all active stubs
+
+A second stub initializer is available that automatically removes the stub after a certain number of times that the request is matched.
+
+    let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: SBTStubResponse(response: ["key": "value"], removeAfterIterations: 2)
+
+    // from here on the first two network requests containing 'google.com' will return a JSON {"key" : "value" }
+    // subsequent network requests won't be stubbed
+    ...
 
 
 ## NSUserDefaults

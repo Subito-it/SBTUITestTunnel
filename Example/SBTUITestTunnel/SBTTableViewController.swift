@@ -129,7 +129,7 @@ extension SBTTableViewController {
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -157,16 +157,16 @@ extension SBTTableViewController {
             sem.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                DispatchQueue.main.async { [weak self] in
+                    let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
     }
     
     func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -194,16 +194,16 @@ extension SBTTableViewController {
             sem.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                DispatchQueue.main.async { [weak self] in
+                    let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
     }
     
     func downloadTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -233,17 +233,17 @@ extension SBTTableViewController {
             sem.wait()
             
             if shouldPushResult {
-              DispatchQueue.main.async {
-                    let retDict = self.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+              DispatchQueue.main.async { [weak self] in
+                    let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
     }
     
     func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
-            self.sessionSemaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
             var request = URLRequest(url: url)
@@ -252,26 +252,26 @@ extension SBTTableViewController {
                 request.httpBody = "The http body".data(using: .utf8)
             }
             
-            self.sessionData = Data()
+            self?.sessionData = Data()
             let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration1")
-            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
-            self.sessionTask.resume()
+            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
+            self?.sessionTask.resume()
             
-            self.sessionSemaphore?.wait()
+            self?.sessionSemaphore?.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
-                    let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                DispatchQueue.main.async { [weak self] in
+                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
+                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
     }
     
     func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
-            self.sessionSemaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
             var request = URLRequest(url: url)
@@ -280,26 +280,26 @@ extension SBTTableViewController {
                 request.httpBody = "The http body".data(using: .utf8)
             }
             
-            self.sessionData = Data()
+            self?.sessionData = Data()
             let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration2")
-            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
-            self.sessionTask.resume()
+            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
+            self?.sessionTask.resume()
             
-            self.sessionSemaphore?.wait()
+            self?.sessionSemaphore?.wait()
             
             if shouldPushResult {
-              DispatchQueue.main.async {
-                        let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
-                        let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
-                        self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+              DispatchQueue.main.async { [weak self] in
+                        let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
+                        let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
+                        self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
     }
     
     func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) {
-            self.sessionSemaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
             var request = URLRequest(url: url)
@@ -308,18 +308,18 @@ extension SBTTableViewController {
                 request.httpBody = "The http body".data(using: .utf8)
             }
             
-            self.sessionData = Data()
+            self?.sessionData = Data()
             let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration3")
-            self.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
-            self.sessionTask.resume()
+            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
+            self?.sessionTask.resume()
             
-            self.sessionSemaphore?.wait()
+            self?.sessionSemaphore?.wait()
             
             if shouldPushResult {
-                DispatchQueue.main.async {
-                    let retHeaders = self.sessionResponse?.allHeaderFields as? [String: String]
-                    let retDict = self.returnDictionary(status: self.sessionResponse?.statusCode, headers: retHeaders, data: self.sessionData)
-                    self.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                DispatchQueue.main.async { [weak self] in
+                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
+                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }

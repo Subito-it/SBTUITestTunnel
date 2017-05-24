@@ -24,7 +24,6 @@
 
 #import "SBTUITunneledApplication.h"
 #import "SBTUITestTunnel.h"
-#import "NSString+SwiftDemangle.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
@@ -197,81 +196,27 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 #pragma mark - Stub Commands
 
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
-    
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
-}
-
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code returnHeaders:(NSDictionary *)headers responseTime:(NSTimeInterval)responseTime
-{
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:headers options:0 error:NULL];
-    NSString *headersSerialized = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
-                                                     SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
-    
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
+    return [self stubRequestsMatching:match response:response removeAfterIterations:0];
 }
 
 #pragma mark - Stub And Remove Commands
 
-- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnData:(NSData *)returnData contentType:(NSString *)contentType returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:returnData],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
-                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: contentType,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+    NSData *jsonHeaderData = [NSJSONSerialization dataWithJSONObject:response.headers options:0 error:NULL];
+    NSString *headersSerialized = [[NSString alloc] initWithData:jsonHeaderData encoding:NSUTF8StringEncoding];
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params] boolValue];
-}
-
-#pragma mark - Stub Commands JSON
-
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
-{
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
+                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:response.data],
+                                                     SBTUITunnelStubQueryReturnCodeKey: [@(response.returnCode) stringValue],
+                                                     SBTUITunnelStubQueryMimeTypeKey: response.contentType,
+                                                     SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
+                                                     SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
+                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubPathMatching params:params];
-}
-
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime
-{
-    return [self stubRequestsMatching:match returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime];
-}
-
-#pragma mark - Stub And Remove Commands JSON
-
-- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonDictionary:(NSDictionary<NSString *, id> *)json returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
-{
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:json],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(code) stringValue],
-                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: SBTUITunnelJsonMimeType,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(responseTime) stringValue]};
-    
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params] boolValue];
-}
-
-- (BOOL)stubRequestsMatching:(SBTRequestMatch *)match returnJsonNamed:(NSString *)jsonFilename returnCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime removeAfterIterations:(NSUInteger)iterations
-{
-    return [self stubRequestsMatching:match returnJsonDictionary:[self dictionaryFromJSONInBundle:jsonFilename] returnCode:code responseTime:responseTime removeAfterIterations:iterations];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params];
 }
 
 #pragma mark - Stub Remove Commands
@@ -628,55 +573,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 }
 
 #pragma mark - Helper Methods
-
-- (NSDictionary<NSString *, id> *)dictionaryFromJSONInBundle:(NSString *)jsonFilename
-{
-    NSString *jsonName = [jsonFilename stringByDeletingPathExtension];
-    NSString *jsonExtension = [jsonFilename pathExtension];
-    NSError *error = nil;
-    NSData *data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:jsonName ofType:jsonExtension]];
-    
-    if (!data) {
-        data = [self dataFromFrameworksWithName:jsonFilename];
-    }
-    
-    NSDictionary<NSString *, id> *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-    if (!dict || error) {
-        NSAssert(NO, @"[SBTUITestTunnel] Failed to deserialize json file %@", jsonFilename);
-    }
-    
-    return dict;
-}
-
-- (NSData *)dataFromFrameworksWithName:(NSString *)filename
-{
-    NSString *name = [filename stringByDeletingPathExtension];
-    NSString *extension = [filename pathExtension];
-    
-    NSData *data = nil;
-    
-    // find in frameworks extracting info from stacktrace
-    // are we using frameworks? Swift?
-    for (NSString *sourceString in [NSThread callStackSymbols]) {
-        NSCharacterSet *separatorSet = [NSCharacterSet characterSetWithCharactersInString:@" -[]+?.,"];
-        NSMutableArray *array = [NSMutableArray arrayWithArray:[sourceString  componentsSeparatedByCharactersInSet:separatorSet]];
-        [array removeObject:@""];
-        
-        NSString *swiftClassName = [array[3] demangleSwiftClassName];
-        
-        if (swiftClassName) {
-            data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:NSClassFromString(swiftClassName)] pathForResource:name ofType:extension]];
-            
-            if (data) {
-                break;
-            }
-        } else {
-            // #warning objective-c frameworks TODO.
-        }
-    }
-    
-    return data;
-}
 
 - (NSString *)base64SerializeObject:(id)obj
 {
