@@ -33,7 +33,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubRemoveWithID() {
-        let stubId = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))!
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -49,6 +49,19 @@ class StubTests: XCTestCase {
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
 
+        XCTAssert(app.stubRequestsRemoveAll())
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+    }
+    
+    func testStubAddTwice() {
+        // first rule should win
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99]))
+        
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        
         XCTAssert(app.stubRequestsRemoveAll())
         app.cells["executeDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
@@ -145,7 +158,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubPostRequest() {
-        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
         
@@ -153,7 +166,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
 
@@ -161,7 +174,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
 
-        let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
@@ -171,7 +184,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubPutRequest() {
-        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "PUT"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "PUT"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssert(isNetworkResultStubbed())
         
@@ -179,7 +192,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
@@ -187,7 +200,7 @@ class StubTests: XCTestCase {
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         
-        let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
+        let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1]))!
         app.cells["executeUploadDataTaskRequest2"].tap()
         XCTAssertFalse(isNetworkResultStubbed())
         

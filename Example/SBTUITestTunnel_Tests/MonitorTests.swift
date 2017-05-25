@@ -55,7 +55,7 @@ class MonitorTests: XCTestCase {
         XCTAssertEqual(requests.count, 3)
         
         for request in requests {
-            XCTAssert((request.responseString() ?? "").contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -93,7 +93,7 @@ class MonitorTests: XCTestCase {
         XCTAssertEqual(requests2.count, 3)
         
         for request in requests {
-            XCTAssert((request.responseString() ?? "").contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -120,6 +120,12 @@ class MonitorTests: XCTestCase {
         
         app.stubRequestsRemoveAll()
         app.monitorRequestRemoveAll()
+    }
+    
+    func testMonitorTwice() {
+        // should not crash
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
     }
     
     func testMonitorAndStubDescription() {
@@ -194,7 +200,7 @@ class MonitorTests: XCTestCase {
             
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), "&param5=val5&param6=val6")
             
-            XCTAssert((request.responseString() ?? "").contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }

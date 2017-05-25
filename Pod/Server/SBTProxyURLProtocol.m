@@ -127,7 +127,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
-                NSLog(@"[UITestTunnelServer] Warning existing stub request found, skipping");
+                NSLog(@"[UITestTunnelServer] Warning existing stub request found, skipping.\n%@", matchingRule);
                 return nil;
             }
         }
