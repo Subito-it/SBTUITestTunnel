@@ -5,7 +5,7 @@
 
 ## Launching tests
 
-Instead of calling the `launch()` method on `XCUIApplication` as you're used to use `launchTunnel()` or `launchTunnel(withOptions options:startupBlock:)`. These methods will launch the test and establish the tunnel connection.
+Instead of calling the `launch()` method on `XCUIApplication` as you're used to use `launchTunnel()` or `launchTunnel(options:startupBlock:)`. These methods will launch the test and establish the tunnel connection.
 
 ### Launch with no options
 
