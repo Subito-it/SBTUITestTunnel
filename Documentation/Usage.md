@@ -32,12 +32,12 @@ _Note how we don't need to instantiate the `app` property_
          // i.e. prepare stub request, start monitoring requests
     }
 
-### Options
+#### Options
 
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
 - `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
 
-### StartupBlock
+#### StartupBlock
 
 The startup block contains code that will be executed before the app enters the `applicationDidFinishLaunching(_:)`. This is the right place to setup the application before it gets launched
 
