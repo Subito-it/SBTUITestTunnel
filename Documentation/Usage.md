@@ -3,13 +3,11 @@
 `SBTUITunneledApplication`'s headers are well commented making the library's functionality self explanatory. You can also checkout the UI test target in the example project which show basic usage of the library.
 
 
-## Startup
+## Launching tests
 
-At launch you can optionally provide some options and a startup block which will be executed synchronously with app's launch. This is the right place to prepare (inject files, modify NSUserDefaults, etc) the app's startup status.
+Instead of calling the `launch()` method on `XCUIApplication` as you're used to use `launchTunnel()` or `launchTunnel(withOptions options:startupBlock:)`. These methods will launch the test and establish the tunnel connection.
 
 ### Launch with no options
-
-You launch your tests in a similar fashion as you're used to.
 
     import SBTUITestTunnel
 
@@ -34,8 +32,14 @@ _Note how we don't need to instantiate the `app` property_
          // i.e. prepare stub request, start monitoring requests
     }
 
+### Options
+
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
 - `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
+
+### StartupBlock
+
+The startup block contains code that will be executed before the app enters the `applicationDidFinishLaunching(_:)`. This is the right place to setup the application before it gets launched
 
 ## Framework classes
 
