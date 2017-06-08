@@ -24,7 +24,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern const uint16_t SBTUITunneledApplicationDefaultPort;
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;
 
 extern const double

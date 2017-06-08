@@ -57,6 +57,15 @@
  */
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
+#pragma mark - Timeout
+
+/**
+ *  Change the default timeout for the tunnel connection. Should be used only as a workaround when using the tunnel on very slow hardwares
+ *
+ *  @param timeout Timeout in seconds
+ */
++ (void)setConnectionTimeout:(NSTimeInterval)timeout;
+
 #pragma mark - Quit Command
 
 /**

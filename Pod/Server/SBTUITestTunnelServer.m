@@ -78,6 +78,8 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, assign) BOOL cruising;
 
+@property (nonatomic, strong) dispatch_semaphore_t launchSemaphore;
+
 @end
 
 @implementation SBTUITestTunnelServer
@@ -95,6 +97,7 @@ description:(desc), ##__VA_ARGS__]; \
         sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
         sharedInstance.startupCommandsCompleted = YES;
         sharedInstance.cruising = YES;
+        sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
     });
     return sharedInstance;
 }
@@ -109,6 +112,15 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (void)takeOffOnce
 {
+    NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
+    NSString *bonjourName = environment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey];
+    
+    if (!bonjourName) {
+        // Required methods missing, presumely app wasn't launched from ui test
+        NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
+        return;
+    }
+    
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
@@ -155,13 +167,21 @@ description:(desc), ##__VA_ARGS__]; \
         return;
     }
     
+    NSError *serverError = nil;
+    NSDictionary *serverOptions = [NSMutableDictionary dictionary];
+    
+    [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
+    [serverOptions setValue:@"_http._tcp." forKey:GCDWebServerOption_BonjourType];
+    
     [GCDWebServer setLogLevel:3];
-    if (![self.server startWithPort:SBTUITunneledApplicationDefaultPort bonjourName:nil]) {
-        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server");
+    if (![self.server startWithOptions:serverOptions error:&serverError]) {
+        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);
         return;
     }
     
     [self processStartupCommandsIfNeeded];
+    
+    dispatch_semaphore_wait(self.launchSemaphore, DISPATCH_TIME_FOREVER);
     
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
@@ -219,7 +239,6 @@ description:(desc), ##__VA_ARGS__]; \
 {
     return @{ SBTUITunnelResponseResultKey: self.cruising ? @"YES" : @"NO" };
 }
-
 
 #pragma mark - Stubs Commands
 
@@ -641,9 +660,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    [self.startupCommandsCompletedLock lock];
-    _startupCommandsCompleted = YES;
-    [self.startupCommandsCompletedLock unlock];
+    dispatch_semaphore_signal(self.launchSemaphore);
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
