@@ -38,6 +38,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, strong) NSString *bonjourName;
 @property (nonatomic, strong) NSNetService *bonjourBrowser;
 @property (nonatomic, strong) void (^startupBlock)(void);
+@property (nonatomic, strong) dispatch_semaphore_t startupSemaphore;
 
 @end
 
@@ -55,6 +56,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         _bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
         _bonjourBrowser = [[NSNetService alloc] initWithDomain:@"local." type:@"_http._tcp." name:_bonjourName];
         _bonjourBrowser.delegate = self;
+        _startupSemaphore = dispatch_semaphore_create(0);
     }
     
     return self;
@@ -102,6 +104,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
     
     [self launch];
+    
+    [self waitForAppReady];
 }
 
 - (void)waitForAppReady
@@ -109,10 +113,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     const int timeout = self.connectionTimeout;
     int i = 0;
     for (i = 0; i < timeout; i++) {
-        [NSThread sleepForTimeInterval:1.0];
         if ([self isAppCruising]) {
             return;
         }
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
     NSAssert(NO, @"[SBTUITestTunnel] failed waiting app to be ready");
@@ -134,8 +138,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         }
         
         [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
-        
-        [self waitForAppReady];
     }
 }
 

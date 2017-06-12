@@ -78,8 +78,6 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, assign) BOOL cruising;
 
-@property (nonatomic, strong) dispatch_semaphore_t launchSemaphore;
-
 @end
 
 @implementation SBTUITestTunnelServer
@@ -95,9 +93,8 @@ description:(desc), ##__VA_ARGS__]; \
         sharedInstance.monitoredRequests = [NSMutableArray array];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
-        sharedInstance.startupCommandsCompleted = YES;
+        sharedInstance.startupCommandsCompleted = NO;
         sharedInstance.cruising = YES;
-        sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
     });
     return sharedInstance;
 }
@@ -179,7 +176,7 @@ description:(desc), ##__VA_ARGS__]; \
         return;
     }
     
-    dispatch_semaphore_wait(self.launchSemaphore, DISPATCH_TIME_FOREVER);
+    [self processStartupCommandsIfNeeded];
     
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
@@ -658,7 +655,9 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    dispatch_semaphore_signal(self.launchSemaphore);
+    [self.startupCommandsCompletedLock lock];
+    self.startupCommandsCompleted = YES;
+    [self.startupCommandsCompletedLock unlock];
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -705,6 +704,19 @@ description:(desc), ##__VA_ARGS__]; \
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
     }
+}
+
+- (void)processStartupCommandsIfNeeded
+{
+    BOOL localStartupCommandsCompleted = NO;
+    do {
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        [self.startupCommandsCompletedLock lock];
+        localStartupCommandsCompleted = _startupCommandsCompleted;
+        [self.startupCommandsCompletedLock unlock];
+    } while (!localStartupCommandsCompleted);
+    
+    NSLog(@"[UITestTunnelServer] Startup commands completed");
 }
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
