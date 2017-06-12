@@ -28,7 +28,23 @@ class MiscellaneousTests: XCTestCase {
             self.app.setUserInterfaceAnimationsEnabled(false)
         }
         
-        //XCTAssertEqual(randomString, app.keychainObject(forKey: keychainKey) as! String)
+        XCTAssertEqual(randomString, app.keychainObject(forKey: keychainKey) as! String)
+    }
+    
+    func testStartupCommandsWaitsAppropriately() {
+        let keychainKey = "test_kc_key"
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+        
+        var startupBlockProcessed = false
+        
+        app.launchTunnel() {
+            self.app.keychainSetObject(randomString as NSCoding & NSObjectProtocol, forKey: keychainKey)
+            self.app.setUserInterfaceAnimationsEnabled(false)
+            Thread.sleep(forTimeInterval: 5.0)
+            startupBlockProcessed = true
+        }
+
+        XCTAssert(startupBlockProcessed)
     }
     
     func testCustomCommand() {
@@ -50,46 +66,4 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertNil(app.userDefaultsObject(forKey: "custom_command_test"))
         XCTAssertEqual("123", retObj3 as! String)
     }
-    
-    func testAutocompleteEnabled() {
-        app.launchArguments = ["-AppleLanguages", "(en)",
-                               "-AppleLocale", "en_EN"]
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        guard let preferredLanguages = app.userDefaultsObject(forKey: "AppleLanguages") as? [String]
-            , preferredLanguages.count > 0 && preferredLanguages.first?.hasPrefix("en") == true else {
-                fatalError("Please ensure your device's primary language is set to english")
-        }
-        
-        let text = "Tesling things" // Telling things
-        
-        app.cells["showAutocompleteForm"].tap()
-        
-        let textField = app.textFields.element(boundBy: 0)
-        textField.tap()
-        app.typeText(text)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-        let textFieldText = textField.value as? String
-        
-        XCTAssertNotEqual(text, textFieldText)
-    }
-    
-    func testAutocompleteDisabled() {
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem, SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete])
-        
-        let text = "Tesling things" // Telling things
-        
-        app.cells["showAutocompleteForm"].tap()
-        
-        let textField = app.textFields.element(boundBy: 0)
-        textField.tap()
-        app.typeText(text)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-        let textFieldText = textField.value as? String
-        
-        XCTAssertEqual(text, textFieldText)
-    } 
 }

@@ -89,6 +89,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     if (startupBlock) {
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
+        self.startupBlock = startupBlock;
     }
     
     self.launchArguments = launchArguments;

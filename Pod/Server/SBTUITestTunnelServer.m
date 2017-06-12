@@ -179,8 +179,6 @@ description:(desc), ##__VA_ARGS__]; \
         return;
     }
     
-    [self processStartupCommandsIfNeeded];
-    
     dispatch_semaphore_wait(self.launchSemaphore, DISPATCH_TIME_FOREVER);
     
     NSLog(@"[UITestTunnelServer] Up and running!");
@@ -696,25 +694,6 @@ description:(desc), ##__VA_ARGS__]; \
 }
 
 #pragma mark - Helper Methods
-
-- (void)processStartupCommandsIfNeeded
-{
-    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands]) {
-        [self.startupCommandsCompletedLock lock];
-        _startupCommandsCompleted = NO;
-        [self.startupCommandsCompletedLock unlock];
-        
-        BOOL localStartupCommandsCompleted = NO;
-        do {
-            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-            [self.startupCommandsCompletedLock lock];
-            localStartupCommandsCompleted = _startupCommandsCompleted;
-            [self.startupCommandsCompletedLock unlock];
-        } while (!localStartupCommandsCompleted);
-        
-        NSLog(@"[UITestTunnelServer] Startup commands completed");
-    }
-}
 
 - (void)processLaunchOptionsIfNeeded
 {
