@@ -635,12 +635,14 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSDictionary *)commandSetUIAnimationSpeed:(GCDWebServerRequest *)tunnelRequest
 {
+    NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
+    
     NSInteger animationSpeed = [tunnelRequest.parameters[SBTUITunnelObjectKey] integerValue];
-    
-    // Replacing [UIView setAnimationsEnabled:] as per
-    // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
-    UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
-    
+    dispatch_sync(dispatch_get_main_queue(), ^() {
+        // Replacing [UIView setAnimationsEnabled:] as per
+        // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
+        UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
+    });
     
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", animationSpeed];
     return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
