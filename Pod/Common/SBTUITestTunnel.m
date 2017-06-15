@@ -24,8 +24,8 @@
 
 #import "SBTUITestTunnel.h"
 
-const uint16_t SBTUITunneledApplicationDefaultPort = 8666;
-NSString *  const SBTUITunneledApplicationDefaultHost = @"localhost";
+NSString * const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey = @"SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey";
+NSString * const SBTUITunneledApplicationDefaultHost = @"localhost";
 
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
 const double SBTUITunnelStubsDownloadSpeedEDGE   =-   128 / 8; // kbps -> KB/s

@@ -22,7 +22,29 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [SBTUITestTunnelServer takeOff];
-
+    
+    if ([[NSProcessInfo processInfo].arguments containsObject:@"wait_for_startup_test"]) {
+        [SBTUITestTunnelServer takeOffCompleted:NO];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [SBTUITestTunnelServer takeOffCompleted:YES];
+        });
+    } else {
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
+            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"myCustomCommandReturnNil"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            return nil;
+        }];
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturn123" block:^NSObject *(NSObject *object) {
+            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            return @"123";
+        }];
+        
+        [SBTUITestTunnelServer takeOffCompleted:YES];
+    }
+    
     return YES;
 }
 

@@ -176,8 +176,16 @@ static NSString *defaultNSDataContentType;
     NSString *extension = [filename pathExtension];
     NSData *data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:name ofType:extension]];
     
+    // try in current test bundle
     if (!data) {
-        data = [self dataFromFrameworksWithName:filename];
+        for (NSBundle *bundle in [NSBundle allBundles]) {
+            if ([bundle.bundlePath hasSuffix:@".xctest"]) {
+                data = [NSData dataWithContentsOfFile:[bundle pathForResource:name ofType:extension]];
+                if (data) {
+                    break;
+                }
+            }
+        }
     }
     
     NSAssert(data, @"No data in file");
@@ -261,38 +269,6 @@ static NSString *defaultNSDataContentType;
     defaultNSDictionaryContentType = defaultJsonMime;
     defaultNSStringContentType = defaultTextMime;
     defaultNSDataContentType = defaultDataMime;
-}
-
-#pragma mark - Helper methods
-
-- (NSData *)dataFromFrameworksWithName:(NSString *)filename
-{
-    NSString *name = [filename stringByDeletingPathExtension];
-    NSString *extension = [filename pathExtension];
-    
-    NSData *data = nil;
-    
-    // find in frameworks extracting info from stacktrace
-    // are we using frameworks? Swift?
-    for (NSString *sourceString in [NSThread callStackSymbols]) {
-        NSCharacterSet *separatorSet = [NSCharacterSet characterSetWithCharactersInString:@" -[]+?.,"];
-        NSMutableArray *array = [NSMutableArray arrayWithArray:[sourceString  componentsSeparatedByCharactersInSet:separatorSet]];
-        [array removeObject:@""];
-        
-        NSString *swiftClassName = [array[3] demangleSwiftClassName];
-        
-        if (swiftClassName) {
-            data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:NSClassFromString(swiftClassName)] pathForResource:name ofType:extension]];
-            
-            if (data) {
-                break;
-            }
-        } else {
-            // #warning objective-c frameworks TODO.
-        }
-    }
-    
-    return data;
 }
 
 @end

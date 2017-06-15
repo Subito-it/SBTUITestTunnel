@@ -93,7 +93,7 @@ description:(desc), ##__VA_ARGS__]; \
         sharedInstance.monitoredRequests = [NSMutableArray array];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
-        sharedInstance.startupCommandsCompleted = YES;
+        sharedInstance.startupCommandsCompleted = NO;
         sharedInstance.cruising = YES;
     });
     return sharedInstance;
@@ -109,6 +109,15 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (void)takeOffOnce
 {
+    NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
+    NSString *bonjourName = environment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey];
+    
+    if (!bonjourName) {
+        // Required methods missing, presumely app wasn't launched from ui test
+        NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
+        return;
+    }
+    
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
@@ -155,9 +164,15 @@ description:(desc), ##__VA_ARGS__]; \
         return;
     }
     
+    NSError *serverError = nil;
+    NSDictionary *serverOptions = [NSMutableDictionary dictionary];
+    
+    [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
+    [serverOptions setValue:@"_http._tcp." forKey:GCDWebServerOption_BonjourType];
+    
     [GCDWebServer setLogLevel:3];
-    if (![self.server startWithPort:SBTUITunneledApplicationDefaultPort bonjourName:nil]) {
-        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server");
+    if (![self.server startWithOptions:serverOptions error:&serverError]) {
+        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);
         return;
     }
     
@@ -219,7 +234,6 @@ description:(desc), ##__VA_ARGS__]; \
 {
     return @{ SBTUITunnelResponseResultKey: self.cruising ? @"YES" : @"NO" };
 }
-
 
 #pragma mark - Stubs Commands
 
@@ -621,12 +635,14 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSDictionary *)commandSetUIAnimationSpeed:(GCDWebServerRequest *)tunnelRequest
 {
+    NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
+    
     NSInteger animationSpeed = [tunnelRequest.parameters[SBTUITunnelObjectKey] integerValue];
-    
-    // Replacing [UIView setAnimationsEnabled:] as per
-    // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
-    UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
-    
+    dispatch_sync(dispatch_get_main_queue(), ^() {
+        // Replacing [UIView setAnimationsEnabled:] as per
+        // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
+        UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
+    });
     
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", animationSpeed];
     return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
@@ -642,7 +658,7 @@ description:(desc), ##__VA_ARGS__]; \
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
     [self.startupCommandsCompletedLock lock];
-    _startupCommandsCompleted = YES;
+    self.startupCommandsCompleted = YES;
     [self.startupCommandsCompletedLock unlock];
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -680,25 +696,6 @@ description:(desc), ##__VA_ARGS__]; \
 
 #pragma mark - Helper Methods
 
-- (void)processStartupCommandsIfNeeded
-{
-    if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands]) {
-        [self.startupCommandsCompletedLock lock];
-        _startupCommandsCompleted = NO;
-        [self.startupCommandsCompletedLock unlock];
-        
-        BOOL localStartupCommandsCompleted = NO;
-        do {
-            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-            [self.startupCommandsCompletedLock lock];
-            localStartupCommandsCompleted = _startupCommandsCompleted;
-            [self.startupCommandsCompletedLock unlock];
-        } while (!localStartupCommandsCompleted);
-        
-        NSLog(@"[UITestTunnelServer] Startup commands completed");
-    }
-}
-
 - (void)processLaunchOptionsIfNeeded
 {
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
@@ -709,6 +706,19 @@ description:(desc), ##__VA_ARGS__]; \
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
     }
+}
+
+- (void)processStartupCommandsIfNeeded
+{
+    BOOL localStartupCommandsCompleted = NO;
+    do {
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        [self.startupCommandsCompletedLock lock];
+        localStartupCommandsCompleted = _startupCommandsCompleted;
+        [self.startupCommandsCompletedLock unlock];
+    } while (!localStartupCommandsCompleted);
+    
+    NSLog(@"[UITestTunnelServer] Startup commands completed");
 }
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest

@@ -46,25 +46,6 @@ class SBTTableViewController: UITableViewController {
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
                                         AutocompleteTest(testSelector: #selector(showAutocompleteForm))]
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnNil") {
-            obj in
-            UserDefaults.standard.set(obj, forKey:"custom_command_test")
-            UserDefaults.standard.synchronize()
-            
-            return nil
-        }
-        SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturn123") {
-            obj in
-            UserDefaults.standard.set(obj, forKey:"custom_command_test")
-            UserDefaults.standard.synchronize()
-            
-            return NSString(string: "123")
-        }
-    }
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
     }
