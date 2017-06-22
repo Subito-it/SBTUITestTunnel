@@ -30,7 +30,7 @@
         });
     } else {
         [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
-            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"myCustomCommandReturnNil"];
+            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
             [[NSUserDefaults standardUserDefaults] synchronize];
             
             return nil;
