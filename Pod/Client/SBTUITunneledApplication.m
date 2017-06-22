@@ -577,7 +577,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
-    if (self.port == 0) {
+    if (self.connectionPort == 0) {
         return nil; // connection still not established
     }
     
