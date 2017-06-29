@@ -378,7 +378,7 @@ description:(desc), ##__VA_ARGS__]; \
     
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", requestsToPeek.count];
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
@@ -406,7 +406,7 @@ description:(desc), ##__VA_ARGS__]; \
     
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", requestsToFlush.count];
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToFlush.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
@@ -591,7 +591,7 @@ description:(desc), ##__VA_ARGS__]; \
     
     NSString *ret = [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Writing %ld bytes to file %@", fileData.length, path ?: @""];
+    NSString *debugInfo = [NSString stringWithFormat:@"Writing %ld bytes to file %@", (unsigned long)fileData.length, path ?: @""];
     return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -618,7 +618,7 @@ description:(desc), ##__VA_ARGS__]; \
     
     NSString *ret = [filesDataArrData base64EncodedStringWithOptions:0];
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld files matching download request@", matchingFiles.count];
+    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld files matching download request@", (unsigned long)matchingFiles.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -644,7 +644,7 @@ description:(desc), ##__VA_ARGS__]; \
         UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
     });
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", animationSpeed];
+    NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", (long)animationSpeed];
     return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
