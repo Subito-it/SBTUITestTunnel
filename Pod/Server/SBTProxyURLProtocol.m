@@ -235,9 +235,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
-            NSHTTPURLResponse * response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
+            strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
             
-            [client URLProtocol:strongSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [client URLProtocol:strongSelf didLoadData:stubResponse.data];
             [client URLProtocolDidFinishLoading:strongSelf];
             
@@ -248,7 +248,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                         SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                         
                         if (![block isEqual:[NSNull null]] && block != nil) {
-                            block(request, request, (NSHTTPURLResponse *)response, stubResponse.data, stubbingResponseTime, YES);
+                            block(request, request, (NSHTTPURLResponse *)strongSelf.response, stubResponse.data, stubbingResponseTime, YES);
                         }
                     }
                 }
@@ -305,6 +305,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
         
         NSTimeInterval delayResponseTime = [self delayResponseTime];
+        
+        self.response = task.response;
         
         for (NSDictionary *matchingRule in matchingRules) {
             NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
@@ -425,3 +427,4 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @end
 
 #endif
+
