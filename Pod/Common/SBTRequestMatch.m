@@ -75,6 +75,9 @@
     return self;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+
 - (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
 {
     if ((self = [self initWithURL:url query:query])) {
@@ -83,9 +86,6 @@
     
     return self;
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
 
 - (nonnull instancetype)initWithURL:(NSString *)url method:(NSString *)method
 {
