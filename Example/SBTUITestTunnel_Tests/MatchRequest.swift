@@ -82,6 +82,18 @@ class MatchRequest: XCTestCase {
         app.stubRequestsRemoveAll()
     }
     
+    func testMethodHonored() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org/post", method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org/post", method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+        app.stubRequestsRemoveAll()
+    }
+    
     func testUrlWithQueryPostOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param6=val6"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
         app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
