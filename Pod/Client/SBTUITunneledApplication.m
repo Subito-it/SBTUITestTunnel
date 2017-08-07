@@ -127,7 +127,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)netServiceDidResolveAddress:(NSNetService *)service;
 {
-    if ([service.name isEqualToString:self.bonjourName]) {
+    if ([service.name isEqualToString:self.bonjourName] && self.connectionPort == 0) {
         NSAssert(service.port > 0, @"[SBTUITestTunnel] unexpected port 0!");
         
         NSLog(@"[SBTUITestTunnel] tunnel established on port %ld", service.port);
