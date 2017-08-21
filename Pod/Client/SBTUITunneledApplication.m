@@ -434,43 +434,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsReset params:nil] boolValue];
 }
 
-#pragma mark - Keychain Commands
-
-- (BOOL)keychainSetObject:(id)object forKey:(NSString *)key
-{
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
-                                                     SBTUITunnelObjectKey: [self base64SerializeObject:object]};
-    
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainSetObject params:params] boolValue];
-}
-
-- (BOOL)keychainRemoveObjectForKey:(NSString *)key
-{
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
-    
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainRemoveObject params:params] boolValue];
-}
-
-- (id)keychainObjectForKey:(NSString *)key
-{
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
-    
-    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainObject params:params];
-    
-    if (objectBase64) {
-        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
-        
-        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
-    }
-    
-    return nil;
-}
-
-- (BOOL)keychainReset
-{
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandKeychainReset params:nil] boolValue];
-}
-
 #pragma mark - NSBundle
 
 - (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;

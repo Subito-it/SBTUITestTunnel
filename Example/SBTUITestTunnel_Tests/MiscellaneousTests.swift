@@ -20,25 +20,25 @@ import Foundation
 class MiscellaneousTests: XCTestCase {
     
     func testStartupCommands() {
-        let keychainKey = "test_kc_key"
+        let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
         app.launchTunnel() {
-            self.app.keychainSetObject(randomString as NSCoding & NSObjectProtocol, forKey: keychainKey)
+            self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
         }
         
-        XCTAssertEqual(randomString, app.keychainObject(forKey: keychainKey) as! String)
+        XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
     
     func testStartupCommandsWaitsAppropriately() {
-        let keychainKey = "test_kc_key"
+        let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
         var startupBlockProcessed = false
         
         app.launchTunnel() {
-            self.app.keychainSetObject(randomString as NSCoding & NSObjectProtocol, forKey: keychainKey)
+            self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
             Thread.sleep(forTimeInterval: 5.0)
             startupBlockProcessed = true

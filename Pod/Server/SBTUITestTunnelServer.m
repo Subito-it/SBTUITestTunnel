@@ -33,7 +33,6 @@
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
 #import "NSData+SHA1.h"
-#import <FXKeyChain/FXKeyChain.h>
 #import <CoreLocation/CoreLocation.h>
 
 #if !defined(NS_BLOCK_ASSERTIONS)
@@ -495,59 +494,6 @@ description:(desc), ##__VA_ARGS__]; \
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
-#pragma mark - Keychain Commands
-
-- (NSDictionary *)commandKeychainSetObject:(GCDWebServerRequest *)tunnelRequest
-{
-    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
-    NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
-    id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
-    
-    NSString *ret = @"NO";
-    if (obj && objKey) {
-        ret = [[FXKeychain defaultKeychain] setObject:obj forKey:objKey] ? @"YES" : @"NO";
-    }
-    
-    return @{ SBTUITunnelResponseResultKey: ret };
-}
-
-- (NSDictionary *)commandKeychainRemoveObject:(GCDWebServerRequest *)tunnelRequest
-{
-    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
-    
-    NSString *ret = @"NO";
-    if (objKey) {
-        ret = [[FXKeychain defaultKeychain] removeObjectForKey:objKey] ? @"YES" : @"NO";
-    }
-    
-    return @{ SBTUITunnelResponseResultKey: ret };
-}
-
-- (NSDictionary *)commandKeychainObject:(GCDWebServerRequest *)tunnelRequest
-{
-    NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
-    
-    NSObject *obj = [[FXKeychain defaultKeychain] objectForKey:objKey];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
-    NSString *ret = @"";
-    if (data) {
-        ret = [data base64EncodedStringWithOptions:0];
-    }
-    
-    return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
-}
-
-- (NSDictionary *)commandKeychainReset:(GCDWebServerRequest *)tunnelRequest
-{
-    deleteAllKeysForSecClass(kSecClassGenericPassword);
-    deleteAllKeysForSecClass(kSecClassInternetPassword);
-    deleteAllKeysForSecClass(kSecClassCertificate);
-    deleteAllKeysForSecClass(kSecClassKey);
-    deleteAllKeysForSecClass(kSecClassIdentity);
-    
-    return @{ SBTUITunnelResponseResultKey: @"YES" };
-}
-
 #pragma mark - NSBundle
 
 - (NSDictionary *)commandMainBundleInfoDictionary:(GCDWebServerRequest *)tunnelRequest
@@ -701,7 +647,6 @@ description:(desc), ##__VA_ARGS__]; \
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
         deleteAppData();
         [self commandNSUserDefaultsReset:nil];
-        [self commandKeychainReset:nil];
     }
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];

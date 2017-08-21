@@ -305,43 +305,6 @@
  */
 - (BOOL)userDefaultsReset;
 
-#pragma mark - Keychain Commands
-
-/**
- *  Add object to keychain. For simplicity we're using FXKeychain using the BunleID as default service
- *
- *  @param object Object to be added
- *  @param key Key associated to object
- *
- *  @return `YES` on success
- */
-- (BOOL)keychainSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key;
-
-/**
- *  Remove object from keychain. For simplicity we're using FXKeychain using the BunleID as default service
- *
- *  @param key Key associated to object
- *
- *  @return `YES` on success
- */
-- (BOOL)keychainRemoveObjectForKey:(nonnull NSString *)key;
-
-/**
- *  Get object from keychain. For simplicity we're using FXKeychain using the BunleID as default service
- *
- *  @param key Key associated to object
- *
- *  @return The retrieved object.
- */
-- (nullable id)keychainObjectForKey:(nonnull NSString *)key;
-
-/**
- *  Reset Keychain
- *
- *  @return `YES` on success
- */
-- (BOOL)keychainReset;
-
 #pragma mark - NSBundle
 
 - (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;

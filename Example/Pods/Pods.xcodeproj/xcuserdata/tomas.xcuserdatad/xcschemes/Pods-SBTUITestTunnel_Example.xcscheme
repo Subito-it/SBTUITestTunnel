@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "59AE1DFEBBB64798C350F9AD4ED8C5BF"
+               BlueprintIdentifier = "7FA31324615410D33A5D484A5DD154F7"
                BuildableName = "Pods_SBTUITestTunnel_Example.framework"
                BlueprintName = "Pods-SBTUITestTunnel_Example"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -26,6 +26,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
@@ -36,6 +37,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -45,7 +47,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "59AE1DFEBBB64798C350F9AD4ED8C5BF"
+            BlueprintIdentifier = "7FA31324615410D33A5D484A5DD154F7"
             BuildableName = "Pods_SBTUITestTunnel_Example.framework"
             BlueprintName = "Pods-SBTUITestTunnel_Example"
             ReferencedContainer = "container:Pods.xcodeproj">

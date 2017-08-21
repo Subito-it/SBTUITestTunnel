@@ -91,11 +91,6 @@ NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject = @"c
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsObject = @"commandNSUserDefaultsObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsReset = @"commandNSUserDefaultsReset";
 
-NSString * const SBTUITunneledApplicationCommandKeychainSetObject = @"commandKeychainSetObject";
-NSString * const SBTUITunneledApplicationCommandKeychainRemoveObject = @"commandKeychainRemoveObject";
-NSString * const SBTUITunneledApplicationCommandKeychainObject = @"commandKeychainObject";
-NSString * const SBTUITunneledApplicationCommandKeychainReset = @"commandKeychainReset";
-
 NSString * const SBTUITunneledApplicationCommandMainBundleInfoDictionary = @"commandMainBundleInfoDictionary";
 
 NSString * const SBTUITunneledApplicationCommandCustom = @"commandCustom";

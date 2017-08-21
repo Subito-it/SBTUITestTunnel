@@ -10,7 +10,7 @@ Apple introduced a new UI Testing feature starting from Xcode 7 that is, quoting
 
 SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * stub network calls
-* interact with NSUserDefaults and Keychain
+* interact with NSUserDefaults
 * download/upload files from/to the app's sandbox
 * monitor network calls
 * define custom blocks of codes executed in the application target
@@ -40,7 +40,6 @@ We made additional resources available to improve the UI Testing experience:
 Kudos to the developers of the following pods which we use in SBTUITestTunnel:
 
 * [GCDWebServer](https://github.com/swisspol/GCDWebServer)
-* [FXKeychain](https://github.com/nicklockwood/FXKeychain)
 
 ## Contributions
 

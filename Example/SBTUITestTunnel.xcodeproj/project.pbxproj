@@ -17,11 +17,10 @@
 		6003F5A9195388D20070C39A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5A8195388D20070C39A /* Images.xcassets */; };
 		8587F1FD736BBA7EC36E0DB6 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
-		C32B7F911EE951340065DD02 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD31D8A0056003D6BB2 /* KeychainTests.swift */; };
+		96441CB2B971BCB2A144EB81 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
 		C32B7F941EE951340065DD02 /* MiscellaneousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */; };
 		C32B7F971EE951340065DD02 /* DownloadUploadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD91D8A78B5003D6BB2 /* DownloadUploadTests.swift */; };
 		C32B7F981EE951340065DD02 /* ThrottleTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F380211D8FCACA002CDE17 /* ThrottleTest.swift */; };
-		C32B7F9C1EE951340065DD02 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
 		C35B588F1EE9C2BE000A8DC2 /* StubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFDD1D8DFD21003D6BB2 /* StubTests.swift */; };
 		C35B58901EE9C2CD000A8DC2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD11D89FA75003D6BB2 /* UserDefaultsTests.swift */; };
 		C37C522E1E225A64005FC27D /* MatchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C522D1E225A64005FC27D /* MatchRequest.swift */; };
@@ -52,7 +51,7 @@
 
 /* Begin PBXFileReference section */
 		0E9C608071A13A87C52BA884 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		18F44692364098147A6DFDC7 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		278D507C83DE682648F8FD26 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3430FCC02B97D488E4B1969E /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		53991D438A6D252186502F2C /* Pods_SBTUITestTunnel_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,7 +78,6 @@
 		C3E3DFC61D89F738003D6BB2 /* SBTUITestTunnel_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SBTUITestTunnel_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		C3E3DFC71D89F739003D6BB2 /* SBTTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBTTableViewController.swift; sourceTree = "<group>"; };
 		C3E3DFD11D89FA75003D6BB2 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
-		C3E3DFD31D8A0056003D6BB2 /* KeychainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiscellaneousTests.swift; sourceTree = "<group>"; };
 		C3E3DFD81D8A75BB003D6BB2 /* SBTUITestTunnel_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SBTUITestTunnel_Example.entitlements; sourceTree = "<group>"; };
 		C3E3DFD91D8A78B5003D6BB2 /* DownloadUploadTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadUploadTests.swift; sourceTree = "<group>"; };
@@ -89,9 +87,9 @@
 		C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SBTUITestTunnel_Tests-Info.plist"; sourceTree = "<group>"; };
 		C3F380211D8FCACA002CDE17 /* ThrottleTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThrottleTest.swift; sourceTree = "<group>"; };
 		C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
-		E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		E6A87F86CCE500F03DF809C9 /* SBTUITestTunnel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SBTUITestTunnel.podspec; path = ../SBTUITestTunnel.podspec; sourceTree = "<group>"; };
 		E79B7E601E5A4B2D80BC77B2 /* Pods-SBTUITestTunnel_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		EEA938B30F36E153A613243B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,7 +108,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C32B7F9C1EE951340065DD02 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +116,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8587F1FD736BBA7EC36E0DB6 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */,
+				96441CB2B971BCB2A144EB81 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,8 +128,8 @@
 			children = (
 				E79B7E601E5A4B2D80BC77B2 /* Pods-SBTUITestTunnel_Example.debug.xcconfig */,
 				7B23AEDE3D599F674BC24B2B /* Pods-SBTUITestTunnel_Example.release.xcconfig */,
-				E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */,
-				18F44692364098147A6DFDC7 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */,
+				EEA938B30F36E153A613243B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */,
+				278D507C83DE682648F8FD26 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -221,7 +219,6 @@
 				C3CD0A7B1DC0D0FF009C18A1 /* MainBundle.swift */,
 				C3E3DFDD1D8DFD21003D6BB2 /* StubTests.swift */,
 				C3E3DFD91D8A78B5003D6BB2 /* DownloadUploadTests.swift */,
-				C3E3DFD31D8A0056003D6BB2 /* KeychainTests.swift */,
 				C3F380211D8FCACA002CDE17 /* ThrottleTest.swift */,
 				C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */,
 				C39B79FC1CB41C3A000C8B0D /* Info.plist */,
@@ -256,12 +253,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C32B7FA01EE951340065DD02 /* Build configuration list for PBXNativeTarget "SBTUITestTunnel_Tests2" */;
 			buildPhases = (
-				C32B7F8F1EE951340065DD02 /* [CP] Check Pods Manifest.lock */,
 				C32B7F901EE951340065DD02 /* Sources */,
 				C32B7F9B1EE951340065DD02 /* Frameworks */,
 				C32B7F9D1EE951340065DD02 /* Resources */,
-				C32B7F9E1EE951340065DD02 /* [CP] Copy Pods Resources */,
-				C32B7F9F1EE951340065DD02 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -376,9 +370,12 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/SBTUITestTunnel-Client/SBTUITestTunnel.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SBTUITestTunnel.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -391,13 +388,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SBTUITestTunnel_Example-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		533936263CB71711221C5352 /* [CP] Copy Pods Resources */ = {
@@ -436,58 +436,18 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GCDWebServer/GCDWebServer.framework",
+				"${BUILT_PRODUCTS_DIR}/SBTUITestTunnel-Server/SBTUITestTunnel.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GCDWebServer.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SBTUITestTunnel.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C32B7F8F1EE951340065DD02 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		C32B7F9E1EE951340065DD02 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C32B7F9F1EE951340065DD02 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F9E5F7A60216033CED6207EF /* [CP] Check Pods Manifest.lock */ = {
@@ -496,13 +456,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SBTUITestTunnel_Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -524,7 +487,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C35B58901EE9C2CD000A8DC2 /* UserDefaultsTests.swift in Sources */,
-				C32B7F911EE951340065DD02 /* KeychainTests.swift in Sources */,
 				C32B7F941EE951340065DD02 /* MiscellaneousTests.swift in Sources */,
 				C35B588F1EE9C2BE000A8DC2 /* StubTests.swift in Sources */,
 				C32B7F971EE951340065DD02 /* DownloadUploadTests.swift in Sources */,
@@ -720,7 +682,6 @@
 		};
 		C32B7FA11EE951340065DD02 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -743,7 +704,6 @@
 		};
 		C32B7FA21EE951340065DD02 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18F44692364098147A6DFDC7 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -767,7 +727,7 @@
 		};
 		C39B7A001CB41C3A000C8B0D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E648DC3A8054DA6037BE607B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */;
+			baseConfigurationReference = EEA938B30F36E153A613243B /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -790,7 +750,7 @@
 		};
 		C39B7A011CB41C3A000C8B0D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18F44692364098147A6DFDC7 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */;
+			baseConfigurationReference = 278D507C83DE682648F8FD26 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ANALYZER_NONNULL = YES;
