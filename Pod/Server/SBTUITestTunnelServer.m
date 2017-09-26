@@ -128,7 +128,7 @@ description:(desc), ##__VA_ARGS__]; \
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         dispatch_async(weakSelf.commandDispatchQueue, ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
-            // NSLog(@"[UITestTunnelServer] received command %@", request.path);
+            NSLog(@"[UITestTunnelServer] received command %@", request.path);
             
             NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
             
@@ -168,8 +168,10 @@ description:(desc), ##__VA_ARGS__]; \
     
     [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
     [serverOptions setValue:@"_http._tcp." forKey:GCDWebServerOption_BonjourType];
-    
     [GCDWebServer setLogLevel:3];
+    
+    NSLog(@"[SBTUITestTunnel] Starting server with bonjour name: %@", bonjourName);
+    
     if (![self.server startWithOptions:serverOptions error:&serverError]) {
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);
         return;
@@ -655,6 +657,8 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (void)processStartupCommandsIfNeeded
 {
+    NSLog(@"[UITestTunnelServer] Processing startup commands");
+    
     BOOL localStartupCommandsCompleted = NO;
     do {
         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
