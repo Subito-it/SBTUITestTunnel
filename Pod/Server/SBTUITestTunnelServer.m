@@ -15,9 +15,9 @@
 // limitations under the License.
 
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
-        #define ENABLE_UITUNNEL 1
-    #endif
+#ifndef ENABLE_UITUNNEL
+#define ENABLE_UITUNNEL 1
+#endif
 #endif
 
 #if ENABLE_UITUNNEL
@@ -72,14 +72,16 @@ description:(desc), ##__VA_ARGS__]; \
 @property (nonatomic, strong) NSCountedSet<NSString *> *stubsToRemoveAfterCount;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
-@property (nonatomic, strong) NSLock *startupCommandsCompletedLock;
-@property (nonatomic, assign) BOOL startupCommandsCompleted;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, assign) BOOL cruising;
+
+@property (nonatomic, strong) dispatch_semaphore_t launchSemaphore;
 
 @end
 
 @implementation SBTUITestTunnelServer
+
+static NSTimeInterval SBTUITunneledServerDefaultTimeout = 30.0;
 
 + (SBTUITestTunnelServer *)sharedInstance
 {
@@ -91,9 +93,8 @@ description:(desc), ##__VA_ARGS__]; \
         sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
         sharedInstance.monitoredRequests = [NSMutableArray array];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
-        sharedInstance.startupCommandsCompletedLock = [[NSLock alloc] init];
-        sharedInstance.startupCommandsCompleted = NO;
         sharedInstance.cruising = YES;
+        sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
     });
     return sharedInstance;
 }
@@ -163,7 +164,6 @@ description:(desc), ##__VA_ARGS__]; \
         return;
     }
     
-    NSError *serverError = nil;
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
     
     [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
@@ -172,12 +172,16 @@ description:(desc), ##__VA_ARGS__]; \
     
     NSLog(@"[SBTUITestTunnel] Starting server with bonjour name: %@", bonjourName);
     
+    NSError *serverError = nil;
     if (![self.server startWithOptions:serverOptions error:&serverError]) {
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);
         return;
     }
     
-    [self processStartupCommandsIfNeeded];
+    if (dispatch_semaphore_wait(self.launchSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
+        BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+        return;
+    }
     
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
@@ -605,9 +609,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    [self.startupCommandsCompletedLock lock];
-    self.startupCommandsCompleted = YES;
-    [self.startupCommandsCompletedLock unlock];
+    dispatch_semaphore_signal(self.launchSemaphore);
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -653,21 +655,6 @@ description:(desc), ##__VA_ARGS__]; \
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
     }
-}
-
-- (void)processStartupCommandsIfNeeded
-{
-    NSLog(@"[UITestTunnelServer] Processing startup commands");
-    
-    BOOL localStartupCommandsCompleted = NO;
-    do {
-        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-        [self.startupCommandsCompletedLock lock];
-        localStartupCommandsCompleted = _startupCommandsCompleted;
-        [self.startupCommandsCompletedLock unlock];
-    } while (!localStartupCommandsCompleted);
-    
-    NSLog(@"[UITestTunnelServer] Startup commands completed");
 }
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
