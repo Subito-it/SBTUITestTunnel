@@ -40,7 +40,7 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel() {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
-            Thread.sleep(forTimeInterval: 5.0)
+            Thread.sleep(forTimeInterval: 15.0)
             startupBlockProcessed = true
         }
 
