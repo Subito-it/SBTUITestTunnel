@@ -81,7 +81,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 @implementation SBTUITestTunnelServer
 
-static NSTimeInterval SBTUITunneledServerDefaultTimeout = 30.0;
+static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 + (SBTUITestTunnelServer *)sharedInstance
 {
