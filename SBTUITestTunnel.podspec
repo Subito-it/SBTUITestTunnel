@@ -13,7 +13,7 @@ s.license          = 'Apache License, Version 2.0'
 s.author           = { "Tomas Camin" => "tomas.camin@scmitaly.it" }
 s.source           = { :git => "https://github.com/Subito-it/SBTUITestTunnel.git", :tag => s.version.to_s }
 
-s.platform     = :ios, '8.0'
+s.platform     = :ios, '9.0'
 s.requires_arc = true
 
 s.frameworks = 'UIKit'
