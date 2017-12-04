@@ -495,7 +495,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandNSUserDefaultsReset:(GCDWebServerRequest *)tunnelRequest
 {
-    resetUserDefaults();
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -649,7 +650,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (void)processLaunchOptionsIfNeeded
 {
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
-        deleteAppData();
+        [self deleteAppData];
         [self commandNSUserDefaultsReset:nil];
     }
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
@@ -754,7 +755,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #pragma mark - Helper Functions
 
 // https://gist.github.com/michalzelinka/67adfa0142767575194f
-void deleteAppData() {
+- (void)deleteAppData {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSString *> *folders = @[[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject],
                                      [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject],
@@ -768,19 +769,6 @@ void deleteAppData() {
         }
     }
 }
-
-void resetUserDefaults() {
-    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    
-    [NSUserDefaults resetStandardUserDefaults];
-}
-
-// http://stackoverflow.com/a/26191925/574449
-void (^deleteAllKeysForSecClass)(CFTypeRef) = ^(CFTypeRef secClass) {
-    id dict = @{(__bridge id)kSecClass: (__bridge id)secClass};
-    SecItemDelete((__bridge CFDictionaryRef) dict);
-};
 
 @end
 
