@@ -44,6 +44,7 @@ class SBTTableViewController: UITableViewController {
                                         NetworkTest(testSelector: #selector(executePostDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
+                                        NetworkTest(testSelector: #selector(executeRequestWithRedirect)),
                                         AutocompleteTest(testSelector: #selector(showAutocompleteForm))]
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -360,6 +361,10 @@ extension SBTTableViewController {
         try! data?.write(to: fileURL)
         
         backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+    }
+    
+    func executeRequestWithRedirect() {
+        dataTaskNetwork(urlString: "https://httpbin.org/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
     }
 }
 

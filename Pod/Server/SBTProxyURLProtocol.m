@@ -323,7 +323,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    block(request, task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
+                    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey
+                                                                        inRequest:request];
+                    block(request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
                 }
             });
         }
