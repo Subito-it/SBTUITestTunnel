@@ -146,7 +146,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         
         self.connected = YES;
         
-        NSLog(@"[SBTUITestTunnel] Tunnel established on port %ld", service.port);
+        NSLog(@"[SBTUITestTunnel] Tunnel established on port %ld", (unsigned long)service.port);
         self.connectionPort = service.port;
         
         if (self.startupBlock) {
