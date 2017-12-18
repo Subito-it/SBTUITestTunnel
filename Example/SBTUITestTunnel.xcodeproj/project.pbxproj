@@ -49,6 +49,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		C3796AEF1FE7C1E600BCF9DD /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0E9C608071A13A87C52BA884 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		278D507C83DE682648F8FD26 /* Pods-SBTUITestTunnel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -71,6 +84,10 @@
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		C32B7FA31EE951340065DD02 /* SBTUITestTunnel_Tests2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_Tests2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C32B7FA41EE951340065DD02 /* SBTUITestTunnel_Tests2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SBTUITestTunnel_Tests2-Info.plist"; path = "/Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests2-Info.plist"; sourceTree = "<absolute>"; };
+		C3796AE51FE7C1E600BCF9DD /* SBTUITestTunnel_Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTUITestTunnel_Server.h; sourceTree = "<group>"; };
+		C3796AE61FE7C1E600BCF9DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C3796AF71FE7C1F500BCF9DD /* SBTUITestTunnel_Client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTUITestTunnel_Client.h; sourceTree = "<group>"; };
+		C3796AF81FE7C1F500BCF9DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C37C522D1E225A64005FC27D /* MatchRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchRequest.swift; sourceTree = "<group>"; };
 		C39B79F81CB41C3A000C8B0D /* SBTUITestTunnel_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C39B79FC1CB41C3A000C8B0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -141,6 +158,8 @@
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* Example for SBTUITestTunnel */,
 				C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */,
+				C3796AE41FE7C1E600BCF9DD /* SBTUITestTunnel_Server */,
+				C3796AF61FE7C1F500BCF9DD /* SBTUITestTunnel_Client */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */,
@@ -210,6 +229,24 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
+		C3796AE41FE7C1E600BCF9DD /* SBTUITestTunnel_Server */ = {
+			isa = PBXGroup;
+			children = (
+				C3796AE51FE7C1E600BCF9DD /* SBTUITestTunnel_Server.h */,
+				C3796AE61FE7C1E600BCF9DD /* Info.plist */,
+			);
+			path = SBTUITestTunnel_Server;
+			sourceTree = "<group>";
+		};
+		C3796AF61FE7C1F500BCF9DD /* SBTUITestTunnel_Client */ = {
+			isa = PBXGroup;
+			children = (
+				C3796AF71FE7C1F500BCF9DD /* SBTUITestTunnel_Client.h */,
+				C3796AF81FE7C1F500BCF9DD /* Info.plist */,
+			);
+			path = SBTUITestTunnel_Client;
+			sourceTree = "<group>";
+		};
 		C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -239,6 +276,7 @@
 				6003F588195388D20070C39A /* Resources */,
 				903FCFE3AA594273D300F3A9 /* [CP] Embed Pods Frameworks */,
 				545BCB427B113FDC7C735AC9 /* [CP] Copy Pods Resources */,
+				C3796AEF1FE7C1E600BCF9DD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -635,6 +673,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SBTUITestTunnel_Example.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = F93T2PM4GE;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SBTUITestTunnel/SBTUITestTunnel-Prefix.pch";
@@ -662,6 +701,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SBTUITestTunnel_Example.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = F93T2PM4GE;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SBTUITestTunnel/SBTUITestTunnel-Prefix.pch";
