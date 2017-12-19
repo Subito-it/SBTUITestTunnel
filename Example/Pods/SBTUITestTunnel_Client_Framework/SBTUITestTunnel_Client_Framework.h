@@ -15,4 +15,15 @@ FOUNDATION_EXPORT const unsigned char SBTUITestTunnel_Client_FrameworkVersionStr
 
 // In this header, you should import all the public headers of your framework using statements like #import <SBTUITestTunnel_Client_Framework/PublicHeader.h>
 
+#import "SBTUITunneledApplication.h"
+#import "XCTestCase+AppExtension.h"
+
+#import "NSString+SwiftDemangle.h"
+#import "NSURLRequest+HTTPBodyFix.h"
+#import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "SBTMonitoredNetworkRequest.h"
+#import "SBTRequestMatch.h"
+#import "SBTStubResponse.h"
+#import "SBTSwizzleHelpers.h"
+#import "SBTUITestTunnel.h"
 
