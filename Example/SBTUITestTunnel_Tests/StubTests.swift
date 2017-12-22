@@ -43,6 +43,33 @@ class StubTests: XCTestCase {
         XCTAssertFalse(isNetworkResultStubbed())
     }
     
+    func testStubAfterQuit() {
+        let matchRequest = SBTRequestMatch(url: "httpbin.org")
+        _ = app.stubRequests(matching: matchRequest, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+        
+        app.terminate()
+        
+        // Wait for app to startup
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+        
+        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
+        waitForExpectations(timeout: 15.0, handler: nil)
+        
+        Thread.sleep(forTimeInterval: 1.0)
+
+        // After relaunching the previously stub request should not work
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssertFalse(isNetworkResultStubbed())
+        
+        // Add stubbing again
+        _ = app.stubRequests(matching: matchRequest, response: SBTStubResponse(response: ["stubbed": 1]))!
+        app.cells["executeDataTaskRequest"].tap()
+        XCTAssert(isNetworkResultStubbed())
+    }
+    
     func testStubRemoveAll() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
@@ -220,7 +247,7 @@ class StubTests: XCTestCase {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: responseText))
         
         var expectedHeaders = [String: String]()
-        expectedHeaders["Content-Length"] = String(responseText.characters.count)
+        expectedHeaders["Content-Length"] = String(responseText.count)
         expectedHeaders["Content-Type"] = contentType
         
         var start = Date()
