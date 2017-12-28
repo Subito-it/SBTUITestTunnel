@@ -21,19 +21,19 @@ The library consists of two separated components which communicate with each oth
 
 SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a subclass of XCUIApplication which comes with additional features, so it is very easy to integrate (or at least try it out 😉) with your existing testing code.
 
-## Additional resources?
-
-We made additional resources available to improve the UI Testing experience:
-
-- [sbtuitestbrowser](https://github.com/Subito-it/sbtuitestbrowser): parse and visualize xcodebuild's test results in your web browser
-- [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost): access the mac host from your test target
-
 ## Documentation
 
 - [Installation](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Installation.md): Describes how to install the library
 - [Setup](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Setup.md): Describes how to integrate the library in your code
 - [Usage](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Usage.md): Describes how to use the library
 - [Migration](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Migration1to2.md): Migration instructions from 1.x to 2.x
+
+## Additional resources?
+
+We made additional resources available to improve the UI Testing experience:
+
+- [sbtuitestbrowser](https://github.com/Subito-it/sbtuitestbrowser): parse and visualize xcodebuild's test results in your web browser
+- [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost): access the mac host from your test target
 
 ## Thanks
 
