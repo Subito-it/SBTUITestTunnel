@@ -248,6 +248,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                         SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                         
                         if (![block isEqual:[NSNull null]] && block != nil) {
+                            __unused SBTRequestMatch *requestMatch = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
+                            NSLog(@"[UITestTunnelServer] Throttling or monitoring stubbed %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch);
+                            
                             block(request, request, (NSHTTPURLResponse *)strongSelf.response, stubResponse.data, stubbingResponseTime, YES);
                         }
                     }
@@ -255,6 +258,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             }
             
             if (![didStubRequestBlock isEqual:[NSNull null]] && didStubRequestBlock != nil) {
+                __unused SBTRequestMatch *requestMatch = stubRule[SBTProxyURLProtocolMatchingRuleKey];
+                NSLog(@"[UITestTunnelServer] Stubbing %@ request: %@\n\nMatching rule:\n%@\n\nResponse:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch, stubResponse);
+                
                 didStubRequestBlock(request);
             }
         });
@@ -265,6 +271,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     BOOL shouldProxyRequest = (matchingRules.count - (stubRule != nil) > 0);
     if (shouldProxyRequest) {
         // PROXY ONLY REQUEST (THROTTLE OR MONITORING)
+        __unused SBTRequestMatch *requestMatch = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
+        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch);
+        
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         

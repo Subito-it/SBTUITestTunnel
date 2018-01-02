@@ -128,9 +128,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         dispatch_async(weakSelf.commandDispatchQueue, ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-            NSLog(@"[UITestTunnelServer] received command %@", request.path);
-            
+            __strong typeof(weakSelf)strongSelf = weakSelf;            
             NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
             
             NSString *commandString = [command stringByAppendingString:@":"];
@@ -143,6 +141,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
                 
                 IMP imp = [strongSelf methodForSelector:commandSelector];
+                
+                NSLog(@"[UITestTunnelServer] Executing command '%@'", command);
                 
                 NSDictionary * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request);
