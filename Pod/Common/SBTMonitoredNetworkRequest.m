@@ -65,6 +65,23 @@
     }
 }
 
+- (NSString *)debugDescription
+{
+    NSMutableString *ret = [[self description] mutableCopy];
+    if ([[self.originalRequest.allHTTPHeaderFields allKeys] count] > 0) {
+        [ret appendString:[NSString stringWithFormat:@"|Headers: %@", self.originalRequest.allHTTPHeaderFields]];
+    }
+    
+    NSString *uppercaseMethod = self.originalRequest.HTTPMethod;
+    if ([uppercaseMethod isEqualToString:@"POST"]) {
+        if (self.originalRequest.HTTPBody.length > 0) {
+            [ret appendString:[NSString stringWithFormat:@"|HTTP Body: %@", [NSString stringWithUTF8String:[self.originalRequest.HTTPBody bytes]]]];
+        }
+    }
+    
+    return ret;
+}
+
 - (NSString *)responseString
 {
     NSString *ret = [[NSString alloc] initWithData:self.responseData encoding:NSUTF8StringEncoding];
