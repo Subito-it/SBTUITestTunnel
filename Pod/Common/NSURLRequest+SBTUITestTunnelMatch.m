@@ -33,9 +33,11 @@
     if (match.url) {
         NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.url options:NSRegularExpressionCaseInsensitive error:nil];
         NSString *stringToMatch = self.URL.absoluteString;
-        NSUInteger regexMatches = [regex numberOfMatchesInString:stringToMatch options:0 range:NSMakeRange(0, stringToMatch.length)];
-        
-        matchesURL = regexMatches > 0;
+        if (stringToMatch) {
+            NSUInteger regexMatches = [regex numberOfMatchesInString:stringToMatch options:0 range:NSMakeRange(0, stringToMatch.length)];
+            
+            matchesURL = regexMatches > 0;
+        }
     }
 
     BOOL matchesQuery = YES;
