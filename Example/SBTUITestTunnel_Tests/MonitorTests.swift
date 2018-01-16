@@ -191,6 +191,7 @@ class MonitorTests: XCTestCase {
         
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
+        print(requests.map { $0.debugDescription })
         
         for request in requests {
             guard let httpBody = request.request?.httpBody else {

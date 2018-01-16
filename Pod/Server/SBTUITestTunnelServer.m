@@ -124,18 +124,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     __weak typeof(self) weakSelf = self;
     [self.server addDefaultHandlerForMethod:SBTUITunnelHTTPMethod requestClass:requestClass processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+        __strong typeof(weakSelf)strongSelf = weakSelf;
         __block GCDWebServerDataResponse *ret;
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-        dispatch_async(weakSelf.commandDispatchQueue, ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;            
+        dispatch_async(strongSelf.commandDispatchQueue, ^{
             NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
             
             NSString *commandString = [command stringByAppendingString:@":"];
             SEL commandSelector = NSSelectorFromString(commandString);
             NSDictionary *response = nil;
             
-            if (![weakSelf processCustomCommandIfNecessary:request returnObject:&response]) {
+            if (![strongSelf processCustomCommandIfNecessary:request returnObject:&response]) {
                 if (![strongSelf respondsToSelector:commandSelector]) {
                     BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
                 }
