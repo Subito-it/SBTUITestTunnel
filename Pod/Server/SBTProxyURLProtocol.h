@@ -29,15 +29,23 @@
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
-+ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL))block;
+#pragma mark - Proxy Requests
 
++ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL))block;
 + (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)proxyRequestsRemoveAll;
 
-+ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
+#pragma mark - Stubbing Requests
 
++ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;
+
+#pragma mark - Cookie Block Requests
+
++ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (void)cookieBlockRequestsRemoveAll;
 
 @end
 

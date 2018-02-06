@@ -27,6 +27,7 @@ class BaseTest {
 
 class NetworkTest: BaseTest {}
 class AutocompleteTest: BaseTest {}
+class CookiesTest: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     
@@ -45,7 +46,8 @@ class SBTTableViewController: UITableViewController {
                                         NetworkTest(testSelector: #selector(executeUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeRequestWithRedirect)),
-                                        AutocompleteTest(testSelector: #selector(showAutocompleteForm))]
+                                        AutocompleteTest(testSelector: #selector(showAutocompleteForm)),
+                                        CookiesTest(testSelector: #selector(executeRequestWithCookies))]
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
@@ -57,6 +59,8 @@ class SBTTableViewController: UITableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: "networkConnectionCell", for: indexPath)
         } else if testList[indexPath.row] is AutocompleteTest {
             cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
+        } else if testList[indexPath.row] is CookiesTest {
+            cell = tableView.dequeueReusableCell(withIdentifier: "cookieCell", for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -67,6 +71,7 @@ class SBTTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         perform(testList[indexPath.row].testSelector)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
@@ -372,5 +377,54 @@ extension SBTTableViewController {
     
     func showAutocompleteForm() {
         self.performSegue(withIdentifier: "autocompleteSegue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    
+    func dataTaskNetworkWithCookies(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+            let sem = DispatchSemaphore(value: 0)
+            
+            let url = URL(string: urlString)!
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if let httpBody = httpBody {
+                request.httpBody = httpBody.data(using: .utf8)
+            }
+            
+            var retData: Data! = nil
+            var retResponse: HTTPURLResponse! = nil
+            var retHeaders: [String: String]! = nil
+            
+            let jar = HTTPCookieStorage.shared
+            let cookieHeaderField = ["Set-Cookie": "key=value, key2=value2"]
+            let cookies = HTTPCookie.cookies(withResponseHeaderFields: cookieHeaderField, for: url)
+            jar.setCookies(cookies, for: request.url!, mainDocumentURL: request.url!)
+            
+            URLSession.shared.dataTask(with: request) {
+                data, response, error in
+                
+                retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retData = data
+                
+                sem.signal()
+                }
+                .resume()
+            
+            sem.wait()
+            
+            if shouldPushResult {
+                DispatchQueue.main.async { [weak self] in
+                    let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                }
+            }
+        }
+    }
+    
+    func executeRequestWithCookies() {
+        dataTaskNetworkWithCookies(urlString: "http://httpbin.org/get", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
 }

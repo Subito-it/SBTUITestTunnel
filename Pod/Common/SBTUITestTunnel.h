@@ -52,6 +52,9 @@ extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryResponseTimeKey;
 
+extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryRuleKey;
+extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryIterations;
+
 extern NSString * _Nonnull const SBTUITunnelObjectKey;
 extern NSString * _Nonnull const SBTUITunnelObjectKeyKey;
 
@@ -86,6 +89,10 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorFlush;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemoveAll;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCookieBlockRemove;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCookieBlockRemoveAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsSetObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject;
