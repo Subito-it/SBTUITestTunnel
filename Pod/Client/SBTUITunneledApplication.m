@@ -218,7 +218,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
                                                      SBTUITunnelStubQueryIterations: [@(iterations) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubAndRemovePathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemovePathMatching params:params];
 }
 
 #pragma mark - Stub Remove Commands
@@ -242,7 +242,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)stubRequestsRemoveAll
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandStubRequestsRemoveAll params:nil] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
 #pragma mark - Monitor Requests Commands
@@ -256,7 +256,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
 {
-    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorPeek params:nil];
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPeek params:nil];
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
@@ -268,7 +268,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll;
 {
-    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorFlush params:nil];
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorFlush params:nil];
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
@@ -297,7 +297,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)monitorRequestRemoveAll
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandMonitorRemoveAll params:nil] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorRemoveAll params:nil] boolValue];
 }
 
 #pragma mark - Asynchronously Wait for Requests Commands
@@ -413,7 +413,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)throttleRequestRemoveAll
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationcommandThrottleRemoveAll params:nil] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleRemoveAll params:nil] boolValue];
 }
 
 #pragma mark - NSUserDefaults Commands

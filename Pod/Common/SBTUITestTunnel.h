@@ -73,19 +73,19 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandQuit;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCruising;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathMatching;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubAndRemovePathMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubAndRemovePathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandstubRequestsRemove;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandStubRequestsRemoveAll;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemoveAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorRemoveAll;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorPeek;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandMonitorFlush;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemoveAll;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPeek;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorFlush;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemove;
-extern NSString * _Nonnull const SBTUITunneledApplicationcommandThrottleRemoveAll;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemoveAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsSetObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject;

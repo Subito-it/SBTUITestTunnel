@@ -72,19 +72,19 @@ NSString * const SBTUITunneledApplicationCommandQuit = @"commandQuit";
 NSString * const SBTUITunneledApplicationCommandCruising = @"commandCruising";
 
 NSString * const SBTUITunneledApplicationCommandStubPathMatching = @"commandStubPathMatching";
-NSString * const SBTUITunneledApplicationcommandStubAndRemovePathMatching = @"commandStubAndRemovePathMatching";
+NSString * const SBTUITunneledApplicationCommandStubAndRemovePathMatching = @"commandStubAndRemovePathMatching";
 NSString * const SBTUITunneledApplicationCommandstubRequestsRemove = @"commandStubRequestsRemove";
-NSString * const SBTUITunneledApplicationcommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
+NSString * const SBTUITunneledApplicationCommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
 
 NSString * const SBTUITunneledApplicationCommandMonitorPathMatching = @"commandMonitorPathMatching";
 NSString * const SBTUITunneledApplicationCommandMonitorRemove = @"commandMonitorRemove";
-NSString * const SBTUITunneledApplicationcommandMonitorRemoveAll = @"commandMonitorsRemoveAll";
-NSString * const SBTUITunneledApplicationcommandMonitorPeek = @"commandMonitorPeek";
-NSString * const SBTUITunneledApplicationcommandMonitorFlush = @"commandMonitorFlush";
+NSString * const SBTUITunneledApplicationCommandMonitorRemoveAll = @"commandMonitorsRemoveAll";
+NSString * const SBTUITunneledApplicationCommandMonitorPeek = @"commandMonitorPeek";
+NSString * const SBTUITunneledApplicationCommandMonitorFlush = @"commandMonitorFlush";
 
 NSString * const SBTUITunneledApplicationCommandThrottlePathMatching = @"commandThrottlePathMatching";
 NSString * const SBTUITunneledApplicationCommandThrottleRemove = @"commandThrottleRemove";
-NSString * const SBTUITunneledApplicationcommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
+NSString * const SBTUITunneledApplicationCommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
 
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsSetObject = @"commandNSUserDefaultsSetObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject = @"commandNSUserDefaultsRemoveObject";
