@@ -416,6 +416,43 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleRemoveAll params:nil] boolValue];
 }
 
+#pragma mark - Cookie Block Requests Commands
+
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match
+{
+    return [self blockCookiesInRequestsMatching:match iterations:0];
+}
+
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelCookieBlockQueryIterations: [@(iterations) stringValue]};
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching params:params];
+}
+
+- (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey:[self base64SerializeObject:reqId]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockRemove params:params] boolValue];
+}
+
+- (BOOL)blockCookiesRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    BOOL ret = YES;
+    for (NSString *reqId in reqIds) {
+        ret &= [self blockCookiesRequestsRemoveWithId:reqId];
+    }
+    
+    return ret;
+}
+
+- (BOOL)blockCookiesRequestsRemoveAll
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockRemoveAll params:nil] boolValue];
+}
+
 #pragma mark - NSUserDefaults Commands
 
 - (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key

@@ -32,6 +32,7 @@ static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHan
 static NSString * const SBTProxyURLProtocolMatchingRuleKey = @"SBTProxyURLProtocolMatchingRuleKey";
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
+static NSString * const SBTProxyURLProtocolBlockCookies = @"SBTProxyURLProtocolBlockCookies";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
 typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed);
@@ -169,6 +170,58 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
 }
 
+#pragma mark - Cookie Block Requests
+
++ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(void(^)(NSURLRequest *request))block;
+{
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookies: @(YES), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+                NSLog(@"[UITestTunnelServer] Warning existing cookie request found, skipping.\n%@", matchingRule);
+                return nil;
+            }
+        }
+        
+        [self.sharedInstance.matchingRules addObject:rule];
+    }
+    
+    return identifierToAdd;
+}
+
++ (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+    
+    return itemsToDelete.count > 0;
+}
+
++ (void)cookieBlockRequestsRemoveAll
+{
+    @synchronized (self.sharedInstance) {
+        NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if (matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+}
+
 #pragma mark - NSURLProtocol
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -195,6 +248,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *stubRule = nil;
     NSDictionary *proxyRule = nil;
+    NSDictionary *cookieBlockRule = nil;
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             if (stubRule != nil) {
@@ -205,6 +259,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             }
             
             stubRule = matchingRule;
+        } else if (matchingRule[SBTProxyURLProtocolBlockCookies]) {
+            cookieBlockRule = matchingRule;
         } else {
             // we can have multiple matching rule here. For example if we throttle and monitor at the same time
             proxyRule = matchingRule;
@@ -278,6 +334,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         
         NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+        
+        if (cookieBlockRule != nil) {
+            [newRequest addValue:@"" forHTTPHeaderField:@"Cookie"];
+        } else {
+            [self moveCookiesToHeader:newRequest];
+        }
+        
         self.connection = [session dataTaskWithRequest:newRequest];
         
         [SBTProxyURLProtocol sharedInstance].tasksTime[self.connection] = [NSDate date];
@@ -290,6 +353,23 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)stopLoading
 {
     [self.connection cancel];
+}
+
+- (void)moveCookiesToHeader:(NSMutableURLRequest *)newRequest
+{
+    // Move cookies from storage to headers, useful to properly extract cookies when monitoring requests
+    NSArray<NSHTTPCookie *> *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:newRequest.URL];
+    
+    if (cookies.count > 0) {
+        // instead of calling [newRequest addValue:forHTTPHeaderField:] multiple times
+        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+        NSMutableString *multipleCookieString = [NSMutableString string];
+        for (NSHTTPCookie* cookie in cookies) {
+            [multipleCookieString appendFormat:@"%@=%@;", cookie.name, cookie.value];
+        }
+        
+        [newRequest setValue:multipleCookieString forHTTPHeaderField:@"Cookie"];
+    }
 }
 
 #pragma mark - NSURLSession Delegates
@@ -334,7 +414,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 if (![block isEqual:[NSNull null]] && block != nil) {
                     NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey
                                                                         inRequest:request];
-                    block(request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
+                    block(task.currentRequest ?: request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
                 }
             });
         }

@@ -268,6 +268,52 @@
  */
 - (BOOL)throttleRequestRemoveAll;
 
+#pragma mark - Cookie Block Requests Commands
+
+/**
+ *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param match The match object that contains the matching rules
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
+ */
+- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match;
+
+/**
+ *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *
+ *  @param match The match object that contains the matching rules
+ *  @param iterations How often the request should happen before timing out
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
+ */
+- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match iterations:(NSUInteger)iterations;
+
+/**
+ *  Remove a cookie block request
+ *
+ *  @param reqId The identifier that was returned when adding the cookie block request
+ *
+ *  @return `YES` on success If `NO` one of the specified identifier was not associated to an active cookie block request or request failed
+ */
+- (BOOL)blockCookiesRequestsRemoveWithId:(nonnull NSString *)reqId;
+
+/**
+ *  Remove a list of cookie block requests
+ *
+ *  @param reqIds The identifiers that were returned when adding the cookie block requests
+ *
+ *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active cookie block request or request failed
+ */
+- (BOOL)blockCookiesRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
+
+/**
+ *  Remove all cookie block requests
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)blockCookiesRequestsRemoveAll;
+
 #pragma mark - NSUserDefaults Commands
 
 /**
