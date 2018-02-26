@@ -41,6 +41,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, strong) void (^startupBlock)(void);
 @property (nonatomic, copy) NSArray <NSString *> *initialLaunchArguments;
 @property (nonatomic, copy) NSDictionary <NSString *, NSString *> *initialLaunchEnvironment;
+@property (nonatomic, strong) NSString *(^connectionlessBlock)(NSString *, NSDictionary<NSString *, NSString *> *);
 
 @end
 
@@ -120,6 +121,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self launch];
     
     [self waitForAppReady];
+}
+
+- (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
+{
+    self.connectionlessBlock = command;
 }
 
 - (void)waitForAppReady
@@ -596,6 +602,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
+    if (self.connectionlessBlock) {
+        return self.connectionlessBlock(path, params);
+    }
+    
     if (self.connectionPort == 0) {
         return nil; // connection still not established
     }

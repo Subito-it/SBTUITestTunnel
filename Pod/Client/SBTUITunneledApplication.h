@@ -57,6 +57,11 @@
  */
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
+/**
+ *  Internal, don't use.
+ */
+- (void)launchConnectionless:(nonnull NSString * _Nonnull (^)(NSString * _Nonnull, NSDictionary<NSString *, NSString *> * _Nonnull))command;
+
 #pragma mark - Timeout
 
 /**

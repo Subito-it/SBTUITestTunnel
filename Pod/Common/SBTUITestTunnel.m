@@ -48,6 +48,8 @@ NSString * const SBTUITunnelStubQueryIterations = @"iterations";
 NSString * const SBTUITunnelStubQueryResponseTimeKey = @"time_response";
 NSString * const SBTUITunnelStubQueryMimeTypeKey = @"mime_type";
 
+NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
+
 NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
 NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
 

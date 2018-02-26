@@ -44,14 +44,19 @@
  *  @param commandName that will match [SBTUITunneledApplication performCustomCommandNamed:object:]
  *  @param block the block of code that will be executed once the command is received
  */
-+ (void)registerCustomCommandNamed:(NSString *)commandName block:(NSObject *(^)(NSObject *object))block;
++ (void)registerCustomCommandNamed:(nonnull NSString *)commandName block:(nonnull NSObject *_Nullable(^)(NSObject * _Nullable object))block;
 
 /**
  *  Unregister a custom command.
  *
  *  @param commandName the name of the custom command that was registered using [SBTUITestTunnelServer registerCustomCommandNamed:block:]
  */
-+ (void)unregisterCommandNamed:(NSString *)commandName;
++ (void)unregisterCommandNamed:(nonnull NSString *)commandName;
+
+/**
+ *  Internal, don't use.
+ */
++ (nonnull NSString *)performCommand:(nonnull NSString *)commandName params:(nonnull NSDictionary<NSString *, NSString *> *)params;
 
 @end
 

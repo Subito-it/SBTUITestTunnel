@@ -97,6 +97,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.cruising = YES;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
+        
+        [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
     return sharedInstance;
 }
@@ -119,8 +121,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
         return;
     }
-    
-    [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
     
@@ -370,20 +370,29 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     __block NSArray *requestsToPeek = @[];
     
     __weak typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    void (^monitorBlock)(void) = ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
-        // we use main thread to synchronize access to self.monitoredRequests
         requestsToPeek = [strongSelf.monitoredRequests copy];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToPeek];
         if (data) {
             ret = [data base64EncodedStringWithOptions:0];
         }
-        dispatch_semaphore_signal(sem);
-    });
+    };
     
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
+        monitorBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // we use main thread to synchronize access to self.monitoredRequests
+            monitorBlock();
+            
+            dispatch_semaphore_signal(sem);
+        });
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    }
     
     NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
@@ -395,10 +404,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     __block NSString *ret = @"";
     __block NSArray *requestsToFlush = @[];
-    
+
     __weak typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // we use main thread to synchronize access to self.monitoredRequests
+    void (^flushBlock)(void) = ^{
         __strong typeof(weakSelf)strongSelf = weakSelf;
         
         requestsToFlush = [strongSelf.monitoredRequests copy];
@@ -408,10 +416,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if (data) {
             ret = [data base64EncodedStringWithOptions:0];
         }
-        dispatch_semaphore_signal(sem);
-    });
+    };
     
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
+        flushBlock();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // we use main thread to synchronize access to self.monitoredRequests
+            flushBlock();
+            
+            dispatch_semaphore_signal(sem);
+        });
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    }
     
     NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToFlush.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
@@ -860,6 +878,39 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             [fm removeItemAtPath:[folder stringByAppendingPathComponent:file] error:&error];
         }
     }
+}
+
+#pragma mark - Connectionless
+
++ (NSString *)performCommand:(NSString *)commandName params:(NSDictionary<NSString *, NSString *> *)params
+{
+    NSString *commandString = [commandName stringByAppendingString:@":"];
+    SEL commandSelector = NSSelectorFromString(commandString);
+    
+    NSMutableDictionary *unescapedParams = [params mutableCopy];
+    for (NSString *key in params) {
+        unescapedParams[key] = [unescapedParams[key] stringByRemovingPercentEncoding];
+    }
+    unescapedParams[SBTUITunnelLocalExecutionKey] = @(YES);
+    
+    GCDWebServerRequest *request = [[GCDWebServerRequest alloc] initWithMethod:@"POST" url:[NSURL URLWithString:@""] headers:@{} path:commandName query:unescapedParams];
+    
+    NSDictionary *response = nil;
+    
+    if (![self.sharedInstance processCustomCommandIfNecessary:request returnObject:&response]) {
+        if (![self.sharedInstance respondsToSelector:commandSelector]) {
+            NSAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", commandName);
+        }
+        
+        IMP imp = [self.sharedInstance methodForSelector:commandSelector];
+        
+        NSLog(@"[UITestTunnelServer] Executing command '%@'", commandName);
+        
+        NSDictionary * (*func)(id, SEL, GCDWebServerRequest *) = (void *)imp;
+        response = func(self.sharedInstance, commandSelector, request);
+    }
+    
+    return response[SBTUITunnelResponseResultKey];
 }
 
 @end
