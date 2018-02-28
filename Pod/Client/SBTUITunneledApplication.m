@@ -222,7 +222,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                                                      SBTUITunnelStubQueryMimeTypeKey: response.contentType,
                                                      SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
-                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue]};
+                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryFailWithCustomErrorKey: [@(response.failureCode) stringValue]
+                                                     };
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemovePathMatching params:params];
 }

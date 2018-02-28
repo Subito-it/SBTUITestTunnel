@@ -253,7 +253,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
-        SBTProxyStubResponse *response = [self responseForStubRequest:tunnelRequest];
+        SBTProxyStubResponse *response;
+        NSInteger failWithCustomErrorCode = [tunnelRequest.parameters[SBTUITunnelStubQueryFailWithCustomErrorKey] integerValue];
+        if (failWithCustomErrorCode != 0) {
+            NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
+            response = [SBTProxyStubResponse failureWithCustomErrorCode:failWithCustomErrorCode responseTime:responseTime];
+        } else {
+            response = [self responseForStubRequest:tunnelRequest];
+        }
         NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
         __weak typeof(self)weakSelf = self;

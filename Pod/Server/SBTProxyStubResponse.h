@@ -31,10 +31,13 @@
                                         statusCode:(NSUInteger)statusCode
                                       responseTime:(NSTimeInterval)responseTime;
 
++ (nonnull SBTProxyStubResponse *)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+
 @property (nonnull, nonatomic, strong, readonly) NSData *data;
 @property (nonnull, nonatomic, strong, readonly) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, assign, readonly) NSInteger statusCode;
 @property (nonatomic, assign, readonly) NSTimeInterval responseTime;
+@property (nonatomic, assign, readonly) NSInteger failureCode;
 
 @end
 

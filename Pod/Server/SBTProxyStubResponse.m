@@ -30,6 +30,7 @@
 @property (nonnull, nonatomic, strong) NSDictionary<NSString *, NSString *> *headers;
 @property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, assign) NSTimeInterval responseTime;
+@property (nonatomic, assign) NSInteger failureCode;
 
 @end
 
@@ -42,6 +43,7 @@
         self.headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
         self.statusCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(statusCode))];
         self.responseTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(responseTime))];
+        self.failureCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(failureCode))];
     }
     return self;
 }
@@ -52,9 +54,10 @@
     [encoder encodeObject:self.headers forKey:NSStringFromSelector(@selector(headers))];
     [encoder encodeInteger:self.statusCode forKey:NSStringFromSelector(@selector(statusCode))];
     [encoder encodeDouble:self.responseTime forKey:NSStringFromSelector(@selector(responseTime))];
+    [encoder encodeInteger:self.failureCode forKey:NSStringFromSelector(@selector(failureCode))];
 }
 
-+ (nonnull SBTProxyStubResponse *)responseWithData:(nonnull NSData*)data headers:(nonnull NSDictionary<NSString *, NSString *> *)headers statusCode:(NSUInteger)statusCode responseTime:(NSTimeInterval)responseTime
++ (SBTProxyStubResponse *)responseWithData:(NSData*)data headers:(NSDictionary<NSString *, NSString *> *)headers statusCode:(NSUInteger)statusCode responseTime:(NSTimeInterval)responseTime
 {
     SBTProxyStubResponse *ret = [[SBTProxyStubResponse alloc] init];
     
@@ -62,13 +65,31 @@
     ret.headers = headers;
     ret.statusCode = statusCode;
     ret.responseTime = responseTime;
+    ret.failureCode = 0;
+    
+    return ret;
+}
+
++ (SBTProxyStubResponse *)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+{
+    SBTProxyStubResponse *ret = [[SBTProxyStubResponse alloc] init];
+    
+    ret.data = [[NSData alloc] init];
+    ret.headers = @{};
+    ret.statusCode = 0;
+    ret.responseTime = responseTime;
+    ret.failureCode = code;
     
     return ret;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"data-length: %lu\nstatusCode: %lu\nresponseTime: %.2f\nheaders: %@", (unsigned long)self.data.length, (unsigned long)self.statusCode, self.responseTime, self.headers];
+    if (self.failureCode != 0) {
+        return [NSString stringWithFormat:@"Failure code %lu", self.failureCode];
+    } else {
+        return [NSString stringWithFormat:@"data-length: %lu\nstatusCode: %lu\nresponseTime: %.2f\nheaders: %@", (unsigned long)self.data.length, (unsigned long)self.statusCode, self.responseTime, self.headers];
+    }
 }
 
 @end

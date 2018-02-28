@@ -44,6 +44,7 @@ static NSString *defaultNSDataContentType;
 @property (nonatomic, strong) NSString *contentType;
 @property (nonatomic, assign) NSInteger returnCode;
 @property (nonatomic, assign) NSTimeInterval responseTime;
+@property (nonatomic, assign) NSInteger failureCode;
 
 @end
 
@@ -61,8 +62,11 @@ static NSString *defaultNSDataContentType;
     NSString *contentType = [decoder decodeObjectForKey:NSStringFromSelector(@selector(contentType))];
     NSInteger returnCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(returnCode))];
     NSTimeInterval responseTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(responseTime))];
+    NSInteger failureCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(failureCode))];
     
-    return [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime];
+    SBTStubResponse *ret = [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime];
+    ret.failureCode = failureCode;
+    return ret;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder
@@ -72,6 +76,7 @@ static NSString *defaultNSDataContentType;
     [encoder encodeObject:self.contentType forKey:NSStringFromSelector(@selector(contentType))];
     [encoder encodeInteger:self.returnCode forKey:NSStringFromSelector(@selector(returnCode))];
     [encoder encodeDouble:self.responseTime forKey:NSStringFromSelector(@selector(responseTime))];
+    [encoder encodeInteger:self.failureCode forKey:NSStringFromSelector(@selector(failureCode))];
 }
 
 - (instancetype)initWithResponse:(id)response
@@ -119,6 +124,14 @@ static NSString *defaultNSDataContentType;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+
++ (instancetype)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+{
+    SBTStubResponse *ret = [[SBTStubResponse alloc] initWithResponse:@"" responseTime:responseTime];
+    ret.failureCode = code;
+    
+    return ret;
+}
 
 - (instancetype)initWithResponse:(id)response;
 {

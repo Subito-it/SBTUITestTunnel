@@ -291,11 +291,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
-            strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
-            
-            [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-            [client URLProtocol:strongSelf didLoadData:stubResponse.data];
-            [client URLProtocolDidFinishLoading:strongSelf];
+            if (stubResponse.failureCode != 0) {
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:stubResponse.failureCode userInfo:nil];
+                
+                [client URLProtocol:strongSelf didFailWithError:error];
+                [client URLProtocolDidFinishLoading:strongSelf];
+            } else {
+                strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
+                
+                [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+                [client URLProtocol:strongSelf didLoadData:stubResponse.data];
+                [client URLProtocolDidFinishLoading:strongSelf];
+            }
             
             // check if the request is also proxied, we might need to manually invoke the block here
             if (proxyRule) {

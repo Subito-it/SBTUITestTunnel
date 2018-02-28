@@ -48,6 +48,7 @@ extern NSString * _Nonnull const SBTUITunnelStubQueryReturnHeadersKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryIterations;
 extern NSString * _Nonnull const SBTUITunnelStubQueryResponseTimeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
+extern NSString * _Nonnull const SBTUITunnelStubQueryFailWithCustomErrorKey;
 
 extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 

@@ -31,6 +31,14 @@
 /**
  *  Initializer
  *
+ *  @param code an NSError Codes
+ *  @param responseTime the response time in seconds of the stubbed response
+ */
++ (nonnull instancetype)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
+
+/**
+ *  Initializer
+ *
  *  @param response an instance of NSDictionary, NSData, NSString that represents the data to be returned
  *  @param headers a dictionary that represents the response headers
  *  @param contentType the return content type
@@ -219,6 +227,7 @@
 @property (nonatomic, readonly, nonnull) NSDictionary *headers;
 @property (nonatomic, readonly) NSInteger returnCode;
 @property (nonatomic, readonly) NSTimeInterval responseTime;
+@property (nonatomic, readonly) NSInteger failureCode;
 
 #pragma mark - Default overriders
 
