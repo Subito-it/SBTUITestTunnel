@@ -28,6 +28,7 @@
 #import "UITextField+DisableAutocomplete.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTStubResponse.h"
+#import "SBTRewrite.h"
 #import "SBTMonitoredNetworkRequest.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
@@ -327,30 +328,24 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if ([self validRewriteRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-#warning todo
-        /*
-         SBTProxyRewriteResponse *response;
-         NSInteger failWithCustomErrorCode = [tunnelRequest.parameters[SBTUITunnelRewriteFailWithCustomErrorKey] integerValue];
-         if (failWithCustomErrorCode != 0) {
-         NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelRewriteResponseTimeKey] doubleValue];
-         response = [SBTProxyRewriteResponse failureWithCustomErrorCode:failWithCustomErrorCode responseTime:responseTime];
-         } else {
-         response = [self responseForRewriteRequest:tunnelRequest];
-         }
-         NSString *requestIdentifier = [self identifierForRewriteRequest:tunnelRequest];
-         
-         __weak typeof(self)weakSelf = self;
-         rewriteId = [SBTProxyURLProtocol rewriteRequestsMatching:requestMatch rewriteResponse:response didRewriteRequest:^(NSURLRequest *request) {
-         __strong typeof(weakSelf)strongSelf = weakSelf;
-         
-         if ([strongSelf.rewritesToRemoveAfterCount containsObject:requestIdentifier]) {
-         [strongSelf.rewritesToRemoveAfterCount removeObject:requestIdentifier];
-         
-         if ([strongSelf.rewritesToRemoveAfterCount countForObject:requestIdentifier] == 0) {
-         [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId];
-         }
-         }
-         }];*/
+        
+        NSData *rewriteData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteKey] options:0];
+        SBTRewrite *rewrite = [NSKeyedUnarchiver unarchiveObjectWithData:rewriteData];
+        
+        NSString *requestIdentifier = [self identifierForRewriteRequest:tunnelRequest];
+        
+        __weak typeof(self)weakSelf = self;
+        rewriteId = [SBTProxyURLProtocol rewriteRequestsMatching:requestMatch rewrite:rewrite didRewriteRequest:^(NSURLRequest *request) {
+            __strong typeof(weakSelf)strongSelf = weakSelf;
+            
+            if ([strongSelf.rewritesToRemoveAfterCount containsObject:requestIdentifier]) {
+                [strongSelf.rewritesToRemoveAfterCount removeObject:requestIdentifier];
+                
+                if ([strongSelf.rewritesToRemoveAfterCount countForObject:requestIdentifier] == 0) {
+                    [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId];
+                }
+            }
+        }];
     }
     
     return @{ SBTUITunnelResponseResultKey: rewriteId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
@@ -871,48 +866,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (SBTStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-#warning TODO
-//    NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubReturnDataKey] options:0];
-//
-//    NSData *responseData = nil;
-//
-//    id responseObject = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
-//    if ([responseObject isKindOfClass:[NSDictionary class]] || [responseObject isKindOfClass:[NSArray class]]) {
-//        NSError *error = nil;
-//        responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:&error];
-//        if (!responseData || error) {
-//            NSLog(@"[UITestTunnelServer] serialize response data");
-//            return nil;
-//        }
-//    } else if ([responseObject isKindOfClass:[NSData class]]) {
-//        responseData = responseObject;
-//    } else {
-//        NSLog(@"[UITestTunnelServer] invalid serialized object of class %@", NSStringFromClass([responseObject class]));
-//        return nil;
-//    }
-//
-//    NSUInteger responseStatusCode = [tunnelRequest.parameters[SBTUITunnelStubReturnCodeKey] intValue];
-//    NSString *mimeType = tunnelRequest.parameters[SBTUITunnelStubMimeTypeKey];
-//    NSUInteger contentLength = responseData.length;
-//    NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubResponseTimeKey] doubleValue];
-//
-//    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary dictionaryWithDictionary:@{ @"Content-Type": mimeType,
-//                                                                                                            @"Content-Length": @(contentLength).stringValue }];
-//
-//    NSString *serializedResponseHeaders = tunnelRequest.parameters[SBTUITunnelStubReturnHeadersKey];
-//    NSData *serializedResponseHeadersData = [serializedResponseHeaders dataUsingEncoding:NSUTF8StringEncoding];
-//    if (serializedResponseHeadersData) {
-//        NSDictionary *responseHeaders = [NSJSONSerialization JSONObjectWithData:serializedResponseHeadersData options:0 error:NULL];
-//        if ([responseHeaders isKindOfClass:[NSDictionary class]]) {
-//            [headers addEntriesFromDictionary:responseHeaders];
-//        }
-//    }
-//
-//    SBTStubResponse *response = [[SBTStubResponse alloc] initWithResponse:responseData headers:headers returnCode:responseStatusCode responseTime:responseTime];
-//
-//    return response;
+    NSData *stubResponseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubResponseKey] options:0];
+    SBTStubResponse *stubResponse = [NSKeyedUnarchiver unarchiveObjectWithData:stubResponseData];
 
-    return nil;
+    if (![stubResponse isKindOfClass:[SBTStubResponse class]]) {
+        NSLog(@"[UITestTunnelServer] serialize response data");
+        return nil;
+    }
+
+    return stubResponse;
 }
 
 - (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest
@@ -924,6 +886,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     return YES;
+}
+
+- (SBTRewrite *)rewriteForRequest:(GCDWebServerRequest *)tunnelRequest
+{
+    NSData *rewriteData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteKey] options:0];
+    SBTRewrite *rewrite = [NSKeyedUnarchiver unarchiveObjectWithData:rewriteData];
+    
+    if (![rewrite isKindOfClass:[SBTRewrite class]]) {
+        NSLog(@"[UITestTunnelServer] serialize response data");
+        return nil;
+    }
+    
+    return rewrite;
 }
 
 - (BOOL)validRewriteRequest:(GCDWebServerRequest *)tunnelRequest

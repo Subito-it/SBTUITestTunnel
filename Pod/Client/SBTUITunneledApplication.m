@@ -257,7 +257,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelRewriteRewriteRuleKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelRewriteKey: [self base64SerializeObject:response],
                                                      SBTUITunnelRewriteIterationsKey: [@(iterations) stringValue]
                                                      };
     

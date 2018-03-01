@@ -38,6 +38,6 @@ class MainBundleTests: XCTestCase {
         
         XCTAssertEqual((infoDictionary["CFBundleIdentifier"] as? String) ?? "", "com.tomascamin.SBTUITestTunnel-Example")
         XCTAssertEqual((infoDictionary["CFBundleVersion"] as? String) ?? "", "1.0")
-        XCTAssertEqual((infoDictionary["MinimumOSVersion"] as? String) ?? "", "8.0")
+        XCTAssertEqual((infoDictionary["MinimumOSVersion"] as? String) ?? "", "10.0")
     }
 }
