@@ -26,6 +26,7 @@
 #import "SBTRequestMatch.h"
 
 @class SBTProxyStubResponse;
+@class SBTProxyRewriteResponse;
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
@@ -40,6 +41,12 @@
 + (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;
+
+#pragma mark - Rewrite Requests
+
++ (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewriteResponse:(nonnull SBTProxyRewriteResponse *)rewriteResponse didRewriteRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (void)rewriteRequestsRemoveAll;
 
 #pragma mark - Cookie Block Requests
 

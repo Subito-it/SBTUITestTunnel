@@ -26,12 +26,14 @@
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSData+SHA1.h"
 #import "SBTProxyStubResponse.h"
+#import "SBTProxyRewriteResponse.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
 static NSString * const SBTProxyURLProtocolMatchingRuleKey = @"SBTProxyURLProtocolMatchingRuleKey";
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
+static NSString * const SBTProxyURLProtocolRewriteResponse = @"SBTProxyURLProtocolRewriteResponse";
 static NSString * const SBTProxyURLProtocolBlockCookies = @"SBTProxyURLProtocolBlockCookies";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
@@ -162,6 +164,58 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+}
+
+#pragma mark - Rewrite
+
++ (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewriteResponse:(SBTProxyRewriteResponse *)rewriteResponse didRewriteRequest:(void(^)(NSURLRequest *request))block;
+{
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolRewriteResponse: rewriteResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSString *identifierToAdd = [self identifierForRule:rule];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
+                NSLog(@"[UITestTunnelServer] Warning existing rewrite request found, skipping.\n%@", matchingRule);
+                return nil;
+            }
+        }
+        
+        [self.sharedInstance.matchingRules addObject:rule];
+    }
+    
+    return identifierToAdd;
+}
+
++ (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+    
+    return itemsToDelete.count > 0;
+}
+
++ (void)rewriteRequestsRemoveAll
+{
+    @synchronized (self.sharedInstance) {
+        NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if (matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
                 [itemsToDelete addObject:matchingRule];
             }
         }
