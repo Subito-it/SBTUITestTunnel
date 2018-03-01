@@ -255,14 +255,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - Rewrite Commands
 
-- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewriteResponse *)response
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewrite *)response
 {
     return [self rewriteRequestsMatching:match response:response removeAfterIterations:0];
 }
 
 #pragma mark - Rewrite And Remove Commands
 
-- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewriteResponse *)response removeAfterIterations:(NSUInteger)iterations
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelRewriteRewriteRuleKey: [self base64SerializeObject:response],

@@ -24,7 +24,7 @@
 
 #import <XCTest/XCTest.h>
 #import "SBTRequestMatch.h"
-#import "SBTRewriteResponse.h"
+#import "SBTRewrite.h"
 #import "SBTStubResponse.h"
 #import "SBTMonitoredNetworkRequest.h"
 
@@ -141,7 +141,7 @@
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created rewrite. Should be used when removing rewrite using -(BOOL)rewriteRequestsRemoveWithId:
  */
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewriteResponse *)response;
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response;
 
 #pragma mark - Rewrite And Remove Commands
 
@@ -154,7 +154,7 @@
  *
  *  @return `YES` on success
  */
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewriteResponse *)response removeAfterIterations:(NSUInteger)iterations;
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Rewrite Remove Commands
 
