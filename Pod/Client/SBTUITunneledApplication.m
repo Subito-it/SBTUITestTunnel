@@ -222,11 +222,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                                                      SBTUITunnelStubQueryMimeTypeKey: response.contentType,
                                                      SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
                                                      SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
-                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
+                                                     SBTUITunnelStubQueryIterationsKey: [@(iterations) stringValue],
                                                      SBTUITunnelStubQueryFailWithCustomErrorKey: [@(response.failureCode) stringValue]
                                                      };
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemovePathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];
 }
 
 #pragma mark - Stub Remove Commands
@@ -302,7 +302,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorMatching params:params];
 }
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
@@ -442,7 +442,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleMatching params:params];
 }
 
 - (BOOL)throttleRequestRemoveWithId:(NSString *)reqId;
@@ -477,7 +477,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelCookieBlockQueryIterations: [@(iterations) stringValue]};
+                                                     SBTUITunnelCookieBlockQueryIterationsKey: [@(iterations) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching params:params];
 }

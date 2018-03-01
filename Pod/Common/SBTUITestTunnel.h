@@ -41,11 +41,12 @@ extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupC
 
 extern NSString * _Nonnull const SBTUITunnelHTTPMethod;
 
+#warning reduce and rename these as we did for rewrite rules
 extern NSString * _Nonnull const SBTUITunnelStubQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryReturnDataKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryReturnCodeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryReturnHeadersKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryIterations;
+extern NSString * _Nonnull const SBTUITunnelStubQueryIterationsKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryResponseTimeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryFailWithCustomErrorKey;
@@ -61,7 +62,7 @@ extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryResponseTimeKey;
 
 extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryRuleKey;
-extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryIterations;
+extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryIterationsKey;
 
 extern NSString * _Nonnull const SBTUITunnelObjectKey;
 extern NSString * _Nonnull const SBTUITunnelObjectKeyKey;
@@ -83,8 +84,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandQuit;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCruising;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathMatching;
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubAndRemovePathMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubAndRemoveMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemoveAll;
 
@@ -93,13 +94,13 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteAndRemove
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteRequestsRemoveAll;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemoveAll;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPeek;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorFlush;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottlePathMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandThrottleRemoveAll;
 

@@ -244,7 +244,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Stubs Commands
 
-- (NSDictionary *)commandStubPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubMatching:(GCDWebServerRequest *)tunnelRequest
 {
     __block NSString *stubId = @"";
     SBTRequestMatch *requestMatch = nil;
@@ -282,19 +282,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Stub and Remove Commands
 
-- (NSDictionary *)commandStubAndRemovePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
     NSInteger stubRequestsRemoveAfterCount = 0;
     
     if ([self validStubRequest:tunnelRequest]) {
-        stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
+        stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterationsKey] integerValue];
         
         for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
             [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
         }
         
-        ret = [self commandStubPathMatching:tunnelRequest];
+        ret = [self commandStubMatching:tunnelRequest];
     }
     
     return ret;
@@ -322,7 +322,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Request Monitor Commands
 
-- (NSDictionary *)commandMonitorPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
@@ -444,7 +444,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Request Throttle Commands
 
-- (NSDictionary *)commandThrottlePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandThrottleMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
@@ -514,7 +514,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSInteger cookieBlockRemoveAfterCount = 0;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
-        cookieBlockRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelCookieBlockQueryIterations] integerValue];
+        cookieBlockRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelCookieBlockQueryIterationsKey] integerValue];
         
         for (NSInteger i = 0; i < cookieBlockRemoveAfterCount; i++) {
             [self.cookieBlockToRemoveAfterCount addObject:[self identifierForCookieBlockRequest:tunnelRequest]];
