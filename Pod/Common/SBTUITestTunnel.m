@@ -40,6 +40,7 @@ NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTU
 
 NSString * const SBTUITunnelHTTPMethod = @"POST";
 
+#warning reduce and rename these as we did for rewrite rules
 NSString * const SBTUITunnelStubQueryRuleKey = @"rule";
 NSString * const SBTUITunnelStubQueryReturnDataKey = @"ret_data";
 NSString * const SBTUITunnelStubQueryReturnCodeKey = @"ret_code";
@@ -48,6 +49,11 @@ NSString * const SBTUITunnelStubQueryIterations = @"iterations";
 NSString * const SBTUITunnelStubQueryResponseTimeKey = @"time_response";
 NSString * const SBTUITunnelStubQueryMimeTypeKey = @"mime_type";
 NSString * const SBTUITunnelStubQueryFailWithCustomErrorKey = @"fail_w_error";
+
+NSString * const SBTUITunnelRewriteQueryMatchRuleKey = @"match_rule";
+NSString * const SBTUITunnelRewriteQueryRewriteRuleKey = @"rewrite_rule";
+NSString * const SBTUITunnelRewriteQueryIterationsKey = @"iterations";
+NSString * const SBTUITunnelRewriteQueryRuleIdKey = @"rewrite_id";
 
 NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 
@@ -79,8 +85,13 @@ NSString * const SBTUITunneledApplicationCommandCruising = @"commandCruising";
 
 NSString * const SBTUITunneledApplicationCommandStubPathMatching = @"commandStubPathMatching";
 NSString * const SBTUITunneledApplicationCommandStubAndRemovePathMatching = @"commandStubAndRemovePathMatching";
-NSString * const SBTUITunneledApplicationCommandstubRequestsRemove = @"commandStubRequestsRemove";
+NSString * const SBTUITunneledApplicationCommandStubRequestsRemove = @"commandStubRequestsRemove";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
+
+NSString * const SBTUITunneledApplicationCommandRewriteMatching = @"commandRewriteMatching";
+NSString * const SBTUITunneledApplicationCommandRewriteAndRemoveMatching = @"commandRewriteAndRemoveMatching";
+NSString * const SBTUITunneledApplicationCommandRewriteRequestsRemove = @"commandRewriteRemove";
+NSString * const SBTUITunneledApplicationCommandRewriteRequestsRemoveAll = @"commandRewriteRemoveAll";
 
 NSString * const SBTUITunneledApplicationCommandMonitorPathMatching = @"commandMonitorPathMatching";
 NSString * const SBTUITunneledApplicationCommandMonitorRemove = @"commandMonitorRemove";

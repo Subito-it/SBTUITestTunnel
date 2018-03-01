@@ -50,6 +50,11 @@ extern NSString * _Nonnull const SBTUITunnelStubQueryResponseTimeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
 extern NSString * _Nonnull const SBTUITunnelStubQueryFailWithCustomErrorKey;
 
+extern NSString * _Nonnull const SBTUITunnelRewriteQueryMatchRuleKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteQueryRewriteRuleKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteQueryIterationsKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteQueryRuleIdKey;
+
 extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 
 extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
@@ -80,8 +85,13 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandCruising;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubPathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubAndRemovePathMatching;
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandstubRequestsRemove;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemoveAll;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteAndRemoveMatching;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteRequestsRemove;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteRequestsRemoveAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorPathMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMonitorRemove;

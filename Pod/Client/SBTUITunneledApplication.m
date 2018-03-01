@@ -235,7 +235,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey:[self base64SerializeObject:stubId]};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandstubRequestsRemove params:params] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemove params:params] boolValue];
 }
 
 - (BOOL)stubRequestsRemoveWithIds:(NSArray<NSString *> *)stubIds
@@ -251,6 +251,49 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (BOOL)stubRequestsRemoveAll
 {
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
+}
+
+#pragma mark - Rewrite Commands
+
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewriteResponse *)response
+{
+    return [self rewriteRequestsMatching:match response:response removeAfterIterations:0];
+}
+
+#pragma mark - Rewrite And Remove Commands
+
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewriteResponse *)response removeAfterIterations:(NSUInteger)iterations
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteQueryMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelRewriteQueryRewriteRuleKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelRewriteQueryIterationsKey: [@(iterations) stringValue]
+                                                     };
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteAndRemoveMatching params:params];
+}
+
+#pragma mark - Rewrite Remove Commands
+
+- (BOOL)rewriteRequestsRemoveWithId:(NSString *)rewriteId
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteQueryRuleIdKey:[self base64SerializeObject:rewriteId]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemove params:params] boolValue];
+}
+
+- (BOOL)rewriteRequestsRemoveWithIds:(NSArray<NSString *> *)rewriteIds
+{
+    BOOL ret = YES;
+    for (NSString *rewriteId in rewriteIds) {
+        ret &= [self rewriteRequestsRemoveWithId:rewriteId];
+    }
+    
+    return ret;
+}
+
+- (BOOL)rewriteRequestsRemoveAll
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemoveAll params:nil] boolValue];
 }
 
 #pragma mark - Monitor Requests Commands
