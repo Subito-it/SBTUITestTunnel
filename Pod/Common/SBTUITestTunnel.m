@@ -41,7 +41,7 @@ NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTU
 NSString * const SBTUITunnelHTTPMethod = @"POST";
 
 #warning reduce and rename these as we did for rewrite rules
-NSString * const SBTUITunnelStubRuleKey = @"rule";
+NSString * const SBTUITunnelStubMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelStubReturnDataKey = @"ret_data";
 NSString * const SBTUITunnelStubReturnCodeKey = @"ret_code";
 NSString * const SBTUITunnelStubReturnHeadersKey = @"ret_headers";

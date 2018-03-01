@@ -42,7 +42,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupC
 extern NSString * _Nonnull const SBTUITunnelHTTPMethod;
 
 #warning reduce and rename these as we did for rewrite rules
-extern NSString * _Nonnull const SBTUITunnelStubRuleKey;
+extern NSString * _Nonnull const SBTUITunnelStubMatchRuleKey;
 extern NSString * _Nonnull const SBTUITunnelStubReturnDataKey;
 extern NSString * _Nonnull const SBTUITunnelStubReturnCodeKey;
 extern NSString * _Nonnull const SBTUITunnelStubReturnHeadersKey;

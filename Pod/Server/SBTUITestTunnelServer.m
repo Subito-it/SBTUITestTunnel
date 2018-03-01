@@ -252,7 +252,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validStubRequest:tunnelRequest]) {
-        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0];
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         SBTProxyStubResponse *response;
@@ -304,7 +304,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
     NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = @"NO";
@@ -435,7 +435,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -543,7 +543,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -565,7 +565,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
-        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0];
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         NSString *requestIdentifier = [self identifierForCookieBlockRequest:tunnelRequest];
@@ -834,7 +834,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubRuleKey]];
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
     
@@ -921,7 +921,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (!tunnelRequest.parameters[SBTUITunnelStubReturnCodeKey] ||
         !tunnelRequest.parameters[SBTUITunnelStubMimeTypeKey] ||
-        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubRuleKey] options:0] ||
+        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0] ||
         ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubReturnDataKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid stubRequest received!");
         
