@@ -216,14 +216,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSData *jsonHeaderData = [NSJSONSerialization dataWithJSONObject:response.headers options:0 error:NULL];
     NSString *headersSerialized = [[NSString alloc] initWithData:jsonHeaderData encoding:NSUTF8StringEncoding];
     
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:response.data],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(response.returnCode) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: response.contentType,
-                                                     SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
-                                                     SBTUITunnelStubQueryIterationsKey: [@(iterations) stringValue],
-                                                     SBTUITunnelStubQueryFailWithCustomErrorKey: [@(response.failureCode) stringValue]
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelStubReturnDataKey: [self base64SerializeObject:response.data],
+                                                     SBTUITunnelStubReturnCodeKey: [@(response.returnCode) stringValue],
+                                                     SBTUITunnelStubMimeTypeKey: response.contentType,
+                                                     SBTUITunnelStubReturnHeadersKey: headersSerialized,
+                                                     SBTUITunnelStubResponseTimeKey: [@(response.responseTime) stringValue],
+                                                     SBTUITunnelStubIterationsKey: [@(iterations) stringValue],
+                                                     SBTUITunnelStubFailWithCustomErrorKey: [@(response.failureCode) stringValue]
                                                      };
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];
@@ -233,7 +233,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)stubRequestsRemoveWithId:(NSString *)stubId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey:[self base64SerializeObject:stubId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubRuleKey:[self base64SerializeObject:stubId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemove params:params] boolValue];
 }
@@ -264,9 +264,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewriteResponse *)response removeAfterIterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteQueryMatchRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelRewriteQueryRewriteRuleKey: [self base64SerializeObject:response],
-                                                     SBTUITunnelRewriteQueryIterationsKey: [@(iterations) stringValue]
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelRewriteRewriteRuleKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelRewriteIterationsKey: [@(iterations) stringValue]
                                                      };
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteAndRemoveMatching params:params];
@@ -276,7 +276,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)rewriteRequestsRemoveWithId:(NSString *)rewriteId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteQueryRuleIdKey:[self base64SerializeObject:rewriteId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteRuleIdKey:[self base64SerializeObject:rewriteId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemove params:params] boolValue];
 }

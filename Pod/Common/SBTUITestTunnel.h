@@ -42,19 +42,19 @@ extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupC
 extern NSString * _Nonnull const SBTUITunnelHTTPMethod;
 
 #warning reduce and rename these as we did for rewrite rules
-extern NSString * _Nonnull const SBTUITunnelStubQueryRuleKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryReturnDataKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryReturnCodeKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryReturnHeadersKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryIterationsKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryResponseTimeKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryMimeTypeKey;
-extern NSString * _Nonnull const SBTUITunnelStubQueryFailWithCustomErrorKey;
+extern NSString * _Nonnull const SBTUITunnelStubRuleKey;
+extern NSString * _Nonnull const SBTUITunnelStubReturnDataKey;
+extern NSString * _Nonnull const SBTUITunnelStubReturnCodeKey;
+extern NSString * _Nonnull const SBTUITunnelStubReturnHeadersKey;
+extern NSString * _Nonnull const SBTUITunnelStubIterationsKey;
+extern NSString * _Nonnull const SBTUITunnelStubResponseTimeKey;
+extern NSString * _Nonnull const SBTUITunnelStubMimeTypeKey;
+extern NSString * _Nonnull const SBTUITunnelStubFailWithCustomErrorKey;
 
-extern NSString * _Nonnull const SBTUITunnelRewriteQueryMatchRuleKey;
-extern NSString * _Nonnull const SBTUITunnelRewriteQueryRewriteRuleKey;
-extern NSString * _Nonnull const SBTUITunnelRewriteQueryIterationsKey;
-extern NSString * _Nonnull const SBTUITunnelRewriteQueryRuleIdKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteMatchRuleKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteRewriteRuleKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteIterationsKey;
+extern NSString * _Nonnull const SBTUITunnelRewriteRuleIdKey;
 
 extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 

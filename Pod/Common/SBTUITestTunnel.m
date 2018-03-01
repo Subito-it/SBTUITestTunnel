@@ -41,19 +41,19 @@ NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTU
 NSString * const SBTUITunnelHTTPMethod = @"POST";
 
 #warning reduce and rename these as we did for rewrite rules
-NSString * const SBTUITunnelStubQueryRuleKey = @"rule";
-NSString * const SBTUITunnelStubQueryReturnDataKey = @"ret_data";
-NSString * const SBTUITunnelStubQueryReturnCodeKey = @"ret_code";
-NSString * const SBTUITunnelStubQueryReturnHeadersKey = @"ret_headers";
-NSString * const SBTUITunnelStubQueryIterationsKey = @"iterations";
-NSString * const SBTUITunnelStubQueryResponseTimeKey = @"time_response";
-NSString * const SBTUITunnelStubQueryMimeTypeKey = @"mime_type";
-NSString * const SBTUITunnelStubQueryFailWithCustomErrorKey = @"fail_w_error";
+NSString * const SBTUITunnelStubRuleKey = @"rule";
+NSString * const SBTUITunnelStubReturnDataKey = @"ret_data";
+NSString * const SBTUITunnelStubReturnCodeKey = @"ret_code";
+NSString * const SBTUITunnelStubReturnHeadersKey = @"ret_headers";
+NSString * const SBTUITunnelStubIterationsKey = @"iterations";
+NSString * const SBTUITunnelStubResponseTimeKey = @"time_response";
+NSString * const SBTUITunnelStubMimeTypeKey = @"mime_type";
+NSString * const SBTUITunnelStubFailWithCustomErrorKey = @"fail_w_error";
 
-NSString * const SBTUITunnelRewriteQueryMatchRuleKey = @"match_rule";
-NSString * const SBTUITunnelRewriteQueryRewriteRuleKey = @"rewrite_rule";
-NSString * const SBTUITunnelRewriteQueryIterationsKey = @"iterations";
-NSString * const SBTUITunnelRewriteQueryRuleIdKey = @"rewrite_id";
+NSString * const SBTUITunnelRewriteMatchRuleKey = @"match_rule";
+NSString * const SBTUITunnelRewriteRewriteRuleKey = @"rewrite_rule";
+NSString * const SBTUITunnelRewriteIterationsKey = @"iterations";
+NSString * const SBTUITunnelRewriteRuleIdKey = @"rewrite_id";
 
 NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 
