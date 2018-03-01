@@ -17,6 +17,7 @@
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTMonitoredNetworkRequest.h"
 #import "SBTRequestMatch.h"
+#import "SBTRewrite.h"
 #import "SBTStubResponse.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
