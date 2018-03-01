@@ -25,8 +25,8 @@
 #import <Foundation/Foundation.h>
 #import "SBTRequestMatch.h"
 
-@class SBTProxyStubResponse;
-@class SBTProxyRewriteResponse;
+@class SBTStubResponse;
+@class SBTRewrite;
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
@@ -38,13 +38,13 @@
 
 #pragma mark - Stubbing Requests
 
-+ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTProxyStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;
 
 #pragma mark - Rewrite Requests
 
-+ (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewriteResponse:(nonnull SBTProxyRewriteResponse *)rewriteResponse didRewriteRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite didRewriteRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 + (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)rewriteRequestsRemoveAll;
 

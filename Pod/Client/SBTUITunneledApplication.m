@@ -213,17 +213,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
 {
-    NSData *jsonHeaderData = [NSJSONSerialization dataWithJSONObject:response.headers options:0 error:NULL];
-    NSString *headersSerialized = [[NSString alloc] initWithData:jsonHeaderData encoding:NSUTF8StringEncoding];
-    
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubReturnDataKey: [self base64SerializeObject:response.data],
-                                                     SBTUITunnelStubReturnCodeKey: [@(response.returnCode) stringValue],
-                                                     SBTUITunnelStubMimeTypeKey: response.contentType,
-                                                     SBTUITunnelStubReturnHeadersKey: headersSerialized,
-                                                     SBTUITunnelStubResponseTimeKey: [@(response.responseTime) stringValue],
-                                                     SBTUITunnelStubIterationsKey: [@(iterations) stringValue],
-                                                     SBTUITunnelStubFailWithCustomErrorKey: [@(response.failureCode) stringValue]
+                                                     SBTUITunnelStubResponseKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelStubIterationsKey: [@(iterations) stringValue]
                                                      };
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];

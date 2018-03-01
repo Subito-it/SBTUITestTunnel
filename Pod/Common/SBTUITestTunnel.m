@@ -40,15 +40,9 @@ NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTU
 
 NSString * const SBTUITunnelHTTPMethod = @"POST";
 
-#warning reduce and rename these as we did for rewrite rules
 NSString * const SBTUITunnelStubMatchRuleKey = @"match_rule";
-NSString * const SBTUITunnelStubReturnDataKey = @"ret_data";
-NSString * const SBTUITunnelStubReturnCodeKey = @"ret_code";
-NSString * const SBTUITunnelStubReturnHeadersKey = @"ret_headers";
+NSString * const SBTUITunnelStubResponseKey = @"response";
 NSString * const SBTUITunnelStubIterationsKey = @"iterations";
-NSString * const SBTUITunnelStubResponseTimeKey = @"time_response";
-NSString * const SBTUITunnelStubMimeTypeKey = @"mime_type";
-NSString * const SBTUITunnelStubFailWithCustomErrorKey = @"fail_w_error";
 
 NSString * const SBTUITunnelRewriteMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelRewriteRewriteRuleKey = @"rewrite_rule";

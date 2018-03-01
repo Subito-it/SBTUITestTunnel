@@ -118,8 +118,6 @@
 		C3796B5A1FE7C2C300BCF9DD /* NSURLSession+HTTPBodyFix.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DD17384EC2D9168EF43AC23BCE273DE /* NSURLSession+HTTPBodyFix.m */; };
 		C3796B5B1FE7C2C300BCF9DD /* NSURLSessionConfiguration+SBTUITestTunnel.h in Headers */ = {isa = PBXBuildFile; fileRef = 9980DC241D2E8940B9EB2CC91FA3378D /* NSURLSessionConfiguration+SBTUITestTunnel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C3796B5C1FE7C2C300BCF9DD /* NSURLSessionConfiguration+SBTUITestTunnel.m in Sources */ = {isa = PBXBuildFile; fileRef = 060BA780308BE1441C42050016318FF7 /* NSURLSessionConfiguration+SBTUITestTunnel.m */; };
-		C3796B5D1FE7C2C300BCF9DD /* SBTProxyStubResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 6773CDB2374E557FD306A4C6365C56B2 /* SBTProxyStubResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C3796B5E1FE7C2C300BCF9DD /* SBTProxyStubResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 719329E6A057E84F76171A02F1D1F0AE /* SBTProxyStubResponse.m */; };
 		C3796B5F1FE7C2C300BCF9DD /* SBTProxyURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 36282A2001A8981DFF16B5182EABAB76 /* SBTProxyURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C3796B601FE7C2C300BCF9DD /* SBTProxyURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BBADEFCD0E53D77C6241B60B189E2E0 /* SBTProxyURLProtocol.m */; };
 		C3796B611FE7C2C300BCF9DD /* SBTUITestTunnelServer.h in Headers */ = {isa = PBXBuildFile; fileRef = F5385CFC421A9EAA253A12F8CEA5AD83 /* SBTUITestTunnelServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -127,10 +125,6 @@
 		C3796B631FE7C2C300BCF9DD /* UITextField+DisableAutocomplete.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCFA14EFF628748706DD14216B89CA0 /* UITextField+DisableAutocomplete.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C3796B641FE7C2C300BCF9DD /* UITextField+DisableAutocomplete.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EF03C1220E4640DFD8C9CAE5FA69898 /* UITextField+DisableAutocomplete.m */; };
 		C3796B681FE7C40900BCF9DD /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3796B671FE7C40900BCF9DD /* XCTest.framework */; };
-		C3A2901A204833DC00435DD7 /* SBTProxyRewriteResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = C3A29018204833DC00435DD7 /* SBTProxyRewriteResponse.h */; };
-		C3A2901B204833DC00435DD7 /* SBTProxyRewriteResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = C3A29018204833DC00435DD7 /* SBTProxyRewriteResponse.h */; };
-		C3A2901C204833DC00435DD7 /* SBTProxyRewriteResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C3A29019204833DC00435DD7 /* SBTProxyRewriteResponse.m */; };
-		C3A2901D204833DC00435DD7 /* SBTProxyRewriteResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C3A29019204833DC00435DD7 /* SBTProxyRewriteResponse.m */; };
 		C3BBC5BC2047EC49000C5168 /* SBTRewrite.h in Headers */ = {isa = PBXBuildFile; fileRef = C3BBC5BA2047EC49000C5168 /* SBTRewrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C3BBC5BD2047EC49000C5168 /* SBTRewrite.h in Headers */ = {isa = PBXBuildFile; fileRef = C3BBC5BA2047EC49000C5168 /* SBTRewrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C3BBC5BE2047EC49000C5168 /* SBTRewrite.h in Headers */ = {isa = PBXBuildFile; fileRef = C3BBC5BA2047EC49000C5168 /* SBTRewrite.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -152,10 +146,8 @@
 		DC031CF0E61CC9BB8CA74D347D6AF8AB /* GCDWebServerPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 719F09840059266E876466A3F717D7DD /* GCDWebServerPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DC09F868362D0A2A04B9F976EA736327 /* GCDWebServerErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C49252288F0D7ADD297B11B06A3524A /* GCDWebServerErrorResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE59D3775F15714D2A4D6E0493982534 /* GCDWebServerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 58AD3A6047C9ED1652AF3BF232DE6071 /* GCDWebServerFunctions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DF05DF6E6601F45D0646806CE074BA85 /* SBTProxyStubResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 719329E6A057E84F76171A02F1D1F0AE /* SBTProxyStubResponse.m */; };
 		E02AE014A9BD559B572FBACDBA845D86 /* NSData+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = 736485517E5ED2F65766B8268F15B08B /* NSData+SHA1.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E124379C6A4350497805CA1A17A27F66 /* SBTSwizzleHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = F24417B36B44C66CE1D461146D63A7D6 /* SBTSwizzleHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4AF9D66CE74F90D176C1FB5CDA3B285 /* SBTProxyStubResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 6773CDB2374E557FD306A4C6365C56B2 /* SBTProxyStubResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E998C9CB658A34E02D8F98B9D7E43273 /* SBTMonitoredNetworkRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 72FE85E3A1E8E30378A680BC0951282F /* SBTMonitoredNetworkRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E9FA66200123610C2387FF3196460246 /* GCDWebServerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 35C92496884538DA9276DD2DB855D787 /* GCDWebServerResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EABCDBC6EC0C7001362FE079942E7DD2 /* NSURLRequest+SBTUITestTunnelMatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 04D37E5E5C890A67098DB8A290A7C044 /* NSURLRequest+SBTUITestTunnelMatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -248,13 +240,11 @@
 		5DD17384EC2D9168EF43AC23BCE273DE /* NSURLSession+HTTPBodyFix.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+HTTPBodyFix.m"; sourceTree = "<group>"; };
 		645ED9E7C8CC2DF7A52885D70555F852 /* Pods-SBTUITestTunnel_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SBTUITestTunnel_Example-resources.sh"; sourceTree = "<group>"; };
 		652E4BDAA6AE380058F82E0DD5208CA4 /* GCDWebServerRequest.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerRequest.m; path = GCDWebServer/Core/GCDWebServerRequest.m; sourceTree = "<group>"; };
-		6773CDB2374E557FD306A4C6365C56B2 /* SBTProxyStubResponse.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SBTProxyStubResponse.h; sourceTree = "<group>"; };
 		6A19A284AFB5C18238C6944449E42557 /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		6B0647DA55768D437686988826C19BAC /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B99A46581EE7B4C1EE1E5189CBE2C5A /* NSURLRequest+HTTPBodyFix.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "NSURLRequest+HTTPBodyFix.m"; sourceTree = "<group>"; };
 		6C5188EE4A11D7795DDF91267CBCE42A /* Pods_SBTUITestTunnel_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71759B6AE016BA7EC1D020AA924A225A /* Pods-SBTUITestTunnel_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-SBTUITestTunnel_Tests-resources.sh"; sourceTree = "<group>"; };
-		719329E6A057E84F76171A02F1D1F0AE /* SBTProxyStubResponse.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = SBTProxyStubResponse.m; sourceTree = "<group>"; };
 		719F09840059266E876466A3F717D7DD /* GCDWebServerPrivate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GCDWebServerPrivate.h; path = GCDWebServer/Core/GCDWebServerPrivate.h; sourceTree = "<group>"; };
 		72FE85E3A1E8E30378A680BC0951282F /* SBTMonitoredNetworkRequest.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SBTMonitoredNetworkRequest.h; sourceTree = "<group>"; };
 		736485517E5ED2F65766B8268F15B08B /* NSData+SHA1.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "NSData+SHA1.h"; sourceTree = "<group>"; };
@@ -304,8 +294,6 @@
 		C3796B2F1FE7C28700BCF9DD /* SBTUITestTunnel_Server_Framework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTUITestTunnel_Server_Framework.h; sourceTree = "<group>"; };
 		C3796B301FE7C28700BCF9DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C3796B671FE7C40900BCF9DD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		C3A29018204833DC00435DD7 /* SBTProxyRewriteResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTProxyRewriteResponse.h; sourceTree = "<group>"; };
-		C3A29019204833DC00435DD7 /* SBTProxyRewriteResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SBTProxyRewriteResponse.m; sourceTree = "<group>"; };
 		C3BBC5BA2047EC49000C5168 /* SBTRewrite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTRewrite.h; sourceTree = "<group>"; };
 		C3BBC5BB2047EC49000C5168 /* SBTRewrite.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SBTRewrite.m; sourceTree = "<group>"; };
 		C535E42897C2621D55C6F84907059E68 /* SBTStubResponse.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = SBTStubResponse.m; sourceTree = "<group>"; };
@@ -527,10 +515,6 @@
 				5DD17384EC2D9168EF43AC23BCE273DE /* NSURLSession+HTTPBodyFix.m */,
 				9980DC241D2E8940B9EB2CC91FA3378D /* NSURLSessionConfiguration+SBTUITestTunnel.h */,
 				060BA780308BE1441C42050016318FF7 /* NSURLSessionConfiguration+SBTUITestTunnel.m */,
-				6773CDB2374E557FD306A4C6365C56B2 /* SBTProxyStubResponse.h */,
-				719329E6A057E84F76171A02F1D1F0AE /* SBTProxyStubResponse.m */,
-				C3A29018204833DC00435DD7 /* SBTProxyRewriteResponse.h */,
-				C3A29019204833DC00435DD7 /* SBTProxyRewriteResponse.m */,
 				36282A2001A8981DFF16B5182EABAB76 /* SBTProxyURLProtocol.h */,
 				0BBADEFCD0E53D77C6241B60B189E2E0 /* SBTProxyURLProtocol.m */,
 				F5385CFC421A9EAA253A12F8CEA5AD83 /* SBTUITestTunnelServer.h */,
@@ -794,10 +778,8 @@
 				2E60608B671BD48E49A534E544B98A99 /* NSURLSession+HTTPBodyFix.h in Headers */,
 				CC79B9606F732389FBD1ACD8D1666360 /* NSURLSessionConfiguration+SBTUITestTunnel.h in Headers */,
 				63B5FD693600DB72088A57C3A304CF62 /* SBTMonitoredNetworkRequest.h in Headers */,
-				E4AF9D66CE74F90D176C1FB5CDA3B285 /* SBTProxyStubResponse.h in Headers */,
 				4B3854557E2EC356312B006C92FE6353 /* SBTProxyURLProtocol.h in Headers */,
 				F16AC791111ACEE8E086A984F09CACB1 /* SBTRequestMatch.h in Headers */,
-				C3A2901A204833DC00435DD7 /* SBTProxyRewriteResponse.h in Headers */,
 				91E6A9CFFDCB4B1A4B88B2917E68C9F2 /* SBTStubResponse.h in Headers */,
 				D693C0257D5679D62278A919C9430557 /* SBTSwizzleHelpers.h in Headers */,
 				1ADF3E598DC14B04368908AAED6B8A58 /* SBTUITestTunnel-Server-umbrella.h in Headers */,
@@ -830,7 +812,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3796B5D1FE7C2C300BCF9DD /* SBTProxyStubResponse.h in Headers */,
 				C3BBC5BF2047EC49000C5168 /* SBTRewrite.h in Headers */,
 				C3796B311FE7C28700BCF9DD /* SBTUITestTunnel_Server_Framework.h in Headers */,
 				C3796B5B1FE7C2C300BCF9DD /* NSURLSessionConfiguration+SBTUITestTunnel.h in Headers */,
@@ -841,7 +822,6 @@
 				C3796B5F1FE7C2C300BCF9DD /* SBTProxyURLProtocol.h in Headers */,
 				C3796B461FE7C2B500BCF9DD /* NSURLRequest+HTTPBodyFix.h in Headers */,
 				C3796B4A1FE7C2B500BCF9DD /* SBTMonitoredNetworkRequest.h in Headers */,
-				C3A2901B204833DC00435DD7 /* SBTProxyRewriteResponse.h in Headers */,
 				C3796B501FE7C2B500BCF9DD /* SBTSwizzleHelpers.h in Headers */,
 				C3796B591FE7C2C300BCF9DD /* NSURLSession+HTTPBodyFix.h in Headers */,
 				C3796B481FE7C2B500BCF9DD /* NSURLRequest+SBTUITestTunnelMatch.h in Headers */,
@@ -1047,12 +1027,10 @@
 				FB0B9C75C5249B9C9A5226D0A9770E94 /* NSData+SHA1.m in Sources */,
 				69365DE63C75CA2DFB2D6826EB8590A4 /* NSString+SwiftDemangle.m in Sources */,
 				9B7D72E49C84BEE524F2D1FA5D47C286 /* NSURLRequest+HTTPBodyFix.m in Sources */,
-				C3A2901C204833DC00435DD7 /* SBTProxyRewriteResponse.m in Sources */,
 				67F221B38D738286B1391593B7EEEAC3 /* NSURLRequest+SBTUITestTunnelMatch.m in Sources */,
 				34ED920C6227B340553EA8733E1B3B1F /* NSURLSession+HTTPBodyFix.m in Sources */,
 				3622FB2DFA88E697569A79DD4CB46CCE /* NSURLSessionConfiguration+SBTUITestTunnel.m in Sources */,
 				1F61016FA875A64586B9D0EDE9E5B1DE /* SBTMonitoredNetworkRequest.m in Sources */,
-				DF05DF6E6601F45D0646806CE074BA85 /* SBTProxyStubResponse.m in Sources */,
 				AE437E3C7B8C4A432F3D0556E0E08BBB /* SBTProxyURLProtocol.m in Sources */,
 				17469A5218EE7979F0F15F4CE4DF1BFD /* SBTRequestMatch.m in Sources */,
 				A3773356A3764E3EB340B67509D2551C /* SBTStubResponse.m in Sources */,
@@ -1140,7 +1118,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3A2901D204833DC00435DD7 /* SBTProxyRewriteResponse.m in Sources */,
 				C3796B5C1FE7C2C300BCF9DD /* NSURLSessionConfiguration+SBTUITestTunnel.m in Sources */,
 				C3796B5A1FE7C2C300BCF9DD /* NSURLSession+HTTPBodyFix.m in Sources */,
 				C3796B4F1FE7C2B500BCF9DD /* SBTStubResponse.m in Sources */,
@@ -1148,7 +1125,6 @@
 				C3796B491FE7C2B500BCF9DD /* NSURLRequest+SBTUITestTunnelMatch.m in Sources */,
 				C3796B581FE7C2C300BCF9DD /* NSData+SHA1.m in Sources */,
 				C3BBC5C32047EC49000C5168 /* SBTRewrite.m in Sources */,
-				C3796B5E1FE7C2C300BCF9DD /* SBTProxyStubResponse.m in Sources */,
 				C3796B621FE7C2C300BCF9DD /* SBTUITestTunnelServer.m in Sources */,
 				C3796B471FE7C2B500BCF9DD /* NSURLRequest+HTTPBodyFix.m in Sources */,
 				C3796B601FE7C2C300BCF9DD /* SBTProxyURLProtocol.m in Sources */,

@@ -25,8 +25,8 @@
 #import "SBTProxyURLProtocol.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSData+SHA1.h"
-#import "SBTProxyStubResponse.h"
-#import "SBTProxyRewriteResponse.h"
+#import "SBTStubResponse.h"
+#import "SBTRewrite.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
@@ -122,7 +122,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Stubbing
 
-+ (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTProxyStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];
@@ -174,9 +174,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Rewrite
 
-+ (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewriteResponse:(SBTProxyRewriteResponse *)rewriteResponse didRewriteRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite didRewriteRequest:(void(^)(NSURLRequest *request))block;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolRewriteResponse: rewriteResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolRewriteResponse: rewrite, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -325,8 +325,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         // STUB REQUEST
         SBTStubUpdateBlock didStubRequestBlock = stubRule[SBTProxyURLProtocolBlockKey];
         
-        SBTProxyStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
-        NSInteger stubbingStatusCode = stubResponse.statusCode;
+        SBTStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
+        NSInteger stubbingStatusCode = stubResponse.returnCode;
         
         NSTimeInterval stubbingResponseTime = stubResponse.responseTime;
         if (stubbingResponseTime == 0.0 && proxyRule) {
