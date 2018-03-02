@@ -12,6 +12,7 @@ class NetworkRequests: NSObject {
     fileprivate var done: Bool = false
     fileprivate var sessionData: Data? = nil
     fileprivate var sessionResponse: HTTPURLResponse? = nil
+    private var sessionTask: URLSessionTask? = nil
     
     private func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
         return ["responseCode": status ?? 0,
@@ -32,6 +33,17 @@ class NetworkRequests: NSObject {
     
     func returnCode(_ result: [String: Any]) -> Int {
         return result["responseCode"] as? Int ?? -1
+    }
+    
+    func headers(_ headers: [String: String], equalTo: [String: String]) -> Bool {
+        var eq = true
+        for (k, v) in headers {
+            if equalTo[k] != v  {
+                eq = false
+            }
+        }
+        
+        return eq
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> [String: Any] {
@@ -129,112 +141,79 @@ class NetworkRequests: NSObject {
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
 
-    //TODO
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-//    func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-//        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
-//            self?.sessionSemaphore = DispatchSemaphore(value: 0)
-//
-//            let url = URL(string: urlString)!
-//            var request = URLRequest(url: url)
-//            request.httpMethod = httpMethod
-//            if httpBody {
-//                request.httpBody = "The http body".data(using: .utf8)
-//            }
-//
-//            self?.sessionData = Data()
-//            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration1")
-//            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
-//            self?.sessionTask.resume()
-//
-//            self?.sessionSemaphore?.wait()
-//
-//            if shouldPushResult {
-//                DispatchQueue.main.async { [weak self] in
-//                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
-//                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-//                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
-//                }
-//            }
-//        }
-//    }
-//
-//    func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-//        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
-//            self?.sessionSemaphore = DispatchSemaphore(value: 0)
-//
-//            let url = URL(string: urlString)!
-//            var request = URLRequest(url: url)
-//            request.httpMethod = httpMethod
-//            if httpBody {
-//                request.httpBody = "The http body".data(using: .utf8)
-//            }
-//
-//            self?.sessionData = Data()
-//            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration2")
-//            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
-//            self?.sessionTask.resume()
-//
-//            self?.sessionSemaphore?.wait()
-//
-//            if shouldPushResult {
-//                DispatchQueue.main.async { [weak self] in
-//                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
-//                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-//                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
-//                }
-//            }
-//        }
-//    }
-//
-//    func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-//        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
-//            self?.sessionSemaphore = DispatchSemaphore(value: 0)
-//
-//            let url = URL(string: urlString)!
-//            var request = URLRequest(url: url)
-//            request.httpMethod = httpMethod
-//            if httpBody {
-//                request.httpBody = "The http body".data(using: .utf8)
-//            }
-//
-//            self?.sessionData = Data()
-//            let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration3")
-//            self?.sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
-//            self?.sessionTask.resume()
-//
-//            self?.sessionSemaphore?.wait()
-//
-//            if shouldPushResult {
-//                DispatchQueue.main.async { [weak self] in
-//                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
-//                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-//                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
-//                }
-//            }
-//        }
-//    }
+    func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+        if httpBody {
+            request.httpBody = "The http body".data(using: .utf8)
+        }
+        
+        done = false
+        sessionData = Data()
+        let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration1")
+        sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
+        sessionTask?.resume()
+        
+        while !done {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
+        return returnDictionary(status: sessionResponse?.statusCode, headers: retHeaders, data: sessionData)
+    }
+
+    func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+        if httpBody {
+            request.httpBody = "The http body".data(using: .utf8)
+        }
+        
+        done = false
+        sessionData = Data()
+        let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration2")
+        sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
+        sessionTask?.resume()
+        
+        while !done {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
+        return returnDictionary(status: sessionResponse?.statusCode, headers: retHeaders, data: sessionData)
+    }
+
+    func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+        if httpBody {
+            request.httpBody = "The http body".data(using: .utf8)
+        }
+        
+        done = false
+        sessionData = Data()
+        let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration3")
+        sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
+        sessionTask?.resume()
+        
+        while !done {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
+        return returnDictionary(status: sessionResponse?.statusCode, headers: retHeaders, data: sessionData)
+    }
 }
-
-
 
 extension NetworkRequests: URLSessionTaskDelegate, URLSessionDataDelegate {
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        done = true
+        DispatchQueue.main.async { [weak self] in
+            self?.done = true
+        }
     }
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {

@@ -86,14 +86,20 @@ class StubTests: XCTestCase {
         XCTAssert(request.isStubbed(result))
     }
 
-    // TODO
-//    func testStubBackgroundUploadDataTask() {
-//        // background tasks are not managed by the app itself and therefore cannot be stubbed
-//        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-//
-//        app.cells["executeBackgroundUploadDataTaskRequest"].tap()
-//        XCTAssertFalse(request.isStubbed(result))
-//    }
+    func testStubBackgroundUploadDataTask() {
+        // background tasks are not managed by the app itself and therefore cannot be stubbed
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        
+        let data = "This is a test".data(using: .utf8)
+        
+        let fileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
+        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)!
+        
+        try! data?.write(to: fileURL)
+        
+        let result = request.backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+        XCTAssertFalse(request.isStubbed(result))
+    }
     
     func testStubResponseDelay() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], responseTime: 5.0))
@@ -112,20 +118,21 @@ class StubTests: XCTestCase {
         XCTAssertEqual(request.returnCode(result), 401)
     }
 
-//    func testStubHeaders() {
-//      let customHeaders = ["X-Custom": "Custom"]
-//      let genericReturnString = "Hello world"
-//      let genericReturnData = genericReturnString.data(using: .utf8)!
-//
-//      app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: genericReturnData, headers: customHeaders, contentType: "text/plain", returnCode: 200, responseTime: 5.0))
-//
-//      var expectedHeaders = customHeaders
-//      expectedHeaders["Content-Length"] = String(genericReturnData.count)
-//      expectedHeaders["Content-Type"] = "text/plain"
-//
-//      let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//      XCTAssert(networkReturnHeaders() == expectedHeaders)
-//    }
+    func testStubHeaders() {
+        let customHeaders = ["X-Custom": "Custom"]
+        let genericReturnString = "Hello world"
+        let genericReturnData = genericReturnString.data(using: .utf8)!
+        
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: genericReturnData, headers: customHeaders, contentType: "text/plain", returnCode: 200, responseTime: 5.0))
+        
+        var expectedHeaders = customHeaders
+        expectedHeaders["Content-Length"] = String(genericReturnData.count)
+        expectedHeaders["Content-Type"] = "text/plain"
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let headers = result["responseHeaders"] as! [String: String]
+        XCTAssert(request.headers(headers, equalTo: expectedHeaders))
+    }
 //
 //    func testStubGenericReturnData() {
 //        let genericReturnString = "Hello world"
