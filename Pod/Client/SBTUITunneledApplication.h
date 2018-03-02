@@ -235,31 +235,6 @@
  */
 - (BOOL)monitorRequestRemoveAll;
 
-#pragma mark - Asynchronously Wait for Requests Commands
-
-/**
- *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the SBTRequestMatch object
- *
- *  Note: you have to start a monitor request before calling this method
- *
- *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
- *  @param timeout How long to wait for the request to happen
- *  @param completionBlock will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
-/**
- *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the SBTRequestMatch object
- *
- *  Note: you have to start a monitor request before calling this method
- *
- *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
- *  @param timeout How long to wait for the request to happen
- *  @param iterations How often the request should happen before timing out
- *  @param completionBlock will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
 #pragma mark - Synchronously Wait for Requests Commands
 
 /**

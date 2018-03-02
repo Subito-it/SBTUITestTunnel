@@ -186,66 +186,22 @@ class MonitorTests: XCTestCase {
         app.monitorRequestRemoveAll()
     }
 
-//    func testAsyncWaitForMonitoredRequestsDoesNotTimeout() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        let start = Date()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-//            self?.app.cells["executeDataTaskRequest3"].tap()
-//        }
-//        
-//        let exp = expectation(description: "Doing my thing")
-//        
-//        app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0) {
-//            didTimeout in
-//            
-//            XCTAssertFalse(didTimeout)
-//            let delta = start.timeIntervalSinceNow
-//            XCTAssert(delta < -1.0)
-//            exp.fulfill()
-//        }
-//        
-//        waitForExpectations(timeout: 15.0) {
-//            error in
-//            XCTAssertNil(error)
-//        }
-//    }
 //
 //    func testSyncWaitForMonitoredRequestsDoesNotTimeout() {
 //        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
+//
 //        let start = Date()
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
 //            self?.app.cells["executeDataTaskRequest3"].tap()
 //        }
-//        
+//
 //        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0))
 //        let delta = start.timeIntervalSinceNow
-//        
+//
 //        XCTAssert(delta < -1.0)
 //    }
-//
-//    func testAsyncWaitForMonitoredRequestsDoesTimeout() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        let start = Date()
-//        let exp = expectation(description: "Doing my thing")
-//        
-//        app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 1.0) {
-//            didTimeout in
-//            
-//            XCTAssert(didTimeout)
-//            let delta = start.timeIntervalSinceNow
-//            XCTAssert(delta > -5.0)
-//            exp.fulfill()
-//        }
-//        
-//        waitForExpectations(timeout: 15.0) {
-//            error in
-//            XCTAssertNil(error)
-//        }
-//    }
-//    
+//TODO
+
 //    func testSyncWaitForMonitoredRequestsDoesTimeout() {
 //        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 //        
@@ -256,30 +212,7 @@ class MonitorTests: XCTestCase {
 //        XCTAssert(delta > -5.0)
 //    }
 //    
-//    func testAsyncWaitForMonitoredRequestsWithIterationsDoesNotTimeout() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-//            self?.app.cells["executeDataTaskRequest3"].tap()
-//            Thread.sleep(forTimeInterval: 1.0)
-//            self?.app.cells["executeDataTaskRequest3"].tap()
-//        }
-//        
-//        let exp = expectation(description: "Doing my thing")
-//        
-//        app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 15.0, iterations: 2) {
-//            didTimeout in
-//            
-//            XCTAssertFalse(didTimeout)
-//            exp.fulfill()
-//        }
-//        
-//        waitForExpectations(timeout: 15.0) {
-//            error in
-//            XCTAssertNil(error)
-//        }
-//    }
-//    
+
 //    func testSyncWaitForMonitoredRequestsWithIterationsDoesNotTimeout() {
 //        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 //        
@@ -291,28 +224,7 @@ class MonitorTests: XCTestCase {
 //        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 15.0, iterations: 2))
 //    }
 //    
-//    func testAsyncWaitForMonitoredRequestsWithIterationsDoesTimeout() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-//            self?.app.cells["executeDataTaskRequest3"].tap()
-//        }
-//        
-//        let exp = expectation(description: "Doing my thing")
-//        
-//        app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 5.0, iterations: 2) {
-//            didTimeout in
-//            
-//            XCTAssert(didTimeout)
-//            exp.fulfill()
-//        }
-//        
-//        waitForExpectations(timeout: 15.0) {
-//            error in
-//            XCTAssertNil(error)
-//        }
-//    }
-//    
+
 //    func testSyncWaitForMonitoredRequestsWithIterationsDoesTimeout() {
 //        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 //        
