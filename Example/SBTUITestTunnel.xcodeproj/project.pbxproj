@@ -30,7 +30,6 @@
 		C3E3DFC81D89F739003D6BB2 /* SBTTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFC71D89F739003D6BB2 /* SBTTableViewController.swift */; };
 		C3E3DFDC1D8BE45C003D6BB2 /* SBTNetworkTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFDB1D8BE45C003D6BB2 /* SBTNetworkTestViewController.swift */; };
 		C3E3DFE01D8ECA9A003D6BB2 /* MonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFDF1D8ECA9A003D6BB2 /* MonitorTests.swift */; };
-		C3E81DF51CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */; };
 		C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -78,11 +77,6 @@
 		7B23AEDE3D599F674BC24B2B /* Pods-SBTUITestTunnel_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.release.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		C30FD8E22029EED50054EA5C /* CookiesTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesTest.swift; sourceTree = "<group>"; };
-		C32B7FA41EE951340065DD02 /* SBTUITestTunnel_Tests2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SBTUITestTunnel_Tests2-Info.plist"; path = "/Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests2-Info.plist"; sourceTree = "<absolute>"; };
-		C3796AE51FE7C1E600BCF9DD /* SBTUITestTunnel_Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTUITestTunnel_Server.h; sourceTree = "<group>"; };
-		C3796AE61FE7C1E600BCF9DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C3796AF71FE7C1F500BCF9DD /* SBTUITestTunnel_Client.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTUITestTunnel_Client.h; sourceTree = "<group>"; };
-		C3796AF81FE7C1F500BCF9DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C37C522D1E225A64005FC27D /* MatchRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchRequestTests.swift; sourceTree = "<group>"; };
 		C39B79F81CB41C3A000C8B0D /* SBTUITestTunnel_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C39B79FC1CB41C3A000C8B0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -97,7 +91,6 @@
 		C3E3DFDB1D8BE45C003D6BB2 /* SBTNetworkTestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBTNetworkTestViewController.swift; sourceTree = "<group>"; };
 		C3E3DFDD1D8DFD21003D6BB2 /* StubTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StubTests.swift; sourceTree = "<group>"; };
 		C3E3DFDF1D8ECA9A003D6BB2 /* MonitorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonitorTests.swift; sourceTree = "<group>"; };
-		C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SBTUITestTunnel_Tests-Info.plist"; sourceTree = "<group>"; };
 		C3F380211D8FCACA002CDE17 /* ThrottleTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThrottleTest.swift; sourceTree = "<group>"; };
 		C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E6A87F86CCE500F03DF809C9 /* SBTUITestTunnel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SBTUITestTunnel.podspec; path = ../SBTUITestTunnel.podspec; sourceTree = "<group>"; };
@@ -147,13 +140,9 @@
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* Example for SBTUITestTunnel */,
 				C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */,
-				C3796AE41FE7C1E600BCF9DD /* SBTUITestTunnel_Server */,
-				C3796AF61FE7C1F500BCF9DD /* SBTUITestTunnel_Client */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				C3E81DF41CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist */,
 				479544E81485FFF2F06F3169 /* Pods */,
-				C32B7FA41EE951340065DD02 /* SBTUITestTunnel_Tests2-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -215,24 +204,6 @@
 				0E9C608071A13A87C52BA884 /* LICENSE */,
 			);
 			name = "Podspec Metadata";
-			sourceTree = "<group>";
-		};
-		C3796AE41FE7C1E600BCF9DD /* SBTUITestTunnel_Server */ = {
-			isa = PBXGroup;
-			children = (
-				C3796AE51FE7C1E600BCF9DD /* SBTUITestTunnel_Server.h */,
-				C3796AE61FE7C1E600BCF9DD /* Info.plist */,
-			);
-			path = SBTUITestTunnel_Server;
-			sourceTree = "<group>";
-		};
-		C3796AF61FE7C1F500BCF9DD /* SBTUITestTunnel_Client */ = {
-			isa = PBXGroup;
-			children = (
-				C3796AF71FE7C1F500BCF9DD /* SBTUITestTunnel_Client.h */,
-				C3796AF81FE7C1F500BCF9DD /* Info.plist */,
-			);
-			path = SBTUITestTunnel_Client;
 			sourceTree = "<group>";
 		};
 		C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */ = {
@@ -348,7 +319,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3E81DF51CB5554400A791F0 /* SBTUITestTunnel_Tests-Info.plist in Resources */,
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */,

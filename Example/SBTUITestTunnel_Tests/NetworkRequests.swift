@@ -15,12 +15,21 @@ class NetworkRequests {
                 "data": data?.base64EncodedString() ?? ""] as [String : Any]
     }
     
-    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) -> [String: Any] {
+    func isStubbed(_ result: [String: Any]) -> Bool {
+        let networkBase64 = result["data"] as! String
+        if let networkData = Data(base64Encoded: networkBase64) {
+            if let networkJson = try? JSONSerialization.jsonObject(with: networkData, options: []) as! [String: Any] {
+                return (networkJson["stubbed"] != nil)
+            }
+        }
+        
+        return false
+    }
+    
+    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> [String: Any] {
         var retData: Data! = nil
         var retResponse: HTTPURLResponse! = nil
         var retHeaders: [String: String]! = nil
-        
-        let sem = DispatchSemaphore(value: 0)
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -29,18 +38,21 @@ class NetworkRequests {
             request.httpBody = httpBody.data(using: .utf8)
         }
         
+        var done = false
         URLSession.shared.dataTask(with: request) {
             data, response, error in
-            
-            retResponse = response as! HTTPURLResponse
-            retHeaders = retResponse.allHeaderFields as! [String: String]
-            retData = data
-            
-            sem.signal()
+            DispatchQueue.main.async {
+                retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retData = data
+
+                done = true
             }
-            .resume()
+        }.resume()
         
-        sem.wait()
+        while !done {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }

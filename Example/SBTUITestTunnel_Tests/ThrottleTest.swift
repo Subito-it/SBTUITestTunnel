@@ -19,59 +19,52 @@ import Foundation
 
 class ThrottleTests: XCTestCase {
     
-    override func setUp() {
-        super.setUp()
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
+    private let request = NetworkRequests()
     
     func testThrottle() {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
-        
-        app.cells["executeDataTaskRequest"].tap()
+
         let start = Date()
-        waitForNetworkRequest()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -5.0)
+        XCTAssert(delta < -5.0 && delta > -8.0)
     }
 
     func testThrottleOverridesStubResponseTime() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         
-        app.cells["executeDataTaskRequest"].tap()
         let start = Date()
-        waitForNetworkRequest()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -5.0)
+        XCTAssert(delta < -5.0 && delta > -8.0)
     }
 
     func testThrottleOverridesStubResponseTime2() {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        app.cells["executeDataTaskRequest"].tap()
         let start = Date()
-        waitForNetworkRequest()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -5.0)
+        XCTAssert(delta < -5.0 && delta > -8.0)
     }
 }
 
 extension ThrottleTests {
- 
-    func waitForNetworkRequest() {
-        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.navigationBars.buttons.element(boundBy: 0), handler: nil)
-        waitForExpectations(timeout: 10.0, handler: nil)
-        
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+    
+    override func tearDown() {
+        app.monitorRequestRemoveAll()
+        app.stubRequestsRemoveAll()
+        app.blockCookiesRequestsRemoveAll()
+        app.throttleRequestRemoveAll()
     }
 }
