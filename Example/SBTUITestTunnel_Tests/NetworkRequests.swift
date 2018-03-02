@@ -10,9 +10,9 @@ import Foundation
 
 class NetworkRequests: NSObject {
     fileprivate var done: Bool = false
-    fileprivate var sessionData: Data? = nil
-    fileprivate var sessionResponse: HTTPURLResponse? = nil
-    private var sessionTask: URLSessionTask? = nil
+    public var sessionData: Data? = nil
+    public var sessionResponse: HTTPURLResponse? = nil
+    public var sessionTask: URLSessionTask? = nil
     
     private func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
         return ["responseCode": status ?? 0,
@@ -35,10 +35,10 @@ class NetworkRequests: NSObject {
         return result["responseCode"] as? Int ?? -1
     }
     
-    func headers(_ headers: [String: String], equalTo: [String: String]) -> Bool {
+    func headers(_ headers: [String: String], isEqual: [String: String]) -> Bool {
         var eq = true
         for (k, v) in headers {
-            if equalTo[k] != v  {
+            if isEqual[k] != v  {
                 eq = false
             }
         }
