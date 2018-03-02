@@ -58,28 +58,19 @@ class NetworkRequests: NSObject {
             request.httpBody = httpBody.data(using: .utf8)
         }
         
-        let sem = DispatchSemaphore(value: 0)
-        if Thread.isMainThread {
-            done = false
-        }
+        done = false
         URLSession.shared.dataTask(with: request) { data, response, error in
-            retResponse = response as! HTTPURLResponse
-            retHeaders = retResponse.allHeaderFields as! [String: String]
-            retData = data
-
-            if Thread.isMainThread {
+            DispatchQueue.main.async {
+                retResponse = response as! HTTPURLResponse
+                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retData = data
+                
                 self.done = true
-            } else {
-                sem.signal()
             }
         }.resume()
         
-        if Thread.isMainThread {
-            while !done {
-                RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
-            }
-        } else {
-            sem.wait()
+        while !done {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
         }
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
@@ -97,11 +88,7 @@ class NetworkRequests: NSObject {
             request.httpBody = "The http body".data(using: .utf8)
         }
         
-        if !Thread.isMainThread {
-            DispatchQueue.main.sync { [weak self] in self?.done = false }
-        } else {
-            done = false
-        }
+        done = false
         URLSession.shared.uploadTask(with: request, from: data) {
             data, response, error in
             DispatchQueue.main.async {
@@ -132,11 +119,7 @@ class NetworkRequests: NSObject {
             request.httpBody = "The http body".data(using: .utf8)
         }
         
-        if !Thread.isMainThread {
-            DispatchQueue.main.sync { [weak self] in self?.done = false }
-        } else {
-            done = false
-        }
+        done = false
         URLSession.shared.downloadTask(with: request) {
             dataUrl, response, error in
             DispatchQueue.main.async {
@@ -165,11 +148,7 @@ class NetworkRequests: NSObject {
             request.httpBody = "The http body".data(using: .utf8)
         }
         
-        if !Thread.isMainThread {
-            DispatchQueue.main.sync { [weak self] in self?.done = false }
-        } else {
-            done = false
-        }
+        done = false
         sessionData = Data()
         let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration1")
         sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).dataTask(with: request)
@@ -191,11 +170,7 @@ class NetworkRequests: NSObject {
             request.httpBody = "The http body".data(using: .utf8)
         }
         
-        if !Thread.isMainThread {
-            DispatchQueue.main.sync { [weak self] in self?.done = false }
-        } else {
-            done = false
-        }
+        done = false
         sessionData = Data()
         let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration2")
         sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).uploadTask(with: request, fromFile: fileUrl)
@@ -217,11 +192,7 @@ class NetworkRequests: NSObject {
             request.httpBody = "The http body".data(using: .utf8)
         }
         
-        if !Thread.isMainThread {
-            DispatchQueue.main.sync { [weak self] in self?.done = false }
-        } else {
-            done = false
-        }
+        done = false
         sessionData = Data()
         let configuration = URLSessionConfiguration.background(withIdentifier: "bgSessionConfiguration3")
         sessionTask = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main).downloadTask(with: request)
