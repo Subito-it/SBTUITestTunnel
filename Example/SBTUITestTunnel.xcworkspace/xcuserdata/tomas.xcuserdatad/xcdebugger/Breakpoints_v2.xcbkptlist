@@ -27,38 +27,22 @@
             endingLineNumber = "142"
             landmarkName = "testMonitorAndStubDescription()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SBTUITestTunnel_Tests.MonitorTests.testMonitorAndStubDescription() -&gt; ()"
-                  moduleName = "SBTUITestTunnel_Tests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests/MonitorTests.swift"
-                  timestampString = "541628390.976361"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142"
-                  offsetFromSymbolStart = "2718">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "implicit closure #3 : @autoclosure () throws -&gt; Swift.Int in SBTUITestTunnel_Tests.MonitorTests.testMonitorAndStubDescription() -&gt; ()"
-                  moduleName = "SBTUITestTunnel_Tests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests/MonitorTests.swift"
-                  timestampString = "541628390.982313"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142"
-                  offsetFromSymbolStart = "12">
-               </Location>
-            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SBTUITestTunnel_Tests/StubTests.swift"
+            timestampString = "541669787.742433"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "testStubRemoveWithID()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

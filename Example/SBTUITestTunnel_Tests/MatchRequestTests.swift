@@ -1,4 +1,4 @@
-// MatchRequest.swift
+// MatchRequestTests.swift
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -17,7 +17,7 @@
 import SBTUITestTunnel
 import Foundation
 
-class MatchRequest: XCTestCase {
+class MatchRequestTests: XCTestCase {
     
     override func setUp() {
         super.setUp()

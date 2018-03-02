@@ -19,21 +19,12 @@ import Foundation
 
 class StubTests: XCTestCase {
     
-    override func setUp() {
-        super.setUp()
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        SBTStubResponse.resetUnspecifiedDefaults()
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
+    private let request = NetworkRequests()
     
     func testStubRemoveWithID() {
         let stubId = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         
         app.cells["executeDataTaskRequest"].tap()
         XCTAssert(isNetworkResultStubbed())
@@ -316,5 +307,20 @@ extension StubTests {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         
         return (resultDict["responseHeaders"] as? [String: String]) ?? [:]
+    }
+}
+
+extension StubTests {
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+    
+    override func tearDown() {
+        app.monitorRequestRemoveAll()
+        app.stubRequestsRemoveAll()
+        app.blockCookiesRequestsRemoveAll()
+        app.throttleRequestRemoveAll()
     }
 }
