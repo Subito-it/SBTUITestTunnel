@@ -4,6 +4,7 @@ use_frameworks!
 platform :ios, '10.0'
 
 target 'SBTUITestTunnel_Example' do
+  pod 'SBTUITestTunnel/Server', :path => '../'
 end
 
 target 'SBTUITestTunnel_Tests' do

@@ -10,18 +10,8 @@ import SBTUITestTunnel
 import Foundation
 
 class CookiesTest: XCTestCase {
-        
-    override func setUp() {
-        super.setUp()
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
     
+    // TODO
     func testCookies() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.monitorRequests(matching: requestMatch)
@@ -46,5 +36,20 @@ class CookiesTest: XCTestCase {
         app.cells["executeRequestWithCookies"].tap()
         
         Thread.sleep(forTimeInterval: 50.0)
+    }
+}
+
+extension CookiesTest {
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+    
+    override func tearDown() {
+        app.monitorRequestRemoveAll()
+        app.stubRequestsRemoveAll()
+        app.blockCookiesRequestsRemoveAll()
+        app.throttleRequestRemoveAll()
     }
 }

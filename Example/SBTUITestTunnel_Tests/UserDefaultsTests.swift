@@ -19,17 +19,6 @@ import Foundation
 
 class UserDefaultsTest: XCTestCase {
 
-    override func setUp() {
-        super.setUp()
-                
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
-    
     func testUserDefaults() {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
@@ -46,5 +35,20 @@ class UserDefaultsTest: XCTestCase {
         XCTAssertTrue(app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey))
         app.userDefaultsReset()
         XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
+    }
+}
+
+extension UserDefaultsTest {
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+    
+    override func tearDown() {
+        app.monitorRequestRemoveAll()
+        app.stubRequestsRemoveAll()
+        app.blockCookiesRequestsRemoveAll()
+        app.throttleRequestRemoveAll()
     }
 }

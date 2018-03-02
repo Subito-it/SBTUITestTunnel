@@ -19,7 +19,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>SBTUITestTunnel.xcscheme</key>
+		<key>SBTUITestTunnel-Client-Server.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>SBTUITestTunnel-Server.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

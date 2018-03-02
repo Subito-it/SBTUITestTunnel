@@ -1,5 +1,5 @@
 framework module SBTUITestTunnel {
-  umbrella header "SBTUITestTunnel-umbrella.h"
+  umbrella header "SBTUITestTunnel-Client-Server-umbrella.h"
 
   export *
   module * { export * }

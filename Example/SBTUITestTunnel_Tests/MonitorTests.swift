@@ -21,186 +21,171 @@ class MonitorTests: XCTestCase {
     
     private let request = NetworkRequests()
     
-//    func testMonitorFlush() {
-//        XCTAssert(app.monitoredRequestsFlushAll().count == 0)
-//        
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        app.cells["executeDataTaskRequest2"].tap()
-//        waitForNetworkRequest()
-//        app.cells["executeDataTaskRequest2"].tap()
-//        waitForNetworkRequest()
-//        
-//        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
-//        
-//        XCTAssertEqual(requests.count, 3)
-//        
-//        for request in requests {
-//            XCTAssert((request.responseString()!).contains("httpbin.org"))
-//            XCTAssert(request.timestamp > 0.0)
-//            XCTAssert(request.requestTime > 0.0)
-//        }
-//        
-//        app.monitorRequestRemoveAll()
-//
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        
-//        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
-//    }
-//    
-//    func testMonitorPeek() {
-//        XCTAssert(app.monitoredRequestsPeekAll().count == 0)
-//        
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        app.cells["executeDataTaskRequest2"].tap()
-//        waitForNetworkRequest()
-//        app.cells["executeDataTaskRequest2"].tap()
-//        waitForNetworkRequest()
-//        
-//        XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        
-//        let requests = app.monitoredRequestsPeekAll()
-//        XCTAssertEqual(requests.count, 3)
-//        let requests2 = app.monitoredRequestsPeekAll()
-//        XCTAssertEqual(requests2.count, 3)
-//        
-//        for request in requests {
-//            XCTAssert((request.responseString()!).contains("httpbin.org"))
-//            XCTAssert(request.timestamp > 0.0)
-//            XCTAssert(request.requestTime > 0.0)
-//        }
-//        
-//        app.monitorRequestRemoveAll()
-//        app.monitoredRequestsFlushAll()
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        waitForNetworkRequest()
-//        
-//        XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
-//    }
-//    
-//    func testMonitorAndStub() {
-//        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-//            
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssert(request.isStubbed(result))
-//
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(requests.count, 1)
-//        
-//        app.stubRequestsRemoveAll()
-//        app.monitorRequestRemoveAll()
-//    }
-//    
-//    func testMonitorTwice() {
-//        // should not crash
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//    }
-//    
-//    func testMonitorAndStubDescription() {
-//        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-//        app.monitorRequests(matching: SBTRequestMatch(url: ".*"))
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssert(request.isStubbed(result))
-//        
-//        app.cells["executeDataTaskRequest2"].tap()
-//        XCTAssertFalse(request.isStubbed(result))
-//
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(requests.count, 2)
-//        
-//        XCTAssert(requests[0].description.hasSuffix(" (Stubbed)"))
-//        XCTAssertFalse(requests[1].description.hasSuffix(" (Stubbed)"))
-//        
-//        app.stubRequestsRemoveAll()
-//        app.monitorRequestRemoveAll()
-//    }
-//    
-//    func testMonitorAndStubWithRemoveAfterTwoIterations() {
-//        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]), removeAfterIterations: 2)
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssert(request.isStubbed(result))
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssert(request.isStubbed(result))
-//        
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(requests.count, 2)
-//        
-//        app.stubRequestsRemoveAll()
-//        app.monitorRequestRemoveAll()
-//    }
-// 
-//    func testMonitorAndThrottle() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-//        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        let start = Date()
-//        waitForNetworkRequest()
-//        let delta = start.timeIntervalSinceNow
-//
-//        XCTAssert(delta < -5.0)
-//        
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(requests.count, 1)
-//        
-//        app.stubRequestsRemoveAll()
-//        app.monitorRequestRemoveAll()
-//    }
-//    
-//    func testMonitorPostRequestWithHTTPBody() {
-//        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
-//        
-//        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-//        waitForNetworkRequest()
-//        
-//        let requests = app.monitoredRequestsFlushAll()
-//        XCTAssertEqual(requests.count, 1)
-//        print(requests.map { $0.debugDescription })
-//        
-//        for request in requests {
-//            guard let httpBody = request.request?.httpBody else {
-//                XCTFail("Missing http body")
-//                continue
-//            }
-//            
-//            XCTAssertEqual(String(data: httpBody, encoding: .utf8), "&param5=val5&param6=val6")
-//            
-//            XCTAssert((request.responseString()!).contains("httpbin.org"))
-//            XCTAssert(request.timestamp > 0.0)
-//            XCTAssert(request.requestTime > 0.0)
-//        }
-//        
-//        app.stubRequestsRemoveAll()
-//        app.monitorRequestRemoveAll()
-//    }
-//
+    func testMonitorFlush() {
+        XCTAssert(app.monitoredRequestsFlushAll().count == 0)
+        
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        
+        _ = request.dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+        
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
+        
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
+        
+        XCTAssertEqual(requests.count, 3)
+        
+        for request in requests {
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+        
+        app.monitorRequestRemoveAll()
+
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
+    }
+
+    func testMonitorPeek() {
+        XCTAssert(app.monitoredRequestsPeekAll().count == 0)
+        
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        
+        _ = request.dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+        
+        XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
+        
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        
+        let requests = app.monitoredRequestsPeekAll()
+        XCTAssertEqual(requests.count, 3)
+        let requests2 = app.monitoredRequestsPeekAll()
+        XCTAssertEqual(requests2.count, 3)
+        
+        for request in requests {
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+        
+        app.monitorRequestRemoveAll()
+        app.monitoredRequestsFlushAll()
+        
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        
+        XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
+    }
+    
+    func testMonitorAndStub() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
+
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
+
+    func testMonitorTwice() {
+        // should not crash
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+    }
+    
+    func testMonitorAndStubDescription() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.monitorRequests(matching: SBTRequestMatch(url: ".*"))
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
+        
+        let result2 = request.dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+        XCTAssertFalse(request.isStubbed(result2))
+
+        let requests3 = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests3.count, 2)
+        
+        XCTAssert(requests3[0].description.hasSuffix(" (Stubbed)"))
+        XCTAssertFalse(requests3[1].description.hasSuffix(" (Stubbed)"))
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
+
+    func testMonitorAndStubWithRemoveAfterTwoIterations() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]), removeAfterIterations: 2)
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
+        
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result2))
+        
+        let requests2 = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests2.count, 2)
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
+
+    func testMonitorAndThrottle() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        
+        let start = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta = start.timeIntervalSinceNow
+
+        XCTAssert(delta < -5.0 && delta > -8.0)
+        
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
+
+    func testMonitorPostRequestWithHTTPBody() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        print(requests.map { $0.debugDescription })
+        
+        for request in requests {
+            guard let httpBody = request.request?.httpBody else {
+                XCTFail("Missing http body")
+                continue
+            }
+            
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), "&param5=val5&param6=val6")
+            
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+        
+        app.stubRequestsRemoveAll()
+        app.monitorRequestRemoveAll()
+    }
+
 //    func testAsyncWaitForMonitoredRequestsDoesNotTimeout() {
 //        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 //        
@@ -345,38 +330,9 @@ class MonitorTests: XCTestCase {
 //            self?.app.cells["executeRequestWithRedirect"].tap()
 //        }
 //        
-//        XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 115.0, iterations: 1))
+//        XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 5.0, iterations: 1))
 //    }
 //}
-//
-//extension MonitorTests {
-// 
-//    func isNetworkResultStubbed() -> Bool {
-//        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
-//        waitForExpectations(timeout: 10.0, handler: nil)
-//        
-//        let result = app.textViews["result"].value as! String
-//        let resultData = Data(base64Encoded: result)!
-//        let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
-//        
-//        app.navigationBars.buttons.element(boundBy: 0).tap()
-//        
-//        let networkBase64 = resultDict["data"] as! String
-//        if let networkData = Data(base64Encoded: networkBase64) {
-//            if let networkJson = try? JSONSerialization.jsonObject(with: networkData, options: []) as! [String: Any] {
-//                return (networkJson["stubbed"] != nil)
-//            }
-//        }
-//        
-//        return false
-//    }
-//    
-//    func waitForNetworkRequest() {
-//        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
-//        waitForExpectations(timeout: 10.0, handler: nil)
-//        
-//        app.navigationBars.buttons.element(boundBy: 0).tap()
-//    }
 }
 
 extension MonitorTests {
