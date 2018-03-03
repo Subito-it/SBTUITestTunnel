@@ -31,14 +31,17 @@ class NetworkRequests: NSObject {
     }
     
     func isStubbed(_ result: [String: Any]) -> Bool {
+        let networkJson = json(result)
+        return (networkJson["stubbed"] != nil)
+    }
+    
+    func json(_ result: [String: Any]) -> [String: Any] {
         let networkBase64 = result["data"] as! String
         if let networkData = Data(base64Encoded: networkBase64) {
-            if let networkJson = try? JSONSerialization.jsonObject(with: networkData, options: []) as! [String: Any] {
-                return (networkJson["stubbed"] != nil)
-            }
+            return ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
         }
         
-        return false
+        return [:]
     }
     
     func returnCode(_ result: [String: Any]) -> Int {
