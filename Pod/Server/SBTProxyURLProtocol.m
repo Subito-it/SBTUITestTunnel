@@ -34,7 +34,7 @@ static NSString * const SBTProxyURLProtocolMatchingRuleKey = @"SBTProxyURLProtoc
 static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLProtocolDelayResponseTimeKey";
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolRewriteResponse = @"SBTProxyURLProtocolRewriteResponse";
-static NSString * const SBTProxyURLProtocolBlockCookies = @"SBTProxyURLProtocolBlockCookies";
+static NSString * const SBTProxyURLProtocolBlockCookiesKey = @"SBTProxyURLProtocolBlockCookiesKey";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
 typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed);
@@ -228,12 +228,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(void(^)(NSURLRequest *request))block;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookies: @(YES), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolBlockCookiesKey] != nil) {
                 NSLog(@"[UITestTunnelServer] Warning existing cookie request found, skipping.\n%@", matchingRule);
                 return nil;
             }
@@ -251,7 +251,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolBlockCookiesKey] != nil) {
                 [itemsToDelete addObject:matchingRule];
             }
         }
@@ -267,7 +267,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     @synchronized (self.sharedInstance) {
         NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if (matchingRule[SBTProxyURLProtocolBlockCookies] != nil) {
+            if (matchingRule[SBTProxyURLProtocolBlockCookiesKey] != nil) {
                 [itemsToDelete addObject:matchingRule];
             }
         }
@@ -313,7 +313,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             }
             
             stubRule = matchingRule;
-        } else if (matchingRule[SBTProxyURLProtocolBlockCookies]) {
+        } else if (matchingRule[SBTProxyURLProtocolBlockCookiesKey]) {
             cookieBlockRule = matchingRule;
         } else {
             // we can have multiple matching rule here. For example if we throttle and monitor at the same time
@@ -388,8 +388,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     BOOL shouldProxyRequest = (matchingRules.count - (stubRule != nil) > 0);
     if (shouldProxyRequest) {
         // PROXY ONLY REQUEST (THROTTLE OR MONITORING)
-        __unused SBTRequestMatch *requestMatch = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch);
+        __unused SBTRequestMatch *requestMatch1 = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
+        __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
+        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];

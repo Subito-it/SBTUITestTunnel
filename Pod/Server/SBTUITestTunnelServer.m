@@ -565,8 +565,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
-        NSLog(@"%@", tunnelRequest.parameters);
-        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         NSString *requestIdentifier = [self identifierForCookieBlockRequest:tunnelRequest];
@@ -610,7 +609,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCookiesBlockRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -863,7 +862,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSString *)identifierForCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey]];
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
     
@@ -947,7 +946,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (BOOL)validCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey] options:0]) {
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid cookieBlockRequest received!");
         
         return NO;

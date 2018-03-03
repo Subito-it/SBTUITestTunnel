@@ -54,7 +54,7 @@ NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
 NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
 
-NSString * const SBTUITunnelCookieBlockQueryRuleKey = @"rule";
+NSString * const SBTUITunnelCookieBlockMatchRuleKey = @"rule";
 NSString * const SBTUITunnelCookieBlockQueryIterationsKey = @"iterations";
 
 NSString * const SBTUITunnelObjectKey = @"obj";

@@ -55,7 +55,7 @@ extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryResponseTimeKey;
 
-extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryRuleKey;
+extern NSString * _Nonnull const SBTUITunnelCookieBlockMatchRuleKey;
 extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryIterationsKey;
 
 extern NSString * _Nonnull const SBTUITunnelObjectKey;

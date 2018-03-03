@@ -468,7 +468,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey: [self base64SerializeObject:match],
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelCookieBlockQueryIterationsKey: [@(iterations) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching params:params];
@@ -476,7 +476,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey:[self base64SerializeObject:reqId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey:[self base64SerializeObject:reqId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockRemove params:params] boolValue];
 }
