@@ -11,32 +11,16 @@ import Foundation
 
 class CookiesTest: XCTestCase {
     
-    // TODO
-    func testCookies() {
-        return
+    private let request = NetworkRequests()
+    
+    func testCookiesGetBlocked() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
-        app.monitorRequests(matching: requestMatch)
-        //app.blockCookiesInRequests(matching: requestMatch)
+        app.blockCookiesInRequests(matching: requestMatch)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value")
         
-        app.cells["executeRequestWithCookies"].tap()
-        
-        XCTAssert(app.waitForMonitoredRequests(matching: requestMatch, timeout: 5.0))
-        let monitoredRequests = app.monitoredRequestsFlushAll()
-        for monitoredRequest in monitoredRequests {
-            for cookie in HTTPCookieStorage.shared.cookies! {
-                print("EXTRACTED COOKIE: \(cookie)") //find your cookie here instead of httpUrlResponse.allHeaderFields
-            }
-            
-            print(monitoredRequest.request?.allHTTPHeaderFields)
-        }
-        
-        
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        
-        Thread.sleep(forTimeInterval: 50.0)
+        XCTAssertEqual(HTTPCookieStorage.shared.cookies!.count, 0)
     }
 }
 
