@@ -9,10 +9,20 @@
 import Foundation
 
 class NetworkRequests: NSObject {
-    fileprivate var done: Bool = false
     public var sessionData: Data? = nil
     public var sessionResponse: HTTPURLResponse? = nil
     public var sessionTask: URLSessionTask? = nil
+    
+    private let doneSynchQueue = DispatchQueue(label: "NetworkRequests.done.synch.queue")
+    private var _done: Bool = false
+    fileprivate var done: Bool {
+        get {
+            return doneSynchQueue.sync { return _done }
+        }
+        set {
+            doneSynchQueue.sync { _done = newValue }
+        }
+    }
     
     private func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
         return ["responseCode": status ?? 0,

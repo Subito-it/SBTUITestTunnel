@@ -446,6 +446,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     __block NSString *ret = @"";
     __block NSArray *requestsToPeek = @[];
+    __block NSString *debugInfo = @"";
     
     __weak typeof(self)weakSelf = self;
     void (^monitorBlock)(void) = ^{
@@ -457,10 +458,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if (data) {
             ret = [data base64EncodedStringWithOptions:0];
         }
+        
+        debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     };
     
     if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
-        monitorBlock();
+        if ([NSThread isMainThread]) {
+            monitorBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{ monitorBlock(); });
+        }
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             // we use main thread to synchronize access to self.monitoredRequests
@@ -472,7 +479,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     }
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
@@ -497,7 +503,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     };
     
     if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
-        flushBlock();
+        if ([NSThread isMainThread]) {
+            flushBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{ flushBlock(); });
+        }
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             // we use main thread to synchronize access to self.monitoredRequests
@@ -555,6 +565,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
+        NSLog(@"%@", tunnelRequest.parameters);
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         

@@ -640,7 +640,16 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
     if (self.connectionlessBlock) {
-        return self.connectionlessBlock(path, params);
+        if ([NSThread isMainThread]) {
+            return self.connectionlessBlock(path, params);
+        } else {
+            __block NSString *ret = @"";
+            __weak typeof(self)weakSelf = self;
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                ret = weakSelf.connectionlessBlock(path, params);
+            });
+            return ret;
+        }
     }
     
     if (self.connectionPort == 0) {
