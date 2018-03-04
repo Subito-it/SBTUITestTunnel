@@ -93,16 +93,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_once(&once, ^{
         sharedInstance = [[SBTUITestTunnelServer alloc] init];
         sharedInstance.server = [[GCDWebServer alloc] init];
-        sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
-        sharedInstance.rewritesToRemoveAfterCount = [NSCountedSet set];
-        sharedInstance.cookieBlockToRemoveAfterCount = [NSCountedSet set];
-        sharedInstance.monitoredRequests = [NSMutableArray array];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.cruising = YES;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
+
+        [sharedInstance reset];
         
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
+    
     return sharedInstance;
 }
 
@@ -777,7 +776,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
-    [self.server stop];
+    [self reset];
+    if (self.server.isRunning) {
+        [self.server stop];
+    }
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -1004,6 +1006,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     return response[SBTUITunnelResponseResultKey];
+}
+
+- (void)reset
+{
+    [SBTProxyURLProtocol reset];
+    
+    self.stubsToRemoveAfterCount = [NSCountedSet set];
+    self.rewritesToRemoveAfterCount = [NSCountedSet set];
+    self.cookieBlockToRemoveAfterCount = [NSCountedSet set];
+    self.monitoredRequests = [NSMutableArray array];
+
+    [[self customCommands] removeAllObjects];
 }
 
 @end

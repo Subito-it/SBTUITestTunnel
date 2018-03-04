@@ -126,6 +126,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
 {
     self.connectionlessBlock = command;
+    [self terminate];
 }
 
 - (void)waitForAppReady

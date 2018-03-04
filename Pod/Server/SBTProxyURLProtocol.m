@@ -60,11 +60,21 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     static SBTProxyURLProtocol *sharedInstance;
     dispatch_once(&once, ^{
         sharedInstance = [[SBTProxyURLProtocol alloc] init];
-        sharedInstance.matchingRules = [NSMutableArray array];
-        sharedInstance.tasksData = [NSMutableDictionary dictionary];
-        sharedInstance.tasksTime = [NSMutableDictionary dictionary];
+        [sharedInstance reset];
     });
     return sharedInstance;
+}
+
++ (void)reset
+{
+    [self.sharedInstance reset];
+}
+
+- (void)reset
+{
+    self.matchingRules = [NSMutableArray array];
+    self.tasksData = [NSMutableDictionary dictionary];
+    self.tasksTime = [NSMutableDictionary dictionary];
 }
 
 # pragma mark - Proxying
@@ -107,9 +117,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (void)proxyRequestsRemoveAll
 {
-    NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
-    
     @synchronized (self.sharedInstance) {
+        NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if (matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
                 [itemsToDelete addObject:matchingRule];
@@ -117,6 +126,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -169,6 +179,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -221,6 +232,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -273,6 +285,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
     }
 }
 

@@ -261,11 +261,4 @@ extension StubTests {
             return SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
-    
-    override func tearDown() {
-        app.monitorRequestRemoveAll()
-        app.stubRequestsRemoveAll()
-        app.blockCookiesRequestsRemoveAll()
-        app.throttleRequestRemoveAll()
-    }
 }

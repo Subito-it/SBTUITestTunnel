@@ -30,6 +30,8 @@
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
++ (void)reset;
+
 #pragma mark - Proxy Requests
 
 + (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL))block;
