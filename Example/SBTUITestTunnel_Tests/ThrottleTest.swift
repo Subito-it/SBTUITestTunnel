@@ -86,6 +86,18 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta2 > -2.0)
     }
+    
+    func testTripleThrottle() {
+        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 1.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org/g"), responseTime: 2.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org/ge"), responseTime: 3.0)
+        
+        let start = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta = start.timeIntervalSinceNow
+        
+        XCTAssert(delta < -5.0 && delta > -15.0)
+    }
 }
 
 extension ThrottleTests {
