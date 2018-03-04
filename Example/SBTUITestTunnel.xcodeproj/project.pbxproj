@@ -18,6 +18,7 @@
 		8587F1FD736BBA7EC36E0DB6 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		96441CB2B971BCB2A144EB81 /* Pods_SBTUITestTunnel_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E7DC4D0E6F0ABCE2E012B39 /* Pods_SBTUITestTunnel_Tests.framework */; };
+		C306920B204C9D5B00ACCCB0 /* RewriteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */; };
 		C30FD8E32029EED50054EA5C /* CookiesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30FD8E22029EED50054EA5C /* CookiesTest.swift */; };
 		C37C522E1E225A64005FC27D /* MatchRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C522D1E225A64005FC27D /* MatchRequestTests.swift */; };
 		C3881A931FED847C00EB6579 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFD11D89FA75003D6BB2 /* UserDefaultsTests.swift */; };
@@ -75,6 +76,7 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		7B23AEDE3D599F674BC24B2B /* Pods-SBTUITestTunnel_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.release.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewriteTests.swift; sourceTree = "<group>"; };
 		C30FD8E22029EED50054EA5C /* CookiesTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesTest.swift; sourceTree = "<group>"; };
 		C37C522D1E225A64005FC27D /* MatchRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchRequestTests.swift; sourceTree = "<group>"; };
 		C39B79F81CB41C3A000C8B0D /* SBTUITestTunnel_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -210,6 +212,7 @@
 				C37C522D1E225A64005FC27D /* MatchRequestTests.swift */,
 				C3E3DFDF1D8ECA9A003D6BB2 /* MonitorTests.swift */,
 				C3C9048F204938950096663F /* NetworkRequests.swift */,
+				C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */,
 				C3E3DFD11D89FA75003D6BB2 /* UserDefaultsTests.swift */,
 				C3E3DFDD1D8DFD21003D6BB2 /* StubTests.swift */,
 				C3E3DFD91D8A78B5003D6BB2 /* DownloadUploadTests.swift */,
@@ -465,6 +468,7 @@
 				C3881A941FED847C00EB6579 /* StubTests.swift in Sources */,
 				C3C90490204938950096663F /* NetworkRequests.swift in Sources */,
 				C30FD8E32029EED50054EA5C /* CookiesTest.swift in Sources */,
+				C306920B204C9D5B00ACCCB0 /* RewriteTests.swift in Sources */,
 				C37C522E1E225A64005FC27D /* MatchRequestTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
