@@ -52,6 +52,40 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
+    
+    func testThrottleAndRemoveAll() {
+        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        
+        let start = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta = start.timeIntervalSinceNow
+        
+        XCTAssert(delta < -5.0 && delta > -15.0)
+        
+        app.throttleRequestRemoveAll()
+        let start2 = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta2 = start2.timeIntervalSinceNow
+        
+        XCTAssert(delta2 > -2.0)
+    }
+    
+    func testThrottleAndRemoveSpecific() {
+        let requestId = app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0) ?? ""
+        
+        let start = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta = start.timeIntervalSinceNow
+        
+        XCTAssert(delta < -5.0 && delta > -15.0)
+        
+        app.throttleRequestRemove(withId: requestId)
+        let start2 = Date()
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let delta2 = start2.timeIntervalSinceNow
+        
+        XCTAssert(delta2 > -2.0)
+    }
 }
 
 extension ThrottleTests {

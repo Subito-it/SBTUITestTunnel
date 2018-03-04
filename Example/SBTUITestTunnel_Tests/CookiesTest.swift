@@ -50,6 +50,17 @@ class CookiesTest: XCTestCase {
         app.blockCookiesRequestsRemoveAll()
         XCTAssertEqual(countCookies(), 1)
     }
+    
+    func testBlockCookiesAndRemoveSpecific() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        let requestId = app.blockCookiesInRequests(matching: requestMatch) ?? ""
+        XCTAssertEqual(countCookies(), 0)
+        app.blockCookiesRequestsRemove(withId: requestId)
+        XCTAssertEqual(countCookies(), 1)
+    }
 }
 
 extension CookiesTest {

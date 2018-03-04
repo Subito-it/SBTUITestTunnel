@@ -542,7 +542,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -960,7 +960,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #pragma mark - Helper Functions
 
 // https://gist.github.com/michalzelinka/67adfa0142767575194f
-- (void)deleteAppData {
+- (void)deleteAppData
+{
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSString *> *folders = @[[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject],
                                      [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject],

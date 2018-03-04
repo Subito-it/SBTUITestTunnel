@@ -316,6 +316,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *stubRule = nil;
     NSDictionary *proxyRule = nil;
     NSDictionary *cookieBlockRule = nil;
+    NSDictionary *rewriteRule = nil;
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             if (stubRule != nil) {
@@ -326,6 +327,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             }
             
             stubRule = matchingRule;
+        } else if (matchingRule[SBTProxyURLProtocolRewriteResponse]) {
+            rewriteRule = matchingRule;
         } else if (matchingRule[SBTProxyURLProtocolBlockCookiesKey]) {
             cookieBlockRule = matchingRule;
         } else {
@@ -398,12 +401,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         return;
     }
     
-    BOOL shouldProxyRequest = (matchingRules.count - (stubRule != nil) > 0);
-    if (shouldProxyRequest) {
+    if (proxyRule != nil || rewriteRule != nil || cookieBlockRule != nil) {
         // PROXY ONLY REQUEST (THROTTLE OR MONITORING)
         __unused SBTRequestMatch *requestMatch1 = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2);
+        __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
+        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
@@ -473,6 +476,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         self.response = task.response;
         
         for (NSDictionary *matchingRule in matchingRules) {
+#warning TODO: secondo me qui è sbagliato il loop
             NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
             
             __weak typeof(self)weakSelf = self;
