@@ -137,11 +137,11 @@
  *  Rewrite a request matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  @param match The match object that contains the matching rules
- *  @param response The object that represents the response rewrite rules
+ *  @param rewrite The object that represents the rewrite rules
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created rewrite. Should be used when removing rewrite using -(BOOL)rewriteRequestsRemoveWithId:
  */
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response;
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite;
 
 #pragma mark - Rewrite And Remove Commands
 
@@ -149,12 +149,12 @@
  *  Rewrite a request matching a regular expression pattern for a limited number of times. The rule is checked against the SBTRequestMatch object
  *
  *  @param match The match object that contains the matching rules
- *  @param response The object that represents the rewritebed response
+ *  @param rewrite The object that represents the rewrite reules
  *  @param iterations number of matches after which the rewrite will be automatically removed
  *
  *  @return `YES` on success
  */
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations;
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Rewrite Remove Commands
 

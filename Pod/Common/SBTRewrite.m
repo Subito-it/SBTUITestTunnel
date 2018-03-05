@@ -54,7 +54,7 @@
     [encoder encodeObject:self.replaceData forKey:NSStringFromSelector(@selector(replaceData))];
 }
 
-- (nonnull instancetype)initWithFind:(nonnull NSString *)find replace:(nonnull NSString *)replace
+- (instancetype)initWithFind:(NSString *)find replace:(NSString *)replace
 {
     if ((self = [super init])) {
         self.findData = [find dataUsingEncoding:NSUTF8StringEncoding];
@@ -70,11 +70,12 @@
 
 @interface SBTRewrite()
 
+@property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *urlReplacement;
 @property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *requestReplacement;
 @property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *responseReplacement;
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *requestHeaders;
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeaders;
-@property (nonatomic, assign) NSInteger returnCode;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *requestHeadersReplacement;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeadersReplacement;
+@property (nonatomic, assign) NSInteger responseCode;
 
 @end
 
@@ -84,83 +85,129 @@
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
+    NSArray<SBTRewriteReplacement *> *urlReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(urlReplacement))];
     NSArray<SBTRewriteReplacement *> *requestReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestReplacement))];
     NSArray<SBTRewriteReplacement *> *responseReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseReplacement))];
-    NSDictionary<NSString *, NSString *> *requestHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeaders))];
-    NSDictionary<NSString *, NSString *> *responseHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeaders))];
-    NSInteger returnCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(returnCode))];
+    NSDictionary<NSString *, NSString *> *requestHeadersReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeadersReplacement))];
+    NSDictionary<NSString *, NSString *> *responseHeadersReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeadersReplacement))];
+    NSInteger responseCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(responseCode))];
 
-    return [self initWithResponseReplacement:responseReplacement requestReplacement:requestReplacement responseHeaders:responseHeaders requestHeaders:requestHeaders returnCode:returnCode];
+    return [self initWithUrlReplacement:urlReplacement
+                     requestReplacement:requestReplacement
+              requestHeadersReplacement:requestHeadersReplacement
+                    responseReplacement:responseReplacement
+             responseHeadersReplacement:responseHeadersReplacement
+                           responseCode:responseCode];
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
+    [encoder encodeObject:self.urlReplacement forKey:NSStringFromSelector(@selector(urlReplacement))];
     [encoder encodeObject:self.requestReplacement forKey:NSStringFromSelector(@selector(requestReplacement))];
     [encoder encodeObject:self.responseReplacement forKey:NSStringFromSelector(@selector(responseReplacement))];
-    [encoder encodeObject:self.requestHeaders forKey:NSStringFromSelector(@selector(requestHeaders))];
-    [encoder encodeObject:self.responseHeaders forKey:NSStringFromSelector(@selector(responseHeaders))];
-    [encoder encodeInteger:self.returnCode forKey:NSStringFromSelector(@selector(returnCode))];
+    [encoder encodeObject:self.requestHeadersReplacement forKey:NSStringFromSelector(@selector(requestHeadersReplacement))];
+    [encoder encodeObject:self.responseHeadersReplacement forKey:NSStringFromSelector(@selector(responseHeadersReplacement))];
+    [encoder encodeInteger:self.responseCode forKey:NSStringFromSelector(@selector(responseCode))];
 }
 
 #pragma mark - Response
 
-- (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
-                         headers:(NSDictionary<NSString *, NSString *> *)headers
-                      returnCode:(NSInteger)returnCode
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+
+- (instancetype)initWithResponseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
+                                 headersReplacement:(NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
+                                       responseCode:(NSInteger)responseCode
 {
-    return [self initWithResponseReplacement:replacement requestReplacement:nil responseHeaders:headers requestHeaders:nil returnCode:returnCode];
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:responseReplacement
+             responseHeadersReplacement:responseHeadersReplacement
+                           responseCode:responseCode];
 }
 
-- (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
-                         headers:(NSDictionary<NSString *, NSString *> *)headers
+- (instancetype)initWithResponseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
+                                 headersReplacement:(NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
 {
-    return [self initWithResponse:replacement headers:headers returnCode:0];
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:responseReplacement
+             responseHeadersReplacement:responseHeadersReplacement
+                           responseCode:-1];
 }
 
-- (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
+- (instancetype)initWithResponseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
 {
-    return [self initWithResponse:replacement headers:@{} returnCode:0];
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:responseReplacement
+             responseHeadersReplacement:nil
+                           responseCode:-1];
 }
 
 #pragma mark - Request
 
-- (instancetype)initWithRequest:(NSArray<SBTRewriteReplacement *> *)replacement
-                        headers:(NSDictionary<NSString *, NSString *> *)headers
+- (instancetype)initWithRequestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
+                         requestHeadersReplacement:(NSDictionary<NSString *, NSString *> *)requestHeadersReplacement
 {
-    return [self initWithResponseReplacement:nil requestReplacement:replacement responseHeaders:nil requestHeaders:headers returnCode:0];
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:requestReplacement
+              requestHeadersReplacement:requestHeadersReplacement
+                    responseReplacement:nil
+             responseHeadersReplacement:nil
+                           responseCode:-1];
 }
 
-- (instancetype)initWithRequest:(NSArray<SBTRewriteReplacement *> *)replacement
+- (instancetype)initWithRequestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
 {
-    return [self initWithRequest:replacement headers:@{}];
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:requestReplacement
+              requestHeadersReplacement:nil
+                    responseReplacement:nil
+             responseHeadersReplacement:nil
+                           responseCode:-1];
 }
 
-#pragma mark - Mixed
+#pragma mark - URL
 
-- (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
-                  requestHeaders:(NSDictionary<NSString *, NSString *> *)headers
+- (instancetype)initWithRequestUrlReplacement:(NSArray<SBTRewriteReplacement *> *)urlReplacement
 {
-    return [self initWithResponseReplacement:replacement requestReplacement:nil responseHeaders:nil requestHeaders:headers returnCode:0];
+    return [self initWithUrlReplacement:urlReplacement
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:nil
+             responseHeadersReplacement:nil
+                           responseCode:-1];
 }
 
-- (instancetype)initWithResponseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
-                         requestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
-                            responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
-                             requestHeaders:(NSDictionary<NSString *, NSString *> *)requestHeaders
-                                 returnCode:(NSInteger)returnCode
+#pragma mark - Designated
+
+- (instancetype)initWithUrlReplacement:(NSArray<SBTRewriteReplacement *> *)urlReplacement
+                    requestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
+             requestHeadersReplacement:(NSDictionary<NSString *, NSString *> *)requestHeadersReplacement
+                   responseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
+            responseHeadersReplacement:(NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
+                          responseCode:(NSInteger)responseCode
 {
     if ((self = [super init])) {
-        self.responseReplacement = responseReplacement;
-        self.requestReplacement = requestReplacement;
+        self.urlReplacement = urlReplacement ?: @[];
         
-        self.responseHeaders = responseHeaders;
-        self.requestHeaders = requestHeaders;
+        self.responseReplacement = responseReplacement ?: @[];
+        self.requestReplacement = requestReplacement ?: @[];
         
-        self.returnCode = returnCode;
+        self.responseHeadersReplacement = responseHeadersReplacement ?: @{};
+        self.requestHeadersReplacement = requestHeadersReplacement ?: @{};
+        
+        self.responseCode = responseCode;
     }
     
     return self;
 }
+
+#pragma clang diagnostic pop
 
 @end
 

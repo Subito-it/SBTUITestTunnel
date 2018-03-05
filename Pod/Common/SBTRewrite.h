@@ -46,70 +46,75 @@
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
- *  @param headers a dictionary that represents the response headers. Keys not present in response will be added while existing keys will be replaced. If the value contains an exclamation mark `!` the key will be removed
- *  @param returnCode the HTTP return code of the rewritten response
+ *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param responseCode the response HTTP code to return
  */
-- (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
-                                 headers:(nonnull NSDictionary<NSString *, NSString *> *)headers
-                              returnCode:(NSInteger)returnCode;
+- (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement
+                                 headersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
+                                         responseCode:(NSInteger)responseCode;
 
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
- *  @param headers a dictionary that represents the response headers. Keys not present in response will be added while existing keys will be replaced. If the value contains an exclamation mark `!` the key will be removed
+ *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
  */
-- (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
-                                 headers:(nonnull NSDictionary<NSString *, NSString *> *)headers;
+- (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement
+                                 headersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)responseHeadersReplacement;
 
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
+ *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
  */
-- (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement;
+- (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement;
 
 #pragma mark - Request
 
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
- *  @param headers a dictionary that represents the request headers
+ *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+ *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
  */
-- (nonnull instancetype)initWithRequest:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
-                                headers:(nonnull NSDictionary<NSString *, NSString *> *)headers;
+- (nonnull instancetype)initWithRequestReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)requestReplacement
+                         requestHeadersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)requestHeadersReplacement;
 
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+ *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
  */
-- (nonnull instancetype)initWithRequest:(nonnull NSArray<SBTRewriteReplacement *> *)replacement;
+- (nonnull instancetype)initWithRequestReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)requestReplacement;
 
-#pragma mark - Mixed
-
-/**
- *  Initializer
- *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
- *  @param headers headers a dictionary that represents the request headers
- */
-- (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
-                          requestHeaders:(nonnull NSDictionary<NSString *, NSString *> *)headers;
+#pragma mark - URL
 
 /**
  *  Initializer
  *
- *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
- *  @param headers headers a dictionary that represents the request headers
+ *  @param urlReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request URL (host + query)
  */
-- (nonnull instancetype)initWithResponseReplacement:(nullable NSArray<SBTRewriteReplacement *> *)responseReplacement
-                                 requestReplacement:(nullable NSArray<SBTRewriteReplacement *> *)requestReplacement
-                                    responseHeaders:(nullable NSDictionary<NSString *, NSString *> *)responseHeaders
-                                     requestHeaders:(nullable NSDictionary<NSString *, NSString *> *)requestHeaders
-                                         returnCode:(NSInteger)returnCode NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithRequestUrlReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)urlReplacement;
+
+#pragma mark - Designated
+
+/**
+ *  Initializer
+ *
+ *  @param urlReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request URL (host + query)
+ *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+ *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param responseCode the response HTTP code to return
+ */
+- (nonnull instancetype)initWithUrlReplacement:(nullable NSArray<SBTRewriteReplacement *> *)urlReplacement
+                            requestReplacement:(nullable NSArray<SBTRewriteReplacement *> *)requestReplacement
+                     requestHeadersReplacement:(nullable NSDictionary<NSString *, NSString *> *)requestHeadersReplacement
+                           responseReplacement:(nullable NSArray<SBTRewriteReplacement *> *)responseReplacement
+                    responseHeadersReplacement:(nullable NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
+                                  responseCode:(NSInteger)responseCode NS_DESIGNATED_INITIALIZER;
 
 @end
 
