@@ -24,6 +24,7 @@
 
 #import <XCTest/XCTest.h>
 #import "SBTRequestMatch.h"
+#import "SBTRewrite.h"
 #import "SBTStubResponse.h"
 #import "SBTMonitoredNetworkRequest.h"
 
@@ -130,10 +131,62 @@
  */
 - (BOOL)stubRequestsRemoveAll;
 
+#pragma mark - Rewrite Commands
+
+/**
+ *  Rewrite a request matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
+ *
+ *  @param match The match object that contains the matching rules
+ *  @param response The object that represents the response rewrite rules
+ *
+ *  @return If nil request failed. Otherwise an identifier associated to the newly created rewrite. Should be used when removing rewrite using -(BOOL)rewriteRequestsRemoveWithId:
+ */
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response;
+
+#pragma mark - Rewrite And Remove Commands
+
+/**
+ *  Rewrite a request matching a regular expression pattern for a limited number of times. The rule is checked against the SBTRequestMatch object
+ *
+ *  @param match The match object that contains the matching rules
+ *  @param response The object that represents the rewritebed response
+ *  @param iterations number of matches after which the rewrite will be automatically removed
+ *
+ *  @return `YES` on success
+ */
+- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations;
+
+#pragma mark - Rewrite Remove Commands
+
+/**
+ *  Remove a specific rewrite
+ *
+ *  @param rewriteId The identifier that was returned when adding the rewrite
+ *
+ *  @return `YES` on success If `NO` the specified identifier wasn't associated to an active rewrite or request failed
+ */
+- (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)rewriteId;
+
+/**
+ *  Remove a list of rewrites
+ *
+ *  @param rewriteIds The identifiers that were returned when adding the rewrite
+ *
+ *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active rewrite or request failed
+ */
+- (BOOL)rewriteRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)rewriteIds;
+
+/**
+ *  Remove all active rewrites
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)rewriteRequestsRemoveAll;
+
 #pragma mark - Monitor Requests Commands
 
 /**
- *  Start monitoring requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *  Start monitoring requests matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  The monitored events can be successively polled using the monitoredRequestsFlushAll method.
  *
@@ -182,35 +235,10 @@
  */
 - (BOOL)monitorRequestRemoveAll;
 
-#pragma mark - Asynchronously Wait for Requests Commands
-
-/**
- *  Asynchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  Note: you have to start a monitor request before calling this method
- *
- *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
- *  @param timeout How long to wait for the request to happen
- *  @param completionBlock will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
-/**
- *  Asynchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
- *
- *  Note: you have to start a monitor request before calling this method
- *
- *  @param match The match object that contains the matching rules. The method will look if the specified rules match the existing monitored requests
- *  @param timeout How long to wait for the request to happen
- *  @param iterations How often the request should happen before timing out
- *  @param completionBlock will be invoked once the requests is matched or timed out
- */
-- (void)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(nonnull void (^)(BOOL timeout))completionBlock;
-
 #pragma mark - Synchronously Wait for Requests Commands
 
 /**
- *  Synchronously wait for a request to happen once on the app target. The rule is checked against the URL.absoluteString of the request.
+ *  Synchronously wait for a request to happen once on the app target. The rule is checked against the SBTRequestMatch object
  *
  *  Note: you have to start a monitor request before calling this method
  *
@@ -222,7 +250,7 @@
 - (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout;
 
 /**
- *  Synchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the URL.absoluteString of the request.
+ *  Synchronously wait for a request to happen a certain number of times on the app target. The rule is checked against the SBTRequestMatch object
  *
  *  Note: you have to start a monitor request before calling this method
  *
@@ -237,7 +265,7 @@
 #pragma mark - Throttle Requests Commands
 
 /**
- *  Start throttling requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *  Start throttling requests matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  The throttled events can be successively polled using the throttledRequestsFlushAll method.
  *
@@ -276,7 +304,7 @@
 #pragma mark - Cookie Block Requests Commands
 
 /**
- *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  @param match The match object that contains the matching rules
  *
@@ -285,7 +313,7 @@
 - (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match;
 
 /**
- *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the URL.absoluteString of the request.
+ *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  @param match The match object that contains the matching rules
  *  @param iterations How often the request should happen before timing out

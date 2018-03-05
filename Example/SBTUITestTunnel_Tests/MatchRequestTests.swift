@@ -1,4 +1,4 @@
-// MatchRequest.swift
+// MatchRequestTests.swift
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -17,177 +17,153 @@
 import SBTUITestTunnel
 import Foundation
 
-class MatchRequest: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
-    }
+class MatchRequestTests: XCTestCase {
+
+    private let request = NetworkRequests()
     
     func testSimpleUrlAllMethods() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
         
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssert(request.isStubbed(result2))
     }
     
     func testSimpleUrlGetOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
         
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssertFalse(request.isStubbed(result2))
     }
 
     func testUrlWithQueryGetOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param2=val2", "&param1=val1"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result2))
         app.stubRequestsRemoveAll()
         
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result3))
         app.stubRequestsRemoveAll()
         
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param2=val2&param1=val1"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result4))
         app.stubRequestsRemoveAll()
         
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "&param3=val3"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result5 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result5))
         app.stubRequestsRemoveAll()
         
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "&param2=val2"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result6 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result6))
         app.stubRequestsRemoveAll()
     }
     
     func testMethodHonored() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org/post", method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssert(request.isStubbed(result))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org/post", method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssertFalse(request.isStubbed(result2))
         app.stubRequestsRemoveAll()
     }
-    
+
     func testUrlWithQueryPostOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param6=val6"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssert(request.isStubbed(result))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param6=val6", "&param5=val5"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssert(request.isStubbed(result2))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5&param6=val6"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssert(request.isStubbed(result3))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param6=val6&param5=val5"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssertFalse(request.isStubbed(result4))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param1=val1"], method:"POST"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result5 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssertFalse(request.isStubbed(result5))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param6=val6"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executePostDataTaskRequestWithHTTPBody"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result6 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        XCTAssertFalse(request.isStubbed(result6))
         app.stubRequestsRemoveAll()
     }
 
     func testInvertQueryGetOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["!param1=val1", "&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "!param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result2))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["!param1=val1", "!param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssertFalse(isNetworkResultStubbed())
+        let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertFalse(request.isStubbed(result3))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["!param9=val9", "&param1=val1"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result4))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "!param9=val9"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result5 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result5))
         app.stubRequestsRemoveAll()
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "&param2=val2", "!param9=val9"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result6 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result6))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "!param9=val9", "&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result7 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result7))
         app.stubRequestsRemoveAll()
-        
+
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["!param9=val9", "&param1=val1", "&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.cells["executeDataTaskRequest"].tap()
-        XCTAssert(isNetworkResultStubbed())
+        let result8 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result8))
         app.stubRequestsRemoveAll()
     }
 }
 
-extension MatchRequest {
-    
-    func isNetworkResultStubbed() -> Bool {
-        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
-        waitForExpectations(timeout: 10.0, handler: nil)
-        
-        let result = app.textViews["result"].value as! String
-        let resultData = Data(base64Encoded: result)!
-        let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
-        
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        
-        let networkBase64 = resultDict["data"] as! String
-        if let networkData = Data(base64Encoded: networkBase64) {
-            if let networkJson = try? JSONSerialization.jsonObject(with: networkData, options: []) as! [String: Any] {
-                return (networkJson["stubbed"] != nil)
-            }
+extension MatchRequestTests {
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
         }
-        
-        return false
     }
 }

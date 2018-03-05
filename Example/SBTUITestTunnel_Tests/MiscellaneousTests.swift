@@ -30,17 +30,17 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
-    
+
     func testStartupCommandsWaitsAppropriately() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-        
+
         var startupBlockProcessed = false
-        
+
         app.launchTunnel() {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
-            Thread.sleep(forTimeInterval: 15.0)
+            Thread.sleep(forTimeInterval: 8.0)
             startupBlockProcessed = true
         }
 

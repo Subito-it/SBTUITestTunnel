@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import UIKit
-import SBTUITestTunnel
 
 class BaseTest {
     var testSelector: Selector

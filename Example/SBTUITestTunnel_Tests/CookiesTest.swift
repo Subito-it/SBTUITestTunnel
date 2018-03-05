@@ -10,41 +10,63 @@ import SBTUITestTunnel
 import Foundation
 
 class CookiesTest: XCTestCase {
-        
-    override func setUp() {
-        super.setUp()
-        
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
-        
-        Thread.sleep(forTimeInterval: 1.0)
+    
+    private let request = NetworkRequests()
+    
+    private func countCookies() -> Int {
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies")
+        let json = request.json(result)
+
+        return (json["cookies"] as? [String : Any])?.keys.count ?? 0
     }
     
-    func testCookies() {
+    func testCookiesGetBlocked() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
-        app.monitorRequests(matching: requestMatch)
-        //app.blockCookiesInRequests(matching: requestMatch)
+        app.blockCookiesInRequests(matching: requestMatch)
         
-        app.cells["executeRequestWithCookies"].tap()
+        XCTAssertEqual(countCookies(), 0)
+    }
+    
+    func testBlockCookiesAndRemove() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
         
-        XCTAssert(app.waitForMonitoredRequests(matching: requestMatch, timeout: 5.0))
-        let monitoredRequests = app.monitoredRequestsFlushAll()
-        for monitoredRequest in monitoredRequests {
-            for cookie in HTTPCookieStorage.shared.cookies! {
-                print("EXTRACTED COOKIE: \(cookie)") //find your cookie here instead of httpUrlResponse.allHeaderFields
-            }
-            
-            print(monitoredRequest.request?.allHTTPHeaderFields)
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        app.blockCookiesInRequests(matching: requestMatch, iterations: 1)
+        XCTAssertEqual(countCookies(), 0)
+        XCTAssertEqual(countCookies(), 1)
+    }
+    
+    func testBlockCookiesAndRemoveAll() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        app.blockCookiesInRequests(matching: requestMatch)
+        XCTAssertEqual(countCookies(), 0)
+        app.blockCookiesRequestsRemoveAll()
+        XCTAssertEqual(countCookies(), 1)
+    }
+    
+    func testBlockCookiesAndRemoveSpecific() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        let requestId = app.blockCookiesInRequests(matching: requestMatch) ?? ""
+        XCTAssertEqual(countCookies(), 0)
+        app.blockCookiesRequestsRemove(withId: requestId)
+        XCTAssertEqual(countCookies(), 1)
+    }
+}
+
+extension CookiesTest {
+    override func setUp() {
+        app.launchConnectionless { (path, params) -> String in
+            return SBTUITestTunnelServer.performCommand(path, params: params)
         }
-        
-        
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        app.cells["executeRequestWithCookies"].tap()
-        
-        Thread.sleep(forTimeInterval: 50.0)
     }
 }

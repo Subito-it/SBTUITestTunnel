@@ -53,7 +53,7 @@ You can specify a regex on the URL, multiple regex on the query (in `POST` and `
 
 The `query` parameter found in different `SBTRequestMatch` initializers is an array of regex strings that are checked with the request [query](https://tools.ietf.org/html/rfc3986#section-3.4). If all regex in array match the request is stubbed/monitored/throttled.
 
-In a kind of unconventional syntax you can prefix the regex with and exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
+In a kind of unconventional syntax you can prefix the regex with an exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
 
 #### Examples
 

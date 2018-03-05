@@ -126,6 +126,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
 {
     self.connectionlessBlock = command;
+    [self terminate];
 }
 
 - (void)waitForAppReady
@@ -213,29 +214,21 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
 {
-    NSData *jsonHeaderData = [NSJSONSerialization dataWithJSONObject:response.headers options:0 error:NULL];
-    NSString *headersSerialized = [[NSString alloc] initWithData:jsonHeaderData encoding:NSUTF8StringEncoding];
-    
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelStubQueryReturnDataKey: [self base64SerializeObject:response.data],
-                                                     SBTUITunnelStubQueryReturnCodeKey: [@(response.returnCode) stringValue],
-                                                     SBTUITunnelStubQueryMimeTypeKey: response.contentType,
-                                                     SBTUITunnelStubQueryReturnHeadersKey: headersSerialized,
-                                                     SBTUITunnelStubQueryResponseTimeKey: [@(response.responseTime) stringValue],
-                                                     SBTUITunnelStubQueryIterations: [@(iterations) stringValue],
-                                                     SBTUITunnelStubQueryFailWithCustomErrorKey: [@(response.failureCode) stringValue]
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelStubResponseKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelStubIterationsKey: [@(iterations) stringValue]
                                                      };
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemovePathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];
 }
 
 #pragma mark - Stub Remove Commands
 
 - (BOOL)stubRequestsRemoveWithId:(NSString *)stubId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubQueryRuleKey:[self base64SerializeObject:stubId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey:[self base64SerializeObject:stubId]};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandstubRequestsRemove params:params] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemove params:params] boolValue];
 }
 
 - (BOOL)stubRequestsRemoveWithIds:(NSArray<NSString *> *)stubIds
@@ -253,13 +246,56 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
+#pragma mark - Rewrite Commands
+
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewrite *)response
+{
+    return [self rewriteRequestsMatching:match response:response removeAfterIterations:0];
+}
+
+#pragma mark - Rewrite And Remove Commands
+
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match response:(SBTRewrite *)response removeAfterIterations:(NSUInteger)iterations
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelRewriteKey: [self base64SerializeObject:response],
+                                                     SBTUITunnelRewriteIterationsKey: [@(iterations) stringValue]
+                                                     };
+    
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteAndRemoveMatching params:params];
+}
+
+#pragma mark - Rewrite Remove Commands
+
+- (BOOL)rewriteRequestsRemoveWithId:(NSString *)rewriteId
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteRuleIdKey:[self base64SerializeObject:rewriteId]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemove params:params] boolValue];
+}
+
+- (BOOL)rewriteRequestsRemoveWithIds:(NSArray<NSString *> *)rewriteIds
+{
+    BOOL ret = YES;
+    for (NSString *rewriteId in rewriteIds) {
+        ret &= [self rewriteRequestsRemoveWithId:rewriteId];
+    }
+    
+    return ret;
+}
+
+- (BOOL)rewriteRequestsRemoveAll
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemoveAll params:nil] boolValue];
+}
+
 #pragma mark - Monitor Requests Commands
 
 - (NSString *)monitorRequestsMatching:(SBTRequestMatch *)match
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorPathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorMatching params:params];
 }
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll;
@@ -399,7 +435,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey: [self base64SerializeObject:match], SBTUITunnelProxyQueryResponseTimeKey: [@(responseTime) stringValue]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottlePathMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleMatching params:params];
 }
 
 - (BOOL)throttleRequestRemoveWithId:(NSString *)reqId;
@@ -433,15 +469,15 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey: [self base64SerializeObject:match],
-                                                     SBTUITunnelCookieBlockQueryIterations: [@(iterations) stringValue]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelCookieBlockQueryIterationsKey: [@(iterations) stringValue]};
     
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching params:params];
 }
 
 - (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockQueryRuleKey:[self base64SerializeObject:reqId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey:[self base64SerializeObject:reqId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockRemove params:params] boolValue];
 }
@@ -605,7 +641,16 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params assertOnError:(BOOL)assertOnError
 {
     if (self.connectionlessBlock) {
-        return self.connectionlessBlock(path, params);
+        if ([NSThread isMainThread]) {
+            return self.connectionlessBlock(path, params);
+        } else {
+            __block NSString *ret = @"";
+            __weak typeof(self)weakSelf = self;
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                ret = weakSelf.connectionlessBlock(path, params);
+            });
+            return ret;
+        }
     }
     
     if (self.connectionPort == 0) {

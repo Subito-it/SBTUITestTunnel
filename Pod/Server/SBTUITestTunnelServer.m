@@ -27,7 +27,8 @@
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "UITextField+DisableAutocomplete.h"
 #import "SBTProxyURLProtocol.h"
-#import "SBTProxyStubResponse.h"
+#import "SBTStubResponse.h"
+#import "SBTRewrite.h"
 #import "SBTMonitoredNetworkRequest.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
@@ -70,6 +71,7 @@ description:(desc), ##__VA_ARGS__]; \
 
 @property (nonatomic, strong) GCDWebServer *server;
 @property (nonatomic, strong) NSCountedSet<NSString *> *stubsToRemoveAfterCount;
+@property (nonatomic, strong) NSCountedSet<NSString *> *rewritesToRemoveAfterCount;
 @property (nonatomic, strong) NSCountedSet<NSString *> *cookieBlockToRemoveAfterCount;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
@@ -91,15 +93,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_once(&once, ^{
         sharedInstance = [[SBTUITestTunnelServer alloc] init];
         sharedInstance.server = [[GCDWebServer alloc] init];
-        sharedInstance.stubsToRemoveAfterCount = [NSCountedSet set];
-        sharedInstance.cookieBlockToRemoveAfterCount = [NSCountedSet set];
-        sharedInstance.monitoredRequests = [NSMutableArray array];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.cruising = YES;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
+
+        [sharedInstance reset];
         
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
+    
     return sharedInstance;
 }
 
@@ -244,23 +246,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Stubs Commands
 
-- (NSDictionary *)commandStubPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubMatching:(GCDWebServerRequest *)tunnelRequest
 {
     __block NSString *stubId = @"";
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validStubRequest:tunnelRequest]) {
-        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
-        SBTProxyStubResponse *response;
-        NSInteger failWithCustomErrorCode = [tunnelRequest.parameters[SBTUITunnelStubQueryFailWithCustomErrorKey] integerValue];
-        if (failWithCustomErrorCode != 0) {
-            NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
-            response = [SBTProxyStubResponse failureWithCustomErrorCode:failWithCustomErrorCode responseTime:responseTime];
-        } else {
-            response = [self responseForStubRequest:tunnelRequest];
-        }
+        NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubResponseKey] options:0];
+        SBTStubResponse *response = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+
         NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
         __weak typeof(self)weakSelf = self;
@@ -282,19 +279,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Stub and Remove Commands
 
-- (NSDictionary *)commandStubAndRemovePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandStubAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
     NSInteger stubRequestsRemoveAfterCount = 0;
     
     if ([self validStubRequest:tunnelRequest]) {
-        stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubQueryIterations] integerValue];
+        stubRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelStubIterationsKey] integerValue];
         
         for (NSInteger i = 0; i < stubRequestsRemoveAfterCount; i++) {
             [self.stubsToRemoveAfterCount addObject:[self identifierForStubRequest:tunnelRequest]];
         }
         
-        ret = [self commandStubPathMatching:tunnelRequest];
+        ret = [self commandStubMatching:tunnelRequest];
     }
     
     return ret;
@@ -302,7 +299,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
     NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = @"NO";
@@ -320,9 +317,82 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+#pragma mark - Rewrites Commands
+
+- (NSDictionary *)commandRewriteMatching:(GCDWebServerRequest *)tunnelRequest
+{
+    __block NSString *rewriteId = @"";
+    SBTRequestMatch *requestMatch = nil;
+    
+    if ([self validRewriteRequest:tunnelRequest]) {
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
+        requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+        
+        NSData *rewriteData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteKey] options:0];
+        SBTRewrite *rewrite = [NSKeyedUnarchiver unarchiveObjectWithData:rewriteData];
+        
+        NSString *requestIdentifier = [self identifierForRewriteRequest:tunnelRequest];
+        
+        __weak typeof(self)weakSelf = self;
+        rewriteId = [SBTProxyURLProtocol rewriteRequestsMatching:requestMatch rewrite:rewrite didRewriteRequest:^(NSURLRequest *request) {
+            __strong typeof(weakSelf)strongSelf = weakSelf;
+            
+            if ([strongSelf.rewritesToRemoveAfterCount containsObject:requestIdentifier]) {
+                [strongSelf.rewritesToRemoveAfterCount removeObject:requestIdentifier];
+                
+                if ([strongSelf.rewritesToRemoveAfterCount countForObject:requestIdentifier] == 0) {
+                    [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId];
+                }
+            }
+        }];
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: rewriteId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
+}
+
+#pragma mark - Rewrite and Remove Commands
+
+- (NSDictionary *)commandRewriteAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
+{
+    NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
+    NSInteger rewriteRequestsRemoveAfterCount = 0;
+    
+    if ([self validRewriteRequest:tunnelRequest]) {
+        rewriteRequestsRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelRewriteIterationsKey] integerValue];
+        
+        for (NSInteger i = 0; i < rewriteRequestsRemoveAfterCount; i++) {
+            [self.rewritesToRemoveAfterCount addObject:[self identifierForRewriteRequest:tunnelRequest]];
+        }
+        
+        ret = [self commandRewriteMatching:tunnelRequest];
+    }
+    
+    return ret;
+}
+
+- (NSDictionary *)commandRewriteRequestsRemove:(GCDWebServerRequest *)tunnelRequest
+{
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
+    NSString *rewriteId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+    
+    NSString *ret = @"NO";
+    if ([self.rewritesToRemoveAfterCount countForObject:rewriteId] == 0) {
+        ret = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId] ? @"YES" : @"NO";
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: ret };
+}
+
+- (NSDictionary *)commandRewriteRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
+{
+    [SBTProxyURLProtocol rewriteRequestsRemoveAll];
+    
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
+}
+
 #pragma mark - Request Monitor Commands
 
-- (NSDictionary *)commandMonitorPathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandMonitorMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
@@ -354,7 +424,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandMonitorRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -375,6 +445,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     __block NSString *ret = @"";
     __block NSArray *requestsToPeek = @[];
+    __block NSString *debugInfo = @"";
     
     __weak typeof(self)weakSelf = self;
     void (^monitorBlock)(void) = ^{
@@ -386,10 +457,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if (data) {
             ret = [data base64EncodedStringWithOptions:0];
         }
+        
+        debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     };
     
     if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
-        monitorBlock();
+        if ([NSThread isMainThread]) {
+            monitorBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{ monitorBlock(); });
+        }
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             // we use main thread to synchronize access to self.monitoredRequests
@@ -401,7 +478,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     }
     
-    NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToPeek.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
@@ -426,7 +502,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     };
     
     if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
-        flushBlock();
+        if ([NSThread isMainThread]) {
+            flushBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{ flushBlock(); });
+        }
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             // we use main thread to synchronize access to self.monitoredRequests
@@ -444,7 +524,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 #pragma mark - Request Throttle Commands
 
-- (NSDictionary *)commandThrottlePathMatching:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandThrottleMatching:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
@@ -462,7 +542,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandThrottleRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol proxyRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -484,7 +564,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
-        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0];
+        NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
         NSString *requestIdentifier = [self identifierForCookieBlockRequest:tunnelRequest];
@@ -514,7 +594,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSInteger cookieBlockRemoveAfterCount = 0;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
-        cookieBlockRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelCookieBlockQueryIterations] integerValue];
+        cookieBlockRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelCookieBlockQueryIterationsKey] integerValue];
         
         for (NSInteger i = 0; i < cookieBlockRemoveAfterCount; i++) {
             [self.cookieBlockToRemoveAfterCount addObject:[self identifierForCookieBlockRequest:tunnelRequest]];
@@ -528,7 +608,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCookiesBlockRemove:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey] options:0];
+    NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
     NSString *reqId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
     NSString *ret = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
@@ -696,7 +776,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandShutDown:(GCDWebServerRequest *)tunnelRequest
 {
-    [self.server stop];
+    [self reset];
+    if (self.server.isRunning) {
+        [self.server stop];
+    }
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -753,7 +836,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey]];
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
     
@@ -765,9 +848,23 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return [@"stub-" stringByAppendingString:[jsonData SHA1]];
 }
 
+- (NSString *)identifierForRewriteRequest:(GCDWebServerRequest *)tunnelRequest
+{
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey]];
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
+    
+    if (!jsonData || error) {
+        NSLog(@"[UITestTunnelServer] Failed to create identifierForRewriteRequest");
+        return nil;
+    }
+    
+    return [@"rewrite-" stringByAppendingString:[jsonData SHA1]];
+}
+
 - (NSString *)identifierForCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey]];
+    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey]];
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
     
@@ -779,56 +876,47 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return [@"cookie_block-" stringByAppendingString:[jsonData SHA1]];
 }
 
-- (SBTProxyStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
+- (SBTStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *responseArchivedData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0];
-    
-    NSData *responseData = nil;
-    
-    id responseObject = [NSKeyedUnarchiver unarchiveObjectWithData:responseArchivedData];
-    if ([responseObject isKindOfClass:[NSDictionary class]] || [responseObject isKindOfClass:[NSArray class]]) {
-        NSError *error = nil;
-        responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:&error];
-        if (!responseData || error) {
-            NSLog(@"[UITestTunnelServer] serialize response data");
-            return nil;
-        }
-    } else if ([responseObject isKindOfClass:[NSData class]]) {
-        responseData = responseObject;
-    } else {
-        NSLog(@"[UITestTunnelServer] invalid serialized object of class %@", NSStringFromClass([responseObject class]));
+    NSData *stubResponseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubResponseKey] options:0];
+    SBTStubResponse *stubResponse = [NSKeyedUnarchiver unarchiveObjectWithData:stubResponseData];
+
+    if (![stubResponse isKindOfClass:[SBTStubResponse class]]) {
+        NSLog(@"[UITestTunnelServer] serialize response data");
         return nil;
     }
-    
-    NSUInteger responseStatusCode = [tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] intValue];
-    NSString *mimeType = tunnelRequest.parameters[SBTUITunnelStubQueryMimeTypeKey];
-    NSUInteger contentLength = responseData.length;
-    NSTimeInterval responseTime = [tunnelRequest.parameters[SBTUITunnelStubQueryResponseTimeKey] doubleValue];
-    
-    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary dictionaryWithDictionary:@{ @"Content-Type": mimeType,
-                                                                                                            @"Content-Length": @(contentLength).stringValue }];
-    
-    NSString *serializedResponseHeaders = tunnelRequest.parameters[SBTUITunnelStubQueryReturnHeadersKey];
-    NSData *serializedResponseHeadersData = [serializedResponseHeaders dataUsingEncoding:NSUTF8StringEncoding];
-    if (serializedResponseHeadersData) {
-        NSDictionary *responseHeaders = [NSJSONSerialization JSONObjectWithData:serializedResponseHeadersData options:0 error:NULL];
-        if ([responseHeaders isKindOfClass:[NSDictionary class]]) {
-            [headers addEntriesFromDictionary:responseHeaders];
-        }
-    }
-    
-    SBTProxyStubResponse *response = [SBTProxyStubResponse responseWithData:responseData headers:headers statusCode:responseStatusCode responseTime:responseTime];
-    
-    return response;
+
+    return stubResponse;
 }
 
 - (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (!tunnelRequest.parameters[SBTUITunnelStubQueryReturnCodeKey] ||
-        !tunnelRequest.parameters[SBTUITunnelStubQueryMimeTypeKey] ||
-        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryRuleKey] options:0] ||
-        ![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubQueryReturnDataKey] options:0]) {
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid stubRequest received!");
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (SBTRewrite *)rewriteForRequest:(GCDWebServerRequest *)tunnelRequest
+{
+    NSData *rewriteData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteKey] options:0];
+    SBTRewrite *rewrite = [NSKeyedUnarchiver unarchiveObjectWithData:rewriteData];
+    
+    if (![rewrite isKindOfClass:[SBTRewrite class]]) {
+        NSLog(@"[UITestTunnelServer] serialize response data");
+        return nil;
+    }
+    
+    return rewrite;
+}
+
+- (BOOL)validRewriteRequest:(GCDWebServerRequest *)tunnelRequest
+{
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0]) {
+        NSLog(@"[UITestTunnelServer] Invalid rewriteRequest received!");
         
         return NO;
     }
@@ -860,7 +948,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (BOOL)validCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockQueryRuleKey] options:0]) {
+    if (![[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0]) {
         NSLog(@"[UITestTunnelServer] Invalid cookieBlockRequest received!");
         
         return NO;
@@ -872,7 +960,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #pragma mark - Helper Functions
 
 // https://gist.github.com/michalzelinka/67adfa0142767575194f
-- (void)deleteAppData {
+- (void)deleteAppData
+{
     NSFileManager *fm = [NSFileManager defaultManager];
     NSArray<NSString *> *folders = @[[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject],
                                      [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject],
@@ -918,6 +1007,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     return response[SBTUITunnelResponseResultKey];
+}
+
+- (void)reset
+{
+    [SBTProxyURLProtocol reset];
+    
+    self.stubsToRemoveAfterCount = [NSCountedSet set];
+    self.rewritesToRemoveAfterCount = [NSCountedSet set];
+    self.cookieBlockToRemoveAfterCount = [NSCountedSet set];
+    self.monitoredRequests = [NSMutableArray array];
+
+    [[self customCommands] removeAllObjects];
 }
 
 @end
