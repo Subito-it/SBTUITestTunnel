@@ -83,7 +83,7 @@ class NetworkRequests: NSObject {
         }.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
@@ -114,7 +114,7 @@ class NetworkRequests: NSObject {
         }.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
@@ -147,7 +147,7 @@ class NetworkRequests: NSObject {
         }.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
@@ -168,7 +168,7 @@ class NetworkRequests: NSObject {
         sessionTask?.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
@@ -190,7 +190,7 @@ class NetworkRequests: NSObject {
         sessionTask?.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
@@ -212,7 +212,7 @@ class NetworkRequests: NSObject {
         sessionTask?.resume()
         
         while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
