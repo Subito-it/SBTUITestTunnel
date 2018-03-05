@@ -22,6 +22,17 @@ class RewriteTests: XCTestCase {
     private let request = NetworkRequests()
     
     func testBodyRewrite() {
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+
+        let rewrittenResponse = SBTRewrite(request: [SBTRewriteReplacement(find: "param.*\"", replace: ""),
+                                                     SBTRewriteReplacement(find: "\"val.*", replace: "")],
+                                           headers: [:])
+        app.rewriteRequests(matching: requestMatch, response: rewrittenResponse)
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(request.isStubbed(result))
+
+        
 // TODO
     }
     

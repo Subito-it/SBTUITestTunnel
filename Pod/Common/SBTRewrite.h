@@ -52,7 +52,7 @@
  */
 - (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
                                  headers:(nonnull NSDictionary<NSString *, NSString *> *)headers
-                              returnCode:(NSInteger)returnCode NS_DESIGNATED_INITIALIZER;
+                              returnCode:(NSInteger)returnCode;
 
 /**
  *  Initializer
@@ -79,7 +79,7 @@
  *  @param headers a dictionary that represents the request headers
  */
 - (nonnull instancetype)initWithRequest:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
-                                headers:(nonnull NSDictionary<NSString *, NSString *> *)headers NS_DESIGNATED_INITIALIZER;
+                                headers:(nonnull NSDictionary<NSString *, NSString *> *)headers;
 
 /**
  *  Initializer
@@ -87,6 +87,29 @@
  *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
  */
 - (nonnull instancetype)initWithRequest:(nonnull NSArray<SBTRewriteReplacement *> *)replacement;
+
+#pragma mark - Mixed
+
+/**
+ *  Initializer
+ *
+ *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+ *  @param headers headers a dictionary that represents the request headers
+ */
+- (nonnull instancetype)initWithResponse:(nonnull NSArray<SBTRewriteReplacement *> *)replacement
+                          requestHeaders:(nonnull NSDictionary<NSString *, NSString *> *)headers;
+
+/**
+ *  Initializer
+ *
+ *  @param replacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+ *  @param headers headers a dictionary that represents the request headers
+ */
+- (nonnull instancetype)initWithResponseReplacement:(nullable NSArray<SBTRewriteReplacement *> *)responseReplacement
+                                 requestReplacement:(nullable NSArray<SBTRewriteReplacement *> *)requestReplacement
+                                    responseHeaders:(nullable NSDictionary<NSString *, NSString *> *)responseHeaders
+                                     requestHeaders:(nullable NSDictionary<NSString *, NSString *> *)requestHeaders
+                                         returnCode:(NSInteger)returnCode NS_DESIGNATED_INITIALIZER;
 
 @end
 

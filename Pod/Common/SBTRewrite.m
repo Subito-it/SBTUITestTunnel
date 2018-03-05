@@ -70,10 +70,11 @@
 
 @interface SBTRewrite()
 
-@property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *replacement;
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *headers;
+@property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *requestReplacement;
+@property (nonatomic, strong) NSArray<SBTRewriteReplacement *> *responseReplacement;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *requestHeaders;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeaders;
 @property (nonatomic, assign) NSInteger returnCode;
-@property (nonatomic, assign) BOOL isRequestRewrite;
 
 @end
 
@@ -83,27 +84,22 @@
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
-    NSArray<SBTRewriteReplacement *> *replacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(replacement))];
-    NSDictionary<NSString *, NSString *> *headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
+    NSArray<SBTRewriteReplacement *> *requestReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestReplacement))];
+    NSArray<SBTRewriteReplacement *> *responseReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseReplacement))];
+    NSDictionary<NSString *, NSString *> *requestHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeaders))];
+    NSDictionary<NSString *, NSString *> *responseHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeaders))];
     NSInteger returnCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(returnCode))];
-    BOOL isRequestRewrite = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isRequestRewrite))];
 
-    SBTRewrite *ret;
-    if (isRequestRewrite) {
-        ret = [self initWithResponse:replacement headers:headers returnCode:returnCode];
-    } else {
-        ret = [self initWithRequest:replacement headers:headers];
-    }
-
-    return ret;
+    return [self initWithResponseReplacement:responseReplacement requestReplacement:requestReplacement responseHeaders:responseHeaders requestHeaders:requestHeaders returnCode:returnCode];
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeObject:self.replacement forKey:NSStringFromSelector(@selector(replacement))];
-    [encoder encodeObject:self.headers forKey:NSStringFromSelector(@selector(headers))];
+    [encoder encodeObject:self.requestReplacement forKey:NSStringFromSelector(@selector(requestReplacement))];
+    [encoder encodeObject:self.responseReplacement forKey:NSStringFromSelector(@selector(responseReplacement))];
+    [encoder encodeObject:self.requestHeaders forKey:NSStringFromSelector(@selector(requestHeaders))];
+    [encoder encodeObject:self.responseHeaders forKey:NSStringFromSelector(@selector(responseHeaders))];
     [encoder encodeInteger:self.returnCode forKey:NSStringFromSelector(@selector(returnCode))];
-    [encoder encodeBool:self.isRequestRewrite forKey:NSStringFromSelector(@selector(isRequestRewrite))];
 }
 
 #pragma mark - Response
@@ -112,14 +108,7 @@
                          headers:(NSDictionary<NSString *, NSString *> *)headers
                       returnCode:(NSInteger)returnCode
 {
-    if ((self = [super init])) {
-        self.replacement = replacement;
-        self.headers = headers;
-        self.returnCode = returnCode;
-        self.isRequestRewrite = NO;
-    }
-    
-    return self;
+    return [self initWithResponseReplacement:replacement requestReplacement:nil responseHeaders:headers requestHeaders:nil returnCode:returnCode];
 }
 
 - (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
@@ -138,19 +127,39 @@
 - (instancetype)initWithRequest:(NSArray<SBTRewriteReplacement *> *)replacement
                         headers:(NSDictionary<NSString *, NSString *> *)headers
 {
-    if ((self = [super init])) {
-        self.replacement = replacement;
-        self.headers = headers;
-        self.returnCode = 0;
-        self.isRequestRewrite = YES;
-    }
-    
-    return self;
+    return [self initWithResponseReplacement:nil requestReplacement:replacement responseHeaders:nil requestHeaders:headers returnCode:0];
 }
 
 - (instancetype)initWithRequest:(NSArray<SBTRewriteReplacement *> *)replacement
 {
     return [self initWithRequest:replacement headers:@{}];
+}
+
+#pragma mark - Mixed
+
+- (instancetype)initWithResponse:(NSArray<SBTRewriteReplacement *> *)replacement
+                  requestHeaders:(NSDictionary<NSString *, NSString *> *)headers
+{
+    return [self initWithResponseReplacement:replacement requestReplacement:nil responseHeaders:nil requestHeaders:headers returnCode:0];
+}
+
+- (instancetype)initWithResponseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
+                         requestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
+                            responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
+                             requestHeaders:(NSDictionary<NSString *, NSString *> *)requestHeaders
+                                 returnCode:(NSInteger)returnCode
+{
+    if ((self = [super init])) {
+        self.responseReplacement = responseReplacement;
+        self.requestReplacement = requestReplacement;
+        
+        self.responseHeaders = responseHeaders;
+        self.requestHeaders = requestHeaders;
+        
+        self.returnCode = returnCode;
+    }
+    
+    return self;
 }
 
 @end
