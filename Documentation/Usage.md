@@ -1,13 +1,11 @@
-# Usage
-
 `SBTUITunneledApplication`'s headers are well commented making the library's functionality self explanatory. You can also checkout the UI test target in the example project which show basic usage of the library.
 
 
-## Launching tests
+# Launching tests
 
 Instead of calling the `launch()` method on `XCUIApplication` as you're used to use `launchTunnel()` or `launchTunnel(options:startupBlock:)`. These methods will launch the test and establish the tunnel connection.
 
-### Launch with no options
+## Launch with no options
 
     import SBTUITestTunnel
 
@@ -25,37 +23,37 @@ Instead of calling the `launch()` method on `XCUIApplication` as you're used to 
 
 _Note how we don't need to instantiate the `app` property_ 
 
-### Launch with options and startupBlock
+## Launch with options and startupBlock
 
     app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
          // do additional setup before the app launches
          // i.e. prepare stub request, start monitoring requests
     }
 
-#### Options
+### Options
 
 - `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
 - `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
 
-#### StartupBlock
+### StartupBlock
 
 The startup block contains code that will be executed before the app enters the `applicationDidFinishLaunching(_:)`. This is the right place to setup the application before it gets launched
 
-## Framework classes
+# Features
 
-### SBTRequestMatch
+## SBTRequestMatch
 
-The stubbing/monitoring/throttling methods of the library require a `SBTRequestMatch` object in order to determine whether they should react to a network request.
+The stubbing/monitoring/throttling and rewrite methods of the library require a `SBTRequestMatch` object in order to determine whether they should react to a certain network request.
 
 You can specify a regex on the URL, multiple regex on the query (in `POST` and `PUT` requests they will match against the body) and HTTP method using one of the several class methods available.
 
-#### Query parameter
+### Query parameter
 
 The `query` parameter found in different `SBTRequestMatch` initializers is an array of regex strings that are checked with the request [query](https://tools.ietf.org/html/rfc3986#section-3.4). If all regex in array match the request is stubbed/monitored/throttled.
 
 In a kind of unconventional syntax you can prefix the regex with an exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
 
-#### Examples
+### Examples
 
 The regex in `GET` and `DELETE` requests will match the entire URL including query parameters.
 
@@ -89,12 +87,6 @@ Finally you can limit a specific HTTP method by specifying it in the `method` pa
     let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"], method: "GET")
     let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
 
-### SBTStubResponse
-
-The stubbing methods of the library require a `SBTStubResponse` object in order to determine what to return for network requests that have to be stubbed.
-
-The class has a wide set of initializers that allow to specify data, HTTP headers, contentType, HTTP return code and response time of the stubbed request. For convenience some initializers omit some parameters which default to predefined values.
-
 ## Stubbing
 
 To stub a network request you pass the appropriate `SBTRequestMatch` and `SBTStubResponse` objects
@@ -116,6 +108,11 @@ A second stub initializer is available that automatically removes the stub after
     // subsequent network requests won't be stubbed
     ...
 
+### SBTStubResponse
+
+The stubbing methods of the library require a `SBTStubResponse` object in order to determine what to return for network requests that have to be stubbed.
+
+The class has a wide set of initializers that allow to specify data, HTTP headers, contentType, HTTP return code and response time of the stubbed request. For convenience some initializers omit some parameters which default to predefined values.
 
 ## NSUserDefaults
 
@@ -145,7 +142,7 @@ A second stub initializer is available that automatically removes the stub after
 
 ## Network monitoring
 
-This may come handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
+This may come in handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
 
     app.monitorRequests(matching: SBTRequestMatch.url("apple.com"))
         
@@ -167,7 +164,43 @@ The library allows to throttle network calls by specifying a response time, whic
 
     let throttleId = app.throttleRequests(matching: SBTRequestMatch.url("apple.com"), responseTime:SBTUITunnelStubsDownloadSpeed3G) ?? ""
         
-     app.throttleRequestRemove(withId: throttleId)
+    app.throttleRequestRemove(withId: throttleId)
+
+## Block cookies
+
+The library allows to block outgoing cookies in network calls. You pass an `SBTRequestMatch` like for stubbing methods.
+
+    let cookieBlockId = app.blockCookiesInRequests(matching: SBTRequestMatch.url("apple.com")) ?? ""
+        
+    app.blockCookiesRequestsRemove(withId: cookieBlockId)
+
+## Rewrite
+
+The library allows to rewrite the following elements of a network call:
+
+- url
+- request body
+- request headers
+- response body
+- response headers
+- response status code
+
+To rewrite a network request you pass the appropriate `SBTRequestMatch` and `SBTRewrite` objects
+
+### SBTRewrite
+
+The rewrite methods of the library require a `SBTRewrite` object in order to determine what to rewrite in the network requests that have to be rewritten.
+
+The class has a wide set of initializers that allow to specify request and response body/headers, return status codes and URL.
+
+The header rewrite is specified by passing a dictionary where the key will replace (if key already exist) or add new values to the headers. To remove a specific key just pass an empty value.
+
+The other rewrite are specified by an array of `SBTRewriteReplacement`.
+
+### SBTRewriteReplacement
+
+The `SBTRewriteReplacement` has a simple initializer where you pass 2 parameters: a regular expression that will be matched and a replacement string.
+
 
 ## Custom defined blocks of code
 
