@@ -13,6 +13,7 @@ SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * interact with NSUserDefaults
 * download/upload files from/to the app's sandbox
 * monitor network calls
+* rewrite network calls
 * define custom blocks of codes executed in the application target
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.

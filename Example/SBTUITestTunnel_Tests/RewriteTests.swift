@@ -176,7 +176,6 @@ class RewriteTests: XCTestCase {
 
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get", requestHeaders: ["param1": "val1", "param2": "val2", "remove_param": "value"])
 
-
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
         let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
@@ -190,26 +189,40 @@ class RewriteTests: XCTestCase {
     }
 
     func testResponseBodyRewrite() {
-// TODO
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let rewrite = SBTRewrite(responseReplacement: [SBTRewriteReplacement(find: "httpbin.org", replace: "myserver.com"),
+                                                       SBTRewriteReplacement(find: "Accept-Language", replace: "Accept-Language222")])
+
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/gzip")
+        
+        let networkBase64 = result["data"] as! String
+        let networkData = Data(base64Encoded: networkBase64)!
+        let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
+    
+        let rewrittenBody = dict["headers"] as! [String: String]
+        
+        XCTAssert(rewrittenBody.keys.contains("Accept-Language222"))
+        XCTAssertEqual(rewrittenBody["Host"], "myserver.com")
     }
     
     func testResponseHeaderRewrite() {
-//        let requestMatch = SBTRequestMatch(url: "httpbin.org")
-//        
-//        let rewrite = SBTRewrite(responseHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "", "param4": "val4"])
-//        
-//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-//        
-//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/response-headers?param1=val1&param2=val2&param3=val3")
-//        
-//        let networkBase64 = result["data"] as! String
-//        let networkData = Data(base64Encoded: networkBase64)!
-//        let headers = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
-//        
-//        XCTAssertEqual(headers["Param1"] as? String, "val1a")
-//        XCTAssertEqual(headers["Param2"] as? String, "val2a")
-//        XCTAssertEqual(headers["Param4"] as? String, "val4")
-//        XCTAssertFalse(headers.keys.contains("param3"))
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let rewrite = SBTRewrite(responseHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "", "param4": "val4"])
+        
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+        
+        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/response-headers?param1=val1&param2=val2&param3=val3")
+        
+        let headers = result.headers
+        
+        XCTAssertEqual(headers["param1"], "val1a")
+        XCTAssertEqual(headers["param2"], "val2a")
+        XCTAssertEqual(headers["param4"], "val4")
+        XCTAssertFalse(headers.keys.contains("param3"))
     }
 
     func testResponseStatusCodeRewrite() {
