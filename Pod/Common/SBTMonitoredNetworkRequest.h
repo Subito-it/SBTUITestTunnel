@@ -46,6 +46,7 @@
 @property (nullable, nonatomic, strong) NSData *responseData;
 
 @property (nonatomic, assign) BOOL isStubbed;
+@property (nonatomic, assign) BOOL isRewritten;
 
 @end
 

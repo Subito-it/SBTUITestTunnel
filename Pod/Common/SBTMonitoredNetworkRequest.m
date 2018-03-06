@@ -38,6 +38,7 @@
         self.response = [decoder decodeObjectForKey:NSStringFromSelector(@selector(response))];
         self.responseData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseData))];
         self.isStubbed = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isStubbed))];
+        self.isRewritten = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isRewritten))];
     }
     
     return self;
@@ -52,6 +53,7 @@
     [encoder encodeObject:self.response forKey:NSStringFromSelector(@selector(response))];
     [encoder encodeObject:self.responseData forKey:NSStringFromSelector(@selector(responseData))];
     [encoder encodeBool:self.isStubbed forKey:NSStringFromSelector(@selector(isStubbed))];
+    [encoder encodeBool:self.isRewritten forKey:NSStringFromSelector(@selector(isRewritten))];
 }
 
 - (NSString *)description
@@ -60,6 +62,8 @@
     
     if (self.isStubbed) {
         return [ret stringByAppendingString:@" (Stubbed)"];
+    } else if (self.isRewritten) {
+        return [ret stringByAppendingString:@" (Rewritten)"];
     } else {
         return ret;
     }

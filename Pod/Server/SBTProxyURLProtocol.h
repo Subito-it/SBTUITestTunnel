@@ -34,7 +34,7 @@
 
 #pragma mark - Proxy Requests
 
-+ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL))block;
++ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL, BOOL))block;
 + (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)proxyRequestsRemoveAll;
 

@@ -40,8 +40,8 @@
     NSData *findData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(findData))];
     NSData *replaceData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(replaceData))];
     
-    NSString *find = [findData base64EncodedStringWithOptions:0];
-    NSString *replace = [replaceData base64EncodedStringWithOptions:0];
+    NSString *find = [[NSString alloc] initWithData:findData encoding:NSUTF8StringEncoding];
+    NSString *replace = [[NSString alloc] initWithData:replaceData encoding:NSUTF8StringEncoding];
 
     SBTRewriteReplacement *ret = [self initWithFind:find replace:replace];
     
@@ -62,6 +62,29 @@
     }
     
     return self;
+}
+
+- (NSString *)description
+{
+    NSString *findString = [[NSString alloc] initWithData:self.findData encoding:NSUTF8StringEncoding];
+    NSString *replaceString = [[NSString alloc] initWithData:self.replaceData encoding:NSUTF8StringEncoding];
+
+    return [[NSString alloc] initWithFormat:@"`%@` -> `%@`", findString, replaceString];
+}
+
+- (NSString *)replace:(NSString *)string
+{
+    NSString *findString = [[NSString alloc] initWithData:self.findData encoding:NSUTF8StringEncoding];
+    NSString *replaceString = [[NSString alloc] initWithData:self.replaceData encoding:NSUTF8StringEncoding];
+    
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:findString options:NSRegularExpressionCaseInsensitive error:&error];
+    
+    if (error != nil) {
+        return @"invalid-regex!";
+    }
+    
+    return [regex stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:replaceString];
 }
 
 @end
@@ -208,6 +231,137 @@
 }
 
 #pragma clang diagnostic pop
+
+- (NSString *)description
+{
+    NSMutableString *description = [NSMutableString string];
+    
+    if (self.urlReplacement.count > 0) {
+        for (SBTRewriteReplacement *replacement in self.urlReplacement) {
+            [description appendFormat:@"URL replacement: %@\n", replacement];
+        }
+        [description appendString:@"\n"];
+    }
+    
+    if (self.responseReplacement.count > 0) {
+        for (SBTRewriteReplacement *replacement in self.responseReplacement) {
+            [description appendFormat:@"Response body replacement: %@\n", replacement];
+        }
+        [description appendString:@"\n"];
+    }
+    
+    if (self.responseHeadersReplacement.count > 0) {
+        for (NSString *replacementKey in self.responseHeadersReplacement) {
+            [description appendFormat:@"Response header replacement: `%@` -> `%@`\n", replacementKey, self.responseHeadersReplacement[replacementKey]];
+        }
+        [description appendString:@"\n"];
+    }
+    
+    if (self.responseCode > -1) {
+        [description appendFormat:@"Response code replacement: %ld\n\n", self.responseCode];
+    }
+    
+    if (self.requestReplacement.count > 0) {
+        for (SBTRewriteReplacement *replacement in self.requestReplacement) {
+            [description appendFormat:@"Request body replacement: %@\n", replacement];
+        }
+        [description appendString:@"\n"];
+    }
+    
+    if (self.requestHeadersReplacement.count > 0) {
+        for (NSString *replacementKey in self.requestHeadersReplacement) {
+            [description appendFormat:@"Request header replacement: `%@` -> `%@`\n", replacementKey, self.requestHeadersReplacement[replacementKey]];
+        }
+        [description appendString:@"\n"];
+    }
+
+    return description;
+}
+
+- (NSURL *)rewriteUrl:(nonnull NSURL *)url
+{
+    if (self.urlReplacement.count == 0) {
+        return url;
+    }
+    
+    NSMutableString *absoluteString = [url.absoluteString mutableCopy];
+    for (SBTRewriteReplacement *replacement in self.urlReplacement) {
+        absoluteString = [[replacement replace:absoluteString] mutableCopy];
+    }
+    
+    return [NSURL URLWithString:absoluteString];
+}
+
+- (NSDictionary *)rewriteRequestHeaders:(NSDictionary *)requestHeaders
+{
+    if (self.requestHeadersReplacement.allKeys.count == 0) {
+        return requestHeaders;
+    }
+    
+    NSMutableDictionary *headers = [requestHeaders mutableCopy];
+    for (NSString *replacementKey in self.requestHeadersReplacement) {
+        BOOL shouldRemoveKey = [self.requestHeadersReplacement[replacementKey] isKindOfClass:[NSNull class]];
+        
+        if (shouldRemoveKey) {
+            [headers removeObjectForKey:replacementKey];
+        } else {
+            headers[replacementKey] = self.requestHeadersReplacement[replacementKey];
+        }
+    }
+    
+    return headers;
+}
+
+- (NSDictionary *)rewriteResponseHeaders:(NSDictionary *)responseHeaders
+{
+    if (self.responseHeadersReplacement.allKeys.count == 0) {
+        return responseHeaders;
+    }
+    
+    NSMutableDictionary *headers = [responseHeaders mutableCopy];
+    for (NSString *replacementKey in self.responseHeadersReplacement) {
+        BOOL shouldRemoveKey = [self.responseHeadersReplacement[replacementKey] isKindOfClass:[NSNull class]];
+        
+        if (shouldRemoveKey) {
+            [headers removeObjectForKey:replacementKey];
+        } else {
+            headers[replacementKey] = self.responseHeadersReplacement[replacementKey];
+        }
+    }
+    
+    return headers;
+}
+
+- (NSData *)rewriteRequestBody:(NSData *)requestBody
+{
+    // For the time being we rewrite Strings, it would be nice to be able to rewrite NSData bodies (find a sequence of bytes and replace them)
+    NSMutableString *body = [[NSMutableString alloc] initWithData:requestBody encoding:NSUTF8StringEncoding];
+    for (SBTRewriteReplacement *replacement in self.requestReplacement) {
+        body = [[replacement replace:body] mutableCopy];
+    }
+    
+    return [body dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSData *)rewriteResponseBody:(NSData *)responseBody
+{
+    // For the time being we rewrite Strings, it would be nice to be able to rewrite NSData bodies (find a sequence of bytes and replace them)
+    NSMutableString *body = [[NSMutableString alloc] initWithData:responseBody encoding:NSUTF8StringEncoding];
+    for (SBTRewriteReplacement *replacement in self.responseReplacement) {
+        body = [[replacement replace:body] mutableCopy];
+    }
+    
+    return [body dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSInteger)rewriteStatusCode:(NSInteger)statusCode
+{
+    if (self.responseCode < 0) {
+        return statusCode;
+    }
+    
+    return self.responseCode;
+}
 
 @end
 

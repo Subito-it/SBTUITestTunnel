@@ -35,6 +35,13 @@
  */
 - (nonnull instancetype)initWithFind:(nonnull NSString *)find replace:(nonnull NSString *)replace;
 
+/**
+ *  Process a string by applying replacement specified in initializer
+ *
+ *  @param string string to replace
+ */
+- (nonnull NSString *)replace:(nonnull NSString *)string;
+
 @end
 
 @interface SBTRewrite : NSObject<NSCoding>
@@ -115,6 +122,48 @@
                            responseReplacement:(nullable NSArray<SBTRewriteReplacement *> *)responseReplacement
                     responseHeadersReplacement:(nullable NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
                                   responseCode:(NSInteger)responseCode NS_DESIGNATED_INITIALIZER;
+
+/**
+ *  Process a url by applying replacement specified in initializer
+ *
+ *  @param url url to replace
+ */
+- (nonnull NSURL *)rewriteUrl:(nonnull NSURL *)url;
+
+/**
+ *  Process a dictionary of request headers by applying replacement specified in initializer
+ *
+ *  @param requestHeaders request headers to replace
+ */
+- (nonnull NSDictionary *)rewriteRequestHeaders:(nonnull NSDictionary *)requestHeaders;
+
+/**
+ *  Process a dictionary of response headers by applying replacement specified in initializer
+ *
+ *  @param responseHeaders response headers to replace
+ */
+- (nonnull NSDictionary *)rewriteResponseHeaders:(nonnull NSDictionary *)responseHeaders;
+
+/**
+ *  Process a request body by applying replacement specified in initializer
+ *
+ *  @param requestBody request body
+ */
+- (nonnull NSData *)rewriteRequestBody:(nonnull NSData *)requestBody;
+
+/**
+ *  Process a response body by applying replacement specified in initializer
+ *
+ *  @param responseBody response body
+ */
+- (nonnull NSData *)rewriteResponseBody:(nonnull NSData *)responseBody;
+
+/**
+ *  Process a status code by applying replacement specified in initializer
+ *
+ *  @param statusCode the status code
+ */
+- (NSInteger)rewriteStatusCode:(NSInteger)statusCode;
 
 @end
 

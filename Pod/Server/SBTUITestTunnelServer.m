@@ -401,7 +401,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelProxyQueryRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
-        reqId = [SBTProxyURLProtocol proxyRequestsMatching:requestMatch delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed) {
+        reqId = [SBTProxyURLProtocol proxyRequestsMatching:requestMatch delayResponse:0.0 responseBlock:^(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed, BOOL isRewritten) {
             SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
             
             monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
@@ -414,6 +414,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             monitoredRequest.responseData = responseData;
             
             monitoredRequest.isStubbed = isStubbed;
+            monitoredRequest.isRewritten = isRewritten;
             
             [self.monitoredRequests addObject:monitoredRequest];
         }];

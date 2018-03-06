@@ -37,7 +37,7 @@ static NSString * const SBTProxyURLProtocolRewriteResponse = @"SBTProxyURLProtoc
 static NSString * const SBTProxyURLProtocolBlockCookiesKey = @"SBTProxyURLProtocolBlockCookiesKey";
 static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
-typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed);
+typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed, BOOL rewritten);
 typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
@@ -79,7 +79,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 # pragma mark - Proxying
 
-+ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed))block;
++ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed, BOOL isRewritten))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     
@@ -367,7 +367,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 [client URLProtocol:strongSelf didFailWithError:error];
                 [client URLProtocolDidFinishLoading:strongSelf];
             } else {
-                strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:@"1.1" headerFields:stubResponse.headers];
+                strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
                 
                 [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
                 [client URLProtocol:strongSelf didLoadData:stubResponse.data];
@@ -384,7 +384,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                             __unused SBTRequestMatch *requestMatch = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
                             NSLog(@"[UITestTunnelServer] Throttling or monitoring stubbed %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch);
                             
-                            block(request, request, (NSHTTPURLResponse *)strongSelf.response, stubResponse.data, stubbingResponseTime, YES);
+                            block(request, request, (NSHTTPURLResponse *)strongSelf.response, stubResponse.data, stubbingResponseTime, YES, NO); // stubbed requests are not rewritten
                         }
                     }
                 }
@@ -402,7 +402,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     if (proxyRule != nil || rewriteRule != nil || cookieBlockRule != nil) {
-        // PROXY ONLY REQUEST (THROTTLE OR MONITORING)
         __unused SBTRequestMatch *requestMatch1 = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
@@ -417,6 +416,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [newRequest addValue:@"" forHTTPHeaderField:@"Cookie"];
         } else {
             [self moveCookiesToHeader:newRequest];
+        }
+        
+        SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
+        if (rewrite != nil) {
+            newRequest.URL = [rewrite rewriteUrl:newRequest.URL];
+            newRequest.allHTTPHeaderFields = [rewrite rewriteRequestHeaders:newRequest.allHTTPHeaderFields];
         }
         
         self.connection = [session dataTaskWithRequest:newRequest];
@@ -454,7 +459,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    if ([self currentRequestIsRewriteRule]) {
+    if ([self rewriteRuleForCurrentRequest] != nil) {
         // if we're rewriting the request we will send only a didLoadData callback after rewriting content once everything was received
     } else {
         [self.client URLProtocol:self didLoadData:data];
@@ -468,48 +473,51 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     if (!error) {
-        NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
         NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
         
         NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
         NSAssert(responseData != nil, @"Should not be nil");
         [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
         
-        NSTimeInterval delayResponseTime = [self delayResponseTime];
-        
         self.response = task.response;
+        
+        SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
+        BOOL isRequestRewritten = (rewrite != nil);
+        if (isRequestRewritten) {
+            responseData = [rewrite rewriteResponseBody:responseData];
+            NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
+            if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
+                NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
+                self.response = [[NSHTTPURLResponse alloc] initWithURL:taskResponse.URL statusCode:statusCode HTTPVersion:nil headerFields:headers];
+            }
+        }
+        
+        NSURLRequest *request = self.request;
+        NSURLResponse *response = self.response;
 
-        __block BOOL didFinishLoading = NO;
-        for (NSDictionary *matchingRule in matchingRules) {
-            NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+        NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
+        NSTimeInterval delayResponseTime = [self delayResponseTime];
+        NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+        
+        __weak typeof(self)weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            __strong typeof(weakSelf)strongSelf = weakSelf;
             
-            __weak typeof(self)weakSelf = self;
-            id<NSURLProtocolClient>client = self.client;
-            NSURLRequest *request = self.request;
-            NSURLResponse *response = self.response;
+            if (isRequestRewritten) {
+                [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
+                [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            }
+            [weakSelf.client URLProtocolDidFinishLoading:strongSelf];
+        });
+        
+        for (NSDictionary *matchingRule in matchingRules) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                __strong typeof(weakSelf)strongSelf = weakSelf;
-                
-                if (!didFinishLoading) {
-                    if ([weakSelf currentRequestIsRewriteRule]) {
-#warning TODO rewrite
-                        NSData *rewrittenData = responseData;
-                        NSURLResponse *rewrittenResponse = response;
-                        
-                        [weakSelf.client URLProtocol:weakSelf didLoadData:rewrittenData];
-                        [weakSelf.client URLProtocol:weakSelf didReceiveResponse:rewrittenResponse cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                    }
-                    
-                    [client URLProtocolDidFinishLoading:strongSelf];
-                    didFinishLoading = YES; // if multiple rules match complete just once
-                }
-                
                 SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
-                    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey
-                                                                        inRequest:request];
-                    block(task.currentRequest ?: request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO);
+                    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+                    block(task.currentRequest ?: request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO, isRequestRewritten);
                 }
             });
         }
@@ -535,7 +543,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
-    if ([self currentRequestIsRewriteRule]) {
+    if ([self rewriteRuleForCurrentRequest] != nil) {
         // if we're rewriting the request we will send only a didReceiveResponse callback after rewriting content once everything was received
     } else {
         [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
@@ -614,16 +622,16 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return [prefix stringByAppendingString:identifier];
 }
 
-- (BOOL)currentRequestIsRewriteRule
+- (SBTRewrite *)rewriteRuleForCurrentRequest
 {
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
-            return YES;
+            return matchingRule[SBTProxyURLProtocolRewriteResponse];
         }
     }
     
-    return NO;
+    return nil;
 }
 
 @end

@@ -21,16 +21,32 @@ class RewriteTests: XCTestCase {
     
     private let request = NetworkRequests()
     
-    func testBodyRewrite() {
-        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+    func testURLRewrite() {
+//        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+//        
+//        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+//                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+//
+//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+//        
+//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+//        XCTAssert(request.isStubbed(result))
+//        
+//        
+        // TODO
+    }
 
-        let rewrittenResponse = SBTRewrite(request: [SBTRewriteReplacement(find: "param.*\"", replace: ""),
-                                                     SBTRewriteReplacement(find: "\"val.*", replace: "")],
-                                           headers: [:])
-        app.rewriteRequests(matching: requestMatch, response: rewrittenResponse)
+    
+    
+    func testBodyRewrite() {
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result))
+        
+
+//        let rewrittenResponse = SBTRewrite(request: [SBTRewriteReplacement(find: "param.*\"", replace: ""),
+//                                                     SBTRewriteReplacement(find: "\"val.*", replace: "")],
+//                                           headers: [:])
+//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+        
 
         
 // TODO
