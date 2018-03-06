@@ -60,6 +60,12 @@ class NetworkRequests: NSObject {
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> [String: Any] {
+        let (retResponse, retHeaders, retData) = dataTaskNetworkWithResponse(urlString: urlString, httpMethod: httpMethod, httpBody: httpBody, delay: delay)
+        
+        return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
+    }
+    
+    func dataTaskNetworkWithResponse(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> (response: HTTPURLResponse, headers: [String: String], data: Data) {
         var retData: Data! = nil
         var retResponse: HTTPURLResponse! = nil
         var retHeaders: [String: String]! = nil
@@ -80,13 +86,13 @@ class NetworkRequests: NSObject {
                 
                 self.done = true
             }
-        }.resume()
+            }.resume()
         
         while !done {
             RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
-        return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
+        return (retResponse, retHeaders, retData)
     }
     
     func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {

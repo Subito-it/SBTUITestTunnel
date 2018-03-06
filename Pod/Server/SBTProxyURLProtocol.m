@@ -613,6 +613,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         prefix = @"stb-";
     } else if (rule[SBTProxyURLProtocolDelayResponseTimeKey]) {
         prefix = @"thr-";
+    } else if (rule[SBTProxyURLProtocolRewriteResponse]) {
+        prefix = @"rwr-";
     } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull class]]) {
         prefix = @"mon-";
     }

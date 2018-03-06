@@ -194,6 +194,16 @@
                            responseCode:-1];
 }
 
+- (instancetype)initWithResponseStatusCode:(NSInteger)statusCode
+{
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:nil
+             responseHeadersReplacement:nil
+                           responseCode:statusCode];
+}
+
 #pragma mark - URL
 
 - (instancetype)initWithRequestUrlReplacement:(NSArray<SBTRewriteReplacement *> *)urlReplacement

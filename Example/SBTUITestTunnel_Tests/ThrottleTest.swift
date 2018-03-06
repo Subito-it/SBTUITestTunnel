@@ -62,7 +62,7 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta < -5.0 && delta > -15.0)
         
-        app.throttleRequestRemoveAll()
+        XCTAssert(app.throttleRequestRemoveAll())
         let start2 = Date()
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
@@ -79,7 +79,7 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta < -5.0 && delta > -15.0)
         
-        app.throttleRequestRemove(withId: requestId)
+        XCTAssert(app.throttleRequestRemove(withId: requestId))
         let start2 = Date()
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow

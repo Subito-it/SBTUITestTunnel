@@ -370,7 +370,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return ret;
 }
 
-- (NSDictionary *)commandRewriteRequestsRemove:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandRewriteRemove:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
     NSString *rewriteId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
@@ -383,7 +383,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
-- (NSDictionary *)commandRewriteRequestsRemoveAll:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandRewriteRemoveAll:(GCDWebServerRequest *)tunnelRequest
 {
     [SBTProxyURLProtocol rewriteRequestsRemoveAll];
     

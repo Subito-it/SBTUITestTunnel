@@ -269,7 +269,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)rewriteRequestsRemoveWithId:(NSString *)rewriteId
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteRuleIdKey:[self base64SerializeObject:rewriteId]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey:[self base64SerializeObject:rewriteId]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemove params:params] boolValue];
 }

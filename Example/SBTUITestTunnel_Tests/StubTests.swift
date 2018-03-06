@@ -241,7 +241,7 @@ class StubTests: XCTestCase {
         XCTAssert(delta < -5.0)
 
         SBTStubResponse.resetUnspecifiedDefaults()
-        app.stubRequestsRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: responseText))
 
         expectedHeaders["Content-Type"] = "text/plain"

@@ -77,6 +77,13 @@
  */
 - (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement;
 
+/**
+ *  Initializer
+ *
+ *  @param statusCode the response status code to rewrite
+ */
+- (nonnull instancetype)initWithResponseStatusCode:(NSInteger)statusCode;
+
 #pragma mark - Request
 
 /**

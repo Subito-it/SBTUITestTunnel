@@ -47,7 +47,6 @@ NSString * const SBTUITunnelStubIterationsKey = @"iterations";
 NSString * const SBTUITunnelRewriteMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelRewriteKey = @"rewrite_rule";
 NSString * const SBTUITunnelRewriteIterationsKey = @"iterations";
-NSString * const SBTUITunnelRewriteRuleIdKey = @"rewrite_id";
 
 NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 

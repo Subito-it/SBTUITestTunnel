@@ -46,7 +46,7 @@ class MonitorTests: XCTestCase {
             XCTAssert(request.requestTime > 0.0)
         }
         
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.monitorRequestRemoveAll())
 
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         
@@ -78,7 +78,7 @@ class MonitorTests: XCTestCase {
             XCTAssert(request.requestTime > 0.0)
         }
         
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.monitorRequestRemoveAll())
         app.monitoredRequestsFlushAll()
         
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
@@ -97,8 +97,8 @@ class MonitorTests: XCTestCase {
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         
-        app.stubRequestsRemoveAll()
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 
     func testMonitorTwice() {
@@ -123,8 +123,8 @@ class MonitorTests: XCTestCase {
         XCTAssert(requests3[0].description.hasSuffix(" (Stubbed)"))
         XCTAssertFalse(requests3[1].description.hasSuffix(" (Stubbed)"))
         
-        app.stubRequestsRemoveAll()
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 
     func testMonitorAndStubWithRemoveAfterTwoIterations() {
@@ -140,8 +140,8 @@ class MonitorTests: XCTestCase {
         let requests2 = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests2.count, 2)
         
-        app.stubRequestsRemoveAll()
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 
     func testMonitorAndThrottle() {
@@ -157,8 +157,8 @@ class MonitorTests: XCTestCase {
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         
-        app.stubRequestsRemoveAll()
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 
     func testMonitorPostRequestWithHTTPBody() {
@@ -182,8 +182,8 @@ class MonitorTests: XCTestCase {
             XCTAssert(request.requestTime > 0.0)
         }
         
-        app.stubRequestsRemoveAll()
-        app.monitorRequestRemoveAll()
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 
     func testSyncWaitForMonitoredRequestsDoesNotTimeout() {

@@ -47,7 +47,7 @@ class CookiesTest: XCTestCase {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.blockCookiesInRequests(matching: requestMatch)
         XCTAssertEqual(countCookies(), 0)
-        app.blockCookiesRequestsRemoveAll()
+        XCTAssert(app.blockCookiesRequestsRemoveAll())
         XCTAssertEqual(countCookies(), 1)
     }
     
@@ -58,7 +58,7 @@ class CookiesTest: XCTestCase {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         let requestId = app.blockCookiesInRequests(matching: requestMatch) ?? ""
         XCTAssertEqual(countCookies(), 0)
-        app.blockCookiesRequestsRemove(withId: requestId)
+        XCTAssert(app.blockCookiesRequestsRemove(withId: requestId))
         XCTAssertEqual(countCookies(), 1)
     }
 }

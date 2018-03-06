@@ -48,7 +48,6 @@ extern NSString * _Nonnull const SBTUITunnelStubIterationsKey;
 extern NSString * _Nonnull const SBTUITunnelRewriteMatchRuleKey;
 extern NSString * _Nonnull const SBTUITunnelRewriteKey;
 extern NSString * _Nonnull const SBTUITunnelRewriteIterationsKey;
-extern NSString * _Nonnull const SBTUITunnelRewriteRuleIdKey;
 
 extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 
