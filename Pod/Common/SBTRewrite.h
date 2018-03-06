@@ -54,7 +54,7 @@
  *  Initializer
  *
  *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
- *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
  *  @param responseCode the response HTTP code to return
  */
 - (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement
@@ -65,7 +65,7 @@
  *  Initializer
  *
  *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
- *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
  */
 - (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement
                                  headersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)responseHeadersReplacement;
@@ -80,6 +80,13 @@
 /**
  *  Initializer
  *
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
+ */
+- (nonnull instancetype)initWithResponseHeadersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)responseHeadersReplacement;
+
+/**
+ *  Initializer
+ *
  *  @param statusCode the response status code to rewrite
  */
 - (nonnull instancetype)initWithResponseStatusCode:(NSInteger)statusCode;
@@ -90,7 +97,7 @@
  *  Initializer
  *
  *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
- *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
  */
 - (nonnull instancetype)initWithRequestReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)requestReplacement
                          requestHeadersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)requestHeadersReplacement;
@@ -101,6 +108,13 @@
  *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
  */
 - (nonnull instancetype)initWithRequestReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)requestReplacement;
+
+/**
+ *  Initializer
+ *
+ *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
+ */
+- (nonnull instancetype)initWithRequestHeadersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)requestHeadersReplacement;
 
 #pragma mark - URL
 
@@ -118,9 +132,9 @@
  *
  *  @param urlReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request URL (host + query)
  *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
- *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
  *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
- *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value contains an NSNull the key will be removed
+ *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
  *  @param responseCode the response HTTP code to return
  */
 - (nonnull instancetype)initWithUrlReplacement:(nullable NSArray<SBTRewriteReplacement *> *)urlReplacement

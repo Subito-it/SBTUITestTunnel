@@ -59,19 +59,22 @@ class NetworkRequests: NSObject {
         return eq
     }
     
-    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> [String: Any] {
-        let (retResponse, retHeaders, retData) = dataTaskNetworkWithResponse(urlString: urlString, httpMethod: httpMethod, httpBody: httpBody, delay: delay)
+    func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, requestHeaders: [String: String] = [:], delay: TimeInterval = 0.0) -> [String: Any] {
+        let (retResponse, retHeaders, retData) = dataTaskNetworkWithResponse(urlString: urlString, httpMethod: httpMethod, httpBody: httpBody, requestHeaders: requestHeaders, delay: delay)
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
     
-    func dataTaskNetworkWithResponse(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0) -> (response: HTTPURLResponse, headers: [String: String], data: Data) {
+    func dataTaskNetworkWithResponse(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, requestHeaders: [String: String] = [:], delay: TimeInterval = 0.0) -> (response: HTTPURLResponse, headers: [String: String], data: Data) {
         var retData: Data! = nil
         var retResponse: HTTPURLResponse! = nil
         var retHeaders: [String: String]! = nil
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
+
+        requestHeaders.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
+        
         request.httpMethod = httpMethod
         if let httpBody = httpBody {
             request.httpBody = httpBody.data(using: .utf8)
@@ -86,7 +89,7 @@ class NetworkRequests: NSObject {
                 
                 self.done = true
             }
-            }.resume()
+        }.resume()
         
         while !done {
             RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))

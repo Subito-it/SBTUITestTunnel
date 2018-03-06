@@ -47,7 +47,7 @@ class RewriteTests: XCTestCase {
         let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -5.0)
+        XCTAssert(delta < -5.0, "Got \(delta)")
         XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
     
@@ -68,7 +68,8 @@ class RewriteTests: XCTestCase {
         let monitoredRequests = app.monitoredRequestsFlushAll()
         
         XCTAssertEqual(monitoredRequests.count, 1)
-        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(monitoredRequests.first?.isRewritten, true)
         XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(delta < -5.0)
         XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
@@ -92,7 +93,8 @@ class RewriteTests: XCTestCase {
         let monitoredRequests = app.monitoredRequestsFlushAll()
         
         XCTAssertEqual(monitoredRequests.count, 1)
-        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(monitoredRequests.first?.isRewritten, true)
         XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(delta < -5.0)
         XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
@@ -149,34 +151,65 @@ class RewriteTests: XCTestCase {
     func testRequestBodyRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(requestReplacement: [SBTRewriteReplacement(find: "param2_val2", replace: "param2a_val2a"),
+                                                      SBTRewriteReplacement(find: "param1_val1", replace: "param1a_val1a")])
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         
-        
-        
-
-//        let rewrittenResponse = SBTRewrite(request: [SBTRewriteReplacement(find: "param.*\"", replace: ""),
-//                                                     SBTRewriteReplacement(find: "\"val.*", replace: "")],
-//                                           headers: [:])
-//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "This is a test where I want to replace param2_val2 and param1_val1")
 
         
-// TODO
+        let networkBase64 = result["data"] as! String
+        let networkData = Data(base64Encoded: networkBase64)!
+        let postDict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
+        let postContent = (postDict["form"] as! [String: Any]).keys.first ?? ""
+        
+        XCTAssertEqual(postContent, "This is a test where I want to replace param2a_val2a and param1a_val1a")
     }
     
     func testRequestHeaderRewrite() {
-// TODO
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let rewrite = SBTRewrite(requestHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "newVal", "Accept-Language": "it-it", "remove_param": ""])
+
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get", requestHeaders: ["param1": "val1", "param2": "val2", "remove_param": "value"])
+
+
+        let networkBase64 = result["data"] as! String
+        let networkData = Data(base64Encoded: networkBase64)!
+        let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
+        let headers = dict["headers"] as! [String: Any]
+        
+        XCTAssertEqual(headers["Param1"] as? String, "val1a")
+        XCTAssertEqual(headers["Param2"] as? String, "val2a")
+        XCTAssertEqual(headers["Param3"] as? String, "newVal")
+        XCTAssertEqual(headers["Accept-Language"] as? String, "it-it")
+        XCTAssertFalse(headers.keys.contains("remove_param"))
     }
 
     func testResponseBodyRewrite() {
+// TODO
     }
     
     func testResponseHeaderRewrite() {
-        // TODO
+//        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+//        
+//        let rewrite = SBTRewrite(responseHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "", "param4": "val4"])
+//        
+//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+//        
+//        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/response-headers?param1=val1&param2=val2&param3=val3")
+//        
+//        let networkBase64 = result["data"] as! String
+//        let networkData = Data(base64Encoded: networkBase64)!
+//        let headers = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
+//        
+//        XCTAssertEqual(headers["Param1"] as? String, "val1a")
+//        XCTAssertEqual(headers["Param2"] as? String, "val2a")
+//        XCTAssertEqual(headers["Param4"] as? String, "val4")
+//        XCTAssertFalse(headers.keys.contains("param3"))
     }
 
     func testResponseStatusCodeRewrite() {

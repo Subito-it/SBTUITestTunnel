@@ -422,6 +422,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         if (rewrite != nil) {
             newRequest.URL = [rewrite rewriteUrl:newRequest.URL];
             newRequest.allHTTPHeaderFields = [rewrite rewriteRequestHeaders:newRequest.allHTTPHeaderFields];
+            newRequest.HTTPBody = [rewrite rewriteRequestBody:newRequest.HTTPBody];
         }
         
         self.connection = [session dataTaskWithRequest:newRequest];
@@ -517,7 +518,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 
                 if (![block isEqual:[NSNull null]] && block != nil) {
                     NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
-                    block(task.currentRequest ?: request, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO, isRequestRewritten);
+                    block(request ?: task.currentRequest, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO, isRequestRewritten);
                 }
             });
         }

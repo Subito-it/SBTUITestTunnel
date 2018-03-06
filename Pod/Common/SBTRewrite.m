@@ -171,6 +171,26 @@
                            responseCode:-1];
 }
 
+- (instancetype)initWithResponseHeadersReplacement:(NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
+{
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:nil
+             responseHeadersReplacement:responseHeadersReplacement
+                           responseCode:-1];
+}
+
+- (instancetype)initWithResponseStatusCode:(NSInteger)statusCode
+{
+    return [self initWithUrlReplacement:nil
+                     requestReplacement:nil
+              requestHeadersReplacement:nil
+                    responseReplacement:nil
+             responseHeadersReplacement:nil
+                           responseCode:statusCode];
+}
+
 #pragma mark - Request
 
 - (instancetype)initWithRequestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
@@ -194,14 +214,14 @@
                            responseCode:-1];
 }
 
-- (instancetype)initWithResponseStatusCode:(NSInteger)statusCode
+- (instancetype)initWithRequestHeadersReplacement:(NSDictionary<NSString *, NSString *> *)requestHeadersReplacement
 {
     return [self initWithUrlReplacement:nil
                      requestReplacement:nil
-              requestHeadersReplacement:nil
+              requestHeadersReplacement:requestHeadersReplacement
                     responseReplacement:nil
              responseHeadersReplacement:nil
-                           responseCode:statusCode];
+                           responseCode:-1];
 }
 
 #pragma mark - URL
@@ -310,7 +330,7 @@
     
     NSMutableDictionary *headers = [requestHeaders mutableCopy];
     for (NSString *replacementKey in self.requestHeadersReplacement) {
-        BOOL shouldRemoveKey = [self.requestHeadersReplacement[replacementKey] isKindOfClass:[NSNull class]];
+        BOOL shouldRemoveKey = self.requestHeadersReplacement[replacementKey].length == 0;
         
         if (shouldRemoveKey) {
             [headers removeObjectForKey:replacementKey];
@@ -330,7 +350,7 @@
     
     NSMutableDictionary *headers = [responseHeaders mutableCopy];
     for (NSString *replacementKey in self.responseHeadersReplacement) {
-        BOOL shouldRemoveKey = [self.responseHeadersReplacement[replacementKey] isKindOfClass:[NSNull class]];
+        BOOL shouldRemoveKey = (self.responseHeadersReplacement[replacementKey].length == 0);
         
         if (shouldRemoveKey) {
             [headers removeObjectForKey:replacementKey];
