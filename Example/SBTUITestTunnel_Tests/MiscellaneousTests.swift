@@ -78,4 +78,26 @@ class MiscellaneousTests: XCTestCase {
         let delta = start.timeIntervalSinceNow
         XCTAssert(delta < -5.0)
     }
+    
+    func testStubWithFilename() {
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+        
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        let response = SBTStubResponse(fileNamed: "test_file.json")
+        app.stubRequests(matching: requestMatch, response: response)
+        
+        app.cells["executeDataTaskRequest"].tap()
+        
+        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
+        waitForExpectations(timeout: 10.0, handler: nil)
+        
+        let result = app.textViews["result"].value as! String
+        let resultData = Data(base64Encoded: result)!
+        let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
+        
+        let networkBase64 = resultDict["data"] as! String
+        let networkString = String(data: Data(base64Encoded: networkBase64)!, encoding: .utf8)
+        
+        XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
+    }
 }
