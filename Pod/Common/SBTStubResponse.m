@@ -114,7 +114,10 @@ static NSString *defaultNSDataContentType;
         
         NSAssert(_data, @"Unhandled data");
         
-        _headers = headers ?: @{};
+        NSMutableDictionary *mHeaders = [headers mutableCopy] ?: [NSMutableDictionary dictionary];
+        mHeaders[@"Content-Type"] = _contentType;
+        
+        _headers = mHeaders;
         _returnCode = returnCode;
         _responseTime = responseTime;
     }

@@ -84,6 +84,7 @@ class MiscellaneousTests: XCTestCase {
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         let response = SBTStubResponse(fileNamed: "test_file.json")
+        app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
         
         app.cells["executeDataTaskRequest"].tap()
@@ -98,6 +99,11 @@ class MiscellaneousTests: XCTestCase {
         let networkBase64 = resultDict["data"] as! String
         let networkString = String(data: Data(base64Encoded: networkBase64)!, encoding: .utf8)
         
+        let monitoredRequests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(monitoredRequests.count, 1)
+        let responsetHeaders = monitoredRequests.first?.response?.allHeaderFields
+        
         XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
+        XCTAssertEqual(responsetHeaders!["Content-Type"] as? String, "application/json")
     }
 }
