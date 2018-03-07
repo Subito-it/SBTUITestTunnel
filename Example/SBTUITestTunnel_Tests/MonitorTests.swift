@@ -21,6 +21,17 @@ class MonitorTests: XCTestCase {
     
     private let request = NetworkRequests()
     
+    func testMonitorRemoveSpecific() {
+        let requestId = app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org")) ?? ""
+        
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 1)
+        
+        XCTAssert(app.monitorRequestRemove(withId: requestId))
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
+    }
+    
     func testMonitorFlush() {
         XCTAssert(app.monitoredRequestsFlushAll().count == 0)
         
