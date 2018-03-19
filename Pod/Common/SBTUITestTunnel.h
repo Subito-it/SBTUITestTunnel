@@ -60,6 +60,8 @@ extern NSString * _Nonnull const SBTUITunnelCookieBlockQueryIterationsKey;
 extern NSString * _Nonnull const SBTUITunnelObjectKey;
 extern NSString * _Nonnull const SBTUITunnelObjectKeyKey;
 
+extern NSString * _Nonnull const SBTUITunnelUserDefaultSuiteNameKey;
+
 extern NSString * _Nonnull const SBTUITunnelUploadDataKey;
 extern NSString * _Nonnull const SBTUITunnelUploadDestPathKey;
 extern NSString * _Nonnull const SBTUITunnelUploadBasePathKey;

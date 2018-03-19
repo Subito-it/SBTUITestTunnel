@@ -501,22 +501,45 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
-                                                     SBTUITunnelObjectKey: [self base64SerializeObject:object]};
-    
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsSetObject params:params] boolValue];
+    return [self userDefaultsSetObject:object forKey:key suiteName:@""];
 }
 
 - (BOOL)userDefaultsRemoveObjectForKey:(NSString *)key
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
-    
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject params:params] boolValue];
+    return [self userDefaultsRemoveObjectForKey:key suiteName:@""];
 }
 
 - (id)userDefaultsObjectForKey:(NSString *)key
 {
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key};
+    return [self userDefaultsObjectForKey:key suiteName:@""];
+}
+
+- (BOOL)userDefaultsReset
+{
+    return [self userDefaultsResetSuiteName:@""];
+}
+
+- (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key suiteName:(NSString *)suiteName;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
+                                                     SBTUITunnelObjectKey: [self base64SerializeObject:object],
+                                                     SBTUITunnelUserDefaultSuiteNameKey: suiteName};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsSetObject params:params] boolValue];
+}
+
+- (BOOL)userDefaultsRemoveObjectForKey:(NSString *)key suiteName:(NSString *)suiteName;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
+                                                     SBTUITunnelUserDefaultSuiteNameKey: suiteName};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject params:params] boolValue];
+}
+
+- (id)userDefaultsObjectForKey:(NSString *)key suiteName:(NSString *)suiteName;
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
+                                                     SBTUITunnelUserDefaultSuiteNameKey: suiteName};
     
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsObject params:params];
     
@@ -529,9 +552,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return nil;
 }
 
-- (BOOL)userDefaultsReset
+- (BOOL)userDefaultsResetSuiteName:(NSString *)suiteName;
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsReset params:nil] boolValue];
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelUserDefaultSuiteNameKey: suiteName};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsObject params:params] boolValue];
 }
 
 #pragma mark - NSBundle

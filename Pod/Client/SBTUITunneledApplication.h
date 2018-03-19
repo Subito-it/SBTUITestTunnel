@@ -384,6 +384,45 @@
  */
 - (BOOL)userDefaultsReset;
 
+/**
+ *  Add object to NSUSerDefaults.
+ *
+ *  @param object Object to be added
+ *  @param key Key associated to object
+ *  @param suiteName user defaults database name
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)userDefaultsSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName;
+
+/**
+ *  Remove object from NSUSerDefaults.
+ *
+ *  @param key Key associated to object
+ *  @param suiteName user defaults database name
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)userDefaultsRemoveObjectForKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName;
+
+/**
+ *  Get object from NSUserDefaults
+ *
+ *  @param key Key associated to object
+ *  @param suiteName user defaults database name
+ *
+ *  @return The retrieved object.
+ */
+- (nullable id)userDefaultsObjectForKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName;
+
+/**
+ *  Reset NSUserDefaults
+ *
+ *  @param suiteName user defaults database name
+ *  @return `YES` on success
+ */
+- (BOOL)userDefaultsResetSuiteName:(nonnull NSString *)suiteName;
+
 #pragma mark - NSBundle
 
 - (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;

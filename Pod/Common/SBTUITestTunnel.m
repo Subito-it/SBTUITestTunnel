@@ -59,6 +59,8 @@ NSString * const SBTUITunnelCookieBlockQueryIterationsKey = @"iterations";
 NSString * const SBTUITunnelObjectKey = @"obj";
 NSString * const SBTUITunnelObjectKeyKey = @"key";
 
+NSString * const SBTUITunnelUserDefaultSuiteNameKey = @"suite_name";
+
 NSString * const SBTUITunnelUploadDataKey = @"data";
 NSString * const SBTUITunnelUploadDestPathKey = @"dest";
 NSString * const SBTUITunnelUploadBasePathKey = @"base";

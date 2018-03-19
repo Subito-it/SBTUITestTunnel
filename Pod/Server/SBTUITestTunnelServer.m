@@ -628,13 +628,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandNSUserDefaultsSetObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
     NSData *objData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     id obj = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
     
     NSString *ret = @"NO";
     if (objKey) {
-        [[NSUserDefaults standardUserDefaults] setObject:obj forKey:objKey];
-        ret = [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
+        NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+
+        [userDefault setObject:obj forKey:objKey];
+        ret = [userDefault synchronize] ? @"YES" : @"NO";
     }
     
     return @{ SBTUITunnelResponseResultKey: ret };
@@ -643,11 +646,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandNSUserDefaultsRemoveObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
     
     NSString *ret = @"NO";
     if (objKey) {
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:objKey];
-        ret = [[NSUserDefaults standardUserDefaults] synchronize] ? @"YES" : @"NO";
+        NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+        
+        [userDefault removeObjectForKey:objKey];
+        ret = [userDefault synchronize] ? @"YES" : @"NO";
     }
     
     return @{ SBTUITunnelResponseResultKey: ret };
@@ -656,8 +662,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandNSUserDefaultsObject:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
+    NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
     
-    NSObject *obj = [[NSUserDefaults standardUserDefaults] objectForKey:objKey];
+    NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+    
+    NSObject *obj = [userDefault objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
     NSString *ret = @"";
     if (data) {
@@ -669,8 +678,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandNSUserDefaultsReset:(GCDWebServerRequest *)tunnelRequest
 {
-    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
+    
+    NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+    
+    [userDefault removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+    [userDefault synchronize];
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
