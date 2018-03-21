@@ -288,7 +288,7 @@
     }
     
     if (self.responseCode > -1) {
-        [description appendFormat:@"Response code replacement: %ld\n\n", self.responseCode];
+        [description appendFormat:@"Response code replacement: %ld\n\n", (long)self.responseCode];
     }
     
     if (self.requestReplacement.count > 0) {

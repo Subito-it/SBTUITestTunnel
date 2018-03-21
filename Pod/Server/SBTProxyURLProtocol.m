@@ -126,7 +126,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
+        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -179,7 +179,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
+        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -232,7 +232,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
+        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -285,7 +285,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", self.sharedInstance.matchingRules.count);
+        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
