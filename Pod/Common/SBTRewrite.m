@@ -364,24 +364,42 @@
 
 - (NSData *)rewriteRequestBody:(NSData *)requestBody
 {
+    if (self.requestReplacement.count == 0) {
+        return requestBody;
+    }
+    
     // For the time being we rewrite Strings, it would be nice to be able to rewrite NSData bodies (find a sequence of bytes and replace them)
     NSMutableString *body = [[NSMutableString alloc] initWithData:requestBody encoding:NSUTF8StringEncoding];
+    if (!body) {
+        return requestBody;
+    }
+    
     for (SBTRewriteReplacement *replacement in self.requestReplacement) {
         body = [[replacement replace:body] mutableCopy];
     }
     
-    return [body dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *rewrittenData = [body dataUsingEncoding:NSUTF8StringEncoding];
+    return rewrittenData ?: requestBody;
 }
 
 - (NSData *)rewriteResponseBody:(NSData *)responseBody
 {
+    if (self.responseReplacement.count == 0) {
+        return responseBody;
+    }
+    
     // For the time being we rewrite Strings, it would be nice to be able to rewrite NSData bodies (find a sequence of bytes and replace them)
     NSMutableString *body = [[NSMutableString alloc] initWithData:responseBody encoding:NSUTF8StringEncoding];
+    if (!body) {
+        return responseBody;
+    }
+    
     for (SBTRewriteReplacement *replacement in self.responseReplacement) {
         body = [[replacement replace:body] mutableCopy];
     }
     
-    return [body dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *rewrittenData = [body dataUsingEncoding:NSUTF8StringEncoding];
+    return rewrittenData ?: responseBody;
 }
 
 - (NSInteger)rewriteStatusCode:(NSInteger)statusCode
