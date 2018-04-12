@@ -506,8 +506,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
             if (isRequestRewritten) {
-                [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
                 [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+                [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
             }
             [weakSelf.client URLProtocolDidFinishLoading:strongSelf];
         });
