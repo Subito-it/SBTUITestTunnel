@@ -556,7 +556,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelUserDefaultSuiteNameKey: suiteName};
     
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsObject params:params] boolValue];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsReset params:params] boolValue];
 }
 
 #pragma mark - NSBundle
