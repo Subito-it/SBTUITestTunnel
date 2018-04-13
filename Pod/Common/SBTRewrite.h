@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// NOTE: The regex format to use is the same as ruby 1.8.7, use www.rubular.com to test
+
 #if DEBUG
 #ifndef ENABLE_UITUNNEL
 #define ENABLE_UITUNNEL 1
