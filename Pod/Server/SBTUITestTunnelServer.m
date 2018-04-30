@@ -98,6 +98,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
 
         [sharedInstance reset];
+        [sharedInstance enableUrlProtocolInWkWebview];
         
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
@@ -1033,6 +1034,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     self.monitoredRequests = [NSMutableArray array];
 
     [[self customCommands] removeAllObjects];
+}
+
+- (void)enableUrlProtocolInWkWebview
+{
+    Class cls = NSClassFromString(@"WKBrowsingContextController");
+    SEL sel = NSSelectorFromString(@"registerSchemeForCustomProtocol:");
+    if ([cls respondsToSelector:sel]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [cls performSelector:sel withObject:@"http"];
+        [cls performSelector:sel withObject:@"https"];
+#pragma clang diagnostic pop
+    }
 }
 
 @end
