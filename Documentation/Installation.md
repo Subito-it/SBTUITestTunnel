@@ -4,6 +4,8 @@ It is strongly suggested to use [cocoapods](https://cocoapods.org) as it is the 
 
 Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app target and `SBTUITestTunnel/Client` for the UI test target.
 
+    use_frameworks!
+
     target 'APP_TARGET' do
       pod 'SBTUITestTunnel/Server'
     end
