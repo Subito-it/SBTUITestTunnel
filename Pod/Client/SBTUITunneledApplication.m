@@ -31,6 +31,10 @@
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 @interface SBTUITunneledApplication() <NSNetServiceDelegate>
+{
+    BOOL _userInterfaceAnimationsEnabled;
+    NSInteger _userInterfaceAnimationSpeed;
+}
 
 @property (nonatomic, assign) NSInteger connectionPort;
 @property (nonatomic, assign) BOOL connected;
@@ -56,6 +60,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (self) {
         _initialLaunchArguments = self.launchArguments;
         _initialLaunchEnvironment = self.launchEnvironment;
+        _userInterfaceAnimationsEnabled = YES;
+        _userInterfaceAnimationSpeed = 1;
         
         [self resetInternalState];
     }
@@ -631,16 +637,30 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled
 {
+    _userInterfaceAnimationsEnabled = enabled;
+    
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [@(enabled) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimations params:params] boolValue];
 }
 
+- (BOOL)userInterfaceAnimationsEnabled
+{
+    return _userInterfaceAnimationsEnabled;
+}
+
 - (BOOL)setUserInterfaceAnimationSpeed:(NSInteger)speed
 {
+    _userInterfaceAnimationSpeed = speed;
+    
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [@(speed) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed params:params] boolValue];
+}
+
+- (NSInteger)userInterfaceAnimationSpeed
+{
+    return _userInterfaceAnimationSpeed;
 }
 
 #pragma mark - Helper Methods

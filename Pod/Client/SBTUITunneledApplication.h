@@ -476,6 +476,14 @@
 - (BOOL)setUserInterfaceAnimationsEnabled:(BOOL)enabled;
 
 /**
+ *  Get user iterface animations through [UIView setAnimationsEnabled:]. Should imporve test execution speed When enabled
+ *  Sometimes useful as per https://forums.developer.apple.com/thread/6503
+ *
+ *  @return `YES` on when animations are enabled
+ */
+- (BOOL)userInterfaceAnimationsEnabled;
+
+/**
  *  Set user iterface animations through UIApplication.sharedApplication.keyWindow.layer.speed. Should imporve test execution speed When enabled
  *
  *  @param speed speed of animation animations
@@ -483,6 +491,13 @@
  *  @return `YES` on success
  */
 - (BOOL)setUserInterfaceAnimationSpeed:(NSInteger)speed;
+
+/**
+ *  Get user iterface animations through UIApplication.sharedApplication.keyWindow.layer.speed. Should imporve test execution speed When enabled
+ *
+ *  @return current animation speed
+ */
+- (NSInteger)userInterfaceAnimationSpeed;
 
 @end
 
