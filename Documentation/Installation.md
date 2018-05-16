@@ -8,10 +8,13 @@ Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app
 
     target 'APP_TARGET' do
       pod 'SBTUITestTunnel/Server'
+      pod 'GCDWebServer', :inhibit_warnings => true
+      
+      target 'UITESTS_TARGET' do
+        pod 'SBTUITestTunnel/Client'
+      end
     end
-    target 'UITESTS_TARGET' do
-      pod 'SBTUITestTunnel/Client'
-    end
+
 
 ## 🔥 Installation issues (_framework not found_)
 
