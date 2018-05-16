@@ -15,8 +15,7 @@ Pod::Spec.new do |s|
 
     s.platform     = :ios, '9.0'
     s.requires_arc = true
-
-    s.frameworks = 'UIKit'
+    s.static_framework = true
 
     s.subspec 'Server' do |server|
         server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
@@ -25,8 +24,6 @@ Pod::Spec.new do |s|
 
     s.subspec 'Client' do |client|
         client.frameworks = 'XCTest'
-        client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'
+        client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'          
     end
-
-    s.requires_arc = true
 end
