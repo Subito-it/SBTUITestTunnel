@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "SBTUITestTunnel"
-    s.version          = "3.0.9"
+    s.version          = "3.0.10"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
@@ -16,6 +16,7 @@ Pod::Spec.new do |s|
     s.platform     = :ios, '9.0'
     s.requires_arc = true
     s.static_framework = true
+    s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
 
     s.subspec 'Server' do |server|
         server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
