@@ -75,6 +75,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     self.launchArguments = self.initialLaunchArguments;
     self.launchEnvironment = self.initialLaunchEnvironment;
+    self.startupBlock = nil;
 
     self.bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
     self.bonjourBrowser = [[NSNetService alloc] initWithDomain:@"local." type:@"_http._tcp." name:self.bonjourName];
@@ -112,9 +113,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     if (startupBlock) {
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
-        self.startupBlock = startupBlock;
     }
     
+    self.startupBlock = startupBlock;
     self.launchArguments = launchArguments;
     
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [self.launchEnvironment mutableCopy];
