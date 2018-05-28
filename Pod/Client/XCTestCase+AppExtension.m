@@ -23,6 +23,7 @@
 #if ENABLE_UITUNNEL
 
 #import "XCTestCase+AppExtension.h"
+#import "SBTUITunneledApplication.h"
 #import <objc/runtime.h>
 
 @implementation XCTestCase (AppExtension)
