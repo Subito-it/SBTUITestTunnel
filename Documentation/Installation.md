@@ -25,7 +25,7 @@ If you’re using CocoaPods v1.0 and your UI Tests fail to start, you may need t
 1. Add the `Server` folder to the app target
 2. Add the `Client` folder to the ui test target
 3. Add the `Common` folder to both targets
-4. Download the latest release of [GCDWebServer](https://github.com/swisspol/GCDWebServer) then add the all the files under GCDWebServer/Core, GCDWebServer/Requests and GCDWebServer/Responses to a single "GCDWebServer" subfolder to your Xcode project.
+4. Download the latest release of [GCDWebServer](https://github.com/swisspol/GCDWebServer) then add the all the files under GCDWebServer/Core, GCDWebServer/Requests and GCDWebServer/Responses to a single `GCDWebServer` subfolder to your Xcode project.
 5. Add $(SDKROOT)/<path to the GCDWebserver folder in 4.> to your header search paths (via Target > Build Settings > HEADER_SEARCH_PATHS)
 5. Link to libz (via Target > Build Phases > Link Binary With Libraries)
 
