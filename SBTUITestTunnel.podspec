@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
     s.platform     = :ios, '9.0'
     s.requires_arc = true
-    s.static_framework = true
+    s.static_framework = false
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
 
     s.subspec 'Server' do |server|
