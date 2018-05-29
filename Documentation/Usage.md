@@ -9,7 +9,7 @@ Instead of calling the `launch()` method on `XCUIApplication` as you're used to 
 
     import SBTUITestTunnel
 
-    class MyTestClass: XCTestCase {xw
+    class MyTestClass: XCTestCase {
         override func setUp() {
             super.setUp()
             
