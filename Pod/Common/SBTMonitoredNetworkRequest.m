@@ -97,10 +97,10 @@
     return ret;
 }
 
-- (NSDictionary<NSString *, id> *)responseJSON
+- (id)responseJSON
 {
     NSError *error = nil;
-    NSDictionary *ret = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingMutableContainers error:&error];
+    id ret = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
@@ -116,10 +116,10 @@
     return ret;
 }
 
-- (NSDictionary<NSString *, id> *)requestJSON
+- (id)requestJSON
 {
     NSError *error = nil;
-    NSDictionary *ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
+    id ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
