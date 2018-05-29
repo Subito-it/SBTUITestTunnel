@@ -29,10 +29,10 @@
 @interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
 
 - (nullable NSString *)responseString;
-- (nullable NSDictionary<NSString *, id> *)responseJSON;
+- (nullable id)responseJSON;
 
 - (nullable NSString *)requestString;
-- (nullable NSDictionary<NSString *, id> *)requestJSON;
+- (nullable id)requestJSON;
 
 - (BOOL)matches:(nonnull SBTRequestMatch *)match;
 
