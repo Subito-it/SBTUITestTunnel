@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
     s.requires_arc = true
     s.static_framework = false
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
+    s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
 
     s.subspec 'Server' do |server|
         server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
