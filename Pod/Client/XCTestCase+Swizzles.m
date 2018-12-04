@@ -31,9 +31,10 @@
 
 - (void)swz_tearDown
 {
-    [self swz_tearDown];
     
     [self.app terminate];
+    
+    [self swz_tearDown];
 }
 
 + (void)loadSwizzles
