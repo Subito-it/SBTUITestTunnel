@@ -25,6 +25,7 @@
 #import "SBTUITunneledApplication.h"
 #import "SBTUITestTunnel.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "XCTestCase+Swizzles.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -67,6 +68,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
     
     return self;
+}
+
++ (void)load
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [XCTestCase loadSwizzles];
+    });
 }
 
 - (void)resetInternalState
