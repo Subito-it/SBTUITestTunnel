@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SBTUITestTunnel_Tests/MatchRequestTests.swift"
-            timestampString = "541863178.381355"
+            timestampString = "563634499.544432"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "40"
@@ -26,60 +26,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SBTUITestTunnel_Tests/MatchRequestTests.swift"
-            timestampString = "541863178.3817461"
+            timestampString = "563634499.544543"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "41"
             endingLineNumber = "41"
             landmarkName = "testSimpleUrlGetOnly()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SBTUITestTunnel_Tests.MatchRequestTests.testSimpleUrlGetOnly() -&gt; ()"
-                  moduleName = "SBTUITestTunnel_Tests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests/MatchRequestTests.swift"
-                  timestampString = "541862531.924762"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "41"
-                  endingLineNumber = "41"
-                  offsetFromSymbolStart = "2739">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "implicit closure #2 : @autoclosure () throws -&gt; Swift.Bool in SBTUITestTunnel_Tests.MatchRequestTests.testSimpleUrlGetOnly() -&gt; ()"
-                  moduleName = "SBTUITestTunnel_Tests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests/MatchRequestTests.swift"
-                  timestampString = "541862531.928731"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "41"
-                  endingLineNumber = "41"
-                  offsetFromSymbolStart = "70">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "implicit closure #3 : @autoclosure () -&gt; Swift.String in SBTUITestTunnel_Tests.MatchRequestTests.testSimpleUrlGetOnly() -&gt; ()"
-                  moduleName = "SBTUITestTunnel_Tests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/tomas/Documents/Pods/SBTUITestTunnel/Example/SBTUITestTunnel_Tests/MatchRequestTests.swift"
-                  timestampString = "541862531.936348"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "41"
-                  endingLineNumber = "41"
-                  offsetFromSymbolStart = "52">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -89,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SBTUITestTunnel_Tests/MatchRequestTests.swift"
-            timestampString = "541863178.381958"
+            timestampString = "563634499.544715"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "35"
@@ -104,13 +57,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTUITestTunnelServer.m"
-            timestampString = "541863178.3821239"
+            filePath = "SBTUITestTunnel_Tests/MatchRequestTests.swift"
+            timestampString = "563634499.544836"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "254"
-            endingLineNumber = "254"
-            landmarkName = "-commandStubMatching:"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
+            landmarkName = "MatchRequestTests"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SBTUITestTunnel_Tests/MonitorTests.swift"
+            timestampString = "563634499.545055"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "36"
+            endingLineNumber = "36"
+            landmarkName = "testMonitorFlush()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -120,13 +89,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTProxyURLProtocol.m"
-            timestampString = "541863178.382286"
+            filePath = "SBTUITestTunnel_Tests/MonitorTests.swift"
+            timestampString = "563634499.5453171"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "140"
-            endingLineNumber = "140"
-            landmarkName = "+stubRequestsMatching:stubResponse:didStubRequest:"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "testMonitorFlush()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -136,13 +105,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTProxyURLProtocol.m"
-            timestampString = "541863178.383284"
+            filePath = "SBTUITestTunnel_Tests/MonitorTests.swift"
+            timestampString = "563634499.545512"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
-            landmarkName = "+stubRequestsMatching:stubResponse:didStubRequest:"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "testMonitorFlush()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -152,13 +121,61 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../Pod/Server/SBTProxyURLProtocol.m"
-            timestampString = "541863178.384778"
+            filePath = "SBTUITestTunnel_Tests/MiscellaneousTests.swift"
+            timestampString = "565609031.425706"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "148"
-            endingLineNumber = "148"
-            landmarkName = "+stubRequestsMatching:stubResponse:didStubRequest:"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "testStubWithFilename()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SBTUITestTunnel_Tests/MiscellaneousTests.swift"
+            timestampString = "565609031.426801"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "testTakeOffWait()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../Pod/Client/XCTestCase+Swizzles.m"
+            timestampString = "565539066.430011"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "+loadSwizzles"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SBTUITestTunnel_Tests/MiscellaneousTests.swift"
+            timestampString = "565609032.228026"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
+            landmarkName = "testStartupCommands()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
