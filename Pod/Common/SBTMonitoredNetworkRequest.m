@@ -99,6 +99,10 @@
 
 - (id)responseJSON
 {
+    if (!self.responseData) {
+        return nil;
+    }
+    
     NSError *error = nil;
     id ret = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingMutableContainers error:&error];
     
@@ -118,6 +122,10 @@
 
 - (id)requestJSON
 {
+    if (!self.originalRequest.HTTPBody) {
+        return nil;
+    }
+    
     NSError *error = nil;
     id ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
     
