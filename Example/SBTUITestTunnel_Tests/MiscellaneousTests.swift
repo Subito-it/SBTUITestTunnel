@@ -62,6 +62,10 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertEqual(randomString2, randomStringRemote2)
         XCTAssertEqual("123", retObj2 as! String)
         
+        XCUIDevice().press(XCUIDevice.Button.home)
+        sleep(5)
+        app.activate()
+        
         let retObj3 = app.performCustomCommandNamed("myCustomCommandReturn123", object: nil)
         XCTAssertNil(app.userDefaultsObject(forKey: "custom_command_test"))
         XCTAssertEqual("123", retObj3 as! String)

@@ -171,6 +171,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
     
+    [serverOptions setValue:@NO forKey:GCDWebServerOption_AutomaticallySuspendInBackground];
     [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
     [serverOptions setValue:@"_http._tcp." forKey:GCDWebServerOption_BonjourType];
     [GCDWebServer setLogLevel:3];
