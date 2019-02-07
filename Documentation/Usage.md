@@ -214,7 +214,7 @@ You register a block of code that will be invoked from the test target as follow
         injectedObject in
         // this block will be invoked from app.performCustomCommandNamed()
 
-        return "Any object you want to pass back to test target"
+        return "Any object conforming to NSCoding that you want to pass back to test target"
     }
 
 **Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
