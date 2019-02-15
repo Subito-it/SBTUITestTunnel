@@ -10,6 +10,7 @@
 #endif
 #endif
 
+#import "NSData+gzip.h"
 #import "NSData+SHA1.h"
 #import "NSURLSession+HTTPBodyFix.h"
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
