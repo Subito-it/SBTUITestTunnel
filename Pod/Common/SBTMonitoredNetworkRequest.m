@@ -25,6 +25,7 @@
 #import "SBTMonitoredNetworkRequest.h"
 #import "SBTRequestMatch.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import "NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 
@@ -78,8 +79,9 @@
     
     NSString *uppercaseMethod = self.originalRequest.HTTPMethod;
     if ([uppercaseMethod isEqualToString:@"POST"]) {
-        if (self.originalRequest.HTTPBody.length > 0) {
-            [ret appendString:[NSString stringWithFormat:@"|HTTP Body: %@", [NSString stringWithUTF8String:[self.originalRequest.HTTPBody bytes]]]];
+        NSData *body = [self httpBodyFromRequest:self.originalRequest];
+        if (body.length > 0) {
+            [ret appendString:[NSString stringWithFormat:@"|HTTP Body: %@", [NSString stringWithUTF8String:[body bytes]]]];
         }
     }
     
@@ -111,10 +113,10 @@
 
 - (NSString *)requestString
 {
-    NSString *ret = [[NSString alloc] initWithData:self.originalRequest.HTTPBody encoding:NSUTF8StringEncoding];
+    NSString *ret = [[NSString alloc] initWithData:[self httpBodyFromRequest:self.originalRequest] encoding:NSUTF8StringEncoding];
     
     if (!ret) {
-        ret = [[NSString alloc] initWithData:self.originalRequest.HTTPBody encoding:NSASCIIStringEncoding];
+        ret = [[NSString alloc] initWithData:[self httpBodyFromRequest:self.originalRequest] encoding:NSASCIIStringEncoding];
     }
     
     return ret;
@@ -127,7 +129,7 @@
     }
     
     NSError *error = nil;
-    id ret = [NSJSONSerialization JSONObjectWithData:self.originalRequest.HTTPBody options:NSJSONReadingMutableContainers error:&error];
+    id ret = [NSJSONSerialization JSONObjectWithData:[self httpBodyFromRequest:self.originalRequest] options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
@@ -135,6 +137,15 @@
 - (BOOL)matches:(SBTRequestMatch *)match
 {
     return [self.originalRequest matches:match];
+}
+
+- (NSData *)httpBodyFromRequest:(NSURLRequest *)request
+{
+    if ([request.allHTTPHeaderFields[@"Content-Encoding"] isEqualToString:@"gzip"]) {
+        return [request.HTTPBody gzipInflate];
+    } else {
+        return request.HTTPBody;
+    }
 }
 
 @end
