@@ -62,7 +62,7 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertEqual(randomString2, randomStringRemote2)
         XCTAssertEqual("123", retObj2 as! String)
         
-        XCUIDevice().press(XCUIDevice.Button.home)
+        XCUIDevice.shared.press(XCUIDevice.Button.home)
         sleep(5)
         app.activate()
         

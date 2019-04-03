@@ -132,8 +132,8 @@ extension SBTTableViewController {
             URLSession.shared.dataTask(with: request) {
                 data, response, error in
                 
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = response as? HTTPURLResponse
+                retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
@@ -169,8 +169,8 @@ extension SBTTableViewController {
             URLSession.shared.uploadTask(with: request, from: data) {
                 data, response, error in
                 
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = response as? HTTPURLResponse
+                retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
@@ -206,8 +206,8 @@ extension SBTTableViewController {
             URLSession.shared.downloadTask(with: request) {
                 dataUrl, response, error in
                 
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = response as? HTTPURLResponse
+                retHeaders = retResponse?.allHeaderFields as? [String: String]
                 if let dataUrl = dataUrl {
                     retData = try? Data(contentsOf: dataUrl)
                 }
@@ -314,29 +314,29 @@ extension SBTTableViewController {
 
 extension SBTTableViewController {
     
-    func executeDataTaskRequest() {
+    @objc func executeDataTaskRequest() {
         dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
     }
     
-    func executeDataTaskRequest2() {
-        dataTaskNetwork(urlString: "http://requestb.in/1cme69x1?param3=val3&param4=val4")
+    @objc func executeDataTaskRequest2() {
+        dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
     }
     
-    func executeDataTaskRequest3() {
+    @objc func executeDataTaskRequest3() {
         dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
     
-    func executeUploadDataTaskRequest() {
+    @objc func executeUploadDataTaskRequest() {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!)
     }
 
-    func executeUploadDataTaskRequest2() {
+    @objc func executeUploadDataTaskRequest2() {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "PUT")
     }
 
-    func executeBackgroundUploadDataTaskRequest() {
+    @objc func executeBackgroundUploadDataTaskRequest() {
         let data = "This is a test".data(using: .utf8)
         
         let fileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
@@ -347,16 +347,16 @@ extension SBTTableViewController {
         backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
     }
     
-    func executePostDataTaskRequestWithHTTPBody() {
+    @objc func executePostDataTaskRequestWithHTTPBody() {
         dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
     }
 
-    func executeUploadDataTaskRequestWithHTTPBody() {
+    @objc func executeUploadDataTaskRequestWithHTTPBody() {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "POST", httpBody: true)
     }
     
-    func executeBackgroundUploadDataTaskRequestWithHTTPBody() {
+    @objc func executeBackgroundUploadDataTaskRequestWithHTTPBody() {
         let data = "This is a test".data(using: .utf8)
         
         let fileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
@@ -367,14 +367,14 @@ extension SBTTableViewController {
         backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
     }
     
-    func executeRequestWithRedirect() {
+    @objc func executeRequestWithRedirect() {
         dataTaskNetwork(urlString: "https://httpbin.org/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
     }
 }
 
 extension SBTTableViewController {
     
-    func showAutocompleteForm() {
+    @objc func showAutocompleteForm() {
         self.performSegue(withIdentifier: "autocompleteSegue", sender: nil)
     }
 }
@@ -404,8 +404,8 @@ extension SBTTableViewController {
             URLSession.shared.dataTask(with: request) {
                 data, response, error in
                 
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = response as? HTTPURLResponse
+                retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
@@ -423,7 +423,7 @@ extension SBTTableViewController {
         }
     }
     
-    func executeRequestWithCookies() {
+    @objc func executeRequestWithCookies() {
         dataTaskNetworkWithCookies(urlString: "http://httpbin.org/get", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
 }

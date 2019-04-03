@@ -83,8 +83,8 @@ class NetworkRequests: NSObject {
         done = false
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = (response as! HTTPURLResponse)
+                retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 retData = data
                 
                 self.done = true
@@ -114,8 +114,8 @@ class NetworkRequests: NSObject {
         URLSession.shared.uploadTask(with: request, from: data) {
             data, response, error in
             DispatchQueue.main.async {
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = (response as! HTTPURLResponse)
+                retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 retData = data
                 
                 self.done = true
@@ -145,8 +145,8 @@ class NetworkRequests: NSObject {
         URLSession.shared.downloadTask(with: request) {
             dataUrl, response, error in
             DispatchQueue.main.async {
-                retResponse = response as! HTTPURLResponse
-                retHeaders = retResponse.allHeaderFields as! [String: String]
+                retResponse = (response as! HTTPURLResponse)
+                retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 if let dataUrl = dataUrl {
                     retData = try? Data(contentsOf: dataUrl)
                 }
@@ -242,6 +242,6 @@ extension NetworkRequests: URLSessionTaskDelegate, URLSessionDataDelegate {
     }
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        sessionResponse = response as? HTTPURLResponse
+        sessionResponse = (response as! HTTPURLResponse)
     }
 }
