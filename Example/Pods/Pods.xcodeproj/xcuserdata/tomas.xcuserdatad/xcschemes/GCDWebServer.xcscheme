@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01583BFC13C4E2AA36339AC7665A62EB"
+               BuildableName = "GCDWebServer.framework"
                BlueprintName = "GCDWebServer"
-               ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "GCDWebServer.framework">
+               ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

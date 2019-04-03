@@ -10,13 +10,13 @@
 #endif
 #endif
 
-#import "NSData+gzip.h"
 #import "NSData+SHA1.h"
 #import "NSURLSession+HTTPBodyFix.h"
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTUITestTunnelServer.h"
 #import "UITextField+DisableAutocomplete.h"
+#import "NSData+gzip.h"
 #import "NSString+SwiftDemangle.h"
 #import "NSURLRequest+HTTPBodyFix.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
