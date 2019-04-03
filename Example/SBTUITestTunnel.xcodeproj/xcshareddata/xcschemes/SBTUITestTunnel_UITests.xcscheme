@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0900"
+   LastUpgradeVersion = "1020"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -18,14 +18,14 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7ED178B59A04B92C4FE02F3957C0E89F"
+            BlueprintIdentifier = "013AB586BFA20FCE1DD006F21EF6B24E"
             BuildableName = "SBTUITestTunnel.framework"
             BlueprintName = "SBTUITestTunnel-Client-Server"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
          </BuildableReference>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F560C864B4629A76FCD402EDD39B69BA"
+            BlueprintIdentifier = "FBDB00FF05CB14B083CF68E95A2B10FE"
             BuildableName = "SBTUITestTunnel.framework"
             BlueprintName = "SBTUITestTunnel-Server"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
