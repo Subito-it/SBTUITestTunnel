@@ -76,7 +76,17 @@
         matchesMethod = [self.HTTPMethod isEqualToString:match.method];
     }
 
-    return matchesURL && matchesQuery && matchesMethod;
+    BOOL matchesBody = YES;
+    if (match.body) {
+        NSString *body = [[NSString alloc] initWithData:self.HTTPBody encoding: NSUTF8StringEncoding];
+        NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.body options:nil error:nil];
+        if (body) {
+            NSUInteger regexMatches = [regex numberOfMatchesInString:body options:0 range:NSMakeRange(0, body.length)];
+            matchesBody = regexMatches > 0;
+        }
+    }
+    
+    return matchesURL && matchesQuery && matchesMethod && matchesBody;
 }
 
 @end

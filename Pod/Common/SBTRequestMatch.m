@@ -29,6 +29,7 @@
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, strong) NSArray<NSString *> *query;
 @property (nonatomic, strong) NSString *method;
+@property (nonatomic, strong) NSString *body;
 
 @end
 
@@ -40,6 +41,7 @@
         self.url = [decoder decodeObjectForKey:NSStringFromSelector(@selector(url))];
         self.query = [decoder decodeObjectForKey:NSStringFromSelector(@selector(query))];
         self.method = [decoder decodeObjectForKey:NSStringFromSelector(@selector(method))];
+        self.body = [decoder decodeObjectForKey:NSStringFromSelector(@selector(body))];
     }
     
     return self;
@@ -50,11 +52,12 @@
     [encoder encodeObject:self.url forKey:NSStringFromSelector(@selector(url))];
     [encoder encodeObject:self.query forKey:NSStringFromSelector(@selector(query))];
     [encoder encodeObject:self.method forKey:NSStringFromSelector(@selector(method))];
+    [encoder encodeObject:self.body forKey:NSStringFromSelector(@selector(body))];
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A"];
+    return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@\nBody: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A", self.body ?: @"N/A"];
 }
 
 - (nonnull instancetype)initWithURL:(NSString *)url
@@ -77,6 +80,15 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
+
+- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method body:(NSString *)body
+{
+    if ((self = [self initWithURL:url query:query method:method])) {
+        _body = body;
+    }
+    
+    return self;
+}
 
 - (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
 {
