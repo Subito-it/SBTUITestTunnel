@@ -55,7 +55,7 @@ In a kind of unconventional syntax you can prefix the regex with an exclamation 
 
 ### Body parameter
 
-The `body` parameter allow to match the request against its HTTP Body. As for the `query` parameter, the passed value is used as a regex which is evaluated on the request HTTP Body and the exlamation mark `!` can be used to specify an "inverted match" (i.e. that the HTTP Body should NOT match the provided `body` pattern).
+The `body` parameter allows to match the request against its HTTP Body. As for the `query` parameter, the passed value is used as a regex which is evaluated on the request HTTP Body and the exlamation mark `!` can be used to specify an "inverted match" (i.e. that the HTTP Body should NOT match the provided `body` pattern).
 
 ### Examples
 
