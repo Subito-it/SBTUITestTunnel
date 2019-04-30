@@ -76,7 +76,21 @@
         matchesMethod = [self.HTTPMethod isEqualToString:match.method];
     }
 
-    return matchesURL && matchesQuery && matchesMethod;
+    BOOL matchesBody = YES;
+    if (match.body) {
+        BOOL invertMatch = [match.body hasPrefix:@"!"];
+        // skip first char for inverted matches
+        NSString *pattern = [match.body substringFromIndex:invertMatch ? 1 : 0];
+        
+        NSString *body = [[NSString alloc] initWithData:self.HTTPBody encoding: NSUTF8StringEncoding];
+        NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:pattern options:nil error:nil];
+        if (body) {
+            NSUInteger regexMatches = [regex numberOfMatchesInString:body options:0 range:NSMakeRange(0, body.length)];
+            matchesBody = invertMatch ? (regexMatches == 0) : (regexMatches > 0);
+        }
+    }
+    
+    return matchesURL && matchesQuery && matchesMethod && matchesBody;
 }
 
 @end

@@ -40,7 +40,7 @@ class MatchRequestTests: XCTestCase {
         let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
         XCTAssertFalse(request.isStubbed(result2))
     }
-
+    
     func testUrlWithQueryGetOnly() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1", "&param2=val2"], method:"GET"), response: SBTStubResponse(response: ["stubbed": 1]))
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
@@ -71,6 +71,26 @@ class MatchRequestTests: XCTestCase {
         let result6 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result6))
         XCTAssert(app.stubRequestsRemoveAll())
+    }
+    
+    func testPostWithBody() {
+        let requestMatch = SBTRequestMatch(url: "httpbin.org", query: [], method: "POST", body: "QueryName")
+        app.stubRequests(matching: requestMatch, response: SBTStubResponse(response: ["stubbed": 1]))
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org", httpMethod: "POST", httpBody: "query QueryName")
+        XCTAssert(request.isStubbed(result))
+    }
+    
+    func testPostWithBodyInverted() {
+        let requestMatchInverted = SBTRequestMatch(url: "httpbin.org", query: [], method: "POST", body: "!QueryName")
+        app.stubRequests(matching: requestMatchInverted, response: SBTStubResponse(response: ["stubbed": 1]))
+        
+        let containingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org", httpMethod: "POST", httpBody: "query QueryName")
+        XCTAssertFalse(request.isStubbed(containingBodyMatch))
+        
+        
+        let notContainingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org", httpMethod: "POST", httpBody: "query AnotherQuery")
+        XCTAssert(request.isStubbed(notContainingBodyMatch))
     }
     
     func testMethodHonored() {
