@@ -53,6 +53,10 @@ The `query` parameter found in different `SBTRequestMatch` initializers is an ar
 
 In a kind of unconventional syntax you can prefix the regex with an exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
 
+### Body parameter
+
+The `body` parameter allow to match the request against its HTTP Body. As for the `query` parameter, the passed value is used as a regex which is evaluated on the request HTTP Body and the exlamation mark `!` can be used to specify an "inverted match" (i.e. that the HTTP Body should NOT match the provided `body` pattern).
+
 ### Examples
 
 The regex in `GET` and `DELETE` requests will match the entire URL including query parameters.
@@ -81,6 +85,11 @@ You can additionally specify that the query should not contain something by pref
 
 This will match if the query contains `param1=val1` AND `param2=val2` AND NOT `param3=val3`
 
+The `body` parameter can be used to match HTTP Body and also supports `!` to specify "inverted matches":
+	
+	let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "SomeBodyContent")
+	let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "!UnwantedBodyContent")
+    
 Finally you can limit a specific HTTP method by specifying it in the `method` parameter.
 
     // will match GET request only
