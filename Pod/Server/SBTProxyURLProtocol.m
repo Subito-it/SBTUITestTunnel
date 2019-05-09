@@ -317,6 +317,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *proxyRule = nil;
     NSDictionary *cookieBlockRule = nil;
     NSDictionary *rewriteRule = nil;
+    
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             if (stubRule != nil) {
@@ -369,9 +370,22 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             } else {
                 strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
                 
-                [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                [client URLProtocol:strongSelf didLoadData:stubResponse.data];
-                [client URLProtocolDidFinishLoading:strongSelf];
+                if (stubResponse.headers[@"Location"] != nil) {
+                    NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
+                    NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
+                    
+                    [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
+                    if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
+                        // don't handle double (or more) redirects
+                        [NSURLProtocol setProperty:request forKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest];
+                    }
+
+                    [client URLProtocol:strongSelf wasRedirectedToRequest:redirectionRequest redirectResponse:strongSelf.response];
+                } else {
+                    [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+                    [client URLProtocol:strongSelf didLoadData:stubResponse.data];
+                    [client URLProtocolDidFinishLoading:strongSelf];
+                }
             }
             
             // check if the request is also proxied, we might need to manually invoke the block here

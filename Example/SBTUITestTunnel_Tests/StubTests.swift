@@ -263,6 +263,26 @@ class StubTests: XCTestCase {
         XCTAssert(request.headers(headers2, isEqual: expectedHeaders))
         XCTAssert(delta > -5.0)
     }
+    
+    func testStubRedirection() {
+        let redirectionUrl = "https://www.subito.it/"
+        app.monitorRequests(matching: SBTRequestMatch(url: redirectionUrl))
+        
+        let match = SBTRequestMatch(url: "httpbin.org")
+        let response = SBTStubResponse(response: "", headers: ["Location": redirectionUrl], contentType: "application/octet-stream", returnCode: 302, responseTime: 0.0)
+        app.stubRequests(matching: match, response: response)
+        
+        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org", httpMethod: "GET", httpBody: nil, requestHeaders: [:], delay: 0.0)
+        
+        XCTAssertEqual(result.response.url?.absoluteString, redirectionUrl)
+        XCTAssertEqual(result.response.statusCode, 200)
+        
+        let requests = app.monitoredRequestsFlushAll()
+        
+        XCTAssertEqual(requests.count, 1)
+        XCTAssertEqual(requests.first?.request?.url?.absoluteString, redirectionUrl)
+        XCTAssertEqual(requests.first?.originalRequest?.url?.absoluteString, redirectionUrl)
+    }
 }
 
 extension StubTests {
