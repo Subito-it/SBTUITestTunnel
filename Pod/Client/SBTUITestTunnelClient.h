@@ -46,7 +46,7 @@ typedef enum: NSUInteger {
 
  @param sender An instance of the object sending the message.
  */
-- (void)tunneledApplicationIsReadyToLaunch:(nonnull SBTUITestTunnelClient *)sender;
+- (void)testTunnelClientIsReadyToLaunch:(nonnull SBTUITestTunnelClient *)sender;
 @optional
 
 /**
@@ -55,7 +55,7 @@ typedef enum: NSUInteger {
  @param sender An instance of the object sending the message.
  @param error If shutdown was due to an error will be non-nil, if shutdown was normal and expected then error will be nil.
  */
-- (void)tunneledApplication:(nonnull SBTUITestTunnelClient *)sender didShutdownWithError:(NSError * _Nullable)error;
+- (void)testTunnelClient:(nonnull SBTUITestTunnelClient *)sender didShutdownWithError:(NSError * _Nullable)error;
 @end
 
 

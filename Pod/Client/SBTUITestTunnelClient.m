@@ -96,8 +96,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     [self resetInternalState];
 
-    if ([self.delegate respondsToSelector:@selector(tunneledApplication:didShutdownWithError:)]) {
-        [self.delegate tunneledApplication:self didShutdownWithError:error];
+    if ([self.delegate respondsToSelector:@selector(testTunnelClienttestTunnelClient:didShutdownWithError:)]) {
+        [self.delegate testTunnelClient:self didShutdownWithError:error];
     }
 }
 
@@ -129,7 +129,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
     [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
     
-    [self.delegate tunneledApplicationIsReadyToLaunch:self];
+    [self.delegate testTunnelClientIsReadyToLaunch:self];
     
     [self waitForAppReady];
 }
