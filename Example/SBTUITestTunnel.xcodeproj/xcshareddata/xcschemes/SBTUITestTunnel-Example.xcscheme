@@ -48,6 +48,16 @@
                ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7E9AB19B22AEE9DB001205E9"
+               BuildableName = "SBTUITestTunnel_TestsNoSwizzling.xctest"
+               BlueprintName = "SBTUITestTunnel_TestsNoSwizzling"
+               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

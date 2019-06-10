@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_SBTUITestTunnel_TestsVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_SBTUITestTunnel_TestsVersionString[];
+FOUNDATION_EXPORT double Pods_Tests_SBTUITestTunnel_TestsVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_Tests_SBTUITestTunnel_TestsVersionString[];
 

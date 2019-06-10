@@ -8,6 +8,7 @@
 
 import SBTUITestTunnel
 import Foundation
+import XCTest
 
 class CookiesTest: XCTestCase {
     

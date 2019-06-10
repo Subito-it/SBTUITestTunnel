@@ -10,6 +10,8 @@
 #endif
 #endif
 
+#import "SBTUITestTunnelClient.h"
+#import "SBTUITestTunnelClientProtocol.h"
 #import "SBTUITunneledApplication.h"
 #import "XCTestCase+AppExtension.h"
 #import "XCTestCase+Swizzles.h"

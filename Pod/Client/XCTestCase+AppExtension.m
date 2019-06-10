@@ -18,9 +18,13 @@
     #ifndef ENABLE_UITUNNEL 
         #define ENABLE_UITUNNEL 1
     #endif
+
+    #ifndef ENABLE_SWIZZLING
+        #define ENABLE_SWIZZLING 1
+    #endif
 #endif
 
-#if ENABLE_UITUNNEL
+#if ENABLE_UITUNNEL && ENABLE_SWIZZLING
 
 #import "XCTestCase+AppExtension.h"
 #import "SBTUITunneledApplication.h"

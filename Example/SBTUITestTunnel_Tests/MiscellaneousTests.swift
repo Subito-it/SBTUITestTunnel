@@ -16,6 +16,7 @@
 
 import SBTUITestTunnel
 import Foundation
+import XCTest
 
 class MiscellaneousTests: XCTestCase {
     
