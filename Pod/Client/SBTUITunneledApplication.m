@@ -57,7 +57,7 @@
 #endif
 }
 
-- (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock
+- (void)launchTunnelWithOptions:(NSArray<NSString *> *)options startupBlock:(void (^)(void))startupBlock
 {
     NSMutableArray *launchArguments = [self.launchArguments mutableCopy];
     [launchArguments addObjectsFromArray:options];
@@ -69,12 +69,12 @@
 
 # pragma mark - SBTUITestTunnelClientDelegate
 
-- (void)testTunnelClientIsReadyToLaunch:(nonnull SBTUITestTunnelClient *)sender
+- (void)testTunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender
 {
     [self launch];
 }
 
-- (void)testTunnelClient:(nonnull SBTUITestTunnelClient *)sender didShutdownWithError:(NSError * _Nullable)error
+- (void)testTunnelClient:(SBTUITestTunnelClient *)sender didShutdownWithError:(NSError *)error
 {
     if (error != nil) {
         NSAssert(NO, error.localizedDescription);
@@ -89,12 +89,12 @@
     [self.client launchTunnel];
 }
 
-- (void)launchTunnelWithStartupBlock:(nullable void (^)(void))startupBlock
+- (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
     [self.client launchTunnelWithStartupBlock:startupBlock];
 }
 
-- (void)launchConnectionless:(nonnull NSString * _Nonnull (^)(NSString * _Nonnull, NSDictionary<NSString *,NSString *> * _Nonnull))command
+- (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *,NSString *> *))command
 {
     [self.client launchConnectionless:command];
 }
@@ -115,26 +115,26 @@
 
 #pragma mark - Stub Commands
 
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
     return [self.client  stubRequestsMatching:match response:response];
 }
 
 #pragma mark - Stub And Remove Commands
 
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
+- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
 {
     return [self.client stubRequestsMatching:match response:response removeAfterIterations:iterations];
 }
 
 #pragma mark - Stub Remove Commands
 
-- (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId
+- (BOOL)stubRequestsRemoveWithId:(NSString *)stubId
 {
     return [self.client stubRequestsRemoveWithId:stubId];
 }
 
-- (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds
+- (BOOL)stubRequestsRemoveWithIds:(NSArray<NSString *> *)stubIds
 {
     return [self.client stubRequestsRemoveWithIds:stubIds];
 }
@@ -146,26 +146,26 @@
 
 #pragma mark - Rewrite Commands
 
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite
 {
     return [self.client rewriteRequestsMatching:match rewrite:rewrite];
 }
 
 #pragma mark - Rewrite And Remove Commands
 
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations
+- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations
 {
     return [self.client rewriteRequestsMatching:match rewrite:rewrite removeAfterIterations:iterations];
 }
 
 #pragma mark - Rewrite Remove Commands
 
-- (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)rewriteId
+- (BOOL)rewriteRequestsRemoveWithId:(NSString *)rewriteId
 {
     return [self.client rewriteRequestsRemoveWithId:rewriteId];
 }
 
-- (BOOL)rewriteRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)rewriteIds
+- (BOOL)rewriteRequestsRemoveWithIds:(NSArray<NSString *> *)rewriteIds
 {
     return [self.client rewriteRequestsRemoveWithIds:rewriteIds];
 }
@@ -177,27 +177,27 @@
 
 #pragma mark - Monitor Requests Commands
 
-- (nullable NSString *)monitorRequestsMatching:(nonnull SBTRequestMatch *)match
+- (NSString *)monitorRequestsMatching:(SBTRequestMatch *)match
 {
     return [self.client monitorRequestsMatching:match];
 }
 
-- (nonnull NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll
+- (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsPeekAll
 {
     return [self.client monitoredRequestsPeekAll];
 }
 
-- (nonnull NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll
+- (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll
 {
     return [self.client monitoredRequestsFlushAll];
 }
 
-- (BOOL)monitorRequestRemoveWithId:(nonnull NSString *)reqId
+- (BOOL)monitorRequestRemoveWithId:(NSString *)reqId
 {
     return [self.client monitorRequestRemoveWithId:reqId];
 }
 
-- (BOOL)monitorRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds
+- (BOOL)monitorRequestRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
     return [self.client monitorRequestRemoveWithIds:reqIds];
 }
@@ -209,29 +209,29 @@
 
 #pragma mark - Synchronously Wait for Requests Commands
 
-- (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout
+- (BOOL)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout
 {
     return [self.client waitForMonitoredRequestsMatching:match timeout:timeout];
 }
 
-- (BOOL)waitForMonitoredRequestsMatching:(nonnull SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations
+- (BOOL)waitForMonitoredRequestsMatching:(SBTRequestMatch *)match timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations
 {
     return [self.client waitForMonitoredRequestsMatching:match timeout:timeout iterations:iterations];
 }
 
 #pragma mark - Throttle Requests Commands
 
-- (nullable NSString *)throttleRequestsMatching:(nonnull SBTRequestMatch *)match responseTime:(NSTimeInterval)responseTime
+- (NSString *)throttleRequestsMatching:(SBTRequestMatch *)match responseTime:(NSTimeInterval)responseTime
 {
     return [self.client  throttleRequestsMatching:match responseTime:responseTime];
 }
 
-- (BOOL)throttleRequestRemoveWithId:(nonnull NSString *)reqId
+- (BOOL)throttleRequestRemoveWithId:(NSString *)reqId
 {
     return [self.client throttleRequestRemoveWithId:reqId];
 }
 
-- (BOOL)throttleRequestRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds
+- (BOOL)throttleRequestRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
     return [self.client throttleRequestRemoveWithIds:reqIds];
 }
@@ -243,22 +243,22 @@
 
 #pragma mark - Cookie Block Requests Commands
 
-- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match
 {
     return [self.client blockCookiesInRequestsMatching:match];
 }
 
-- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match iterations:(NSUInteger)iterations
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
 {
     return [self.client blockCookiesInRequestsMatching:match iterations:iterations];
 }
 
-- (BOOL)blockCookiesRequestsRemoveWithId:(nonnull NSString *)reqId
+- (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId
 {
     return [self.client blockCookiesRequestsRemoveWithId:reqId];
 }
 
-- (BOOL)blockCookiesRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds
+- (BOOL)blockCookiesRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
     return [self.client blockCookiesRequestsRemoveWithIds:reqIds];
 }
@@ -270,17 +270,17 @@
 
 #pragma mark - NSUserDefaults Commands
 
-- (BOOL)userDefaultsSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key
+- (BOOL)userDefaultsSetObject:(id<NSCoding>)object forKey:(NSString *)key
 {
     return [self.client userDefaultsSetObject:object forKey:key];
 }
 
-- (BOOL)userDefaultsRemoveObjectForKey:(nonnull NSString *)key
+- (BOOL)userDefaultsRemoveObjectForKey:(NSString *)key
 {
     return [self.client userDefaultsRemoveObjectForKey:key];
 }
 
-- (nullable id)userDefaultsObjectForKey:(nonnull NSString *)key
+- (nullable id)userDefaultsObjectForKey:(NSString *)key
 {
     return [self.client userDefaultsObjectForKey:key];
 }
@@ -290,48 +290,48 @@
     return [self.client userDefaultsReset];
 }
 
-- (BOOL)userDefaultsSetObject:(nonnull id<NSCoding>)object forKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName
+- (BOOL)userDefaultsSetObject:(id<NSCoding>)object forKey:(NSString *)key suiteName:(NSString *)suiteName
 {
     return [self.client  userDefaultsSetObject:object forKey:key suiteName:suiteName];
 }
 
-- (BOOL)userDefaultsRemoveObjectForKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName
+- (BOOL)userDefaultsRemoveObjectForKey:(NSString *)key suiteName:(NSString *)suiteName
 {
     return [self.client userDefaultsRemoveObjectForKey:key suiteName:suiteName];
 }
 
-- (nullable id)userDefaultsObjectForKey:(nonnull NSString *)key suiteName:(nonnull NSString *)suiteName
+- (id)userDefaultsObjectForKey:(NSString *)key suiteName:(NSString *)suiteName
 {
     return [self.client userDefaultsObjectForKey:key suiteName:suiteName];
 }
 
-- (BOOL)userDefaultsResetSuiteName:(nonnull NSString *)suiteName
+- (BOOL)userDefaultsResetSuiteName:(NSString *)suiteName
 {
     return [self.client userDefaultsResetSuiteName:suiteName];
 }
 
 #pragma mark - NSBundle
 
-- (nullable NSDictionary<NSString *,id> *)mainBundleInfoDictionary
+- (NSDictionary<NSString *,id> *)mainBundleInfoDictionary
 {
     return [self.client mainBundleInfoDictionary];
 }
 
 #pragma mark - Copy Commands
 
-- (BOOL)uploadItemAtPath:(nonnull NSString *)srcPath toPath:(nullable NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder
+- (BOOL)uploadItemAtPath:(NSString *)srcPath toPath:(NSString *)destPath relativeTo:(NSSearchPathDirectory)baseFolder
 {
     return [self.client uploadItemAtPath:srcPath toPath:destPath relativeTo:baseFolder];
 }
 
-- (nullable NSArray<NSData *> *)downloadItemsFromPath:(nonnull NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder
+- (NSArray<NSData *> *)downloadItemsFromPath:(NSString *)path relativeTo:(NSSearchPathDirectory)baseFolder
 {
     return [self.client downloadItemsFromPath:path relativeTo:baseFolder];
 }
 
 #pragma mark - Custom Commands
 
-- (nullable id)performCustomCommandNamed:(nonnull NSString *)commandName object:(nullable id)object
+- (id)performCustomCommandNamed:(NSString *)commandName object:(id)object
 {
     return [self.client performCustomCommandNamed:commandName object:object];
 }
