@@ -705,7 +705,7 @@
 				GCC_PREFIX_HEADER = "SBTUITestTunnel/SBTUITestTunnel-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=1",
+					"ENABLE_UITUNNEL_SWIZZLING=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "SBTUITestTunnel/SBTUITestTunnel-Info.plist";
@@ -733,7 +733,7 @@
 				GCC_PREFIX_HEADER = "SBTUITestTunnel/SBTUITestTunnel-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=1",
+					"ENABLE_UITUNNEL_SWIZZLING=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "SBTUITestTunnel/SBTUITestTunnel-Info.plist";
@@ -764,7 +764,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=0",
+					"ENABLE_UITUNNEL_SWIZZLING=0",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = SBTUITestTunnel_TestsNoSwizzling/Info.plist;
@@ -801,7 +801,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=0",
+					"ENABLE_UITUNNEL_SWIZZLING=0",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = SBTUITestTunnel_TestsNoSwizzling/Info.plist;
@@ -832,7 +832,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=1",
+					"ENABLE_UITUNNEL_SWIZZLING=1",
 					"$(inherited)",
 				);
 				GCC_WARN_UNUSED_PARAMETER = YES;
@@ -863,7 +863,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ENABLE_UITUNNEL=1",
-					"ENABLE_SWIZZLING=1",
+					"ENABLE_UITUNNEL_SWIZZLING=1",
 					"$(inherited)",
 				);
 				GCC_WARN_UNUSED_PARAMETER = YES;
