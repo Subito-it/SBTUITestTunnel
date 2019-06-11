@@ -42,7 +42,7 @@ typedef enum: NSUInteger {
 
 /**
  Informs the delegate that it should launch the XCUIApplication under-test before the tunnel is established.
- It's required that you avoid lunching until the delegate is called.
+ It's required that you avoid launching until the delegate is called.
 
  @param sender An instance of the object sending the message.
  */
@@ -82,7 +82,7 @@ typedef enum: NSUInteger {
  *
  *  @param application The instance of XCUIApplication.
  */
-- (nullable instancetype)initWithApplication:(nonnull XCUIApplication *)application;
+- (nonnull instancetype)initWithApplication:(nonnull XCUIApplication *)application;
 
 @end
 
