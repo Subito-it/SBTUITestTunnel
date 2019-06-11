@@ -26,7 +26,7 @@
 #import "SBTUITestTunnelClientProtocol.h"
 
 /**
- *  An object that manages the test application's life-cycle. This object is used internally when ENABLE_SWIZZLING is set to 1.
+ *  An object that manages the test application's life-cycle. This object is used internally when ENABLE_UITUNNEL_SWIZZLING is set to 1.
  */
 @interface SBTUITunneledApplication : XCUIApplication <SBTUITestTunnelClientProtocol>
 

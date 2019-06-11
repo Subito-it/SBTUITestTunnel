@@ -19,12 +19,12 @@
         #define ENABLE_UITUNNEL 1
     #endif
 
-    #ifndef ENABLE_SWIZZLING
-        #define ENABLE_SWIZZLING 1
+    #ifndef ENABLE_UITUNNEL_SWIZZLING
+        #define ENABLE_UITUNNEL_SWIZZLING 1
     #endif
 #endif
 
-#if ENABLE_UITUNNEL && ENABLE_SWIZZLING
+#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
 #import "XCTestCase+Swizzles.h"
 #import "SBTSwizzleHelpers.h"

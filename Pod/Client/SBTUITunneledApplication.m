@@ -19,8 +19,8 @@
         #define ENABLE_UITUNNEL 1
     #endif
 
-    #ifndef ENABLE_SWIZZLING
-        #define ENABLE_SWIZZLING 1
+    #ifndef ENABLE_UITUNNEL_SWIZZLING
+        #define ENABLE_UITUNNEL_SWIZZLING 1
     #endif
 #endif
 
@@ -49,7 +49,7 @@
 
 + (void)load
 {
-#if ENABLE_SWIZZLING
+#if ENABLE_UITUNNEL_SWIZZLING
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [XCTestCase loadSwizzles];
