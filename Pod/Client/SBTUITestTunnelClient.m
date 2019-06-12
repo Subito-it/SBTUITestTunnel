@@ -140,6 +140,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithError:nil];
 }
 
+- (void)terminateTunnel
+{
+    [self shutDownWithError:nil];
+}
+
 - (void)waitForAppReady
 {
     const int timeout = self.connectionTimeout;

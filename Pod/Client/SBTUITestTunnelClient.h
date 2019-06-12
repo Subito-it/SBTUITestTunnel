@@ -84,6 +84,11 @@ typedef enum: NSUInteger {
  */
 - (nonnull instancetype)initWithApplication:(nonnull XCUIApplication *)application;
 
+/**
+ * Terminates the tunnel by tidying up the internal state. Informs the delegate once complete so that the delegate can then terminate the application.
+ */
+- (void)terminateTunnel;
+
 @end
 
 #endif
