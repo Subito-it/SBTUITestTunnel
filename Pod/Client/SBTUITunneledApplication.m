@@ -99,6 +99,11 @@
     [self.client launchConnectionless:command];
 }
 
+- (void)terminateTunnel
+{
+    [self.client terminateTunnel];
+}
+
 #pragma mark - Timeout
 
 + (void)setConnectionTimeout:(NSTimeInterval)timeout

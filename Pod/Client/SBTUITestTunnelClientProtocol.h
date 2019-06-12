@@ -39,6 +39,11 @@
  */
 - (void)launchConnectionless:(nonnull NSString * _Nonnull (^)(NSString * _Nonnull, NSDictionary<NSString *, NSString *> * _Nonnull))command;
 
+/**
+ * Terminates the tunnel by tidying up the internal state. Informs the delegate once complete so that the delegate can then terminate the application.
+ */
+- (void)terminateTunnel;
+
 #pragma mark - Timeout
 
 /**
