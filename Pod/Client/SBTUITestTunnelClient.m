@@ -96,7 +96,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     [self resetInternalState];
 
-    if ([self.delegate respondsToSelector:@selector(testTunnelClienttestTunnelClient:didShutdownWithError:)]) {
+    if ([self.delegate respondsToSelector:@selector(testTunnelClient:didShutdownWithError:)]) {
         [self.delegate testTunnelClient:self didShutdownWithError:error];
     }
 }
