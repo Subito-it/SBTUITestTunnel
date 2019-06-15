@@ -41,7 +41,7 @@
 /**
  *  Register a custom command. It is your responsibility to unregister the custom command when it is no longer needed
  *
- *  @param commandName that will match [SBTUITunneledApplication performCustomCommandNamed:object:]
+ *  @param commandName that will match [SBTUITestTunnelClient performCustomCommandNamed:object:]
  *  @param block the block of code that will be executed once the command is received
  */
 + (void)registerCustomCommandNamed:(nonnull NSString *)commandName block:(nonnull NSObject *_Nullable(^)(NSObject * _Nullable object))block;

@@ -7,10 +7,16 @@ target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnel/Server', :path => '../'
 end
 
-target 'SBTUITestTunnel_Tests' do
+abstract_target 'Tests' do
   pod 'SBTUITestTunnel/Server', :path => '../'
   pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
   pod 'SBTUITestTunnel/Client', :path => '../'
+
+  target 'SBTUITestTunnel_Tests' do
+  end
+
+  target 'SBTUITestTunnel_TestsNoSwizzling' do
+  end
 end
 
 post_install do |installer|

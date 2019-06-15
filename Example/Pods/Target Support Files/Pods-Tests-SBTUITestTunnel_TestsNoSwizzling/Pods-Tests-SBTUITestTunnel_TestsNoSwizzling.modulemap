@@ -1,0 +1,6 @@
+framework module Pods_Tests_SBTUITestTunnel_TestsNoSwizzling {
+  umbrella header "Pods-Tests-SBTUITestTunnel_TestsNoSwizzling-umbrella.h"
+
+  export *
+  module * { export * }
+}
