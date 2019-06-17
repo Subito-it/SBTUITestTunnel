@@ -79,7 +79,7 @@
     if (error != nil) {
         NSAssert(NO, error.localizedDescription);
     }
-    [self terminate];
+    [super terminate];
 }
 
 # pragma mark - SBTUITestTunnelClientProtocol -
@@ -97,6 +97,11 @@
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *,NSString *> *))command
 {
     [self.client launchConnectionless:command];
+}
+
+- (void)terminate
+{
+    [self terminateTunnel];
 }
 
 - (void)terminateTunnel
@@ -122,7 +127,7 @@
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
-    return [self.client  stubRequestsMatching:match response:response];
+    return [self.client stubRequestsMatching:match response:response];
 }
 
 #pragma mark - Stub And Remove Commands
