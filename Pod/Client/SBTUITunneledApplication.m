@@ -79,7 +79,6 @@
     if (error != nil) {
         NSAssert(NO, error.localizedDescription);
     }
-    [self terminate];
 }
 
 # pragma mark - SBTUITestTunnelClientProtocol -
@@ -99,9 +98,9 @@
     [self.client launchConnectionless:command];
 }
 
-- (void)terminateTunnel
+- (void)terminate
 {
-    [self.client terminateTunnel];
+    [self.client terminate];
 }
 
 #pragma mark - Timeout

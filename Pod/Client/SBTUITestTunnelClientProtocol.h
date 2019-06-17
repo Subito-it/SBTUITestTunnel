@@ -51,7 +51,7 @@
 /**
  * Terminates the tunnel by tidying up the internal state. Informs the delegate once complete so that the delegate can then terminate the application.
  */
-- (void)terminateTunnel;
+- (void)terminate;
 
 #pragma mark - Timeout
 
