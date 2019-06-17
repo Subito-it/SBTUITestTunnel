@@ -101,6 +101,7 @@
 - (void)terminate
 {
     [self.client terminate];
+    [super terminate];
 }
 
 #pragma mark - Timeout
@@ -121,7 +122,7 @@
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
-    return [self.client  stubRequestsMatching:match response:response];
+    return [self.client stubRequestsMatching:match response:response];
 }
 
 #pragma mark - Stub And Remove Commands
