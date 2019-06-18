@@ -101,12 +101,7 @@
 
 - (void)terminate
 {
-    [self terminateTunnel];
-}
-
-- (void)terminateTunnel
-{
-    [self.client terminateTunnel];
+    [self.client terminate];
 }
 
 #pragma mark - Timeout
