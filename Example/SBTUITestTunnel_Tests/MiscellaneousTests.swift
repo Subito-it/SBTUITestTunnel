@@ -111,4 +111,15 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
         XCTAssertEqual(responsetHeaders!["Content-Type"] as? String, "application/json")
     }
+    
+    func testShutdown() {
+        app.terminate()
+        XCTAssert(app.wait(for: .notRunning, timeout: 5))
+        
+        app.launchTunnel()
+        XCTAssert(app.wait(for: .runningForeground, timeout: 5))
+        
+        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
+        waitForExpectations(timeout: 15.0, handler: nil)
+    }
 }
