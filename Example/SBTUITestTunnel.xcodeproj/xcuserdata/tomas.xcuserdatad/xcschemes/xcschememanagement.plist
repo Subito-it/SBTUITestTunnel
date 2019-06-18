@@ -7,19 +7,24 @@
 		<key>SBTUITestTunnel-Example.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>SBTUITestTunnel_Tests.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>SBTUITestTunnel_TestsNoSwizzling.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>9</integer>
+		</dict>
 		<key>SBTUITestTunnel_UITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>isShown</key>
 			<true/>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>3</integer>
 		</dict>
 		<key>SBTUITestTunnel_UITests2.xcscheme_^#shared#^_</key>
 		<dict>
@@ -35,6 +40,11 @@
 			<true/>
 		</dict>
 		<key>6003F5AD195388D20070C39A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7E9AB19B22AEE9DB001205E9</key>
 		<dict>
 			<key>primary</key>
 			<true/>

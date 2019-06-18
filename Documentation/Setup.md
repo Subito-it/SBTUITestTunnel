@@ -72,34 +72,34 @@ You'll need to create and retain an instance of `SBTUITestTunnelClient` and hook
 
     class MyCustomApplication: XCUIApplication {
         lazy var client: SBTUITestTunnelClient = {
-            let client = SBTUITestTunnelClient(application: self)!
+            let client = SBTUITestTunnelClient(application: self)
             client.delegate = self
             return client
         }()
-      
-        func launchApp() {
+        
+        func launchTunnel() {
             // Do any custom launch things
             client.launchTunnel()
         }
-     
-        func terminateApp() {
+        
+        override func terminate() {
             // Do any custom tidy up things
-            client.terminateTunnel()
+            client.terminate()
         }
     }
-     
+
     extension MyCustomApplication: SBTUITestTunnelClientDelegate {
         func testTunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
             // Call the XCUIApplication.lanuch() method
             launch()
         }
-     
+        
         func testTunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
             // optionally handle errors
-            print(error!.localizedDescription)
-     
+            print(String(describing: error?.localizedDescription))
+            
             // Call the XCUIApplication.terminate() method
-            terminate()
+            super.terminate()
         }
     }
 
@@ -122,7 +122,7 @@ The purpose of `SBTUITestTunnelClientDelegate` is to allow the tunnel to prepare
 
 If the tunnel fails to connect for any reason `testTunnelClient(_:didShutdownWithError:)` will be called with a provided `Error` instance. You can then decide whether to terminate the app, fail the test or just fail silently.
 
-To terminate the app yourself you should call `terminateTunnel()` on the client instance, this allows the tunnel time to disconnect before the `testTunnelClient(_:didShutdownWithError:)` will be called, though unlike above `Error` will be nil. You can then call `terminate()` if your choose.
+To terminate the app yourself you should call `terminate()` on the client instance, this allows the tunnel time to disconnect before the `testTunnelClient(_:didShutdownWithError:)` will be called, though unlike above `Error` will be nil. You can then call `terminate()` on the XCUIApplication instance you're retaining.
 
 #### Part custom XCUIApplicaion Example 
 

@@ -18,16 +18,10 @@ import SBTUITestTunnel
 import Foundation
 import XCTest
 
-class MyApplication: SBTUITunneledApplication {
-    override init() {
-        super.init()
-        launchArguments = [SBTUITunneledApplicationLaunchOptionResetFilesystem]
-    }
-}
 
 class NoSwizzlingTests: XCTestCase {
 
-    let app = MyApplication()
+    let app = MyCustomApplication()
 
     override func setUp() {
         super.setUp()
@@ -39,25 +33,48 @@ class NoSwizzlingTests: XCTestCase {
 
         Thread.sleep(forTimeInterval: 1.0)
     }
+    
+    func testShutdown() {
+        app.terminate()
+        XCTAssert(app.wait(for: .notRunning, timeout: 5))
 
-    func testSingleDownload() {
-        let randomString = ProcessInfo.processInfo.globallyUniqueString
+        app.launchTunnel()
+        XCTAssert(app.wait(for: .runningForeground, timeout: 5))
+        
+        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
+        waitForExpectations(timeout: 15.0, handler: nil)
+    }
+}
 
-        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        let testFilePath = paths.first!.appending("/test_file_a.txt")
+class MyCustomApplication: XCUIApplication {
+    lazy var client: SBTUITestTunnelClient = {
+        let client = SBTUITestTunnelClient(application: self)
+        client.delegate = self
+        return client
+    }()
+    
+    func launchTunnel() {
+        // Do any custom launch things
+        client.launchTunnel()
+    }
+    
+    override func terminate() {
+        // Do any custom tidy up things
+        client.terminate()
+    }
+}
 
-        if FileManager.default.fileExists(atPath: testFilePath) {
-            try! FileManager.default.removeItem(atPath: testFilePath)
-        }
-
-        try! (randomString.data(using: .utf8))?.write(to: URL(fileURLWithPath: testFilePath))
-
-        app.uploadItem(atPath: testFilePath, toPath: "test_file_b.txt", relativeTo: .documentDirectory)
-
-        let uploadData = app.downloadItems(fromPath: "test_file_b.txt", relativeTo: .documentDirectory)?.first!
-
-        let uploadedString = String(data: uploadData!, encoding: .utf8)
-
-        XCTAssertTrue(randomString == uploadedString)
+extension MyCustomApplication: SBTUITestTunnelClientDelegate {
+    func testTunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
+        // Call the XCUIApplication.lanuch() method
+        launch()
+    }
+    
+    func testTunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
+        // optionally handle errors
+        print(String(describing: error?.localizedDescription))
+        
+        // Call the XCUIApplication.terminate() method
+        super.terminate()
     }
 }
