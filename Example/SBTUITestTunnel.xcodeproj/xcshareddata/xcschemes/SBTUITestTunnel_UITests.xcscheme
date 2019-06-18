@@ -17,14 +17,14 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "013AB586BFA20FCE1DD006F21EF6B24E"
+            BlueprintIdentifier = "2D84DC265A693B560837CAEE17E8426D"
             BuildableName = "SBTUITestTunnel.framework"
             BlueprintName = "SBTUITestTunnel-Client-Server"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
          </BuildableReference>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FBDB00FF05CB14B083CF68E95A2B10FE"
+            BlueprintIdentifier = "E412D1B7525A03E66E9913D5E3A95ED7"
             BuildableName = "SBTUITestTunnel.framework"
             BlueprintName = "SBTUITestTunnel-Server"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
