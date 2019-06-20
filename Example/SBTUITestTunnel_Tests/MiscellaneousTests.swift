@@ -113,6 +113,8 @@ class MiscellaneousTests: XCTestCase {
     }
     
     func testShutdown() {
+        app.launchTunnel()
+        
         app.terminate()
         XCTAssert(app.wait(for: .notRunning, timeout: 5))
         
@@ -121,5 +123,20 @@ class MiscellaneousTests: XCTestCase {
         
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
         waitForExpectations(timeout: 15.0, handler: nil)
+    }
+    
+    func testLaunchArgumentsResetBetweenLaunches() {
+        let userDefaultKey = "test_key"
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+        XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
+
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+        app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
+        
+        app.terminate()
+        
+        app.launchTunnel()
+        // UserDefaults shouldn't get reset
+        XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as? String)
     }
 }
