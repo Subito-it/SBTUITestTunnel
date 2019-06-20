@@ -363,6 +363,18 @@
     return [self.client userInterfaceAnimationSpeed];
 }
 
+#pragma mark - XCUITest extensions
+
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+{
+    return [self.client scrollTableViewWithIdentifier:identifier toRow:row];
+}
+
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+{
+    return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row];
+}
+
 @end
 
 #endif

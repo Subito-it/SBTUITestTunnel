@@ -673,6 +673,28 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return _userInterfaceAnimationSpeed;
 }
 
+#pragma mark - XCUITest extensions
+
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [@(row) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
+}
+
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [@(row) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
+}
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj

@@ -34,6 +34,7 @@
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
 #import "NSData+SHA1.h"
+#import "UIView+Extensions.h"
 #import <CoreLocation/CoreLocation.h>
 
 #if !defined(NS_BLOCK_ASSERTIONS)
@@ -805,6 +806,150 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_semaphore_signal(self.launchSemaphore);
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
+}
+
+#pragma mark - XCUITest extensions
+
+- (BOOL)scrollElementWithIdentifier:(NSString *)elementIdentifier elementClass:(Class)elementClass toRow:(NSInteger)elementRow numberOfSections:(NSInteger (^)(UIView *))sectionsDataSource numberOfRows:(NSInteger (^)(UIView *, NSInteger))rowsDataSource scrollDelegate:(void (^)(UIView *, NSIndexPath *))scrollDelegate;
+{
+    NSAssert([NSThread isMainThread], @"Call this from main thread!");
+    
+    UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    
+    NSArray *allViews = [rootViewController.view allSubviews];
+    for (UIView *view in [allViews reverseObjectEnumerator]) {
+        if ([view isKindOfClass:elementClass]) {
+            BOOL withinVisibleBounds = CGRectContainsRect( UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+            
+            if (!withinVisibleBounds) {
+                continue;
+            }
+            
+            BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
+            if (expectedIdentifier) {
+                NSInteger sections = 1;
+                sections = sectionsDataSource(view);
+                
+                NSInteger processedRows = 0;
+                NSInteger targetSection = -1;
+                for (NSInteger section = 0; section < sections; section++) {
+                    if (processedRows >= elementRow) {
+                        targetSection = section;
+                        break;
+                    }
+                    if (section < sections - 1) {
+                        processedRows = rowsDataSource(view, section);
+                    }
+                }
+                if (targetSection == -1) {
+                    targetSection = sections - 1;
+                }
+                NSInteger rowsInTargetSection = rowsDataSource(view, targetSection);
+                NSInteger targetSectionRow = MIN(MAX(0, elementRow - processedRows), rowsInTargetSection - 1);
+                
+                NSIndexPath *targetIndexPath = [NSIndexPath indexPathForRow:targetSectionRow inSection:targetSection];
+                scrollDelegate(view, targetIndexPath);
+                
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
+- (NSDictionary *)commandScrollTableView:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
+    NSInteger elementRow = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] intValue];
+    
+    __block BOOL result = NO;
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        result = [self scrollElementWithIdentifier:elementIdentifier
+                                      elementClass:[UITableView class]
+                                             toRow:elementRow
+                                  numberOfSections:^NSInteger (UIView *view) {
+                                      UITableView *tableView = (UITableView *)view;
+                                      if ([tableView.dataSource respondsToSelector:@selector(numberOfSectionsInTableView:)]) {
+                                          return [tableView.dataSource numberOfSectionsInTableView:tableView];
+                                      } else {
+                                          return 1;
+                                      }
+                                  }
+                                      numberOfRows:^NSInteger (UIView *view, NSInteger section) {
+                                          UITableView *tableView = (UITableView *)view;
+                                          if ([tableView.dataSource respondsToSelector:@selector(tableView:numberOfRowsInSection:)]) {
+                                              return [tableView.dataSource tableView:tableView numberOfRowsInSection:section];
+                                          } else {
+                                              return 0;
+                                          }
+                                      }
+                                    scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
+                                        UITableView *tableView = (UITableView *)view;
+                                        
+                                        [UIView animateWithDuration:0.3f delay:0.0f options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                                            [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+                                        } completion:^(BOOL finished) {
+                                            dispatch_semaphore_signal(sem);
+                                        }];
+                                    }];
+    });
+    
+    NSString *debugInfo = result ? @"" : @"element not found!";
+    
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
+- (NSDictionary *)commandScrollCollectionView:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
+    NSInteger elementRow = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] intValue];
+    
+    __block BOOL result = NO;
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        result = [self scrollElementWithIdentifier:elementIdentifier
+                                      elementClass:[UICollectionView class]
+                                             toRow:elementRow
+                                  numberOfSections:^NSInteger (UIView *view) {
+                                      UICollectionView *collectionView = (UICollectionView *)view;
+                                      if ([collectionView.dataSource respondsToSelector:@selector(numberOfSectionsInCollectionView:)]) {
+                                          return [collectionView.dataSource numberOfSectionsInCollectionView:collectionView];
+                                      } else {
+                                          return 1;
+                                      }
+                                  }
+                                      numberOfRows:^NSInteger (UIView *view, NSInteger section) {
+                                          UICollectionView *collectionView = (UICollectionView *)view;
+                                          if ([collectionView.dataSource respondsToSelector:@selector(collectionView:numberOfItemsInSection:)]) {
+                                              return [collectionView.dataSource collectionView:collectionView numberOfItemsInSection:section];
+                                          } else {
+                                              return 0;
+                                          }
+                                      }
+                                    scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
+                                        UICollectionView *collectionView = (UICollectionView *)view;
+                                        
+                                        [UIView animateWithDuration:0.3f delay:0.0f options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                                             [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+                                         } completion:^(BOOL finished) {
+                                             dispatch_semaphore_signal(sem);
+                                         }];
+                                    }];
+    });
+    
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+        result = NO;
+    }
+    
+    NSString *debugInfo = result ? @"" : @"element not found!";
+    
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
 #pragma mark - Custom Commands

@@ -139,4 +139,12 @@ class MiscellaneousTests: XCTestCase {
         // UserDefaults shouldn't get reset
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as? String)
     }
+    
+    func testTableViewScrolling() {
+        app.launchTunnel()
+        
+        app.cells["showExtensionTable1"].tap()
+        
+        app.scrollTableView(withIdentifier: "table", toRow: 100)
+    }
 }

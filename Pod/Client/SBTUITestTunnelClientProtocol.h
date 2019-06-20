@@ -489,6 +489,28 @@
  */
 - (NSInteger)userInterfaceAnimationSpeed;
 
+#pragma mark - XCUITest extensions
+
+/**
+ *  Scroll UITablewViews view to the specified row (flattening sections if any).
+ *
+ *  @param identifier accessibilityIdentifier of the UITableView
+ *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row;
+
+/**
+*  Scroll UICollection view to the specified row (flattening sections if any).
+*
+*  @param identifier accessibilityIdentifier of the UICollectionView
+*  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+*
+*  @return `YES` on success
+*/
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row;
+
 @end
 
 #endif
