@@ -27,6 +27,8 @@ class BaseTest {
 class NetworkTest: BaseTest {}
 class AutocompleteTest: BaseTest {}
 class CookiesTest: BaseTest {}
+class Extension1Test: BaseTest {}
+class Extension2Test: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     
@@ -46,7 +48,9 @@ class SBTTableViewController: UITableViewController {
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeRequestWithRedirect)),
                                         AutocompleteTest(testSelector: #selector(showAutocompleteForm)),
-                                        CookiesTest(testSelector: #selector(executeRequestWithCookies))]
+                                        CookiesTest(testSelector: #selector(executeRequestWithCookies)),
+                                        Extension1Test(testSelector: #selector(showExtensionTable1)),
+                                        Extension2Test(testSelector: #selector(showExtensionTable2))]
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
@@ -60,6 +64,10 @@ class SBTTableViewController: UITableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
         } else if testList[indexPath.row] is CookiesTest {
             cell = tableView.dequeueReusableCell(withIdentifier: "cookieCell", for: indexPath)
+        } else if testList[indexPath.row] is Extension1Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension2Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension2Cell", for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -376,6 +384,20 @@ extension SBTTableViewController {
     
     @objc func showAutocompleteForm() {
         self.performSegue(withIdentifier: "autocompleteSegue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    
+    @objc func showExtensionTable1() {
+        self.performSegue(withIdentifier: "extensionTable1Segue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    
+    @objc func showExtensionTable2() {
+        self.performSegue(withIdentifier: "extensionTable2Segue", sender: nil)
     }
 }
 
