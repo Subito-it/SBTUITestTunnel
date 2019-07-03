@@ -58,6 +58,12 @@
  */
 + (nonnull NSString *)performCommand:(nonnull NSString *)commandName params:(nonnull NSDictionary<NSString *, NSString *> *)params;
 
+/**
+ Will enable URL protocol in the WKWebView.
+ Note: Enabling this can cause unexpected behavior for async requests in JS
+ */
++ (void)enableUrlProtocolInWkWebview;
+
 @end
 
 #endif

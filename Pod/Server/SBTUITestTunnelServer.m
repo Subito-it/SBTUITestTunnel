@@ -99,7 +99,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
 
         [sharedInstance reset];
-        [sharedInstance enableUrlProtocolInWkWebview];
         
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
@@ -1182,7 +1181,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     [[self customCommands] removeAllObjects];
 }
 
-- (void)enableUrlProtocolInWkWebview
++ (void)enableUrlProtocolInWkWebview
 {
     Class cls = NSClassFromString(@"WKBrowsingContextController");
     SEL sel = NSSelectorFromString(@"registerSchemeForCustomProtocol:");
