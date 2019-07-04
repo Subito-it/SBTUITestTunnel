@@ -29,6 +29,7 @@ class AutocompleteTest: BaseTest {}
 class CookiesTest: BaseTest {}
 class Extension1Test: BaseTest {}
 class Extension2Test: BaseTest {}
+class Extension3Test: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     
@@ -50,7 +51,8 @@ class SBTTableViewController: UITableViewController {
                                         AutocompleteTest(testSelector: #selector(showAutocompleteForm)),
                                         CookiesTest(testSelector: #selector(executeRequestWithCookies)),
                                         Extension1Test(testSelector: #selector(showExtensionTable1)),
-                                        Extension2Test(testSelector: #selector(showExtensionTable2))]
+                                        Extension2Test(testSelector: #selector(showExtensionTable2)),
+                                        Extension3Test(testSelector: #selector(showExtensionScrollView))]
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
@@ -68,6 +70,8 @@ class SBTTableViewController: UITableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension2Test {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension2Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension3Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension3Cell", for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -403,6 +407,13 @@ extension SBTTableViewController {
 
 extension SBTTableViewController {
     
+    @objc func showExtensionScrollView() {
+        self.performSegue(withIdentifier: "extensionScrollSegue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    
     func dataTaskNetworkWithCookies(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
@@ -447,5 +458,12 @@ extension SBTTableViewController {
     
     @objc func executeRequestWithCookies() {
         dataTaskNetworkWithCookies(urlString: "http://httpbin.org/get", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
+    }
+}
+
+class ScrollViewWithIdentifier: UIScrollView {
+    override var accessibilityIdentifier: String? {
+        get { return "scrollView" }
+        set {}
     }
 }

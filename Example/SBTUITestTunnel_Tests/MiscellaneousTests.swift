@@ -145,6 +145,26 @@ class MiscellaneousTests: XCTestCase {
         
         app.cells["showExtensionTable1"].tap()
         
+        XCTAssertFalse(app.staticTexts["Label5"].isHittable)
+        
         app.scrollTableView(withIdentifier: "table", toRow: 100)
+
+        expectation(for: NSPredicate(format: "isHittable == true"), evaluatedWith: app.staticTexts["Label5"])
+        waitForExpectations(timeout: 15.0, handler: nil)
+    }
+    
+    func testScrollViewScrolling() {
+        app.launchTunnel()
+        
+        app.cells["showExtensionScrollView"].tap()
+        
+        XCTAssertFalse(app.buttons["Button"].isHittable)
+        
+        app.scrollScrollView(withIdentifier: "scrollView", toElementWitIdentifier: "Button")
+        
+        expectation(for: NSPredicate(format: "exists == true"), evaluatedWith: app.buttons["Button"])
+        waitForExpectations(timeout: 15.0, handler: nil)
+        
+        XCTAssert(app.buttons["Button"].isHittable)
     }
 }
