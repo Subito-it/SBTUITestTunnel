@@ -124,6 +124,7 @@ NSString * const SBTUITunneledApplicationCommandStartupCommandsCompleted = @"com
 
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollTableView = @"commandScrollTableView";
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView = @"commandScrollCollectionView";
+NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView = @"commandScrollScrollView";
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 

@@ -858,6 +858,55 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return NO;
 }
 
+- (NSDictionary *)commandScrollScrollView:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
+    NSString *targetElementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
+    
+    __block BOOL result = NO;
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        NSAssert([NSThread isMainThread], @"Call this from main thread!");
+        
+        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        
+        NSArray *allViews = [rootViewController.view allSubviews];
+        for (UIView *view in [allViews reverseObjectEnumerator]) {
+            if ([view isKindOfClass:[UIScrollView class]]) {
+                BOOL withinVisibleBounds = CGRectContainsRect( UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+                
+                if (!withinVisibleBounds) {
+                    continue;
+                }
+                
+                BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
+                if (expectedIdentifier) {
+                    UIScrollView *scrollView = (UIScrollView *)view;
+                    NSArray *allScrollViewViews = [view allSubviews];
+                    for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
+                        BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
+                        if (expectedTargetIdentifier) {
+                            CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
+                            CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
+                            
+                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:YES];
+
+                            result = YES;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (result) { break; }
+        }
+    });
+    
+    NSString *debugInfo = result ? @"" : @"element not found!";
+    
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
 - (NSDictionary *)commandScrollTableView:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];

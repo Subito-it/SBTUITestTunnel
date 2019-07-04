@@ -375,6 +375,11 @@
     return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row];
 }
 
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier
+{
+    return [self.client scrollScrollViewWithIdentifier:identifier toElementWitIdentifier:targetIdentifier];
+}
+
 @end
 
 #endif

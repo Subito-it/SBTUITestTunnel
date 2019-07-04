@@ -511,6 +511,16 @@
 */
 - (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row;
 
+/**
+ *  Scroll UIScrollView view to the specified element
+ *
+ *  @param identifier accessibilityIdentifier of the UIScrollView
+ *  @param targetIdentifier accessibilityIdentifier of the element the scroll view should scroll to
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier;
+
 @end
 
 #endif
