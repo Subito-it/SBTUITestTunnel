@@ -770,6 +770,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     __block NSString *responseId = nil;
     
     [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error.code == -1022) {
+            NSAssert(NO, @"Check that ATS security policy is properly setup, refer to documentation");
+        }
+        
         if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
             if (assertOnError) {
                 NSLog(@"[SBTUITestTunnel] Failed to get http response: %@", request);
