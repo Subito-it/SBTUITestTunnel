@@ -889,7 +889,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
                             CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
                             
-                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:YES];
+                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:NO];
+                            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
 
                             result = YES;
                             break;
@@ -939,11 +940,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UITableView *tableView = (UITableView *)view;
                                         
-                                        [UIView animateWithDuration:0.3f delay:0.0f options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                                            [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-                                        } completion:^(BOOL finished) {
-                                            dispatch_semaphore_signal(sem);
-                                        }];
+                                        [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+                                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+                                        
+                                        dispatch_semaphore_signal(sem);
                                     }];
     });
     
@@ -984,8 +984,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UICollectionView *collectionView = (UICollectionView *)view;
                                         
-                                        [UIView animateWithDuration:0.3f delay:0.0f options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                                             [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+                                        [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                                             [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
+                                            
+                                            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                          } completion:^(BOOL finished) {
                                              dispatch_semaphore_signal(sem);
                                          }];
