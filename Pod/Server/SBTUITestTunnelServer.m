@@ -823,7 +823,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSAssert([NSThread isMainThread], @"Call this from main thread!");
     
+    // Hacky way to get top-most UIViewController
     UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    while (rootViewController.presentedViewController != nil) {
+        rootViewController = rootViewController.presentedViewController;
+    }
     
     NSArray *allViews = [rootViewController.view allSubviews];
     for (UIView *view in [allViews reverseObjectEnumerator]) {
@@ -879,7 +883,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_async(dispatch_get_main_queue(), ^{
         NSAssert([NSThread isMainThread], @"Call this from main thread!");
         
+        // Hacky way to get top-most UIViewController
         UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        while (rootViewController.presentedViewController != nil) {
+            rootViewController = rootViewController.presentedViewController;
+        }
         
         NSArray *allViews = [rootViewController.view allSubviews];
         for (UIView *view in [allViews reverseObjectEnumerator]) {
