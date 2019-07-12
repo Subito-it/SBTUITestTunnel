@@ -126,6 +126,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandStartupCommandsC
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollTableView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionForceTouchView;
 
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 

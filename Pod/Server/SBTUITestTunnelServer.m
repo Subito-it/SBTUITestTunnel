@@ -30,6 +30,8 @@
 #import "SBTStubResponse.h"
 #import "SBTRewrite.h"
 #import "SBTMonitoredNetworkRequest.h"
+#import "SBTAnyViewControllerPreviewing.h"
+#import "UIViewController+SBTUITestTunnel.h"
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
@@ -881,8 +883,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSAssert([NSThread isMainThread], @"Call this from main thread!");
-        
         // Hacky way to get top-most UIViewController
         UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
         while (rootViewController.presentedViewController != nil) {
@@ -1036,6 +1036,51 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             }
                                         });
                                     }];
+    });
+    
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+        result = NO;
+    }
+    
+    NSString *debugInfo = result ? @"" : @"element not found!";
+    
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
+- (NSDictionary *)commandForceTouchPopView:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
+
+    __block BOOL result = NO;
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Hacky way to get top-most UIViewController
+        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        while (rootViewController.presentedViewController != nil) {
+            rootViewController = rootViewController.presentedViewController;
+        }
+        
+        NSArray *allViews = [rootViewController.view allSubviews];
+        for (UIView *view in [allViews reverseObjectEnumerator]) {
+            BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
+            if (expectedIdentifier) {
+                UIView *registeredView = [UIViewController previewingRegisteredViewForView:view];
+                if (registeredView == nil) { break; }
+                
+                id<UIViewControllerPreviewingDelegate> sourceDelegate = [UIViewController previewingDelegateForRegisteredView:registeredView];
+                if (sourceDelegate == nil) { break; }
+
+                SBTAnyViewControllerPreviewing *context = [[SBTAnyViewControllerPreviewing alloc] initWithSourceView:registeredView delegate:sourceDelegate];
+                UIViewController *viewController = [sourceDelegate previewingContext:context viewControllerForLocation:view.center];
+                if (viewController == nil) { break; }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [sourceDelegate previewingContext:context commitViewController:viewController];
+                });
+            }
+        }
     });
     
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {

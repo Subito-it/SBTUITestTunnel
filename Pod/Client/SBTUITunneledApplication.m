@@ -380,6 +380,11 @@
     return [self.client scrollScrollViewWithIdentifier:identifier toElementWitIdentifier:targetIdentifier];
 }
 
+- (BOOL)forcePressViewWithIdentifier:(NSString *)identifier
+{
+    return [self.client forcePressViewWithIdentifier:identifier];
+}
+
 @end
 
 #endif

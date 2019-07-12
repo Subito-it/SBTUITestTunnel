@@ -521,6 +521,15 @@
  */
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier;
 
+/**
+ *  Perform force touch pop interaction on the specified element
+ *
+ *  @param identifier accessibilityIdentifier of the element to force press
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)forcePressViewWithIdentifier:(nonnull NSString *)identifier;
+
 @end
 
 #endif
