@@ -908,7 +908,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
                             CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
                             
-                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:NO];
+                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:YES];
                             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                                 dispatch_semaphore_signal(sem);
                             });
@@ -965,7 +965,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UITableView *tableView = (UITableView *)view;
                                         
-                                        [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+                                        [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
                                         
                                         __block int iteration = 0;
                                         repeating_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -974,7 +974,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                                 return YES;
                                             } else {
                                                 iteration++;
-                                                [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+                                                [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
                                                 return NO;
                                             }
                                         });
@@ -1022,7 +1022,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UICollectionView *collectionView = (UICollectionView *)view;
                                         
-                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
                                         
                                         __block int iteration = 0;
                                         repeating_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -1031,7 +1031,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                                 return YES;
                                             } else {
                                                 iteration++;
-                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
                                                 return NO;
                                             }
                                         });
