@@ -842,27 +842,23 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             
             BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
             if (expectedIdentifier) {
-                NSInteger sections = 1;
-                sections = sectionsDataSource(view);
+                NSInteger numberOfSections = sectionsDataSource(view);
                 
                 NSInteger processedRows = 0;
-                NSInteger targetSection = -1;
-                for (NSInteger section = 0; section < sections; section++) {
-                    if (processedRows >= elementRow) {
+                NSInteger targetSection = 0;
+                NSInteger targetRow = 0;
+                for (NSInteger section = 0; section < numberOfSections; section++) {
+                    NSInteger rowsInSection = rowsDataSource(view, section);
+                    if (processedRows + rowsInSection >= elementRow) {
                         targetSection = section;
+                        targetRow = elementRow - processedRows;
                         break;
                     }
-                    if (section < sections - 1) {
-                        processedRows = rowsDataSource(view, section);
-                    }
+                    
+                    processedRows += rowsInSection;
                 }
-                if (targetSection == -1) {
-                    targetSection = sections - 1;
-                }
-                NSInteger rowsInTargetSection = rowsDataSource(view, targetSection);
-                NSInteger targetSectionRow = MIN(MAX(0, elementRow - processedRows), rowsInTargetSection - 1);
-                
-                NSIndexPath *targetIndexPath = [NSIndexPath indexPathForRow:targetSectionRow inSection:targetSection];
+
+                NSIndexPath *targetIndexPath = [NSIndexPath indexPathForRow:targetRow inSection:targetSection];
                 scrollDelegate(view, targetIndexPath);
                 
                 return YES;
