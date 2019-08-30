@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 
     s.homepage         = "https://github.com/Subito-it/SBTUITestTunnel"
     s.license          = 'Apache License, Version 2.0'
-    s.author           = { "Tomas Camin" => "tomas.camin@scmitaly.it" }
+    s.author           = { "Tomas Camin" => "tomas.camin@adevinta.com" }
     s.source           = { :git => "https://github.com/Subito-it/SBTUITestTunnel.git", :tag => s.version.to_s }
 
     s.platform = :ios, '9.0'
