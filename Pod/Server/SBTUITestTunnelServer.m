@@ -57,13 +57,13 @@ description:(desc), ##__VA_ARGS__]; \
 
 #endif
 
-void repeating_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, BOOL (^block)(void))
+void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^block)(void))
 {
-    dispatch_after(when, queue, ^{
-        if (block() == NO) {
-            repeating_dispatch_after(when, queue, block);
-        }
-    });
+    if (block() == NO) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay), dispatch_get_main_queue(), ^{
+            repeating_dispatch_after(delay, queue, block);
+        });
+    }
 }
 
 @implementation GCDWebServerRequest (Extension)
@@ -964,15 +964,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UITableView *tableView = (UITableView *)view;
                                         
                                         [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
                                         
                                         __block int iteration = 0;
-                                        repeating_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                        repeating_dispatch_after((int64_t)(0.15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([tableView.indexPathsForVisibleRows containsObject:indexPath] || iteration == 10) {
                                                 dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
                                                 [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
                                                 return NO;
                                             }
                                         });
@@ -1021,15 +1023,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UICollectionView *collectionView = (UICollectionView *)view;
                                         
                                         [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
                                         
                                         __block int iteration = 0;
-                                        repeating_dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                        repeating_dispatch_after((int64_t)(0.15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([collectionView.indexPathsForVisibleItems containsObject:indexPath] || iteration == 10) {
                                                 dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
                                                 [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
                                                 return NO;
                                             }
                                         });
