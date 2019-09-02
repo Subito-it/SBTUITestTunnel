@@ -964,17 +964,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UITableView *tableView = (UITableView *)view;
                                         
                                         [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
-                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                         
                                         __block int iteration = 0;
-                                        repeating_dispatch_after((int64_t)(0.15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                                        repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([tableView.indexPathsForVisibleRows containsObject:indexPath] || iteration == 10) {
                                                 dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
                                                 [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
-                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                                 return NO;
                                             }
                                         });
@@ -1023,17 +1023,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UICollectionView *collectionView = (UICollectionView *)view;
                                         
                                         [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                         
                                         __block int iteration = 0;
-                                        repeating_dispatch_after((int64_t)(0.15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                                        repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([collectionView.indexPathsForVisibleItems containsObject:indexPath] || iteration == 10) {
                                                 dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
                                                 [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+                                                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                                 return NO;
                                             }
                                         });
