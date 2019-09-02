@@ -967,7 +967,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([tableView.indexPathsForVisibleRows containsObject:indexPath] || iteration == 10) {
-                                                dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
@@ -977,6 +976,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             }
                                         });
                                     }];
+        
+        dispatch_semaphore_signal(sem);
     });
     
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
@@ -1024,7 +1025,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([collectionView.indexPathsForVisibleItems containsObject:indexPath] || iteration == 10) {
-                                                dispatch_semaphore_signal(sem);
                                                 return YES;
                                             } else {
                                                 iteration++;
@@ -1034,6 +1034,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             }
                                         });
                                     }];
+        
+        dispatch_semaphore_signal(sem);
     });
     
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
