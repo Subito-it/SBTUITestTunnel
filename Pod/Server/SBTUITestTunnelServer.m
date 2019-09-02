@@ -845,8 +845,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 NSInteger numberOfSections = sectionsDataSource(view);
                 
                 NSInteger processedRows = 0;
-                NSInteger targetSection = 0;
-                NSInteger targetRow = 0;
+                NSInteger targetSection = numberOfSections - 1;
+                NSInteger targetRow = rowsDataSource(view, targetSection) - 1;
                 for (NSInteger section = 0; section < numberOfSections; section++) {
                     NSInteger rowsInSection = rowsDataSource(view, section);
                     if (processedRows + rowsInSection >= elementRow) {
@@ -859,7 +859,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
 
                 NSIndexPath *targetIndexPath = [NSIndexPath indexPathForRow:targetRow inSection:targetSection];
-                scrollDelegate(view, targetIndexPath);
+                if (targetIndexPath.row >= 0 && targetIndexPath.section >= 0) {
+                    scrollDelegate(view, targetIndexPath);
+                }
                 
                 return YES;
             }
