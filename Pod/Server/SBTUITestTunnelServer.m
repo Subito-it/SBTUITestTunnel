@@ -922,7 +922,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
         result = NO;
     }
     
@@ -981,7 +981,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     }];
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
         result = NO;
     }
     
@@ -1040,7 +1040,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     }];
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
         result = NO;
     }
     
@@ -1085,7 +1085,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
         result = NO;
     }
     
