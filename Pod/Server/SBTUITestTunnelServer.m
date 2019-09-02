@@ -922,9 +922,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
-        result = NO;
-    }
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
     
     NSString *debugInfo = result ? @"" : @"element not found!";
     
@@ -981,9 +979,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     }];
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
-        result = NO;
-    }
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
     
     NSString *debugInfo = result ? @"" : @"element not found!";
     
@@ -1040,9 +1036,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     }];
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
-        result = NO;
-    }
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
     
     NSString *debugInfo = result ? @"" : @"element not found!";
     
@@ -1080,6 +1074,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [sourceDelegate previewingContext:context commitViewController:viewController];
+                    dispatch_semaphore_signal(sem);
                 });
             }
         }
