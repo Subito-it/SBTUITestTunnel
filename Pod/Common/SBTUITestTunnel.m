@@ -60,6 +60,8 @@ NSString * const SBTUITunnelObjectKey = @"obj";
 NSString * const SBTUITunnelObjectValueKey = @"obj_value";
 NSString * const SBTUITunnelObjectKeyKey = @"key";
 
+NSString * const SBTUITunnelObjectAnimatedKey = @"animated";
+
 NSString * const SBTUITunnelUserDefaultSuiteNameKey = @"suite_name";
 
 NSString * const SBTUITunnelUploadDataKey = @"data";

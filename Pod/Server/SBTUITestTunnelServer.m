@@ -875,6 +875,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
     NSString *targetElementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
+    BOOL animated = [tunnelRequest.parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
     __block BOOL result = NO;
     
@@ -906,7 +907,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
                             CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
                             
-                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:YES];
+                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
                             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                                 dispatch_semaphore_signal(sem);
                             });
@@ -933,6 +934,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
     NSInteger elementRow = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] intValue];
+    BOOL animated = [tunnelRequest.parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
     __block BOOL result = NO;
     
@@ -961,7 +963,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UITableView *tableView = (UITableView *)view;
                                         
-                                        [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                                        [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
                                         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                         
                                         __block int iteration = 0;
@@ -970,7 +972,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                                 return YES;
                                             } else {
                                                 iteration++;
-                                                [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                                                [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
                                                 [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                                 return NO;
                                             }
@@ -991,6 +993,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *elementIdentifier = tunnelRequest.parameters[SBTUITunnelObjectKey];
     NSInteger elementRow = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] intValue];
+    BOOL animated = [tunnelRequest.parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
     __block BOOL result = NO;
     
@@ -1019,7 +1022,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UICollectionView *collectionView = (UICollectionView *)view;
                                         
-                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:animated];
                                         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                         
                                         __block int iteration = 0;
@@ -1028,7 +1031,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                                 return YES;
                                             } else {
                                                 iteration++;
-                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:animated];
                                                 [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                                                 return NO;
                                             }

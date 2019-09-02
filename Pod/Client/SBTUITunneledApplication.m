@@ -365,19 +365,19 @@
 
 #pragma mark - XCUITest extensions
 
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
-    return [self.client scrollTableViewWithIdentifier:identifier toRow:row];
+    return [self.client scrollTableViewWithIdentifier:identifier toRow:row animated:flag];
 }
 
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
-    return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row];
+    return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row animated:flag];
 }
 
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
 {
-    return [self.client scrollScrollViewWithIdentifier:identifier toElementWitIdentifier:targetIdentifier];
+    return [self.client scrollScrollViewWithIdentifier:identifier toElementWitIdentifier:targetIdentifier animated:flag];
 }
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

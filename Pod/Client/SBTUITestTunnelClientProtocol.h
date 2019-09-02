@@ -496,30 +496,33 @@
  *
  *  @param identifier accessibilityIdentifier of the UITableView
  *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
  *
  *  @return `YES` on success
  */
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row;
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
 
 /**
 *  Scroll UICollection view to the specified row (flattening sections if any).
 *
 *  @param identifier accessibilityIdentifier of the UICollectionView
 *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+*  @param flag pass YES to animate the scroll; otherwise, pass NO
 *
 *  @return `YES` on success
 */
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row;
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
 
 /**
  *  Scroll UIScrollView view to the specified element
  *
  *  @param identifier accessibilityIdentifier of the UIScrollView
  *  @param targetIdentifier accessibilityIdentifier of the element the scroll view should scroll to
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
  *
  *  @return `YES` on success
  */
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier;
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
 
 /**
  *  Perform force touch pop interaction on the specified element

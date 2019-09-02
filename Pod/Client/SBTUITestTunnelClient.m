@@ -675,33 +675,36 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - XCUITest extensions
 
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
-                                                     SBTUITunnelObjectValueKey: [@(row) stringValue]};
+                                                     SBTUITunnelObjectValueKey: [@(row) stringValue],
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
 }
 
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
-                                                     SBTUITunnelObjectValueKey: [@(row) stringValue]};
+                                                     SBTUITunnelObjectValueKey: [@(row) stringValue],
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
 }
 
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     NSAssert([targetIdentifier length] > 0, @"Invalid empty target identifier!");
     
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
-                                                     SBTUITunnelObjectValueKey: targetIdentifier};
+                                                     SBTUITunnelObjectValueKey: targetIdentifier,
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
 }

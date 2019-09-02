@@ -61,6 +61,8 @@ extern NSString * _Nonnull const SBTUITunnelObjectKey;
 extern NSString * _Nonnull const SBTUITunnelObjectValueKey;
 extern NSString * _Nonnull const SBTUITunnelObjectKeyKey;
 
+extern NSString * _Nonnull const SBTUITunnelObjectAnimatedKey;
+
 extern NSString * _Nonnull const SBTUITunnelUserDefaultSuiteNameKey;
 
 extern NSString * _Nonnull const SBTUITunnelUploadDataKey;
