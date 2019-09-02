@@ -849,7 +849,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 NSInteger targetRow = rowsDataSource(view, targetSection) - 1;
                 for (NSInteger section = 0; section < numberOfSections; section++) {
                     NSInteger rowsInSection = rowsDataSource(view, section);
-                    if (processedRows + rowsInSection >= elementRow) {
+                    if (processedRows + rowsInSection > elementRow) {
                         targetSection = section;
                         targetRow = elementRow - processedRows;
                         break;
