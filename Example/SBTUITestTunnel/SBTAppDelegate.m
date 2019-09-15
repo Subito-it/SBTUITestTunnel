@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #import "SBTAppDelegate.h"
-@import SBTUITestTunnel;
+@import SBTUITestTunnelServer;
 
 @implementation SBTAppDelegate
 
