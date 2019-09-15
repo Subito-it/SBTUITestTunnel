@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012-2015, Pierre-Olivier Latour
+ Copyright (c) 2012-2019, Pierre-Olivier Latour
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -35,50 +35,48 @@
 
 #define kFileReadBufferSize (32 * 1024)
 
-@interface GCDWebServerFileResponse () {
-@private
+@implementation GCDWebServerFileResponse {
   NSString* _path;
   NSUInteger _offset;
   NSUInteger _size;
   int _file;
 }
-@end
 
-@implementation GCDWebServerFileResponse
+@dynamic contentType, lastModifiedDate, eTag;
 
 + (instancetype)responseWithFile:(NSString*)path {
-  return [[[self class] alloc] initWithFile:path];
+  return [(GCDWebServerFileResponse*)[[self class] alloc] initWithFile:path];
 }
 
 + (instancetype)responseWithFile:(NSString*)path isAttachment:(BOOL)attachment {
-  return [[[self class] alloc] initWithFile:path isAttachment:attachment];
+  return [(GCDWebServerFileResponse*)[[self class] alloc] initWithFile:path isAttachment:attachment];
 }
 
 + (instancetype)responseWithFile:(NSString*)path byteRange:(NSRange)range {
-  return [[[self class] alloc] initWithFile:path byteRange:range];
+  return [(GCDWebServerFileResponse*)[[self class] alloc] initWithFile:path byteRange:range];
 }
 
 + (instancetype)responseWithFile:(NSString*)path byteRange:(NSRange)range isAttachment:(BOOL)attachment {
-  return [[[self class] alloc] initWithFile:path byteRange:range isAttachment:attachment];
+  return [(GCDWebServerFileResponse*)[[self class] alloc] initWithFile:path byteRange:range isAttachment:attachment mimeTypeOverrides:nil];
 }
 
 - (instancetype)initWithFile:(NSString*)path {
-  return [self initWithFile:path byteRange:NSMakeRange(NSUIntegerMax, 0) isAttachment:NO];
+  return [self initWithFile:path byteRange:NSMakeRange(NSUIntegerMax, 0) isAttachment:NO mimeTypeOverrides:nil];
 }
 
 - (instancetype)initWithFile:(NSString*)path isAttachment:(BOOL)attachment {
-  return [self initWithFile:path byteRange:NSMakeRange(NSUIntegerMax, 0) isAttachment:attachment];
+  return [self initWithFile:path byteRange:NSMakeRange(NSUIntegerMax, 0) isAttachment:attachment mimeTypeOverrides:nil];
 }
 
 - (instancetype)initWithFile:(NSString*)path byteRange:(NSRange)range {
-  return [self initWithFile:path byteRange:range isAttachment:NO];
+  return [self initWithFile:path byteRange:range isAttachment:NO mimeTypeOverrides:nil];
 }
 
 static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
   return [NSDate dateWithTimeIntervalSince1970:((NSTimeInterval)t->tv_sec + (NSTimeInterval)t->tv_nsec / 1000000000.0)];
 }
 
-- (instancetype)initWithFile:(NSString*)path byteRange:(NSRange)range isAttachment:(BOOL)attachment {
+- (instancetype)initWithFile:(NSString*)path byteRange:(NSRange)range isAttachment:(BOOL)attachment mimeTypeOverrides:(NSDictionary<NSString*, NSString*>*)overrides {
   struct stat info;
   if (lstat([path fileSystemRepresentation], &info) || !(info.st_mode & S_IFREG)) {
     GWS_DNOT_REACHED();
@@ -131,7 +129,7 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
       }
     }
 
-    self.contentType = GCDWebServerGetMimeTypeForExtension([_path pathExtension]);
+    self.contentType = GCDWebServerGetMimeTypeForExtension([_path pathExtension], overrides);
     self.contentLength = _size;
     self.lastModifiedDate = _NSDateFromTimeSpec(&info.st_mtimespec);
     self.eTag = [NSString stringWithFormat:@"%llu/%li/%li", info.st_ino, info.st_mtimespec.tv_sec, info.st_mtimespec.tv_nsec];
