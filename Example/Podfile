@@ -3,19 +3,41 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 platform :ios, '10.0'
 
-target 'SBTUITestTunnel_Example' do
-  pod 'SBTUITestTunnel/Server', :path => '../'
+def common_pod
+  pod 'SBTUITestTunnelCommon', :path => '../'
 end
 
-abstract_target 'Tests' do
-  pod 'SBTUITestTunnel/Server', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
-  pod 'SBTUITestTunnel/Client', :path => '../'
+def server_pod
+  pod 'SBTUITestTunnelServer', :path => '../'
+end
+
+def client_pod
+  pod 'SBTUITestTunnelClient', :path => '../'
+end
+
+def testing_app_pods
+  server_pod
+  common_pod
+
+  # SBTUITestTunnelServer depends on GCDWebServer wich is pointed as dependency in SBTUITestTunnelServer.podspec
+  # If you need specific version of GCDWebServer
+  # uncomment and use next line
+  # pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
+end
+
+def tests_pods
+  client_pod
+end  
+
+target 'SBTUITestTunnel_Example' do
+  testing_app_pods
 
   target 'SBTUITestTunnel_Tests' do
+    tests_pods
   end
 
   target 'SBTUITestTunnel_TestsNoSwizzling' do
+    tests_pods
   end
 end
 
