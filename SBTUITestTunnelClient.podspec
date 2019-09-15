@@ -1,9 +1,11 @@
 Pod::Spec.new do |s|
-    s.name             = "SBTUITestTunnel"
+    s.name             = "SBTUITestTunnelClient"
     s.version          = "4.0.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
+    This is library for UI tests target.
+
     Use this library to easily setup an HTTP tunnel between our UI Tests cases and the app under test.
     The tunnel allows to inject data in order to enabale network mocking.
     DESC
@@ -20,13 +22,10 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
 
-    s.subspec 'Server' do |server|
-        server.source_files = 'Pod/Server/*.{h,m}', 'Pod/Common/*.{h,m}'
-        server.dependency 'GCDWebServer', '~> 3.0'
-    end
+    s.source_files = 'Pod/Client/*.{h,m}'
 
-    s.subspec 'Client' do |client|
-        client.frameworks = 'XCTest'
-        client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'          
-    end
+    s.dependency 'SBTUITestTunnelCommon'  
+
+    s.framework = "XCTest"
+    s.user_target_xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(PLATFORM_DIR)/Developer/Library/Frameworks' }
 end
