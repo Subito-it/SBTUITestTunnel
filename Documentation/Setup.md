@@ -5,7 +5,7 @@
 On the application's target call SBTUITestTunnelServer's `takeOff` method on top of `application(_:didFinishLaunchingWithOptions:)`.
 
     import UIKit
-    import SBTUITestTunnel
+    import SBTUITestTunnelServer
 
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {
