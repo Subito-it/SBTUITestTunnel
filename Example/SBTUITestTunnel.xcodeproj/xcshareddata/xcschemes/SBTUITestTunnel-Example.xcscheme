@@ -20,6 +20,34 @@
                ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C39B79F71CB41C3A000C8B0D"
+               BuildableName = "SBTUITestTunnel_Tests.xctest"
+               BlueprintName = "SBTUITestTunnel_Tests"
+               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7E9AB19B22AEE9DB001205E9"
+               BuildableName = "SBTUITestTunnel_TestsNoSwizzling.xctest"
+               BlueprintName = "SBTUITestTunnel_TestsNoSwizzling"
+               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -47,26 +75,6 @@
                ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C32B7F8C1EE951340065DD02"
-               BuildableName = "SBTUITestTunnel_Tests2.xctest"
-               BlueprintName = "SBTUITestTunnel_Tests2"
-               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7E9AB19B22AEE9DB001205E9"
-               BuildableName = "SBTUITestTunnel_TestsNoSwizzling.xctest"
-               BlueprintName = "SBTUITestTunnel_TestsNoSwizzling"
-               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -78,8 +86,6 @@
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
-      stopOnEveryThreadSanitizerIssue = "YES"
-      stopOnEveryUBSanitizerIssue = "YES"
       migratedStopOnEveryIssue = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
