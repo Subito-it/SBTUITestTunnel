@@ -9,16 +9,11 @@ Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app
     target 'APP_TARGET' do
       pod 'SBTUITestTunnel/Server'
       pod 'GCDWebServer', :inhibit_warnings => true
-      
-      target 'UITESTS_TARGET' do
-        pod 'SBTUITestTunnel/Client'
-      end
     end
 
-
-## 🔥 Installation issues (_framework not found_)
-
-If you’re using CocoaPods v1.0 and your UI Tests fail to start, you may need to add $(FRAMEWORK_SEARCH_PATHS) to your Runpath Search Paths in the Build Settings of the UI Test target!
+    target 'UITESTS_TARGET' do
+      pod 'SBTUITestTunnel/Client'
+    end
 
 # Installation (Manual)
 
@@ -30,10 +25,10 @@ If you’re using CocoaPods v1.0 and your UI Tests fail to start, you may need t
 5. Link to libz (via Target > Build Phases > Link Binary With Libraries)
 
 If you're on an Objective-C project
-1. In your AppDelegate #import "SBTUITestTunnelServer.h" and call [SBTUITestTunnelServer takeOff] as the first line in appDidFinishLaunching
+1. In your AppDelegate #import "SBTUITestTunnelServer.h" and call [SBTUITestTunnelServer takeOff] as the first line in appDidFinishLaunching. **You need to wrap the import statement around an #if DEBUG conditional**, see [Setup](Setup.md) section for additional details.
 2. Add #import "SBTUITunneledApplication.h" and #import "XCTestCase+AppExtension.h" on top of all your UI Test Cases files
 
 If you're on a Swift project:
-1. Add "SBTUITestTunnelServer.h" to the Application's bridging header file and call SBTUITestTunnelServer.takeOff() as the first line in appDidFinishLaunching
+1. Add "SBTUITestTunnelServer.h" to the Application's bridging header file and call SBTUITestTunnelServer.takeOff() as the first line in appDidFinishLaunching. **You need to wrap the import statement around an #if DEBUG conditional**, see [Setup](Setup.md) section for additional details.
 2. Add #import "SBTUITunneledApplication.h" and #import "XCTestCase+AppExtension.h" to your UITesting's bridging headers files
 
