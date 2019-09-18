@@ -53,11 +53,6 @@
  */
 + (void)unregisterCommandNamed:(nonnull NSString *)commandName;
 
-/**
- *  Internal, don't use.
- */
-+ (nonnull NSString *)performCommand:(nonnull NSString *)commandName params:(nonnull NSDictionary<NSString *, NSString *> *)params;
-
 @end
 
 #endif
