@@ -14,17 +14,17 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-Tests-SBTUITestTunnel_Tests.xcscheme</key>
+		<key>Pods-SBTUITestTunnel_Tests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-Tests-SBTUITestTunnel_TestsNoSwizzling.xcscheme</key>
+		<key>Pods-SBTUITestTunnel_TestsNoSwizzling.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>SBTUITestTunnel-Client-Server.xcscheme</key>
+		<key>SBTUITestTunnel-Client_Debug-Server.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

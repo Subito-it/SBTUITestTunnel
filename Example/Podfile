@@ -3,26 +3,31 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 platform :ios, '10.0'
 
+def test_target
+  # SBTUITestTunnel/Client_Debug is used to be able to run debug implementations
+  # used to test SBTUITestTunnel itself.
+  #
+  # You should normally use SBTUITestTunnel/Client instead
+  pod 'SBTUITestTunnel/Client_Debug', :path => '../'
+  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
+end
+
 target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnel/Server', :path => '../'
 end
 
-abstract_target 'Tests' do
-  pod 'SBTUITestTunnel/Server', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
-  pod 'SBTUITestTunnel/Client', :path => '../'
+target 'SBTUITestTunnel_Tests' do
+  test_target
+end
 
-  target 'SBTUITestTunnel_Tests' do
-  end
-
-  target 'SBTUITestTunnel_TestsNoSwizzling' do
-  end
+target 'SBTUITestTunnel_TestsNoSwizzling' do
+  test_target
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      if config.name == 'Debug' or config.name == 'Release'
+      if config.name == 'Debug'
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'ENABLE_UITUNNEL=1']
       end
     end
