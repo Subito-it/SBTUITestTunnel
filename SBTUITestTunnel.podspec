@@ -29,4 +29,11 @@ Pod::Spec.new do |s|
         client.frameworks = 'XCTest'
         client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'          
     end
+
+    # Used only for testing purposes
+    s.subspec 'Client_Debug' do |client|
+        client.dependency 'SBTUITestTunnel/Server'
+        client.frameworks = 'XCTest'
+        client.source_files = 'Pod/Client/*.{h,m}', 'Pod/Common/*.{h,m}'          
+    end
 end
