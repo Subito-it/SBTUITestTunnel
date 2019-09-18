@@ -126,7 +126,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -179,7 +179,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -232,7 +232,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -285,7 +285,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"%ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -321,9 +321,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             if (stubRule != nil) {
-                NSLog(@"Multiple stubs registered for request %@!", self.request);
+                NSLog(@"[UITestTunnelServer] Multiple stubs registered for request %@!", self.request);
                 for (NSDictionary *dMatchingRule in matchingRules) {
-                    NSLog(@"-> %@", dMatchingRule);
+                    NSLog(@"[UITestTunnelServer] -> %@", dMatchingRule);
                 }
             }
             
