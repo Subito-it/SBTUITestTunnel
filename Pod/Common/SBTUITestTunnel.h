@@ -129,6 +129,11 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScr
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionForceTouchView;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubbing;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubAuthorizationStatus;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubServiceStatus;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationNotifyFailure;
 
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 

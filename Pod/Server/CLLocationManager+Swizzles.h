@@ -1,6 +1,6 @@
-// XCTestCase+AppExtension.m
+// CLLocationManager+Swizzles.h
 //
-// Copyright (C) 2019 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2018 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,27 +26,15 @@
 
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
-#import "XCTestCase+Swizzles.h"
-#import "SBTSwizzleHelpers.h"
-#import "XCTestCase+AppExtension.h"
-#import "SBTUITunneledApplication.h"
+#import <CoreLocation/CLLocationManager.h>
 
-@implementation XCTestCase (Swizzles)
+@interface CLLocationManager (Swizzles)
 
-- (void)swz_tearDown
-{
-    [self.app terminate];
-    
-    [self swz_tearDown];
-}
++ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
+                      authorizationStatus:(NSString *)autorizationStatus;
++ (void)removeSwizzles;
 
-+ (void)loadSwizzles
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(tearDown), @selector(swz_tearDown));
-    });
-}
+- (id<CLLocationManagerDelegate>)stubbedDelegate;
 
 @end
 

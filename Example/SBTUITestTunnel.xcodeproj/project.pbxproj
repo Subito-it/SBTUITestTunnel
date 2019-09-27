@@ -754,6 +754,15 @@
 				INFOPLIST_FILE = "SBTUITestTunnel/SBTUITestTunnel-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-l\"z\"",
+					"-framework",
+					"\"CFNetwork\"",
+					"-framework",
+					"\"MobileCoreServices\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tomascamin.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "SBTUITestTunnel/SBTUITestTunnel_Example-Bridging-Header.h";
