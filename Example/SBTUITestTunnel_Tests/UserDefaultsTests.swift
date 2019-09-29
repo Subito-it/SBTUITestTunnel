@@ -14,7 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnel
+import SBTUITestTunnelClient
+import SBTUITestTunnelServer
 import Foundation
 import XCTest
 

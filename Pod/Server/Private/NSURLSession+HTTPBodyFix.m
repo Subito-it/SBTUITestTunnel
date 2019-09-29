@@ -23,8 +23,8 @@
 #if ENABLE_UITUNNEL
 
 #import "NSURLSession+HTTPBodyFix.h"
-#import "SBTSwizzleHelpers.h"
-#import "SBTUITestTunnel.h"
+#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
+#import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
 
 @implementation NSURLSession (HTTPBodyFix)
 

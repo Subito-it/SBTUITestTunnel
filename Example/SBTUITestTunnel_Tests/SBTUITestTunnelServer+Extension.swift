@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnel
+import SBTUITestTunnelServer
 
 extension SBTUITestTunnelServer {
     static func performCommand(_ commandName: String, params: [String: String]) -> String {

@@ -4,16 +4,18 @@ use_frameworks!
 platform :ios, '10.0'
 
 def test_target
-  # SBTUITestTunnel/Client_Debug is used to be able to run debug implementations
+  # SBTUITestTunnel/Connectionless is used to be able to run debug implementations
   # used to test SBTUITestTunnel itself.
   #
-  # You should normally use SBTUITestTunnel/Client instead
-  pod 'SBTUITestTunnel/Client_Debug', :path => '../'
+  # You should normally use SBTUITestTunnelClient instead
+  pod 'SBTUITestTunnelClient/Connectionless', :path => '../'
+  pod 'SBTUITestTunnelCommon', :path => '../'
   pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
 end
 
 target 'SBTUITestTunnel_Example' do
-  pod 'SBTUITestTunnel/Server', :path => '../'
+  pod 'SBTUITestTunnelServer', :path => '../'
+  pod 'SBTUITestTunnelCommon', :path => '../'
 end
 
 target 'SBTUITestTunnel_Tests' do

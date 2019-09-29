@@ -27,7 +27,7 @@
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
 #import "CLLocationManager+Swizzles.h"
-#import "SBTSwizzleHelpers.h"
+#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
 #import <CoreLocation/CLLocationManagerDelegate.h>
 
 static NSMapTable *_instanceHashTable;

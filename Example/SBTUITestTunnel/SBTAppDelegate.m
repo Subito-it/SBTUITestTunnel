@@ -17,7 +17,7 @@
 #import "SBTAppDelegate.h"
 
 #if DEBUG
-    @import SBTUITestTunnel;
+    @import SBTUITestTunnelServer;
 #endif
 
 @implementation SBTAppDelegate

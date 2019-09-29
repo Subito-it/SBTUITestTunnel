@@ -23,22 +23,22 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTUITestTunnelServer.h"
-#import "SBTUITestTunnel.h"
-#import "NSURLRequest+SBTUITestTunnelMatch.h"
-#import "UITextField+DisableAutocomplete.h"
-#import "SBTProxyURLProtocol.h"
-#import "SBTStubResponse.h"
-#import "SBTRewrite.h"
-#import "SBTMonitoredNetworkRequest.h"
-#import "SBTAnyViewControllerPreviewing.h"
-#import "UIViewController+SBTUITestTunnel.h"
+#import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
+#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
+#import <SBTUITestTunnelCommon/SBTRewrite.h>
+#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
+#import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
-#import "NSData+SHA1.h"
-#import "UIView+Extensions.h"
 #import <CoreLocation/CoreLocation.h>
 #import <UserNotifications/UNUserNotificationCenter.h>
+#import "UITextField+DisableAutocomplete.h"
+#import "SBTProxyURLProtocol.h"
+#import "SBTAnyViewControllerPreviewing.h"
+#import "UIViewController+SBTUITestTunnel.h"
+#import "NSData+SHA1.h"
+#import "UIView+Extensions.h"
 #import "CLLocationManager+Swizzles.h"
 #import "UNUserNotificationCenter+Swizzles.h"
 

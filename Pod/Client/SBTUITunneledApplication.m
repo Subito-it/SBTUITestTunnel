@@ -28,7 +28,7 @@
 
 #import "SBTUITunneledApplication.h"
 #import "SBTUITestTunnelClient.h"
-#import "XCTestCase+Swizzles.h"
+#import "Private/XCTestCase+Swizzles.h"
 
 @interface SBTUITunneledApplication () <SBTUITestTunnelClientDelegate>
 @property (nonatomic, strong) SBTUITestTunnelClient *client;

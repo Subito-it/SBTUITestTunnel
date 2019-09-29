@@ -22,10 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
-#import "SBTRequestMatch.h"
-#import "SBTRewrite.h"
-#import "SBTStubResponse.h"
-#import "SBTMonitoredNetworkRequest.h"
+#import <SBTUITestTunnelCommon/SBTRequestMatch.h>
+#import <SBTUITestTunnelCommon/SBTRewrite.h>
+#import <SBTUITestTunnelCommon/SBTStubResponse.h>
+#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLLocationManager.h>
 #import <UserNotifications/UNNotificationSettings.h>

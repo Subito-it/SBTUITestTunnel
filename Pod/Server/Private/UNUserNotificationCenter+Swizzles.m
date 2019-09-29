@@ -27,8 +27,8 @@
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
 #import "UNUserNotificationCenter+Swizzles.h"
-#import "SBTSwizzleHelpers.h"
 #import <UserNotifications/UNNotificationSettings.h>
+#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
 
 static NSString *_autorizationStatus;
 

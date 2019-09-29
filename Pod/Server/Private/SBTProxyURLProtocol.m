@@ -22,11 +22,11 @@
 
 #if ENABLE_UITUNNEL
 
+#import <SBTUITestTunnelCommon/SBTRewrite.h>
+#import <SBTUITestTunnelCommon/SBTStubResponse.h>
+#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #import "SBTProxyURLProtocol.h"
-#import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSData+SHA1.h"
-#import "SBTStubResponse.h"
-#import "SBTRewrite.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";

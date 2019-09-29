@@ -6,7 +6,8 @@
 //  Copyright © 2018 Tomas Camin. All rights reserved.
 //
 
-import SBTUITestTunnel
+import SBTUITestTunnelClient
+import SBTUITestTunnelServer
 import Foundation
 import XCTest
 

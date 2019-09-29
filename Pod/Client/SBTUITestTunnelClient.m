@@ -24,8 +24,8 @@
 
 #import <XCTest/XCTest.h>
 #import "SBTUITestTunnelClient.h"
-#import "SBTUITestTunnel.h"
-#import "NSURLRequest+SBTUITestTunnelMatch.h"
+#import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
+#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -46,8 +46,8 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, strong) NSString *bonjourName;
 @property (nonatomic, strong) NSNetService *bonjourBrowser;
 @property (nonatomic, strong) void (^startupBlock)(void);
-@property (nonatomic, copy) NSArray <NSString *> *initialLaunchArguments;
-@property (nonatomic, copy) NSDictionary <NSString *, NSString *> *initialLaunchEnvironment;
+@property (nonatomic, copy) NSArray<NSString *> *initialLaunchArguments;
+@property (nonatomic, copy) NSDictionary<NSString *, NSString *> *initialLaunchEnvironment;
 @property (nonatomic, strong) NSString *(^connectionlessBlock)(NSString *, NSDictionary<NSString *, NSString *> *);
 
 @end
