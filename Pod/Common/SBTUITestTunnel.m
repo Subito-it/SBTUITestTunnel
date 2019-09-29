@@ -133,6 +133,8 @@ NSString * const SBTUITunneledApplicationCommandCoreLocationStubAuthorizationSta
 NSString * const SBTUITunneledApplicationCommandCoreLocationStubServiceStatus = @"commandCoreLocationStubServiceStatus";
 NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate = @"commandCoreLocationNotifyUpdate";
 NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyFailure = @"commandCoreLocationNotifyFailure";
+NSString * const SBTUITunneledApplicationCommandNotificationCenterStubbing = @"commandNotificationCenterStubbing";
+NSString * const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus = @"commandNotificationCenterStubAuthorizationStatus";
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 

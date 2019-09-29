@@ -414,6 +414,18 @@
     return [self.client coreLocationNotifyLocationError:error];
 }
 
+#pragma mark - XCUITest UNUserNotificationCenter extensions
+
+- (BOOL)notificationCenterStubEnabled:(BOOL)flag API_AVAILABLE(ios(10.0))
+{
+    return [self.client notificationCenterStubEnabled:flag];
+}
+
+- (BOOL)notificationCenterStubAuthorizationStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10.0))
+{
+    return [self.client notificationCenterStubAuthorizationStatus:status];
+}
+
 @end
 
 #endif

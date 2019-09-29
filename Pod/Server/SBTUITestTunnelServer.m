@@ -38,7 +38,9 @@
 #import "NSData+SHA1.h"
 #import "UIView+Extensions.h"
 #import <CoreLocation/CoreLocation.h>
+#import <UserNotifications/UNUserNotificationCenter.h>
 #import "CLLocationManager+Swizzles.h"
+#import "UNUserNotificationCenter+Swizzles.h"
 
 #if !defined(NS_BLOCK_ASSERTIONS)
 
@@ -96,6 +98,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedAuthorizationStatus;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
+@property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
 
 @end
 
@@ -1161,10 +1164,29 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+#pragma mark - XCUITest UNUserNotificationCenter extensions
+
+- (NSDictionary *)commandNotificationCenterStubbing:(GCDWebServerRequest *)tunnelRequest
 {
+    if (@available(iOS 10.0, *)) {
+        BOOL stubNotificationCenter = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
+        if (stubNotificationCenter) {
+            [UNUserNotificationCenter loadSwizzlesWithAuthorizationStatus:self.notificationCenterStubbedAuthorizationStatus];
+        } else {
+            [UNUserNotificationCenter removeSwizzles];
+        }
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+- (NSDictionary *)commandNotificationCenterStubAuthorizationStatus:(GCDWebServerRequest *)tunnelRequest
 {
+    NSString *authorizationStatus = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
+    
+    [self.notificationCenterStubbedAuthorizationStatus setString:authorizationStatus];
+
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 #pragma mark - Custom Commands

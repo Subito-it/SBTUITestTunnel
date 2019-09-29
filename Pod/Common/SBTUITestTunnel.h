@@ -134,6 +134,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStub
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubServiceStatus;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationNotifyFailure;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubbing;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus;
 
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 

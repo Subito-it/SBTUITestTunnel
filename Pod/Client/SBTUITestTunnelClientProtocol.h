@@ -28,6 +28,7 @@
 #import "SBTMonitoredNetworkRequest.h"
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLLocationManager.h>
+#import <UserNotifications/UNNotificationSettings.h>
 
 @protocol SBTUITestTunnelClientProtocol <NSObject>
 
@@ -587,8 +588,25 @@
 */
 - (BOOL)coreLocationNotifyLocationError:(nonnull NSError *)error;
 
-#pragma mark - XCUITest push notification extensions
+#pragma mark - XCUITest UNUserNotificationCenter extensions
 
+/**
+*  Enable UNUserNotificationCenter stubbing
+*
+*  @param flag stubbing status
+*
+*  @return `YES` on success
+*/
+- (BOOL)notificationCenterStubEnabled:(BOOL)flag API_AVAILABLE(ios(10));
+
+/**
+*  Stub UNUserNotificationCenter authorizationStatus
+*
+*  @param status notification center authorization status. The default value returned by `UNNotificationSettings.authorizationStatus` when enabling notication center stubbing is UNAuthorizationStatusAuthorized
+*
+*  @return `YES` on success
+*/
+- (BOOL)notificationCenterStubAuthorizationStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10));
 
 @end
 
