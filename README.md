@@ -16,6 +16,7 @@ SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * rewrite network calls
 * block cookies
 * define custom blocks of codes executed in the application target
+* advanced XCTest framework enhancements
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.
 
