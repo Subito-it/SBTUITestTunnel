@@ -6,24 +6,26 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method on top
 
 **All references to SBTUITestTunnel are wrapped around `#if DEBUG` conditionals**
 
-    import UIKit
+```swift
+import UIKit
 
-    #if DEBUG 
-        import SBTUITestTunnelServer
-    #endif
+#if DEBUG 
+    import SBTUITestTunnelServer
+#endif
 
-    @UIApplicationMain
-    class AppDelegate: UIResponder, UIApplicationDelegate {
-        var window: UIWindow?
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var window: UIWindow?
 
-        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-            #if DEBUG
-                SBTUITestTunnelServer.takeOff()
-            #endif
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        #if DEBUG
+            SBTUITestTunnelServer.takeOff()
+        #endif
 
-            return true
-        }
+        return true
     }
+}
+```
 
 ## UI Testing target
 
@@ -52,23 +54,19 @@ In some advanced cases the `DEBUG=1` may not (or can not) be defined in your app
 
 In that case you'll need to add `ENABLE_UITUNNEL=1` in your application target build setting as shown above and modify your Podfile by adding the following `post_install` action (and re running `pod install`):
 
-    post_install do |installer|
-        installer.pods_project.targets.each do |target|
-            target.build_configurations.each do |config|
-                if config.name == 'QA' # the name of your build configuration
-                    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'ENABLE_UITUNNEL=1']
-                end
+```ruby
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+            if config.name == 'QA' # the name of your build configuration
+                config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'ENABLE_UITUNNEL=1']
             end
         end
     end
-
+end
+```
 
 ## Errors
-
-### 🔥 Multiple commands produce SBTUITestTunnel.framework
-
-If you get the following error when archiving your project double check that you're properly wrapping any statemtent that refer to the tunnel around `#if DEBUG` conditionals. 
-
 
 ### Workarounding _UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204_
 
@@ -78,22 +76,24 @@ To workaround this issue, which seem to occur more frequently in apps with long 
 
 Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
 
-    import UIKit
-    import SBTUITestTunnelServer
+```swift
+import UIKit
+import SBTUITestTunnelServer
 
-    @UIApplicationMain
-    class AppDelegate: UIResponder, UIApplicationDelegate {
-        var window: UIWindow?
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var window: UIWindow?
 
-        func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-            #if DEBUG
-                SBTUITestTunnelServer.takeOff()
-                SBTUITestTunnelServer.takeOffCompleted(false)
-            #endif
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        #if DEBUG
+            SBTUITestTunnelServer.takeOff()
+            SBTUITestTunnelServer.takeOffCompleted(false)
+        #endif
 
-            return true
-        }
+        return true
     }
+}
+```
 
 🔥🔥🔥**You then HAVE TO call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.**
 

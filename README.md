@@ -10,13 +10,15 @@ Apple introduced a new UI Testing feature starting from Xcode 7 that is, quoting
 
 SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * stub network calls
-* interact with NSUserDefaults
 * download/upload files from/to the app's sandbox
 * monitor network calls
 * rewrite network calls
 * block cookies
+* interact with NSUserDefaults
 * define custom blocks of codes executed in the application target
-* advanced XCTest framework enhancements
+* fine grain fast-scrolling in table/collection/scroll views
+* CLLocationManager stubbing
+* UNUserNotificationCenter stubbing
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.
 
@@ -30,11 +32,13 @@ SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace i
 - [Setup](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Setup.md): Describes how to integrate the library in your code
 - [Usage](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Usage.md): Describes how to use the library
 
+
 ## Additional resources?
 
 We made additional resources available to improve the UI Testing experience:
 
-- [sbtuitestbrowser](https://github.com/Subito-it/sbtuitestbrowser): parse and visualize xcodebuild's test results in your web browser
+- [Mendoza](https://github.com/Subito-it/Mendoza): parallelize UI tests over multiple physical machines
+- [Cachi](https://github.com/tcamin/Cachi): parse Xcode's 11 .xcresult bundles
 - [SBTUITestTunnelHost](https://github.com/Subito-it/SBTUITestTunnelHost): access the mac host from your test target
 
 ## Thanks

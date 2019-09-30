@@ -2,18 +2,20 @@
 
 It is strongly suggested to use [cocoapods](https://cocoapods.org) as it is the easiest way to embed the library in your project.
 
-Your Podfile should include the sub project `SBTUITestTunnel/Server` for the app target and `SBTUITestTunnel/Client` for the UI test target.
+Your Podfile should include the sub project `SBTUITestTunnelServer` for the app target and `SBTUITestTunnelClient` for the UI test target.
 
-    use_frameworks!
+```ruby
+use_frameworks!
 
-    target 'APP_TARGET' do
-      pod 'SBTUITestTunnel/Server'
-      pod 'GCDWebServer', :inhibit_warnings => true
-    end
+target 'APP_TARGET' do
+  pod 'SBTUITestTunnelServer'
+  pod 'GCDWebServer', :inhibit_warnings => true
+end
 
-    target 'UITESTS_TARGET' do
-      pod 'SBTUITestTunnel/Client'
-    end
+target 'UITESTS_TARGET' do
+  pod 'SBTUITestTunnelClient'
+end
+```
 
 # Installation (Manual)
 

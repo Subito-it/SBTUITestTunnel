@@ -12,53 +12,55 @@ You'll need to create and retain an instance of `SBTUITestTunnelClient` and hook
 
 ### Fully custom XCUIApplicaion example 
 
-    class MyCustomApplication: XCUIApplication {
-        lazy var client: SBTUITestTunnelClient = {
-            let client = SBTUITestTunnelClient(application: self)
-            client.delegate = self
-            return client
-        }()
+```swift
+class MyCustomApplication: XCUIApplication {
+    lazy var client: SBTUITestTunnelClient = {
+        let client = SBTUITestTunnelClient(application: self)
+        client.delegate = self
+        return client
+    }()
+    
+    func launchTunnel() {
+        // Do any custom launch things
+        client.launchTunnel()
+    }
+    
+    override func terminate() {
+        // Do any custom tidy up things
+        client.terminate()
+    }
+}
+
+extension MyCustomApplication: SBTUITestTunnelClientDelegate {
+    func testTunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
+        // Call the XCUIApplication.lanuch() method
+        launch()
+    }
+    
+    func testTunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
+        // optionally handle errors
+        print(String(describing: error?.localizedDescription))
         
-        func launchTunnel() {
-            // Do any custom launch things
-            client.launchTunnel()
-        }
-        
-        override func terminate() {
-            // Do any custom tidy up things
-            client.terminate()
-        }
+        // Call the XCUIApplication.terminate() method
+        super.terminate()
+    }
+}
+
+// Example useage in XCTestCase
+class MyTests: XCTestCase {
+
+    let app = MyCustomApplication()
+
+    override func setUp() {
+        super.setUp()
+
+        // Call our custom launchApp() method
+        app.launchApp()
     }
 
-    extension MyCustomApplication: SBTUITestTunnelClientDelegate {
-        func testTunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
-            // Call the XCUIApplication.lanuch() method
-            launch()
-        }
-        
-        func testTunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
-            // optionally handle errors
-            print(String(describing: error?.localizedDescription))
-            
-            // Call the XCUIApplication.terminate() method
-            super.terminate()
-        }
-    }
-
-    // Example useage in XCTestCase
-    class MyTests: XCTestCase {
-     
-        let app = MyCustomApplication()
-     
-        override func setUp() {
-            super.setUp()
-     
-            // Call our custom launchApp() method
-            app.launchApp()
-        }
-      
-        func testSomething() {...}
-    }
+    func testSomething() {...}
+}
+```
 
 The purpose of `SBTUITestTunnelClientDelegate` is to allow the tunnel to prepare before you launch the app and terminate before you terminate the app. Once the tunnel is setup `testTunnelClientIsReady(toLaunch:)` will be called and you should launch the app by calling `launch()`. 
 
@@ -70,23 +72,25 @@ To terminate the app yourself you should call `terminate()` on the client instan
 
 As a convenience you can also sub-class `SBTUITunneledApplication` instead of `XCUIApplication` to get a default implementation that creates the `SBTUITestTunnelClient` and implements the delegate for you with default behaviour:
 
-    class MyCustomApplication: SBTUITunneledApplication {
-        // Create other custom methods as needed
-    }
+```swift
+class MyCustomApplication: SBTUITunneledApplication {
+    // Create other custom methods as needed
+}
 
-     
-    class MyTests: XCTestCase {
-     
-        let app = MyCustomApplication()
-     
-        override func setUp() {
-            super.setUp()
-     
-            // Call launchTunnel() instead of launch()
-            app.launchTunnel()
-        }
-     
-        func testSomething() {...}
+    
+class MyTests: XCTestCase {
+    
+    let app = MyCustomApplication()
+    
+    override func setUp() {
+        super.setUp()
+    
+        // Call launchTunnel() instead of launch()
+        app.launchTunnel()
     }
+    
+    func testSomething() {...}
+}
+```
 
 This main difference between sub-classing `SBTUITunneledApplication` and using the `automatic` setup approach is that no swizzling is used and you can use your own `XCUIApplication` sub-class. You still need to create and retain an `XCUIApplication` instance in your `XCTestCase` classes.
