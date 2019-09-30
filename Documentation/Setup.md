@@ -9,7 +9,7 @@ On the application's target call SBTUITestTunnelServer's `takeOff` method on top
     import UIKit
 
     #if DEBUG 
-        import SBTUITestTunnel
+        import SBTUITestTunnelServer
     #endif
 
     @UIApplicationMain
@@ -79,7 +79,7 @@ To workaround this issue, which seem to occur more frequently in apps with long 
 Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
 
     import UIKit
-    import SBTUITestTunnel
+    import SBTUITestTunnelServer
 
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {

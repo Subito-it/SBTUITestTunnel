@@ -7,7 +7,7 @@ Instead of calling the `launch()` method on `XCUIApplication` as you're used to 
 
 ## Launch with no options
 
-    import SBTUITestTunnel
+    import SBTUITestTunnelClient
 
     class MyTestClass: XCTestCase {
         override func setUp() {
