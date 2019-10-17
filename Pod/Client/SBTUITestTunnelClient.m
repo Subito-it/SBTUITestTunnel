@@ -376,14 +376,15 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)waitForMonitoredRequestsWithMatchingBlock:(BOOL(^)(SBTMonitoredNetworkRequest *))matchingBlock timeout:(NSTimeInterval)timeout iterations:(NSUInteger)iterations completionBlock:(void (^)(BOOL))completionBlock
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
         NSTimeInterval start = CFAbsoluteTimeGetCurrent();
         
         BOOL timedout = NO;
         
         for(;;) {
             NSUInteger localIterations = iterations;
-            NSArray<SBTMonitoredNetworkRequest *> *requests = [self monitoredRequestsPeekAll];
+            NSArray<SBTMonitoredNetworkRequest *> *requests = [weakSelf monitoredRequestsPeekAll];
             
             for (SBTMonitoredNetworkRequest *request in requests) {
                 if (matchingBlock(request)) {

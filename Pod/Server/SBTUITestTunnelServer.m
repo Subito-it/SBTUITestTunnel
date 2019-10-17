@@ -951,8 +951,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
+    __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        result = [self scrollElementWithIdentifier:elementIdentifier
+        result = [weakSelf scrollElementWithIdentifier:elementIdentifier
                                       elementClass:[UITableView class]
                                              toRow:elementRow
                                   numberOfSections:^NSInteger (UIView *view) {
@@ -1010,8 +1011,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
+    __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        result = [self scrollElementWithIdentifier:elementIdentifier
+        result = [weakSelf scrollElementWithIdentifier:elementIdentifier
                                       elementClass:[UICollectionView class]
                                              toRow:elementRow
                                   numberOfSections:^NSInteger (UIView *view) {
