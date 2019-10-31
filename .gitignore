@@ -67,3 +67,4 @@ fastlane/screenshots
 fastlane/test_output
 
 Example/SBTUITestTunnel.xcworkspace/xcuserdata
+push_to_trunk.sh
