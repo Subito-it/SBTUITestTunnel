@@ -62,9 +62,12 @@ static NSString *_autorizationStatus;
     [settings setValue:defaultNotificationSetting forKey:@"lockScreenSetting"];
     [settings setValue:defaultNotificationSetting forKey:@"carPlaySetting"];
     [settings setValue:defaultNotificationSetting forKey:@"alertSetting"];
-    [settings setValue:defaultNotificationSetting forKey:@"showPreviewsSetting"];
-    [settings setValue:defaultNotificationSetting forKey:@"announcementSetting"];
-    [settings setValue:defaultNotificationSetting forKey:@"groupingSetting"];
+    
+    if (@available(iOS 11, macOS 10.14, *)) {
+        [settings setValue:defaultNotificationSetting forKey:@"showPreviewsSetting"];
+        [settings setValue:defaultNotificationSetting forKey:@"announcementSetting"];
+        [settings setValue:defaultNotificationSetting forKey:@"groupingSetting"];
+    }
     
     if (completionHandler != nil) {
         completionHandler(settings);
