@@ -65,10 +65,13 @@ static NSString *_autorizationStatus;
     
     if (@available(iOS 11, macOS 10.14, *)) {
         [settings setValue:defaultNotificationSetting forKey:@"showPreviewsSetting"];
-        [settings setValue:defaultNotificationSetting forKey:@"announcementSetting"];
-        [settings setValue:defaultNotificationSetting forKey:@"groupingSetting"];
     }
-    
+
+    if (@available(iOS 13, *)) {
+        [settings setValue:defaultNotificationSetting forKey:@"announcementSetting"];
+        [settings setValue:defaultNotificationSetting forKey:@"groupingSetting"];        
+    }
+
     if (completionHandler != nil) {
         completionHandler(settings);
     }
