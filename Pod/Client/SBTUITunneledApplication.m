@@ -426,6 +426,13 @@
     return [self.client notificationCenterStubAuthorizationStatus:status];
 }
 
+#pragma mark - XCUITest WKWebView stubbing
+
+- (BOOL)wkWebViewStubEnabled:(BOOL)flag
+{
+    return [self.client wkWebViewStubEnabled:flag];
+}
+
 @end
 
 #endif

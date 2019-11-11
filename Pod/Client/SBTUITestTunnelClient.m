@@ -776,6 +776,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus params:params] boolValue];
 }
 
+#pragma mark - XCUITest WKWebView stubbing
+
+- (BOOL)wkWebViewStubEnabled:(BOOL)flag
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectValueKey: flag ? @"YES" : @"NO"};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandWKWebViewStubbing params:params] boolValue];
+}
 
 #pragma mark - Helper Methods
 

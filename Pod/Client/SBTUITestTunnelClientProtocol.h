@@ -608,6 +608,19 @@
 */
 - (BOOL)notificationCenterStubAuthorizationStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10));
 
+#pragma mark - XCUITest WKWebView stubbing
+
+/**
+*  Toggle stubbing/throttling/monitoring in WKWebViews. You'll need to enable this before being able to interact with WKWebView's network requests.
+*
+*  Important: WKWebView do not publicly support for NSURLProtocol. To workaround this we're calling some private APIs that unfortunately have as a side effect that bodies of POST requests inside the WKWebViews are stripped away. Use with care!
+*
+*  @param flag stubbing status
+*
+*  @return `YES` on success
+*/
+- (BOOL)wkWebViewStubEnabled:(BOOL)flag;
+
 @end
 
 #endif

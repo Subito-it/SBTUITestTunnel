@@ -121,7 +121,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString string];
 
         [sharedInstance reset];
-        [sharedInstance enableUrlProtocolInWkWebview];
         
         [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
@@ -1191,6 +1190,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+#pragma mark - XCUITest WKWebView stubbing
+
+- (NSDictionary *)commandWkWebViewStubbing:(GCDWebServerRequest *)tunnelRequest
+{
+    BOOL stubWkWebView = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
+    if (stubWkWebView) {
+        [self enableUrlProtocolInWkWebview];
+    } else {
+        [self disableUrlProtocolInWkWebview];
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
+}
+
 #pragma mark - Custom Commands
 
 + (NSMutableDictionary *)customCommands
@@ -1425,6 +1438,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     Class cls = NSClassFromString(@"WKBrowsingContextController");
     SEL sel = NSSelectorFromString(@"registerSchemeForCustomProtocol:");
+    if ([cls respondsToSelector:sel]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [cls performSelector:sel withObject:@"http"];
+        [cls performSelector:sel withObject:@"https"];
+#pragma clang diagnostic pop
+    }
+}
+
+- (void)disableUrlProtocolInWkWebview
+{
+    Class cls = NSClassFromString(@"WKBrowsingContextController");
+    SEL sel = NSSelectorFromString(@"unregisterSchemeForCustomProtocol:");
     if ([cls respondsToSelector:sel]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"

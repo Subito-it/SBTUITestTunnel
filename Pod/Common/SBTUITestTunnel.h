@@ -137,6 +137,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationNoti
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubbing;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus;
 
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandWKWebViewStubbing;
+
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 
 #pragma mark - Classes

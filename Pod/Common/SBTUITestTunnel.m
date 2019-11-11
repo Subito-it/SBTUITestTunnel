@@ -135,6 +135,7 @@ NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate = @"com
 NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyFailure = @"commandCoreLocationNotifyFailure";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubbing = @"commandNotificationCenterStubbing";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus = @"commandNotificationCenterStubAuthorizationStatus";
+NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing"; 
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 
