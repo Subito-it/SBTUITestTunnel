@@ -7,6 +7,7 @@
 - [Fine grain scrolling](#fine-grain-scrolling)
 - [CLLocationManager stubbing](#cllocationmanager-stubbing)
 - [UNUserNotificationCenter stubbing](#unusernotficationcenter-stubbing)
+- [WKWebViews stubbing](#wkwebview-stubbing)
 
 `SBTUITunneledApplication`'s headers are well commented making the library's functionality self explanatory. You can also checkout the UI test target in the example project which show basic usage of the library.
 
@@ -376,3 +377,15 @@ When stubbing is enable you can change the value that will be returned by `-[UNN
 ```swift
 app.notificationCenterStubAuthorizationStatus(.denied)
 ```
+
+## WKWebview stubbing
+
+WKWebViews do not natively support NSURLProtocol which is used by SBTUITestTunnel to intercepect network requests allowing for stubbing/throttling/monitoring. To interact with network requests generated inside WKWebViews you'll neet to explicitly opt-in by invoking:
+
+```swift
+app.wkWebViewStubEnabled(true)
+```
+
+**IMPORTANT NOTICE**
+
+Beware that to support NSURLProtocol inside WKWebViews we're calling internal APIs that have a side effect that body of POST requests generated inside the WKWebView are stripped away.
