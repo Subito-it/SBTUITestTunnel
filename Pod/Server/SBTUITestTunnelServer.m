@@ -1143,7 +1143,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationNotifyUpdate:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectValueKey] options:0];
+    NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
     
     for (CLLocationManager *locationManager in self.coreLocationActiveManagers) {
@@ -1155,7 +1155,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationNotifyFailure:(GCDWebServerRequest *)tunnelRequest
 {
-    NSData *paramData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectValueKey] options:0];
+    NSData *paramData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     NSError *error = [NSKeyedUnarchiver unarchiveObjectWithData:paramData];
     
     for (CLLocationManager *locationManager in self.coreLocationActiveManagers) {
