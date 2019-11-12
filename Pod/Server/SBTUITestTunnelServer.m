@@ -1125,7 +1125,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *authorizationStatus = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
     
     [self.coreLocationStubbedAuthorizationStatus setString:authorizationStatus];
-    for (CLLocationManager *locationManager in self.coreLocationActiveManagers) {
+    for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
     }
 
@@ -1146,7 +1146,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
     
-    for (CLLocationManager *locationManager in self.coreLocationActiveManagers) {
+    for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
     }
 
@@ -1158,7 +1158,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *paramData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelObjectKey] options:0];
     NSError *error = [NSKeyedUnarchiver unarchiveObjectWithData:paramData];
     
-    for (CLLocationManager *locationManager in self.coreLocationActiveManagers) {
+    for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
     }
 
