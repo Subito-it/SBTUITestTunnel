@@ -30,6 +30,8 @@
 @property (nonatomic, strong) NSArray<NSString *> *query;
 @property (nonatomic, strong) NSString *method;
 @property (nonatomic, strong) NSString *body;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *requestHeaders;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeaders;
 
 @end
 
@@ -42,6 +44,8 @@
         self.query = [decoder decodeObjectForKey:NSStringFromSelector(@selector(query))];
         self.method = [decoder decodeObjectForKey:NSStringFromSelector(@selector(method))];
         self.body = [decoder decodeObjectForKey:NSStringFromSelector(@selector(body))];
+        self.requestHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeaders))];
+        self.responseHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeaders))];
     }
     
     return self;
@@ -53,70 +57,85 @@
     [encoder encodeObject:self.query forKey:NSStringFromSelector(@selector(query))];
     [encoder encodeObject:self.method forKey:NSStringFromSelector(@selector(method))];
     [encoder encodeObject:self.body forKey:NSStringFromSelector(@selector(body))];
+    [encoder encodeObject:self.requestHeaders forKey:NSStringFromSelector(@selector(requestHeaders))];
+    [encoder encodeObject:self.responseHeaders forKey:NSStringFromSelector(@selector(responseHeaders))];
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@\nBody: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A", self.body ?: @"N/A"];
-}
-
-- (nonnull instancetype)initWithURL:(NSString *)url
-{
-    if ((self = [super init])) {
-        _url = url;
-    }
-    
-    return self;
-}
-
-- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query
-{
-    if ((self = [self initWithURL:url])) {
-        _query = query;
-    }
-    
-    return self;
+    return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@\nBody: %@\nRequest headers: %@\nResponse headers: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A", self.body ?: @"N/A", self.requestHeaders ?: @"N/A", self.responseHeaders ?: @"N/A"];
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 
-- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method body:(NSString *)body
+- (instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method body:(NSString *)body requestHeaders:(NSDictionary<NSString *, NSString *> *)requestHeaders responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
 {
-    if ((self = [self initWithURL:url query:query method:method])) {
-        _body = body;
-    }
-    
-    return self;
-}
-
-- (nonnull instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
-{
-    if ((self = [self initWithURL:url query:query])) {
+    if ((self = [super init])) {
+        _url = url;
+        _query = query;
         _method = method;
+        _body = body;
+        _requestHeaders = requestHeaders;
+        _responseHeaders = responseHeaders;
     }
     
     return self;
 }
 
-- (nonnull instancetype)initWithURL:(NSString *)url method:(NSString *)method
+- (instancetype)initWithURL:(NSString *)url
 {
-    return [self initWithURL:url query:nil method:method];
+    return [self initWithURL:url query:nil method:nil body:nil requestHeaders:nil responseHeaders:nil];
 }
 
-- (nonnull instancetype)initWithQuery:(NSArray<NSString *> *)query
+- (instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query
 {
-    return [self initWithURL:nil query:query method:nil];
+    return [self initWithURL:url query:query method:nil body:nil requestHeaders:nil responseHeaders:nil];
 }
 
-- (nonnull instancetype)initWithQuery:(NSArray<NSString *> *)query method:(NSString *)method
+- (instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method body:(NSString *)body
 {
-    return [self initWithURL:nil query:query method:method];
+    return [self initWithURL:url query:query method:method body:body requestHeaders:nil responseHeaders:nil];
 }
 
-- (nonnull instancetype)initWithMethod:(NSString *)method
+- (instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method
 {
-    return [self initWithURL:nil query:nil method:method];
+    return [self initWithURL:url query:query method:method body:nil requestHeaders:nil responseHeaders:nil];
+}
+
+- (instancetype)initWithURL:(NSString *)url method:(NSString *)method
+{
+    return [self initWithURL:url query:nil method:method body:nil requestHeaders:nil responseHeaders:nil];
+}
+
+- (instancetype)initWithQuery:(NSArray<NSString *> *)query
+{
+    return [self initWithURL:nil query:query method:nil body:nil requestHeaders:nil responseHeaders:nil];
+}
+
+- (instancetype)initWithQuery:(NSArray<NSString *> *)query method:(NSString *)method
+{
+    return [self initWithURL:nil query:query method:method body:nil requestHeaders:nil responseHeaders:nil];
+}
+
+- (instancetype)initWithMethod:(NSString *)method
+{
+    return [self initWithURL:nil query:nil method:method body:nil requestHeaders:nil responseHeaders:nil];
+}
+
+- (instancetype)initWithURL:(NSString *)url requestHeaders:(NSDictionary<NSString *, NSString *> *)requestHeaders
+{
+    return [self initWithURL:url query:nil method:nil body:nil requestHeaders:requestHeaders responseHeaders:nil];
+}
+
+- (instancetype)initWithURL:(NSString *)url responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
+{
+    return [self initWithURL:url query:nil method:nil body:nil requestHeaders:nil responseHeaders:responseHeaders];
+}
+
+- (instancetype)initWithURL:(NSString *)url requestHeaders:(NSDictionary<NSString *, NSString *> *)requestHeaders responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
+{
+    return [self initWithURL:url query:nil method:nil body:nil requestHeaders:requestHeaders responseHeaders:responseHeaders];
 }
 
 #pragma clang diagnostic pop

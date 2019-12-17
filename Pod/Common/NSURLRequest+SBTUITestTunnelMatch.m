@@ -89,7 +89,7 @@
             matchesBody = invertMatch ? (regexMatches == 0) : (regexMatches > 0);
         }
     }
-    
+        
     return matchesURL && matchesQuery && matchesMethod && matchesBody;
 }
 

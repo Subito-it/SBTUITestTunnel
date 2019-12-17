@@ -19,7 +19,6 @@
 		8CB30A965F90DB278A9F5DEC /* Pods_SBTUITestTunnel_TestsNoSwizzling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75BC5D08325F7CD8FC97BF4C /* Pods_SBTUITestTunnel_TestsNoSwizzling.framework */; };
 		BC624FFD378C208DED1F36CA /* Pods_SBTUITestTunnel_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80A0C90AC7952D2BF2FAEDBB /* Pods_SBTUITestTunnel_Example.framework */; };
 		C306920B204C9D5B00ACCCB0 /* RewriteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */; };
-		C30FA96223A907AA008BF4B6 /* UnusedStubsPeekAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30FA96123A907AA008BF4B6 /* UnusedStubsPeekAll.swift */; };
 		C30FD8E32029EED50054EA5C /* CookiesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30FD8E22029EED50054EA5C /* CookiesTest.swift */; };
 		C34A05AE22BC091100A0160B /* SBTExtensionTableViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34A05AD22BC091100A0160B /* SBTExtensionTableViewController2.swift */; };
 		C34A05B822BC211200A0160B /* SBTExtensionTableViewController1.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34A05B722BC211200A0160B /* SBTExtensionTableViewController1.swift */; };
@@ -98,7 +97,6 @@
 		9F6D00D57E8C9730E55B443B /* Pods-SBTUITestTunnel_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.release.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.release.xcconfig"; sourceTree = "<group>"; };
 		BFFFBA194953B73A591E23A6 /* Pods-SBTUITestTunnel_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.debug.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewriteTests.swift; sourceTree = "<group>"; };
-		C30FA96123A907AA008BF4B6 /* UnusedStubsPeekAll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnusedStubsPeekAll.swift; sourceTree = "<group>"; };
 		C30FD8E22029EED50054EA5C /* CookiesTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesTest.swift; sourceTree = "<group>"; };
 		C34A05AD22BC091100A0160B /* SBTExtensionTableViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBTExtensionTableViewController2.swift; sourceTree = "<group>"; };
 		C34A05B722BC211200A0160B /* SBTExtensionTableViewController1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBTExtensionTableViewController1.swift; sourceTree = "<group>"; };
@@ -247,7 +245,6 @@
 			children = (
 				C3763A072332505700C0FAF5 /* SBTUITestTunnelServer+Extension.swift */,
 				C37C522D1E225A64005FC27D /* MatchRequestTests.swift */,
-				C30FA96123A907AA008BF4B6 /* UnusedStubsPeekAll.swift */,
 				C3E3DFDF1D8ECA9A003D6BB2 /* MonitorTests.swift */,
 				C3C9048F204938950096663F /* NetworkRequests.swift */,
 				C306920A204C9D5B00ACCCB0 /* RewriteTests.swift */,
@@ -590,7 +587,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3881A951FED847C00EB6579 /* DownloadUploadTests.swift in Sources */,
-				C30FA96223A907AA008BF4B6 /* UnusedStubsPeekAll.swift in Sources */,
 				C3881A961FED847C00EB6579 /* ThrottleTest.swift in Sources */,
 				C3763A082332505700C0FAF5 /* SBTUITestTunnelServer+Extension.swift in Sources */,
 				C3881A971FED847C00EB6579 /* MiscellaneousTests.swift in Sources */,
