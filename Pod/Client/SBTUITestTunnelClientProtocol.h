@@ -84,6 +84,13 @@
  */
 - (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response;
 
+/**
+ * Peek (retrieve) the current list of unused stubs matches
+ *
+ *  @return The list of matches with counts
+*/
+- (nonnull NSDictionary<SBTRequestMatch *, NSNumber *> *)unusedStubsPeekAll;
+
 #pragma mark - Stub And Remove Commands
 
 /**

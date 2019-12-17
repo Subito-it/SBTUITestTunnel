@@ -24,7 +24,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SBTRequestMatch : NSObject<NSCoding>
+@interface SBTRequestMatch : NSObject<NSCoding, NSCopying>
 
 @property (nullable, nonatomic, readonly) NSString *url;
 @property (nullable, nonatomic, readonly) NSArray<NSString *> *query;
