@@ -26,7 +26,7 @@
 
 @interface SBTStubResponse : NSObject<NSCoding, NSCopying>
 
-- (nonnull id)init NS_UNAVAILABLE;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 /**
  *  Initializer

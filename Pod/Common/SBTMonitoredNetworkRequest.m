@@ -29,7 +29,7 @@
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
         self.timestamp = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(timestamp))];

@@ -27,7 +27,7 @@
 
 @interface SBTRewriteReplacement : NSObject<NSCoding>
 
-- (nonnull id)init NS_UNAVAILABLE;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 /**
  *  Initializer
@@ -48,7 +48,7 @@
 
 @interface SBTRewrite : NSObject<NSCoding>
 
-- (nonnull id)init NS_UNAVAILABLE;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 #pragma mark - Response
 

@@ -35,7 +35,7 @@
 
 @implementation SBTRewriteReplacement
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     NSData *findData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(findData))];
     NSData *replaceData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(replaceData))];
@@ -106,7 +106,7 @@
 
 #pragma mark - NSCoding
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     NSArray<SBTRewriteReplacement *> *urlReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(urlReplacement))];
     NSArray<SBTRewriteReplacement *> *requestReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestReplacement))];

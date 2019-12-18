@@ -141,7 +141,7 @@ NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLPro
 
 @implementation SBTUITunnelStartupCommand
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
         self.path = [decoder decodeObjectForKey:NSStringFromSelector(@selector(path))];
