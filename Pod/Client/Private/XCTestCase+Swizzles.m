@@ -26,8 +26,9 @@
 
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
+#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
+
 #import "XCTestCase+Swizzles.h"
-@import SBTUITestTunnelCommon;
 #import "XCTestCase+AppExtension.h"
 #import "SBTUITunneledApplication.h"
 
