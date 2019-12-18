@@ -323,7 +323,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
     }
     
-    return nil;
+    return @[];
 }
 
 - (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsFlushAll
@@ -335,7 +335,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
     }
     
-    return nil;
+    return @[];
 }
 
 - (BOOL)monitorRequestRemoveWithId:(NSString *)reqId
