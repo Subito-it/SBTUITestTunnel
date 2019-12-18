@@ -37,7 +37,6 @@
 #import "SBTProxyURLProtocol.h"
 #import "SBTAnyViewControllerPreviewing.h"
 #import "UIViewController+SBTUITestTunnel.h"
-#import "NSData+SHA1.h"
 #import "UIView+Extensions.h"
 #import "CLLocationManager+Swizzles.h"
 #import "UNUserNotificationCenter+Swizzles.h"
@@ -1249,44 +1248,23 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey]];
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
-    
-    if (!jsonData || error) {
-        NSLog(@"[UITestTunnelServer] Failed to create identifierForStubRequest");
-        return nil;
-    }
-    
-    return [@"stub-" stringByAppendingString:[jsonData SHA1]];
+    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
+    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+    return [@"stub-" stringByAppendingString:requestMatch.identifier];
 }
 
 - (NSString *)identifierForRewriteRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey]];
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
-    
-    if (!jsonData || error) {
-        NSLog(@"[UITestTunnelServer] Failed to create identifierForRewriteRequest");
-        return nil;
-    }
-    
-    return [@"rewrite-" stringByAppendingString:[jsonData SHA1]];
+    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
+    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+    return [@"rewrite-" stringByAppendingString:requestMatch.identifier];
 }
 
 - (NSString *)identifierForCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
-    NSArray<NSString *> *components = @[tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey]];
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:components options:NSJSONWritingPrettyPrinted error:&error];
-    
-    if (!jsonData || error) {
-        NSLog(@"[UITestTunnelServer] Failed to create identifierForCookieBlockRequest");
-        return nil;
-    }
-    
-    return [@"cookie_block-" stringByAppendingString:[jsonData SHA1]];
+    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
+    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
+    return [@"cookie_block-" stringByAppendingString:requestMatch.identifier];
 }
 
 - (SBTStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest

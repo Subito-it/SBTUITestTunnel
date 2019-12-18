@@ -26,7 +26,6 @@
 #import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #import "SBTProxyURLProtocol.h"
-#import "NSData+SHA1.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
@@ -648,9 +647,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 {
     NSString *identifier = nil;
     if ([rule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
-        NSData *ruleData = [NSKeyedArchiver archivedDataWithRootObject:rule[SBTProxyURLProtocolMatchingRuleKey]];
-        
-        identifier = [ruleData SHA1];
+        SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
+        identifier = match.identifier;
     } else {
         NSAssert(NO, @"???");
     }

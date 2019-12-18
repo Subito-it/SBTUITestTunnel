@@ -23,6 +23,7 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTRequestMatch.h"
+#import "NSData+SHA1.h"
 
 @interface SBTRequestMatch()
 
@@ -139,6 +140,13 @@
 }
 
 #pragma clang diagnostic pop
+
+- (NSString *)identifier
+{
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self];
+    
+    return [data SHA1];
+}
 
 @end
 

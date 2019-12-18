@@ -32,6 +32,7 @@
 @property (nullable, nonatomic, readonly) NSString *body;
 @property (nullable, nonatomic, readonly) NSDictionary<NSString *, NSString *> *requestHeaders;
 @property (nullable, nonatomic, readonly) NSDictionary<NSString *, NSString *> *responseHeaders;
+@property (nullable, nonatomic, readonly) NSString *identifier;
 
 /**
     Note:
