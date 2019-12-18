@@ -23,7 +23,6 @@
 #if ENABLE_UITUNNEL
 
 #define IsEqualToString(x,y) ((x && [x isEqualToString:y]) || (!x && !y))
-#define IsEqualToArray(x,y) ((x && [x isEqualToArray:y]) || (!x && !y))
 #define IsEqualToDictionary(x,y) ((x && [x isEqualToDictionary:y]) || (!x && !y))
 
 #import "SBTStubResponse.h"

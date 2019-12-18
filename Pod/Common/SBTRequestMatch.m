@@ -22,6 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
+#define IsEqualToString(x,y) ((x && [x isEqualToString:y]) || (!x && !y))
+#define IsEqualToArray(x,y) ((x && [x isEqualToArray:y]) || (!x && !y))
+#define IsEqualToDictionary(x,y) ((x && [x isEqualToDictionary:y]) || (!x && !y))
+
 #import "SBTRequestMatch.h"
 #import "NSData+SHA1.h"
 
@@ -52,6 +56,28 @@
     }
 
     return copy;
+}
+
+- (BOOL)isEqual:(SBTRequestMatch *)other
+{
+    if (other == self) {
+        return YES;
+    } else if (![super isEqual:other]) {
+        return NO;
+    } else {
+        return
+            IsEqualToString(self.url, other.url) &&
+            IsEqualToArray(self.query, other.query);
+            IsEqualToString(self.method, other.method) &&
+            IsEqualToString(self.body, other.body) &&
+            IsEqualToDictionary(self.requestHeaders, other.requestHeaders) &&
+            IsEqualToDictionary(self.requestHeaders, other.requestHeaders);
+    }
+}
+
+- (NSUInteger)hash
+{
+    return [self.url hash] ^ [self.query hash] ^ [self.method hash] ^ [self.body hash] ^ [self.requestHeaders hash] ^ [self.responseHeaders hash];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder
