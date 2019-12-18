@@ -338,7 +338,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
     }
     
-    if (stubRule) {
+    SBTRequestMatch *requestMatch = stubRule[SBTProxyURLProtocolMatchingRuleKey];
+    BOOL stubbingHeaders = requestMatch.requestHeaders != nil || requestMatch.responseHeaders != nil;
+    
+    if (stubRule && !stubbingHeaders) {
         // STUB REQUEST
         SBTStubUpdateBlock didStubRequestBlock = stubRule[SBTProxyURLProtocolBlockKey];
         
@@ -415,11 +418,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         return;
     }
     
-    if (proxyRule != nil || rewriteRule != nil || cookieBlockRule != nil) {
+    if (proxyRule != nil || rewriteRule != nil || cookieBlockRule != nil || stubbingHeaders) {
         __unused SBTRequestMatch *requestMatch1 = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[UITestTunnelServer] Throttling or monitoring %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3);
+        __unused SBTRequestMatch *requestMatch4 = stubRule[SBTProxyURLProtocolMatchingRuleKey];
+        NSLog(@"[UITestTunnelServer] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
@@ -558,8 +562,36 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
+    NSDictionary *headersStubRequest = [self stubRuleForCurrentRequest];
     if ([self rewriteRuleForCurrentRequest] != nil) {
         // if we're rewriting the request we will send only a didReceiveResponse callback after rewriting content once everything was received
+    } else if (headersStubRequest != nil) {
+        SBTRequestMatch *match = headersStubRequest[SBTProxyURLProtocolMatchingRuleKey];
+        
+        BOOL headersMatch = YES;
+        
+        NSDictionary *requestHeaders = dataTask.currentRequest.allHTTPHeaderFields ?: @{};
+        if (match.requestHeaders.count > 0) {
+            headersMatch &= [self expectedHeadersRegexDictionary:match.requestHeaders matchesHeaders:requestHeaders];
+        }
+        
+        NSDictionary *responseHeaders = @{};
+        if (match.responseHeaders.count > 0 && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+            responseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
+            
+            headersMatch &= [self expectedHeadersRegexDictionary:match.responseHeaders matchesHeaders:responseHeaders];
+        }
+        
+        if (headersMatch) {
+            SBTStubResponse *stubResponse = headersStubRequest[SBTProxyURLProtocolStubResponse];
+            
+            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [self.client URLProtocol:self didLoadData:stubResponse.data];
+            [self.client URLProtocolDidFinishLoading:self];
+            return;
+        } else {
+            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+        }
     } else {
         [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
     }
@@ -649,6 +681,51 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     return nil;
+}
+
+- (NSDictionary *)stubRuleForCurrentRequest
+{
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    for (NSDictionary *matchingRule in matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            return matchingRule;
+        }
+    }
+    
+    return nil;
+}
+
+- (BOOL)expectedHeadersRegexDictionary:(NSDictionary<NSString *, NSString *> *)expectedHeaders matchesHeaders:(NSDictionary <NSString *, NSString *>*)headers
+{
+    for (NSString *expectedHeaderKey in expectedHeaders) {
+        BOOL matchFound = NO;
+        for (NSString *headerKey in headers) {
+            BOOL keyMatches = [self regex:expectedHeaderKey matches:headerKey];
+            BOOL valueMatches = [self regex:expectedHeaders[expectedHeaderKey] matches:headers[headerKey]];
+            
+            if (keyMatches && valueMatches) {
+                matchFound = YES;
+                break;
+            }
+        }
+        if (!matchFound) {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+- (BOOL)regex:(NSString *)regexString matches:(NSString *)match
+{
+    BOOL invertMatch = [regexString hasPrefix:@"!"];
+    // skip first char for inverted matches
+    NSString *pattern = [regexString substringFromIndex:invertMatch ? 1 : 0];
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:pattern options:0 error:nil];
+    
+    NSUInteger regexMatches = [regex numberOfMatchesInString:match options:0 range:NSMakeRange(0, match.length)];
+    
+    return invertMatch ? (regexMatches == 0) : (regexMatches > 0);
 }
 
 @end
