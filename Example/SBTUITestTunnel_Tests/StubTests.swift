@@ -285,6 +285,148 @@ class StubTests: XCTestCase {
         XCTAssertEqual(requests.first?.request?.url?.absoluteString, redirectionUrl)
         XCTAssertEqual(requests.first?.originalRequest?.url?.absoluteString, redirectionUrl)
     }
+    
+    func testStubRequestHeaders() {
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "invalid"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Invalid": "gzip"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid", "Accept-Language": "en"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+    }
+    
+    func testStubResponseHeaders() {
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "invalid"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Invalid": "application.*"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "invalid"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+    }
+    
+    func testStubRequestAndResponseHeaders() {
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"], responseHeaders: ["Content-Type": "application.*"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"], responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssert(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid"], responseHeaders: ["Content-Type": "application.*"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"], responseHeaders: ["Content-Type": "Invalid"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+        
+        _ = {
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid"], responseHeaders: ["Content-Type": "Invalid"])
+            let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertFalse(self.request.isStubbed(result))
+            self.app.stubRequestsRemove(withId: stubId)
+        }()
+
+    }
 }
 
 extension StubTests {

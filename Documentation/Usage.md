@@ -71,6 +71,11 @@ In a kind of unconventional syntax you can prefix the regex with an exclamation 
 
 The `body` parameter allows to match the request against its HTTP Body. As for the `query` parameter, the passed value is used as a regex which is evaluated on the request HTTP Body and the exlamation mark `!` can be used to specify an "inverted match" (i.e. that the HTTP Body should NOT match the provided `body` pattern).
 
+#### Headers parameters
+
+The `requestHeader` and `responseHeader` parameters allows to match the request against the HTTP request and response headers respectively. There parameters are [String: String] dictionaries with the key and value being regexes witch are evaluated on the key/value of the request/response headers. The regex follows the same rules that apply to the `query` parameter.
+
+
 #### Examples
 
 The regex in `GET` and `DELETE` requests will match the entire URL including query parameters.
@@ -110,6 +115,12 @@ The `body` parameter can be used to match HTTP Body and also supports `!` to spe
 ```swift	
 let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "SomeBodyContent")
 let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "!UnwantedBodyContent")
+```
+
+This will match if the request headers contain both a header with key `Accept-Enc*=gzip*` and another header `Accept-Language=en`. The request MUST contain at least both these headers for the SBTRequestMatch to match.
+
+```swift	
+let sr = SBTRequestMatch(url: "myhost.com", requestHeaders: ["Accept-Enc.*": "gzip.*", "Accept-Language": "en"])
 ```
 
 Finally you can limit a specific HTTP method by specifying it in the `method` parameter.
