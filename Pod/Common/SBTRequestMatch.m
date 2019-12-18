@@ -38,7 +38,7 @@
 
 @implementation SBTRequestMatch : NSObject
 
-- (instancetype)copyWithZone:(nullable NSZone *)zone
+- (instancetype)copyWithZone:(NSZone *)zone
 {
     SBTRequestMatch *copy = [[[self class] allocWithZone:zone] init];
 

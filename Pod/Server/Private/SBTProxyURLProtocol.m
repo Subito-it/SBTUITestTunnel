@@ -237,7 +237,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Cookie Block Requests
 
-+ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(void(^)(NSURLRequest *request))block;
 {
     NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
     NSString *identifierToAdd = [self identifierForRule:rule];

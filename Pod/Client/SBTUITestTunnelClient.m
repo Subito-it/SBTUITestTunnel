@@ -90,7 +90,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
 }
 
-- (void)shutDownWithError:(nullable NSError *)error
+- (void)shutDownWithError:(NSError *)error
 {
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandShutDown params:nil assertOnError:NO];
     
@@ -578,7 +578,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - NSBundle
 
-- (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;
+- (NSDictionary<NSString *, id> *)mainBundleInfoDictionary;
 {
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMainBundleInfoDictionary params:nil];
     
@@ -676,7 +676,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - XCUITest scroll extensions
 
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollTableViewWithIdentifier:(NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
@@ -687,7 +687,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
 }
 
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
@@ -698,7 +698,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
 }
 
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag
+- (BOOL)scrollScrollViewWithIdentifier:(NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     NSAssert([targetIdentifier length] > 0, @"Invalid empty target identifier!");
@@ -712,7 +712,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - XCUITest 3D touch extensions
 
-- (BOOL)forcePressViewWithIdentifier:(nonnull NSString *)identifier
+- (BOOL)forcePressViewWithIdentifier:(NSString *)identifier
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
@@ -744,7 +744,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationStubServiceStatus params:params] boolValue];
 }
 
-- (BOOL)coreLocationNotifyLocationUpdate:(nonnull NSArray<CLLocation *>*)locations
+- (BOOL)coreLocationNotifyLocationUpdate:(NSArray<CLLocation *>*)locations
 {
     NSAssert([locations count] > 0, @"Location array should contain at least one element!");
     
@@ -753,7 +753,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationNotifyUpdate params:params] boolValue];
 }
 
-- (BOOL)coreLocationNotifyLocationError:(nonnull NSError *)error
+- (BOOL)coreLocationNotifyLocationError:(NSError *)error
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [self base64SerializeObject:error]};
     

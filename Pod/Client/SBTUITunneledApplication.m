@@ -285,7 +285,7 @@
     return [self.client userDefaultsRemoveObjectForKey:key];
 }
 
-- (nullable id)userDefaultsObjectForKey:(NSString *)key
+- (id)userDefaultsObjectForKey:(NSString *)key
 {
     return [self.client userDefaultsObjectForKey:key];
 }
