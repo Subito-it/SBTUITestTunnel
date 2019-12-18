@@ -22,6 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
+#define IsEqualToString(x,y) ((x && [x isEqualToString:y]) || (!x && !y))
+#define IsEqualToArray(x,y) ((x && [x isEqualToArray:y]) || (!x && !y))
+#define IsEqualToDictionary(x,y) ((x && [x isEqualToDictionary:y]) || (!x && !y))
+
 #import "SBTStubResponse.h"
 #import "NSString+SwiftDemangle.h"
 
@@ -55,7 +59,23 @@ static NSString *defaultNSDataContentType;
     [self resetUnspecifiedDefaults];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)copyWithZone:(NSZone *)zone
+{
+    SBTStubResponse *copy = [[[self class] allocWithZone:zone] init];
+
+    if (copy) {
+        [copy setData:[self.data copyWithZone:zone]];
+        [copy setHeaders:[self.headers copyWithZone:zone]];
+        [copy setContentType:[self.contentType copyWithZone:zone]];
+        [copy setReturnCode:self.returnCode];
+        [copy setResponseTime:self.responseTime];
+        [copy setFailureCode:self.failureCode];
+    }
+
+    return copy;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     NSData *data = [decoder decodeObjectForKey:NSStringFromSelector(@selector(data))];
     NSDictionary<NSString *, NSString *> *headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
@@ -123,6 +143,28 @@ static NSString *defaultNSDataContentType;
     }
     
     return self;
+}
+
+- (BOOL)isEqual:(SBTStubResponse *)other
+{
+    if (other == self) {
+        return YES;
+    } else if (![super isEqual:other]) {
+        return NO;
+    } else {
+        return
+            [self.data isEqual:other.data] &&
+            IsEqualToDictionary(self.headers, other.headers);
+            IsEqualToString(self.contentType, other.contentType) &&
+            self.returnCode == other.returnCode &&
+            self.responseTime == other.responseTime &&
+            self.failureCode == other.failureCode;
+    }
+}
+
+- (NSUInteger)hash
+{
+    return [self.data hash] ^ [self.headers hash] ^ [self.contentType hash] ^ self.returnCode ^ [@(self.responseTime) hash] ^ self.failureCode;
 }
 
 #pragma clang diagnostic push

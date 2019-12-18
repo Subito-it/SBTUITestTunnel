@@ -24,7 +24,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SBTStubResponse : NSObject<NSCoding>
+@interface SBTStubResponse : NSObject<NSCoding, NSCopying>
 
 - (nonnull id)init NS_UNAVAILABLE;
 

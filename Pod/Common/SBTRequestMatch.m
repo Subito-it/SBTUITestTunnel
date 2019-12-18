@@ -38,6 +38,22 @@
 
 @implementation SBTRequestMatch : NSObject
 
+- (instancetype)copyWithZone:(nullable NSZone *)zone
+{
+    SBTRequestMatch *copy = [[[self class] allocWithZone:zone] init];
+
+    if (copy) {
+        [copy setUrl:[self.url copyWithZone:zone]];
+        [copy setQuery:[self.query copyWithZone:zone]];
+        [copy setMethod:[self.method copyWithZone:zone]];
+        [copy setBody:[self.body copyWithZone:zone]];
+        [copy setRequestHeaders:[self.requestHeaders copyWithZone:zone]];
+        [copy setResponseHeaders:[self.responseHeaders copyWithZone:zone]];
+    }
+
+    return copy;
+}
+
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
