@@ -10,7 +10,7 @@ def test_target
   # You should normally use SBTUITestTunnelClient instead
   pod 'SBTUITestTunnelClient/Connectionless', :path => '../'
   pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git'
+  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git', :inhibit_warnings => true
 end
 
 target 'SBTUITestTunnel_Example' do
