@@ -425,7 +425,38 @@ class StubTests: XCTestCase {
             XCTAssertFalse(self.request.isStubbed(result))
             self.app.stubRequestsRemove(withId: stubId)
         }()
+    }
+    
+    func testStubAll() {        
+        let match1 = SBTRequestMatch(url: "httpbin.org")
+        let stubId1 = self.app.stubRequests(matching: match1, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let stubs1 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs1.count, 1)
+        XCTAssertEqual("stb-" + Array(stubs1.keys)[0].identifier!, stubId1)
 
+        let match2 = SBTRequestMatch(url: "httpbin2.org")
+        let stubId2 = self.app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let stubs2 = app.stubRequestsAll()
+
+        XCTAssertEqual(stubs2.count, 2)
+        XCTAssertEqual("stb-" + Array(stubs2.keys)[0].identifier!, stubId1)
+        XCTAssertEqual("stb-" + Array(stubs2.keys)[1].identifier!, stubId2)
+        
+        app.stubRequestsRemove(withId: stubId1)
+        
+        let stubs3 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs3.count, 1)
+        XCTAssertEqual("stb-" + Array(stubs3.keys)[0].identifier!, stubId2)
+
+        app.stubRequestsRemoveAll()
+        
+        let stubs4 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs4.count, 0)
     }
 }
 

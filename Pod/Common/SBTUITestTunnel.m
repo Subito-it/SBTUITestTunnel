@@ -85,6 +85,7 @@ NSString * const SBTUITunneledApplicationCommandStubMatching = @"commandStubMatc
 NSString * const SBTUITunneledApplicationCommandStubAndRemoveMatching = @"commandStubAndRemoveMatching";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemove = @"commandStubRequestsRemove";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
+NSString * const SBTUITunneledApplicationCommandStubRequestsAll = @"commandStubRequestsAll";
 
 NSString * const SBTUITunneledApplicationCommandRewriteMatching = @"commandRewriteMatching";
 NSString * const SBTUITunneledApplicationCommandRewriteAndRemoveMatching = @"commandRewriteAndRemoveMatching";

@@ -262,6 +262,20 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
+- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+{
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsAll params:nil];
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        NSDictionary *result = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:objectData error:nil];
+        
+        return result ?: @{};
+    }
+    
+    return @{};
+}
+
 #pragma mark - Rewrite Commands
 
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite

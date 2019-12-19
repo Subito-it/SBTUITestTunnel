@@ -149,6 +149,11 @@
     return [self.client stubRequestsRemoveAll];
 }
 
+- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+{
+    return [self.client stubRequestsAll];
+}
+
 #pragma mark - Rewrite Commands
 
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite

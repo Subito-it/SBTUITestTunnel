@@ -43,6 +43,7 @@
 + (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;
++ (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
 
 #pragma mark - Rewrite Requests
 

@@ -86,6 +86,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubAndRemoveMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemove;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemoveAll;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsAll;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandRewriteAndRemoveMatching;

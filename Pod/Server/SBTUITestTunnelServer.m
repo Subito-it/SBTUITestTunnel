@@ -340,6 +340,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+- (NSDictionary *)commandStubRequestsAll:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *ret = nil;
+    
+    NSDictionary *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs];
+    
+    if (data) {
+        ret = [data base64EncodedStringWithOptions:0];
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
+}
+
 #pragma mark - Rewrites Commands
 
 - (NSDictionary *)commandRewriteMatching:(GCDWebServerRequest *)tunnelRequest

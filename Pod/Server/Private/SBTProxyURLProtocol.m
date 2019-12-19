@@ -182,6 +182,23 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
 }
 
++ (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+{
+    NSMutableDictionary<SBTRequestMatch *, SBTStubResponse *> *activeStubs = [NSMutableDictionary dictionary];
+    
+    @synchronized (self.sharedInstance) {
+        NSArray<NSDictionary *> *rules = self.sharedInstance.matchingRules;
+        for (NSDictionary *rule in rules) {
+            SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
+            SBTStubResponse *response = rule[SBTProxyURLProtocolStubResponse];
+                        
+            activeStubs[match] = response;
+        }
+    }
+    
+    return activeStubs;
+}
+
 #pragma mark - Rewrite
 
 + (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite didRewriteRequest:(void(^)(NSURLRequest *request))block;

@@ -124,6 +124,13 @@
  */
 - (BOOL)stubRequestsRemoveAll;
 
+/**
+ *  Returns all active stubs
+ *
+ *  @return A dictionary containing all active stubs
+ */
+- (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
+
 #pragma mark - Rewrite Commands
 
 /**
