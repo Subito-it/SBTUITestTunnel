@@ -20,14 +20,14 @@ Pod::Spec.new do |s|
     s.library = 'z'
 
     s.frameworks = 'XCTest'
-    s.source_files = 'Pod/Client/**/*.{h,m}'
+    s.source_files = 'Pod/Client/**/*.{h,m,swift}'
     s.private_header_files = 'Pod/Client/Private/*.h'
 
     s.dependency 'SBTUITestTunnelCommon'
 
     # Used only for testing purposes
     s.subspec 'Connectionless' do |client|
-        client.source_files = 'Pod/Client/**/*.{h,m}'
+        client.source_files = 'Pod/Client/**/*.{h,m,swift}'
         client.private_header_files = 'Pod/Client/Private/*.h'
         client.dependency 'SBTUITestTunnelServer'
     end

@@ -16,6 +16,7 @@ end
 target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnelServer', :path => '../'
   pod 'SBTUITestTunnelCommon', :path => '../'
+  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git', :inhibit_warnings => true
 end
 
 target 'SBTUITestTunnel_Tests' do

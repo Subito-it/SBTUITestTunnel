@@ -17,6 +17,7 @@
 #import "SBTStubResponse.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
+#import "SBTUITestTunnelCommon.h"
 
 FOUNDATION_EXPORT double SBTUITestTunnelCommonVersionNumber;
 FOUNDATION_EXPORT const unsigned char SBTUITestTunnelCommonVersionString[];
