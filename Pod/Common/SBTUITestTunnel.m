@@ -42,11 +42,9 @@ NSString * const SBTUITunnelHTTPMethod = @"POST";
 
 NSString * const SBTUITunnelStubMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelStubResponseKey = @"response";
-NSString * const SBTUITunnelStubIterationsKey = @"iterations";
 
 NSString * const SBTUITunnelRewriteMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelRewriteKey = @"rewrite_rule";
-NSString * const SBTUITunnelRewriteIterationsKey = @"iterations";
 
 NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 
@@ -54,7 +52,6 @@ NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
 NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
 
 NSString * const SBTUITunnelCookieBlockMatchRuleKey = @"rule";
-NSString * const SBTUITunnelCookieBlockQueryIterationsKey = @"iterations";
 
 NSString * const SBTUITunnelObjectKey = @"obj";
 NSString * const SBTUITunnelObjectValueKey = @"obj_value";

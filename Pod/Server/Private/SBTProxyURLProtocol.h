@@ -27,33 +27,42 @@
 
 @class SBTStubResponse;
 @class SBTRewrite;
+@class SBTMonitoredNetworkRequest;
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
 + (void)reset;
 
-#pragma mark - Proxy Requests
+#pragma mark - Throttle Requests
 
-+ (nullable NSString *)proxyRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(nullable void(^)(NSURLRequest * __nullable, NSURLRequest * __nullable, NSHTTPURLResponse * __nullable , NSData * __nullable, NSTimeInterval, BOOL, BOOL))block;
-+ (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId;
-+ (void)proxyRequestsRemoveAll;
++ (nullable NSString *)throttleRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime;
++ (BOOL)throttleRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (void)throttleRequestsRemoveAll;
+
+#pragma mark - Monitored Requests
+
++ (nullable NSString *)monitorRequestsMatching:(nonnull SBTRequestMatch *)match;
++ (BOOL)monitorRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (void)monitorRequestsRemoveAll;
++ (nullable NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsAll;
++ (void)monitoredRequestsFlushAll;
 
 #pragma mark - Stubbing Requests
 
-+ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse didStubRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)stubRequestsRemoveAll;
 + (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
 
 #pragma mark - Rewrite Requests
 
-+ (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite didRewriteRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite;
 + (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)rewriteRequestsRemoveAll;
 
 #pragma mark - Cookie Block Requests
 
-+ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(nullable void(^)(NSURLRequest * __nullable))block;
++ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match;
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)cookieBlockRequestsRemoveAll;
 

@@ -24,6 +24,7 @@
 
 #import <SBTUITestTunnelCommon/SBTRewrite.h>
 #import <SBTUITestTunnelCommon/SBTStubResponse.h>
+#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
 #import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #import "SBTProxyURLProtocol.h"
 
@@ -34,9 +35,7 @@ static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLP
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolRewriteResponse = @"SBTProxyURLProtocolRewriteResponse";
 static NSString * const SBTProxyURLProtocolBlockCookiesKey = @"SBTProxyURLProtocolBlockCookiesKey";
-static NSString * const SBTProxyURLProtocolBlockKey = @"SBTProxyURLProtocolBlockKey";
 
-typedef void(^SBTProxyResponseBlock)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL stubbed, BOOL rewritten);
 typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
@@ -46,6 +45,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSDate *> *tasksTime;
 
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
+@property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 
 @property (nonatomic, strong) NSURLResponse *response;
 
@@ -74,20 +74,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     self.matchingRules = [NSMutableArray array];
     self.tasksData = [NSMutableDictionary dictionary];
     self.tasksTime = [NSMutableDictionary dictionary];
+    self.monitoredRequests = [NSMutableArray array];
 }
 
-# pragma mark - Proxying
+# pragma mark - Throttling
 
-+ (NSString *)proxyRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime responseBlock:(void(^)(NSURLRequest *request, NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSData *responseData, NSTimeInterval requestTime, BOOL isStubbed, BOOL isRewritten))block;
++ (NSString *)throttleRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime)};
     
     @synchronized (self.sharedInstance) {
         NSString *identifierToAdd = [self identifierForRule:rule];
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
                 NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
-                // return nil; remove this to handle throttle and monitor
             }
         }
         
@@ -97,7 +97,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return [self identifierForRule:rule];
 }
 
-+ (BOOL)proxyRequestsRemoveWithId:(nonnull NSString *)reqId
++ (BOOL)throttleRequestsRemoveWithId:(nonnull NSString *)reqId
 {
     NSMutableArray *itemsToDelete = [NSMutableArray array];
     
@@ -114,7 +114,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return itemsToDelete.count > 0;
 }
 
-+ (void)proxyRequestsRemoveAll
++ (void)throttleRequestsRemoveAll
 {
     @synchronized (self.sharedInstance) {
         NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
@@ -129,11 +129,73 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
 }
 
+# pragma mark - Monitor
+
++ (NSString *)monitorRequestsMatching:(SBTRequestMatch *)match;
+{
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match};
+    
+    @synchronized (self.sharedInstance) {
+        NSString *identifierToAdd = [self identifierForRule:rule];
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:identifierToAdd] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+                NSLog(@"[UITestTunnelServer] Warning existing proxying request found, skipping");
+            }
+        }
+        
+        [self.sharedInstance.matchingRules addObject:rule];
+    }
+    
+    return [self identifierForRule:rule];
+}
+
++ (BOOL)monitorRequestsRemoveWithId:(nonnull NSString *)reqId
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([[self identifierForRule:matchingRule] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+    
+    return itemsToDelete.count > 0;
+}
+
++ (void)monitorRequestsRemoveAll
+{
+    @synchronized (self.sharedInstance) {
+        NSMutableArray<NSDictionary *> *itemsToDelete = [NSMutableArray array];
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if (matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+    }
+}
+
++ (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsAll
+{
+    return [self.sharedInstance.monitoredRequests copy];
+}
+
++ (void)monitoredRequestsFlushAll
+{
+    [self.sharedInstance.monitoredRequests removeAllObjects];
+}
+
 #pragma mark - Stubbing
 
-+ (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTStubResponse *)stubResponse didStubRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTStubResponse *)stubResponse;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolStubResponse: stubResponse, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolStubResponse: stubResponse};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -191,7 +253,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         for (NSDictionary *rule in rules) {
             SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
             SBTStubResponse *response = rule[SBTProxyURLProtocolStubResponse];
-                        
+            
             activeStubs[match] = response;
         }
     }
@@ -201,9 +263,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Rewrite
 
-+ (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite didRewriteRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolRewriteResponse: rewrite, SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolRewriteResponse: rewrite};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -254,9 +316,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Cookie Block Requests
 
-+ (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match didBlockCookieInRequest:(void(^)(NSURLRequest *request))block;
++ (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match;
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES), SBTProxyURLProtocolBlockKey: block ? [block copy] : [NSNull null]};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES)};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -359,8 +421,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     
     if (stubRule && !stubbingHeaders) {
         // STUB REQUEST
-        SBTStubUpdateBlock didStubRequestBlock = stubRule[SBTProxyURLProtocolBlockKey];
-        
         SBTStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
         NSInteger stubbingStatusCode = stubResponse.returnCode;
         
@@ -381,14 +441,32 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
+            strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
+            
+            if ([strongSelf monitorRuleForCurrentRequest] != nil) {
+                SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
+                
+                monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
+                monitoredRequest.requestTime = stubbingResponseTime;
+                monitoredRequest.request = strongSelf.request;
+                monitoredRequest.originalRequest = strongSelf.request;
+                
+                monitoredRequest.response = (NSHTTPURLResponse *)strongSelf.response;
+                
+                monitoredRequest.responseData = stubResponse.data;
+                
+                monitoredRequest.isStubbed = YES;
+                monitoredRequest.isRewritten = NO;
+                
+                [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+            }
+            
             if (stubResponse.failureCode != 0) {
                 NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:stubResponse.failureCode userInfo:nil];
                 
                 [client URLProtocol:strongSelf didFailWithError:error];
                 [client URLProtocolDidFinishLoading:strongSelf];
             } else {
-                strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
-                
                 if (stubResponse.headers[@"Location"] != nil) {
                     NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
                     NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
@@ -398,36 +476,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                         // don't handle double (or more) redirects
                         [NSURLProtocol setProperty:request forKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest];
                     }
-
+                    
                     [client URLProtocol:strongSelf wasRedirectedToRequest:redirectionRequest redirectResponse:strongSelf.response];
                 } else {
                     [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
                     [client URLProtocol:strongSelf didLoadData:stubResponse.data];
                     [client URLProtocolDidFinishLoading:strongSelf];
                 }
-            }
-            
-            // check if the request is also proxied, we might need to manually invoke the block here
-            if (proxyRule) {
-                for (NSDictionary *matchingRule in matchingRules) {
-                    if (!matchingRule[SBTProxyURLProtocolStubResponse]) {
-                        SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
-                        
-                        if (![block isEqual:[NSNull null]] && block != nil) {
-                            __unused SBTRequestMatch *requestMatch = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
-                            NSLog(@"[UITestTunnelServer] Throttling or monitoring stubbed %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch);
-                            
-                            block(request, request, (NSHTTPURLResponse *)strongSelf.response, stubResponse.data, stubbingResponseTime, YES, NO); // stubbed requests are not rewritten
-                        }
-                    }
-                }
-            }
-            
-            if (![didStubRequestBlock isEqual:[NSNull null]] && didStubRequestBlock != nil) {
-                __unused SBTRequestMatch *requestMatch = stubRule[SBTProxyURLProtocolMatchingRuleKey];
-                NSLog(@"[UITestTunnelServer] Stubbing %@ request: %@\n\nMatching rule:\n%@\n\nResponse:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch, stubResponse);
-                
-                didStubRequestBlock(request);
             }
         });
         
@@ -507,58 +562,67 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    if (!error) {
-        NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    NSURLRequest *request = self.request;
+    NSURLResponse *response = self.response;
+    SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
+    BOOL isRequestRewritten = (rewrite != nil);
+    
+    NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
         
-        NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
-        NSAssert(responseData != nil, @"Should not be nil");
-        [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
-        
-        self.response = task.response;
-        
-        SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
-        BOOL isRequestRewritten = (rewrite != nil);
-        if (isRequestRewritten) {
-            responseData = [rewrite rewriteResponseBody:responseData];
-            NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
-            if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
-                NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
-                self.response = [[NSHTTPURLResponse alloc] initWithURL:taskResponse.URL statusCode:statusCode HTTPVersion:nil headerFields:headers];
-            }
+    NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
+    NSAssert(responseData != nil, @"Should not be nil");
+    [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
+    
+    self.response = task.response;
+    
+    if (isRequestRewritten) {
+        responseData = [rewrite rewriteResponseBody:responseData];
+        NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
+        if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
+            NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
+            self.response = [[NSHTTPURLResponse alloc] initWithURL:taskResponse.URL statusCode:statusCode HTTPVersion:nil headerFields:headers];
         }
-        
-        NSURLRequest *request = self.request;
-        NSURLResponse *response = self.response;
-
-        NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
-        NSTimeInterval delayResponseTime = [self delayResponseTime];
-        NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
-        
-        __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
-            
-            if (isRequestRewritten) {
-                [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
-            }
-            [weakSelf.client URLProtocolDidFinishLoading:strongSelf];
-        });
-        
-        for (NSDictionary *matchingRule in matchingRules) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                SBTProxyResponseBlock block = matchingRule[SBTProxyURLProtocolBlockKey];
-                
-                if (![block isEqual:[NSNull null]] && block != nil) {
-                    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
-                    block(request ?: task.currentRequest, originalRequest ?: task.originalRequest, (NSHTTPURLResponse *)response, responseData, requestTime, NO, isRequestRewritten);
-                }
-            });
-        }
-    } else {
-        [self.client URLProtocol:self didFailWithError:error];
     }
+    
+    NSTimeInterval delayResponseTime = [self delayResponseTime];
+    NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+    
+    __weak typeof(self)weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        
+        NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+        
+        if ([strongSelf monitorRuleForCurrentRequest] != nil) {
+            SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
+            
+            monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
+            monitoredRequest.requestTime = requestTime;
+            monitoredRequest.request = request ?: task.currentRequest;
+            monitoredRequest.originalRequest = originalRequest ?: task.originalRequest;
+            
+            monitoredRequest.response = (NSHTTPURLResponse *)response;
+            
+            monitoredRequest.responseData = responseData;
+            
+            monitoredRequest.isStubbed = NO;
+            monitoredRequest.isRewritten = isRequestRewritten;
+            
+            [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+        }
+        
+        if (isRequestRewritten) {
+            [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
+        }
+        
+        if (error) {
+            [weakSelf.client URLProtocol:self didFailWithError:error];
+        } else {
+            [weakSelf.client URLProtocolDidFinishLoading:strongSelf];
+        }
+    });
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
@@ -604,6 +668,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [self.client URLProtocol:self didLoadData:stubResponse.data];
             [self.client URLProtocolDidFinishLoading:self];
+
             return;
         } else {
             [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
@@ -677,7 +742,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         prefix = @"thr-";
     } else if (rule[SBTProxyURLProtocolRewriteResponse]) {
         prefix = @"rwr-";
-    } else if (rule[SBTProxyURLProtocolBlockKey] && ![rule[SBTProxyURLProtocolBlockKey] isKindOfClass:[NSNull class]]) {
+    } else {
         prefix = @"mon-";
     }
     
@@ -703,6 +768,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+            return matchingRule;
+        }
+    }
+    
+    return nil;
+}
+
+- (NSDictionary *)monitorRuleForCurrentRequest
+{
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    for (NSDictionary *matchingRule in matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse] == nil && matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] == nil && matchingRule[SBTProxyURLProtocolRewriteResponse] == nil) {
             return matchingRule;
         }
     }
