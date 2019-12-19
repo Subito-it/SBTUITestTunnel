@@ -61,7 +61,7 @@
  */
 - (nonnull instancetype)initWithResponseReplacement:(nonnull NSArray<SBTRewriteReplacement *> *)responseReplacement
                                  headersReplacement:(nonnull NSDictionary<NSString *, NSString *> *)responseHeadersReplacement
-                                         responseCode:(NSInteger)responseCode;
+                                       responseCode:(NSInteger)responseCode;
 
 /**
  *  Initializer
