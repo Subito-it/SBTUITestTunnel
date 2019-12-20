@@ -1,9 +1,11 @@
+ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES
 FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/GCDWebServer" "${PODS_CONFIGURATION_BUILD_DIR}/SBTUITestTunnelCommon" "${PODS_CONFIGURATION_BUILD_DIR}/SBTUITestTunnelServer"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/GCDWebServer/GCDWebServer.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/SBTUITestTunnelCommon/SBTUITestTunnelCommon.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/SBTUITestTunnelServer/SBTUITestTunnelServer.framework/Headers"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
 OTHER_CFLAGS = $(inherited) -isystem "${PODS_CONFIGURATION_BUILD_DIR}/GCDWebServer/GCDWebServer.framework/Headers" -iframework "${PODS_CONFIGURATION_BUILD_DIR}/GCDWebServer"
 OTHER_LDFLAGS = $(inherited) -ObjC -l"z" -framework "CFNetwork" -framework "GCDWebServer" -framework "MobileCoreServices" -framework "SBTUITestTunnelCommon" -framework "SBTUITestTunnelServer"
+OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_PODFILE_DIR_PATH = ${SRCROOT}/.
