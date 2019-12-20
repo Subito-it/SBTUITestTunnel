@@ -83,7 +83,8 @@ class NetworkRequests: NSObject {
         done = false
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                retResponse = (response as! HTTPURLResponse)
+                guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+                retResponse = httpResponse
                 retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 retData = data
                 
@@ -114,7 +115,8 @@ class NetworkRequests: NSObject {
         URLSession.shared.uploadTask(with: request, from: data) {
             data, response, error in
             DispatchQueue.main.async {
-                retResponse = (response as! HTTPURLResponse)
+                guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+                retResponse = httpResponse
                 retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 retData = data
                 
@@ -145,7 +147,8 @@ class NetworkRequests: NSObject {
         URLSession.shared.downloadTask(with: request) {
             dataUrl, response, error in
             DispatchQueue.main.async {
-                retResponse = (response as! HTTPURLResponse)
+                guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+                retResponse = httpResponse
                 retHeaders = (retResponse?.allHeaderFields as! [String: String])
                 if let dataUrl = dataUrl {
                     retData = try? Data(contentsOf: dataUrl)
@@ -242,6 +245,7 @@ extension NetworkRequests: URLSessionTaskDelegate, URLSessionDataDelegate {
     }
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        sessionResponse = (response as! HTTPURLResponse)
+        guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+        sessionResponse = httpResponse
     }
 }

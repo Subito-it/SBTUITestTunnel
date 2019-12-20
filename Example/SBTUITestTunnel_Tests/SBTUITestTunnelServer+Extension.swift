@@ -18,6 +18,10 @@ import SBTUITestTunnelServer
 
 extension SBTUITestTunnelServer {
     static func performCommand(_ commandName: String, params: [String: String]) -> String {
-        return SBTUITestTunnelServer.perform(NSSelectorFromString("performCommand:params:"), with: commandName, with: params)?.takeUnretainedValue() as! String
+        guard let result = SBTUITestTunnelServer.perform(NSSelectorFromString("performCommand:params:"), with: commandName, with: params)?.takeUnretainedValue() as? String else {
+            fatalError("Failed to cast to String")
+        }
+        
+        return result
     }
 }
