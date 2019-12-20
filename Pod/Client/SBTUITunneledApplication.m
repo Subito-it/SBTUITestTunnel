@@ -125,13 +125,6 @@
     return [self.client stubRequestsMatching:match response:response];
 }
 
-#pragma mark - Stub And Remove Commands
-
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
-{
-    return [self.client stubRequestsMatching:match response:response removeAfterIterations:iterations];
-}
-
 #pragma mark - Stub Remove Commands
 
 - (BOOL)stubRequestsRemoveWithId:(NSString *)stubId
@@ -159,13 +152,6 @@
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite
 {
     return [self.client rewriteRequestsMatching:match rewrite:rewrite];
-}
-
-#pragma mark - Rewrite And Remove Commands
-
-- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations
-{
-    return [self.client rewriteRequestsMatching:match rewrite:rewrite removeAfterIterations:iterations];
 }
 
 #pragma mark - Rewrite Remove Commands

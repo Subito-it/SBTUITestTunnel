@@ -223,18 +223,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
-    return [self stubRequestsMatching:match response:response removeAfterIterations:0];
-}
-
-#pragma mark - Stub And Remove Commands
-
-- (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
-{
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelStubResponseKey: [self base64SerializeObject:response]
                                                      };
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubMatching params:params];
 }
 
 #pragma mark - Stub Remove Commands
@@ -279,18 +272,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite
 {
-    return [self rewriteRequestsMatching:match rewrite:rewrite removeAfterIterations:0];
-}
-
-#pragma mark - Rewrite And Remove Commands
-
-- (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations
-{
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey: [self base64SerializeObject:match],
                                                      SBTUITunnelRewriteKey: [self base64SerializeObject:rewrite]
                                                      };
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteAndRemoveMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteMatching params:params];
 }
 
 #pragma mark - Rewrite Remove Commands
@@ -500,7 +486,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey: [self base64SerializeObject:match]};
     
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockMatching params:params];
 }
 
 - (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId

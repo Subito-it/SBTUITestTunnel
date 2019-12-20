@@ -79,13 +79,11 @@ NSString * const SBTUITunneledApplicationCommandQuit = @"commandQuit";
 NSString * const SBTUITunneledApplicationCommandCruising = @"commandCruising";
 
 NSString * const SBTUITunneledApplicationCommandStubMatching = @"commandStubMatching";
-NSString * const SBTUITunneledApplicationCommandStubAndRemoveMatching = @"commandStubAndRemoveMatching";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemove = @"commandStubRequestsRemove";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemoveAll = @"commandStubRequestsRemoveAll";
 NSString * const SBTUITunneledApplicationCommandStubRequestsAll = @"commandStubRequestsAll";
 
 NSString * const SBTUITunneledApplicationCommandRewriteMatching = @"commandRewriteMatching";
-NSString * const SBTUITunneledApplicationCommandRewriteAndRemoveMatching = @"commandRewriteAndRemoveMatching";
 NSString * const SBTUITunneledApplicationCommandRewriteRequestsRemove = @"commandRewriteRemove";
 NSString * const SBTUITunneledApplicationCommandRewriteRequestsRemoveAll = @"commandRewriteRemoveAll";
 
@@ -99,7 +97,6 @@ NSString * const SBTUITunneledApplicationCommandThrottleMatching = @"commandThro
 NSString * const SBTUITunneledApplicationCommandThrottleRemove = @"commandThrottleRemove";
 NSString * const SBTUITunneledApplicationCommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
 
-NSString * const SBTUITunneledApplicationCommandCookieBlockAndRemoveMatching = @"commandCookiesBlockAndRemoveMatching";
 NSString * const SBTUITunneledApplicationCommandCookieBlockRemove = @"commandCookiesBlockRemove";
 NSString * const SBTUITunneledApplicationCommandCookieBlockRemoveAll = @"commandCookiesBlockRemoveAll";
 

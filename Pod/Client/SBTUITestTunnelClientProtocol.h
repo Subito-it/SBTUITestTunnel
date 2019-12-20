@@ -84,19 +84,6 @@
  */
 - (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response;
 
-#pragma mark - Stub And Remove Commands
-
-/**
- *  Stub a request matching a regular expression pattern for a limited number of times. The rule is checked against the URL.absoluteString of the request
- *
- *  @param match The match object that contains the matching rules
- *  @param response The object that represents the stubbed response
- *  @param iterations number of matches after which the stub will be automatically removed
- *
- *  @return `YES` on success
- */
-- (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match response:(nonnull SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations;
-
 #pragma mark - Stub Remove Commands
 
 /**
@@ -142,19 +129,6 @@
  *  @return If nil request failed. Otherwise an identifier associated to the newly created rewrite. Should be used when removing rewrite using -(BOOL)rewriteRequestsRemoveWithId:
  */
 - (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite;
-
-#pragma mark - Rewrite And Remove Commands
-
-/**
- *  Rewrite a request matching a regular expression pattern for a limited number of times. The rule is checked against the SBTRequestMatch object
- *
- *  @param match The match object that contains the matching rules
- *  @param rewrite The object that represents the rewrite reules
- *  @param iterations number of matches after which the rewrite will be automatically removed
- *
- *  @return `YES` on success
- */
-- (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite removeAfterIterations:(NSUInteger)iterations;
 
 #pragma mark - Rewrite Remove Commands
 

@@ -283,18 +283,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: stubId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
-#pragma mark - Stub and Remove Commands
-
-- (NSDictionary *)commandStubAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
-{
-    NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
-    
-    if ([self validStubRequest:tunnelRequest]) {
-        ret = [self commandStubMatching:tunnelRequest];
-    }
-    
-    return ret;
-}
+#pragma mark - Stub Remove Commands
 
 - (NSDictionary *)commandStubRequestsRemove:(GCDWebServerRequest *)tunnelRequest
 {
@@ -312,6 +301,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
+
+#pragma mark - Stub Retrieve Commands
 
 - (NSDictionary *)commandStubRequestsAll:(GCDWebServerRequest *)tunnelRequest
 {
@@ -347,18 +338,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: rewriteId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
-#pragma mark - Rewrite and Remove Commands
-
-- (NSDictionary *)commandRewriteAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
-{
-    NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
-    
-    if ([self validRewriteRequest:tunnelRequest]) {
-        ret = [self commandRewriteMatching:tunnelRequest];
-    }
-    
-    return ret;
-}
+#pragma mark - Rewrite Remove Commands
 
 - (NSDictionary *)commandRewriteRemove:(GCDWebServerRequest *)tunnelRequest
 {
@@ -540,17 +520,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 }
 
 #pragma mark - Cookie Block Remove Commands
-
-- (NSDictionary *)commandCookiesBlockAndRemoveMatching:(GCDWebServerRequest *)tunnelRequest
-{
-    NSDictionary *ret = @{ SBTUITunnelResponseResultKey: @"NO" };
-    
-    if ([self validCookieBlockRequest:tunnelRequest]) {
-        ret = [self commandCookiesBlockMatching:tunnelRequest];
-    }
-    
-    return ret;
-}
 
 - (NSDictionary *)commandCookiesBlockRemove:(GCDWebServerRequest *)tunnelRequest
 {
