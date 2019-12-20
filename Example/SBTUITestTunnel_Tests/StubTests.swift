@@ -235,9 +235,9 @@ class StubTests: XCTestCase {
         let contentType = "application/test"
         let responseText = "expected text"
 
-        SBTStubResponse.setDefaultReturnCode(404)
-        SBTStubResponse.setDefaultResponseTime(5.0)
-        SBTStubResponse.setStringDefaultContentType(contentType)
+        SBTStubResponse.defaultReturnCode = 404
+        SBTStubResponse.defaultResponseTime = 5.0
+        SBTStubResponse.defaultStringContentType = contentType
 
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: responseText))
 

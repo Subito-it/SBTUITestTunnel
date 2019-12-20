@@ -40,23 +40,7 @@ static NSString *defaultNSDictionaryContentType;
 static NSString *defaultNSStringContentType;
 static NSString *defaultNSDataContentType;
 
-@interface SBTStubResponse()
-
-@property (nonatomic, strong) NSData *data;
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *headers;
-@property (nonatomic, strong) NSString *contentType;
-@property (nonatomic, assign) NSInteger returnCode;
-@property (nonatomic, assign) NSTimeInterval responseTime;
-@property (nonatomic, assign) NSInteger failureCode;
-
-@end
-
 @implementation SBTStubResponse : NSObject
-
-+ (void)initialize
-{
-    [self resetUnspecifiedDefaults];
-}
 
 - (instancetype)copyWithZone:(NSZone *)zone
 {
@@ -69,6 +53,7 @@ static NSString *defaultNSDataContentType;
         [copy setReturnCode:self.returnCode];
         [copy setResponseTime:self.responseTime];
         [copy setFailureCode:self.failureCode];
+        [copy setActiveIterations:self.activeIterations];
     }
 
     return copy;
@@ -82,8 +67,9 @@ static NSString *defaultNSDataContentType;
     NSInteger returnCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(returnCode))];
     NSTimeInterval responseTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(responseTime))];
     NSInteger failureCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(failureCode))];
+    NSInteger activeIterations = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(activeIterations))];
     
-    SBTStubResponse *ret = [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime];
+    SBTStubResponse *ret = [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime activeIterations:activeIterations];
     ret.failureCode = failureCode;
     return ret;
 }
@@ -96,13 +82,10 @@ static NSString *defaultNSDataContentType;
     [encoder encodeInteger:self.returnCode forKey:NSStringFromSelector(@selector(returnCode))];
     [encoder encodeDouble:self.responseTime forKey:NSStringFromSelector(@selector(responseTime))];
     [encoder encodeInteger:self.failureCode forKey:NSStringFromSelector(@selector(failureCode))];
+    [encoder encodeInteger:self.activeIterations forKey:NSStringFromSelector(@selector(activeIterations))];
 }
 
-- (instancetype)initWithResponse:(id)response
-                         headers:(NSDictionary<NSString *, NSString *> *)headers
-                     contentType:(NSString *)contentType
-                      returnCode:(NSInteger)returnCode
-                    responseTime:(NSTimeInterval)responseTime
+- (instancetype)initWithResponse:(id)response headers:(NSDictionary<NSString *, NSString *> *)headers contentType:(NSString *)contentType returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime activeIterations:(NSInteger)activeIterations
 {
     if ((self = [super init])) {
         _contentType = contentType;
@@ -139,95 +122,13 @@ static NSString *defaultNSDataContentType;
         _headers = mHeaders;
         _returnCode = returnCode;
         _responseTime = responseTime;
+        _activeIterations = activeIterations;
     }
     
     return self;
 }
 
-- (BOOL)isEqual:(SBTStubResponse *)other
-{
-    if (other == self) {
-        return YES;
-    } else if (![super isEqual:other]) {
-        return NO;
-    } else {
-        return
-            [self.data isEqual:other.data] &&
-            IsEqualToDictionary(self.headers, other.headers);
-            IsEqualToString(self.contentType, other.contentType) &&
-            self.returnCode == other.returnCode &&
-            self.responseTime == other.responseTime &&
-            self.failureCode == other.failureCode;
-    }
-}
-
-- (NSUInteger)hash
-{
-    return [self.data hash] ^ [self.headers hash] ^ [self.contentType hash] ^ self.returnCode ^ [@(self.responseTime) hash] ^ self.failureCode;
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-
-+ (instancetype)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime;
-{
-    SBTStubResponse *ret = [[SBTStubResponse alloc] initWithResponse:@"" responseTime:responseTime];
-    ret.failureCode = code;
-    
-    return ret;
-}
-
-- (instancetype)initWithResponse:(id)response;
-{
-    return [self initWithResponse:response headers:nil contentType:nil returnCode:defaultReturnCode responseTime:defaultResponseTime];
-}
-
-- (instancetype)initWithResponse:(id)response returnCode:(NSInteger)returnCode;
-{
-    return [self initWithResponse:response headers:nil contentType:nil returnCode:returnCode responseTime:defaultResponseTime];
-}
-
-- (instancetype)initWithResponse:(id)response responseTime:(NSTimeInterval)responseTime
-{
-    return [self initWithResponse:response headers:nil contentType:nil returnCode:defaultReturnCode responseTime:responseTime];
-}
-
-- (instancetype)initWithResponse:(id)response returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime
-{
-    return [self initWithResponse:response headers:nil contentType:nil returnCode:returnCode responseTime:responseTime];
-}
-
-- (instancetype)initWithResponse:(id)response contentType:(NSString *)contentType returnCode:(NSInteger)returnCode
-{
-    return [self initWithResponse:response headers:nil contentType:contentType returnCode:returnCode responseTime:defaultResponseTime];
-}
-
-- (instancetype)initWithResponse:(id)response headers:(NSDictionary<NSString *, NSString *> *)headers returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime
-{
-    return [self initWithResponse:response headers:headers contentType:nil returnCode:returnCode responseTime:responseTime];
-}
-
-- (instancetype)initWithFileNamed:(NSString *)filename
-{
-    return [self initWithFileNamed:filename headers:nil returnCode:defaultReturnCode responseTime:defaultResponseTime];
-}
-
-- (instancetype)initWithFileNamed:(NSString *)filename responseTime:(NSTimeInterval)responseTime
-{
-    return [self initWithFileNamed:filename headers:nil returnCode:defaultReturnCode responseTime:responseTime];
-}
-
-- (instancetype)initWithFileNamed:(NSString *)filename returnCode:(NSInteger)returnCode
-{
-    return [self initWithFileNamed:filename headers:nil returnCode:returnCode responseTime:defaultResponseTime];
-}
-
-- (instancetype)initWithFileNamed:(NSString *)filename returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime
-{
-    return [self initWithFileNamed:filename headers:nil returnCode:returnCode responseTime:responseTime];
-}
-
-- (instancetype)initWithFileNamed:(NSString *)filename headers:( NSDictionary<NSString *, NSString *> *)headers returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime
+- (instancetype)initWithFileNamed:(NSString *)filename headers:(NSDictionary<NSString *, NSString *> *)headers returnCode:(NSInteger)returnCode responseTime:(NSTimeInterval)responseTime activeIterations:(NSInteger)activeIterations
 {
     NSString *name = [filename stringByDeletingPathExtension];
     NSString *extension = [filename pathExtension];
@@ -260,43 +161,61 @@ static NSString *defaultNSDataContentType;
     
     NSAssert(contentType, @"Unknown file extension!");
     
-    return [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime];
+    return [self initWithResponse:data headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime activeIterations:activeIterations];
 }
 
-#pragma clang diagnostic pop
-
-#pragma mark - Accessors
-
-- (NSData *)data
++ (void)initialize
 {
-    return _data;
+    [self resetUnspecifiedDefaults];
 }
 
-- (NSString *)contentType
++ (instancetype)failureWithCustomErrorCode:(NSInteger)code responseTime:(NSTimeInterval)responseTime activeIterations:(NSInteger)activeIterations
 {
-    return _contentType;
+    SBTStubResponse *ret = [[SBTStubResponse alloc] initWithResponse:@"" headers:nil contentType:nil returnCode:defaultReturnCode responseTime:responseTime activeIterations:activeIterations];
+    ret.failureCode = code;
+
+    return ret;
 }
 
-- (NSDictionary *)headers
+#pragma mark - NSObject protocol
+
+- (BOOL)isEqual:(SBTStubResponse *)other
 {
-    return _headers;
+    if (other == self) {
+        return YES;
+    } else if (![super isEqual:other]) {
+        return NO;
+    } else {
+        return
+            [self.data isEqual:other.data] &&
+            IsEqualToDictionary(self.headers, other.headers);
+            IsEqualToString(self.contentType, other.contentType) &&
+            self.returnCode == other.returnCode &&
+            self.responseTime == other.responseTime &&
+            self.failureCode == other.failureCode;
+    }
 }
 
-- (NSInteger)returnCode
+- (NSUInteger)hash
 {
-    return _returnCode;
-}
-
-- (NSTimeInterval)responseTime
-{
-    return _responseTime;
+    return [self.data hash] ^ [self.headers hash] ^ [self.contentType hash] ^ self.returnCode ^ [@(self.responseTime) hash] ^ self.failureCode;
 }
 
 #pragma mark - Default overriders
 
++ (NSTimeInterval)defaultResponseTime
+{
+    return defaultResponseTime;
+}
+
 + (void)setDefaultResponseTime:(NSTimeInterval)responseTime
 {
     defaultResponseTime = responseTime;
+}
+
++ (NSInteger)defaultReturnCode
+{
+    return defaultReturnCode;
 }
 
 + (void)setDefaultReturnCode:(NSInteger)returnCode
@@ -304,17 +223,32 @@ static NSString *defaultNSDataContentType;
     defaultReturnCode = returnCode;
 }
 
-+ (void)setDictionaryDefaultContentType:(NSString *)contentType
++ (NSString *)defaultDictionaryContentType
+{
+    return defaultNSDictionaryContentType;
+}
+
++ (void)setDefaultDictionaryContentType:(NSString *)contentType
 {
     defaultNSDictionaryContentType = contentType;
 }
 
-+ (void)setDataDefaultContentType:(NSString *)contentType
++ (NSString *)defaultDataContentType
+{
+    return defaultNSDataContentType;
+}
+
++ (void)setDefaultDataContentType:(NSString *)contentType
 {
     defaultNSDataContentType = contentType;
 }
 
-+ (void)setStringDefaultContentType:(NSString *)contentType
++ (NSString *)defaultStringContentType
+{
+    return defaultNSStringContentType;
+}
+
++ (void)setDefaultStringContentType:(NSString *)contentType
 {
     defaultNSStringContentType = contentType;
 }
