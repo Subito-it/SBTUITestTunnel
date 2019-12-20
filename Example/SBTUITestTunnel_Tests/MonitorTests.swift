@@ -100,7 +100,7 @@ class MonitorTests: XCTestCase {
     }
     
     func testMonitorAndStub() {
-        //app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
@@ -121,7 +121,7 @@ class MonitorTests: XCTestCase {
     }
     
     func testMonitorAndStubDescription() {
-        //app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         app.monitorRequests(matching: SBTRequestMatch(url: ".*"))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
@@ -141,7 +141,7 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorAndStubWithRemoveAfterTwoIterations() {
-        //app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]), removeAfterIterations: 2)
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
