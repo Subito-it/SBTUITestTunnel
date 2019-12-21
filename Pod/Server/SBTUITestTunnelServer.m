@@ -1137,38 +1137,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 }
 
-- (NSString *)identifierForStubRequest:(GCDWebServerRequest *)tunnelRequest
-{
-    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubMatchRuleKey] options:0];
-    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-    return [@"stub-" stringByAppendingString:requestMatch.identifier];
-}
-
-- (NSString *)identifierForRewriteRequest:(GCDWebServerRequest *)tunnelRequest
-{
-    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
-    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-    return [@"rewrite-" stringByAppendingString:requestMatch.identifier];
-}
-
 - (NSString *)identifierForCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
 {
     NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
     SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
     return [@"cookie_block-" stringByAppendingString:requestMatch.identifier];
-}
-
-- (SBTStubResponse *)responseForStubRequest:(GCDWebServerRequest *)tunnelRequest
-{
-    NSData *stubResponseData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelStubResponseKey] options:0];
-    SBTStubResponse *stubResponse = [NSKeyedUnarchiver unarchiveObjectWithData:stubResponseData];
-
-    if (![stubResponse isKindOfClass:[SBTStubResponse class]]) {
-        NSLog(@"[UITestTunnelServer] serialize response data");
-        return nil;
-    }
-
-    return stubResponse;
 }
 
 - (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest
@@ -1180,19 +1153,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     return YES;
-}
-
-- (SBTRewrite *)rewriteForRequest:(GCDWebServerRequest *)tunnelRequest
-{
-    NSData *rewriteData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelRewriteKey] options:0];
-    SBTRewrite *rewrite = [NSKeyedUnarchiver unarchiveObjectWithData:rewriteData];
-    
-    if (![rewrite isKindOfClass:[SBTRewrite class]]) {
-        NSLog(@"[UITestTunnelServer] serialize response data");
-        return nil;
-    }
-    
-    return rewrite;
 }
 
 - (BOOL)validRewriteRequest:(GCDWebServerRequest *)tunnelRequest
