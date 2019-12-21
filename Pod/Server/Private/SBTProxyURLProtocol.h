@@ -23,10 +23,10 @@
 #if ENABLE_UITUNNEL
 
 #import <Foundation/Foundation.h>
-#import <SBTUITestTunnelCommon/SBTRequestMatch.h>
 
-@class SBTStubResponse;
 @class SBTRewrite;
+@class SBTRequestMatch;
+@class SBTStubResponse;
 @class SBTMonitoredNetworkRequest;
 
 @interface SBTProxyURLProtocol : NSURLProtocol

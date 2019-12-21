@@ -15,15 +15,14 @@
 // limitations under the License.
 
 #if DEBUG
-#ifndef ENABLE_UITUNNEL
-#define ENABLE_UITUNNEL 1
-#endif
+    #ifndef ENABLE_UITUNNEL
+        #define ENABLE_UITUNNEL 1
+    #endif
 #endif
 
 #if ENABLE_UITUNNEL
 
 #import <SBTUITestTunnelCommon/SBTRequestMatch.h>
-#import <SBTUITestTunnelCommon/SBTRewrite.h>
 #import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
 #import <CoreLocation/CLLocation.h>

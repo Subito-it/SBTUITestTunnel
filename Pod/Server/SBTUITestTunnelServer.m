@@ -23,9 +23,9 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTUITestTunnelServer.h"
+#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
 #import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
 #import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
-#import <SBTUITestTunnelCommon/SBTRewrite.h>
 #import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
 #import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <GCDWebServer/GCDWebServer.h>
