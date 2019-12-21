@@ -25,22 +25,22 @@ class RewriteTests: XCTestCase {
     
     func testURLRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
-
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
-
+        
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-
+        
         let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         
         XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
-
+    
     func testURLRewriteAndThrottle() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         app.throttleRequests(matching: requestMatch, responseTime: 5.0)
@@ -56,8 +56,8 @@ class RewriteTests: XCTestCase {
     func testURLRewriteAndThrottleAndMonitor() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         app.throttleRequests(matching: requestMatch, responseTime: 5.0)
@@ -81,8 +81,8 @@ class RewriteTests: XCTestCase {
         // change the order of app.requests
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         app.monitorRequests(matching: requestMatch)
@@ -103,29 +103,28 @@ class RewriteTests: XCTestCase {
     }
     
     func testURLRewriteAndRemove() {
-        #warning("TODO")
-//        // change the order of app.requests
-//        let requestMatch = SBTRequestMatch(url: "httpbin.org")
-//
-//        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-//                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")],
-//                                 activeIterations: 1)
-//
-//        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-//
-//        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
-//
-//        let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-//        XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        // change the order of app.requests
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")],
+                                 activeIterations: 1)
+        
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+        
+        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        
+        let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
     }
-
+    
     func testURLRewriteAndRemoveSpecific() {
         // change the order of app.requests
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
         
         let requestId = app.rewriteRequests(matching: requestMatch, rewrite: rewrite) ?? ""
         
@@ -140,8 +139,8 @@ class RewriteTests: XCTestCase {
         // change the order of app.requests
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let rewrite = SBTRewrite(requestUrlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
-                                                         SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param2=val2", replace: "param2a=val2a"),
+                                                  SBTRewriteReplacement(find: "param1=val1", replace: "param1a=val1a")])
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
@@ -151,7 +150,7 @@ class RewriteTests: XCTestCase {
         let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
     }
-
+    
     func testRequestBodyRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
@@ -161,7 +160,7 @@ class RewriteTests: XCTestCase {
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "This is a test where I want to replace param2_val2 and param1_val1")
-
+        
         
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
@@ -175,11 +174,11 @@ class RewriteTests: XCTestCase {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
         let rewrite = SBTRewrite(requestHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "newVal", "Accept-Language": "it-it", "remove_param": ""])
-
+        
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
-
+        
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get", requestHeaders: ["param1": "val1", "param2": "val2", "remove_param": "value"])
-
+        
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
         let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
@@ -191,13 +190,13 @@ class RewriteTests: XCTestCase {
         XCTAssertEqual(headers["Accept-Language"] as? String, "it-it")
         XCTAssertFalse(headers.keys.contains("remove_param"))
     }
-
+    
     func testResponseBodyRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
         let rewrite = SBTRewrite(responseReplacement: [SBTRewriteReplacement(find: "httpbin.org", replace: "myserver.com"),
                                                        SBTRewriteReplacement(find: "Accept-Language", replace: "Accept-Language222")])
-
+        
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/gzip")
@@ -205,7 +204,7 @@ class RewriteTests: XCTestCase {
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
         let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
-    
+        
         let rewrittenBody = dict["headers"] as! [String: String]
         
         XCTAssert(rewrittenBody.keys.contains("Accept-Language222"))
@@ -228,7 +227,7 @@ class RewriteTests: XCTestCase {
         XCTAssertEqual(headers["param4"], "val4")
         XCTAssertFalse(headers.keys.contains("param3"))
     }
-
+    
     func testResponseStatusCodeRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         

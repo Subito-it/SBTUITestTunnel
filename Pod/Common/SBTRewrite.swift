@@ -23,7 +23,7 @@ public class SBTRewrite: NSObject, NSCoding {
     private let responseReplacement: [SBTRewriteReplacement]
     private let requestHeadersReplacement: [String: String]
     private let responseHeadersReplacement: [String: String]
-    private let responseCode: Int
+    private let responseStatusCode: Int
     private let activeIterations: Int
     
     override public var description: String {
@@ -33,8 +33,8 @@ public class SBTRewrite: NSObject, NSCoding {
         description += responseReplacement.map { "Response body replacement: \($0)" }
         description += responseHeadersReplacement.map { "Response header replacement: `\($0.key)` -> `\($0.value)`" }
         
-        if responseCode > -1 {
-            description += ["Response code replacement: \(responseCode)"]
+        if responseStatusCode > -1 {
+            description += ["Response code replacement: \(responseStatusCode)"]
         }
         
         description += requestReplacement.map { "Request body replacement: \($0)" }
@@ -48,13 +48,13 @@ public class SBTRewrite: NSObject, NSCoding {
       fatalError()
     }
     
-    @objc public init(urlReplacement: [SBTRewriteReplacement] = [], requestReplacement: [SBTRewriteReplacement] = [], requestHeadersReplacement: [String: String] = [:], responseReplacement: [SBTRewriteReplacement] = [], responseHeadersReplacement: [String: String] = [:], responseCode: Int = -1, activeIterations: Int = 0) {
+    @objc public init(urlReplacement: [SBTRewriteReplacement] = [], requestReplacement: [SBTRewriteReplacement] = [], requestHeadersReplacement: [String: String] = [:], responseReplacement: [SBTRewriteReplacement] = [], responseHeadersReplacement: [String: String] = [:], responseStatusCode: Int = -1, activeIterations: Int = 0) {
         self.urlReplacement = urlReplacement
         self.requestReplacement = requestReplacement
         self.responseReplacement = responseReplacement
         self.requestHeadersReplacement = requestHeadersReplacement
         self.responseHeadersReplacement = responseHeadersReplacement
-        self.responseCode = responseCode
+        self.responseStatusCode = responseStatusCode
         self.activeIterations = activeIterations
     }
 
@@ -64,7 +64,7 @@ public class SBTRewrite: NSObject, NSCoding {
         coder.encode(responseReplacement, forKey: "responseReplacement")
         coder.encode(requestHeadersReplacement, forKey: "requestHeadersReplacement")
         coder.encode(responseHeadersReplacement, forKey: "responseHeadersReplacement")
-        coder.encode(responseCode, forKey: "responseCode")
+        coder.encode(responseStatusCode, forKey: "responseCode")
         coder.encode(activeIterations, forKey: "activeIterations")
     }
     
@@ -82,7 +82,7 @@ public class SBTRewrite: NSObject, NSCoding {
         self.responseReplacement = responseReplacement
         self.requestHeadersReplacement = requestHeadersReplacement
         self.responseHeadersReplacement = responseHeadersReplacement
-        self.responseCode = coder.decodeInteger(forKey: "responseCode")
+        self.responseStatusCode = coder.decodeInteger(forKey: "responseCode")
         self.activeIterations = coder.decodeInteger(forKey: "activeIterations")
     }
     
@@ -154,6 +154,6 @@ public class SBTRewrite: NSObject, NSCoding {
 
     @objc(rewriteStatusCode:)
     public func rewrite(statusCode: Int) -> Int {
-        return responseCode < 0 ? statusCode : responseCode
+        return responseStatusCode < 0 ? statusCode : responseStatusCode
     }
 }
