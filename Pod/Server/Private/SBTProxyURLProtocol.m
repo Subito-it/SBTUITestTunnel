@@ -485,6 +485,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                     [client URLProtocolDidFinishLoading:strongSelf];
                 }
             }
+            
+            if (stubResponse.activeIterations > 0) {
+                if (--stubResponse.activeIterations == 0) {
+                    [SBTProxyURLProtocol stubRequestsRemoveWithId:[@"stb-" stringByAppendingString:requestMatch.identifier]];
+                }
+            }
         });
         
         return;
@@ -647,25 +653,31 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     if ([self rewriteRuleForCurrentRequest] != nil) {
         // if we're rewriting the request we will send only a didReceiveResponse callback after rewriting content once everything was received
     } else if (headersStubRequest != nil) {
-        SBTRequestMatch *match = headersStubRequest[SBTProxyURLProtocolMatchingRuleKey];
+        SBTRequestMatch *requestMatch = headersStubRequest[SBTProxyURLProtocolMatchingRuleKey];
         
         BOOL headersMatch = YES;
         
         NSDictionary *requestHeaders = dataTask.currentRequest.allHTTPHeaderFields ?: @{};
-        if (match.requestHeaders.count > 0) {
-            headersMatch &= [self expectedHeadersRegexDictionary:match.requestHeaders matchesHeaders:requestHeaders];
+        if (requestMatch.requestHeaders.count > 0) {
+            headersMatch &= [self expectedHeadersRegexDictionary:requestMatch.requestHeaders matchesHeaders:requestHeaders];
         }
         
         NSDictionary *responseHeaders = @{};
-        if (match.responseHeaders.count > 0 && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+        if (requestMatch.responseHeaders.count > 0 && [response isKindOfClass:[NSHTTPURLResponse class]]) {
             responseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
             
-            headersMatch &= [self expectedHeadersRegexDictionary:match.responseHeaders matchesHeaders:responseHeaders];
+            headersMatch &= [self expectedHeadersRegexDictionary:requestMatch.responseHeaders matchesHeaders:responseHeaders];
+        }
+        
+        SBTStubResponse *stubResponse = headersStubRequest[SBTProxyURLProtocolStubResponse];
+        
+        if (stubResponse.activeIterations > 0) {
+            if (--stubResponse.activeIterations == 0) {
+                [SBTProxyURLProtocol stubRequestsRemoveWithId:[@"stb-" stringByAppendingString:requestMatch.identifier]];
+            }
         }
         
         if (headersMatch) {
-            SBTStubResponse *stubResponse = headersStubRequest[SBTProxyURLProtocolStubResponse];
-            
             [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [self.client URLProtocol:self didLoadData:stubResponse.data];
             [self.client URLProtocolDidFinishLoading:self];
