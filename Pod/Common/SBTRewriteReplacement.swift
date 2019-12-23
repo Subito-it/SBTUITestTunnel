@@ -17,11 +17,11 @@
 import Foundation
 
 @objc
-public class SBTRewriteReplacement: NSObject, NSCoding {
+public class SBTRewriteReplacement: NSObject, NSCoding, NSCopying {
     private let findData: Data
     private let replaceData: Data
     
-    override public var description: String {
+    public override var description: String {
         let findString = String(decoding: findData, as: UTF8.self)
         let replaceString = String(decoding: replaceData, as: UTF8.self)
             
@@ -33,12 +33,12 @@ public class SBTRewriteReplacement: NSObject, NSCoding {
       fatalError()
     }
 
-    public func encode(with coder: NSCoder) {
+    @objc public func encode(with coder: NSCoder) {
         coder.encode(findData, forKey: "findData")
         coder.encode(replaceData, forKey: "replaceData")
     }
     
-    public required init?(coder: NSCoder) {
+    @objc public required init?(coder: NSCoder) {
         guard let findData = coder.decodeObject(forKey: "findData") as? Data,
               let replaceData = coder.decodeObject(forKey: "replaceData") as? Data else {
             return nil
@@ -58,6 +58,14 @@ public class SBTRewriteReplacement: NSObject, NSCoding {
     public init(find: String, replace: String) {
         self.findData = Data(find.utf8)
         self.replaceData = Data(replace.utf8)
+    }
+    
+    @objc public func copy(with zone: NSZone? = nil) -> Any {
+        let findString = String(decoding: findData, as: UTF8.self)
+        let replaceString = String(decoding: replaceData, as: UTF8.self)
+
+        let copy = SBTRewriteReplacement(find: findString, replace: replaceString)
+        return copy
     }
     
     /**
