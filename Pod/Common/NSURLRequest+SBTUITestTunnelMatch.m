@@ -22,6 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
+#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTUITestTunnel.h"
 

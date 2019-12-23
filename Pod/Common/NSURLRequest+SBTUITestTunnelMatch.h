@@ -23,7 +23,10 @@
 #if ENABLE_UITUNNEL
 
 #import <Foundation/Foundation.h>
-#import "SBTRequestMatch.h"
+
+@class SBTRequestMatch;
+
+// FIXME: This should actually be a category on SBTUITestTunnelMatch matching agains NSURLRequests
 
 @interface NSURLRequest (SBTUITestTunnelMatch)
 
