@@ -27,7 +27,6 @@
 #import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
 #import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
-#import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>

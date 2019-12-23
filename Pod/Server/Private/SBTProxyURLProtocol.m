@@ -23,8 +23,6 @@
 #if ENABLE_UITUNNEL
 
 #import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
-#import <SBTUITestTunnelCommon/SBTRequestMatch.h>
-#import <SBTUITestTunnelCommon/SBTStubResponse.h>
 #import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
 #import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #import "SBTProxyURLProtocol.h"

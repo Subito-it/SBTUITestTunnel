@@ -23,7 +23,6 @@
 #if ENABLE_UITUNNEL
 
 #import "SBTMonitoredNetworkRequest.h"
-#import "SBTRequestMatch.h"
 #import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSData+gzip.h"
 
