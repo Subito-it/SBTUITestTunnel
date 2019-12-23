@@ -133,6 +133,8 @@ class MiscellaneousTests: XCTestCase {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
         
+        Thread.sleep(forTimeInterval: 3.0)
+        
         app.terminate()
         
         app.launchTunnel()
