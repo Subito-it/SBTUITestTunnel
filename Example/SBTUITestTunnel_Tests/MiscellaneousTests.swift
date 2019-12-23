@@ -88,7 +88,7 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
-        let response = SBTStubResponse(fileNamed: "test_file.json")
+        let response = SBTStubResponse(filename: "test_file.json")
         app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
         

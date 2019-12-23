@@ -37,7 +37,7 @@ class CookiesTest: XCTestCase {
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
-        app.blockCookiesInRequests(matching: requestMatch, iterations: 1)
+        app.blockCookiesInRequests(matching: requestMatch, activeIterations: 1)
         XCTAssertEqual(countCookies(), 0)
         XCTAssertEqual(countCookies(), 1)
     }

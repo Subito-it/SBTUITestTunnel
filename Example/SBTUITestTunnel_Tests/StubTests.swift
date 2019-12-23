@@ -434,7 +434,7 @@ class StubTests: XCTestCase {
         let stubs1 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs1.count, 1)
-        XCTAssertEqual("stb-" + Array(stubs1.keys)[0].identifier!, stubId1)
+        XCTAssertEqual("stb-" + Array(stubs1.keys)[0].identifier(), stubId1)
 
         let match2 = SBTRequestMatch(url: "httpbin2.org")
         let stubId2 = self.app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
@@ -442,21 +442,108 @@ class StubTests: XCTestCase {
         let stubs2 = app.stubRequestsAll()
 
         XCTAssertEqual(stubs2.count, 2)
-        XCTAssertEqual("stb-" + Array(stubs2.keys)[0].identifier!, stubId1)
-        XCTAssertEqual("stb-" + Array(stubs2.keys)[1].identifier!, stubId2)
+        XCTAssertEqual("stb-" + Array(stubs2.keys)[0].identifier(), stubId1)
+        XCTAssertEqual("stb-" + Array(stubs2.keys)[1].identifier(), stubId2)
         
         app.stubRequestsRemove(withId: stubId1)
         
         let stubs3 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs3.count, 1)
-        XCTAssertEqual("stb-" + Array(stubs3.keys)[0].identifier!, stubId2)
+        XCTAssertEqual("stb-" + Array(stubs3.keys)[0].identifier(), stubId2)
 
         app.stubRequestsRemoveAll()
         
         let stubs4 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs4.count, 0)
+    }
+    
+    func testStubActiveCount() {
+        let match1 = SBTRequestMatch(url: "httpbin.org", method: "GET")
+        _ = self.app.stubRequests(matching: match1, response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))!
+        let match2 = SBTRequestMatch(url: "httpbin.org", method: "POST")
+        _ = self.app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let stubs1 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs1[match1]?.activeIterations, 2)
+        XCTAssertEqual(stubs1[match2]?.activeIterations, 0)
+        
+        let result1 = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(self.request.isStubbed(result1))
+        
+        let stubs2 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs2[match1]?.activeIterations, 1)
+        XCTAssertEqual(stubs2[match2]?.activeIterations, 0)
+
+        let result2 = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssert(self.request.isStubbed(result2))
+        
+        let stubs3 = app.stubRequestsAll()
+        
+        XCTAssertNil(stubs3[match1])
+        XCTAssertEqual(stubs2[match2]?.activeIterations, 0)
+        
+        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        XCTAssert(request.isStubbed(result3))
+
+        let stubs4 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs4[match2]?.activeIterations, 0)
+        
+        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        XCTAssert(request.isStubbed(result4))
+
+        let stubs5 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs5[match2]?.activeIterations, 0)
+    }
+    
+    func testStubActiveCountRemoving() {
+        let match1 = SBTRequestMatch(url: "httpbin.org", method: "GET")
+        let stubId1 = self.app.stubRequests(matching: match1, response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))!
+        let match2 = SBTRequestMatch(url: "httpbin.org", method: "POST")
+        let stubId2 = self.app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let stubs1 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs1[match1]?.activeIterations, 2)
+        XCTAssertEqual(stubs1[match2]?.activeIterations, 0)
+        
+        self.app.stubRequestsRemove(withId: stubId1)
+        
+        let stubs2 = app.stubRequestsAll()
+
+        XCTAssertNil(stubs2[match1])
+        XCTAssertEqual(stubs2[match2]?.activeIterations, 0)
+
+        self.app.stubRequestsRemove(withId: stubId2)
+        
+        let stubs3 = app.stubRequestsAll()
+
+        XCTAssertNil(stubs3[match1])
+        XCTAssertNil(stubs3[match2])
+    }
+    
+    func testStubActiveCountRemovingAll() {
+        let match1 = SBTRequestMatch(url: "httpbin.org", method: "GET")
+        _ = self.app.stubRequests(matching: match1, response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))!
+        let match2 = SBTRequestMatch(url: "httpbin.org", method: "POST")
+        _ = self.app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
+        
+        let stubs1 = app.stubRequestsAll()
+        
+        XCTAssertEqual(stubs1[match1]?.activeIterations, 2)
+        XCTAssertEqual(stubs1[match2]?.activeIterations, 0)
+        
+        self.app.stubRequestsRemoveAll()
+        
+        let stubs2 = app.stubRequestsAll()
+
+        XCTAssertNil(stubs2[match1])
+        XCTAssertNil(stubs2[match2])
     }
 }
 
