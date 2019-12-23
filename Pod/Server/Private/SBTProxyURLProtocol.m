@@ -619,7 +619,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             monitoredRequest.request = request ?: task.currentRequest;
             monitoredRequest.originalRequest = originalRequest ?: task.originalRequest;
             
-            monitoredRequest.response = (NSHTTPURLResponse *)response;
+            monitoredRequest.response = (NSHTTPURLResponse *)strongSelf.response;
             
             monitoredRequest.responseData = responseData;
             
