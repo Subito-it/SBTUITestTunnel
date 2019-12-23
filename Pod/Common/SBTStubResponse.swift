@@ -114,12 +114,12 @@ import Foundation
         self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
     }
 
-    @objc public convenience init(filename: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
-        self.init(filename: filename, headers: headers, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
+    @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
+        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
     }
 
-    @objc public convenience init(filename: String, headers: [String: String]? = nil, returnCode: Int = -1, activeIterations: Int = 0) {
-        self.init(filename: filename, headers: headers, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
+    @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, activeIterations: Int = 0) {
+        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
     }
     
     @objc static func makeFailureStubResponse(errorCode: Int, responseTime: TimeInterval, activeIterations: Int = 0) -> SBTStubResponse {
@@ -199,8 +199,8 @@ import Foundation
     *  - .htm*: text/html
     *  - .txt: text/plain
     */
-    public convenience init(filename: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
-        guard let url = URL(string: filename) else {
+    public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+        guard let url = URL(string: fileNamed) else {
             fatalError("Invalid filename provided")
         }
         
