@@ -26,7 +26,7 @@ public class SBTRewrite: NSObject, NSCoding {
     private let responseStatusCode: Int
     private let activeIterations: Int
     
-    override public var description: String {
+    public override var description: String {
         var description = [String]()
         
         description += urlReplacement.map { "URL replacement: \($0)" }
@@ -39,6 +39,9 @@ public class SBTRewrite: NSObject, NSCoding {
         
         description += requestReplacement.map { "Request body replacement: \($0)" }
         description += requestHeadersReplacement.map { "Request header replacement: `\($0.key)` -> `\($0.value)`" }
+        if activeIterations > 0 {
+            description += ["Iterations left: \(activeIterations)"]
+        }
         
         return description.joined(separator: "\n")
     }
