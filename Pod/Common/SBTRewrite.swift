@@ -110,7 +110,7 @@ public class SBTRewrite: NSObject, NSCoding {
         guard urlReplacement.count > 0 else { return url }
         
         var absoluteString = url.absoluteString
-        requestReplacement.forEach { absoluteString = $0.replace(string: absoluteString) }
+        urlReplacement.forEach { absoluteString = $0.replace(string: absoluteString) }
         
         return URL(string: absoluteString) ?? url
     }
