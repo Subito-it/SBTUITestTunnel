@@ -48,12 +48,23 @@ public class SBTRewriteReplacement: NSObject, NSCoding {
         self.replaceData = replaceData
     }
         
+    /**
+    *  Initializer
+    *
+    *  @param find a string regex that search for a string
+    *  @param replace a string that replaces the string matched by find
+    */
     @objc(initWithFind:replace:)
     public init(find: String, replace: String) {
         self.findData = Data(find.utf8)
         self.replaceData = Data(replace.utf8)
     }
     
+    /**
+    *  Process a string by applying replacement specified in initializer
+    *
+    *  @param string string to replace
+    */
     @objc(replace:)
     public func replace(string: String) -> String {
         let findString = String(decoding: findData, as: UTF8.self)
