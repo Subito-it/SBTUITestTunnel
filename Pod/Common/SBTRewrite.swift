@@ -18,13 +18,13 @@ import Foundation
 
 @objc
 public class SBTRewrite: NSObject, NSCoding {
-    private let urlReplacement: [SBTRewriteReplacement]
-    private let requestReplacement: [SBTRewriteReplacement]
-    private let responseReplacement: [SBTRewriteReplacement]
-    private let requestHeadersReplacement: [String: String]
-    private let responseHeadersReplacement: [String: String]
-    private let responseStatusCode: Int
-    private let activeIterations: Int
+    @objc public var urlReplacement: [SBTRewriteReplacement]
+    @objc public var requestReplacement: [SBTRewriteReplacement]
+    @objc public var responseReplacement: [SBTRewriteReplacement]
+    @objc public var requestHeadersReplacement: [String: String]
+    @objc public var responseHeadersReplacement: [String: String]
+    @objc public var responseStatusCode: Int
+    @objc public var activeIterations: Int
     
     public override var description: String {
         var description = [String]()
