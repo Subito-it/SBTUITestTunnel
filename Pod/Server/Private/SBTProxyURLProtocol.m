@@ -520,7 +520,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [self moveCookiesToHeader:newRequest];
         }
         
-        SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
+        SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest][SBTProxyURLProtocolRewriteResponse];
         if (rewrite != nil) {
             newRequest.URL = [rewrite rewriteUrl:newRequest.URL];
             newRequest.allHTTPHeaderFields = [rewrite rewriteRequestHeaders:newRequest.allHTTPHeaderFields];
@@ -576,9 +576,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     NSURLRequest *request = self.request;
-    NSURLResponse *response = self.response;
-    SBTRewrite *rewrite = [self rewriteRuleForCurrentRequest];
-    BOOL isRequestRewritten = (rewrite != nil);
+    NSDictionary *rewriteRule = [self rewriteRuleForCurrentRequest];
+    BOOL isRequestRewritten = (rewriteRule != nil);
     
     NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
         
@@ -589,12 +588,17 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     self.response = task.response;
     
     if (isRequestRewritten) {
+        SBTRewrite *rewrite = rewriteRule[SBTProxyURLProtocolRewriteResponse];
         responseData = [rewrite rewriteResponseBody:responseData];
         NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
         if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
             NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
             NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
             self.response = [[NSHTTPURLResponse alloc] initWithURL:taskResponse.URL statusCode:statusCode HTTPVersion:nil headerFields:headers];
+        }
+        
+        if (--rewrite.activeIterations == 0) {
+            [SBTProxyURLProtocol rewriteRequestsRemoveWithId:[SBTProxyURLProtocol identifierForRule:rewriteRule]];
         }
     }
     
@@ -626,7 +630,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         if (isRequestRewritten) {
-            [weakSelf.client URLProtocol:weakSelf didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [weakSelf.client URLProtocol:weakSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
         }
         
@@ -772,12 +776,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return [prefix stringByAppendingString:identifier];
 }
 
-- (SBTRewrite *)rewriteRuleForCurrentRequest
+- (NSDictionary *)rewriteRuleForCurrentRequest
 {
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     for (NSDictionary *matchingRule in matchingRules) {
         if (matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
-            return matchingRule[SBTProxyURLProtocolRewriteResponse];
+            return matchingRule;
         }
     }
     
