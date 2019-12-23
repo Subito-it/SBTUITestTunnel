@@ -244,9 +244,9 @@
     return [self.client blockCookiesInRequestsMatching:match];
 }
 
-- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match activeIterations:(NSUInteger)iterations
 {
-    return [self.client blockCookiesInRequestsMatching:match iterations:iterations];
+    return [self.client blockCookiesInRequestsMatching:match activeIterations:iterations];
 }
 
 - (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId

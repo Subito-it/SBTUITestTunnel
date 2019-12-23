@@ -34,6 +34,7 @@ static NSString * const SBTProxyURLProtocolDelayResponseTimeKey = @"SBTProxyURLP
 static NSString * const SBTProxyURLProtocolStubResponse = @"SBTProxyURLProtocolStubResponse";
 static NSString * const SBTProxyURLProtocolRewriteResponse = @"SBTProxyURLProtocolRewriteResponse";
 static NSString * const SBTProxyURLProtocolBlockCookiesKey = @"SBTProxyURLProtocolBlockCookiesKey";
+static NSString * const SBTProxyURLProtocolBlockCookiesActiveIterationsKey  = @"SBTProxyURLProtocolBlockCookiesActiveIterationsKey";
 
 typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
@@ -315,9 +316,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 #pragma mark - Cookie Block Requests
 
-+ (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match;
++ (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match activeIterations:(NSInteger)activeIterations
 {
-    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES)};
+    NSDictionary *rule = @{SBTProxyURLProtocolMatchingRuleKey: match, SBTProxyURLProtocolBlockCookiesKey: @(YES), SBTProxyURLProtocolBlockCookiesActiveIterationsKey: @(activeIterations)};
     NSString *identifierToAdd = [self identifierForRule:rule];
     
     @synchronized (self.sharedInstance) {
@@ -508,6 +509,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         if (cookieBlockRule != nil) {
             [newRequest addValue:@"" forHTTPHeaderField:@"Cookie"];
+            NSInteger cookieBlockActiveIterations = [cookieBlockRule[SBTProxyURLProtocolBlockCookiesActiveIterationsKey] integerValue];
+            
+            if (--cookieBlockActiveIterations == 0) {
+                [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:[SBTProxyURLProtocol identifierForRule:cookieBlockRule]];
+            } else {
+                //cookieBlockRule[SBTProxyURLProtocolBlockCookiesActiveIterationsKey] = @(cookieBlockActiveIterations);
+            }
         } else {
             [self moveCookiesToHeader:newRequest];
         }

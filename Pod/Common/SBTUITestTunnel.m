@@ -52,6 +52,7 @@ NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
 NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
 
 NSString * const SBTUITunnelCookieBlockMatchRuleKey = @"rule";
+NSString * const SBTUITunnelCookieBlockQueryIterationsKey = @"iterations";
 
 NSString * const SBTUITunnelObjectKey = @"obj";
 NSString * const SBTUITunnelObjectValueKey = @"obj_value";
@@ -97,6 +98,7 @@ NSString * const SBTUITunneledApplicationCommandThrottleMatching = @"commandThro
 NSString * const SBTUITunneledApplicationCommandThrottleRemove = @"commandThrottleRemove";
 NSString * const SBTUITunneledApplicationCommandThrottleRemoveAll = @"commandThrottlesRemoveAll";
 
+NSString * const SBTUITunneledApplicationCommandCookieBlockMatching = @"commandCookiesBlockMatching";
 NSString * const SBTUITunneledApplicationCommandCookieBlockRemove = @"commandCookiesBlockRemove";
 NSString * const SBTUITunneledApplicationCommandCookieBlockRemoveAll = @"commandCookiesBlockRemoveAll";
 

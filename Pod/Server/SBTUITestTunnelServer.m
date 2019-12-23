@@ -505,14 +505,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCookiesBlockMatching:(GCDWebServerRequest *)tunnelRequest
 {
-    __block NSString *cookieBlockId = @"";
+    NSString *cookieBlockId = @"";
     SBTRequestMatch *requestMatch = nil;
     
     if ([self validCookieBlockRequest:tunnelRequest]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
         requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
         
-        cookieBlockId = [SBTProxyURLProtocol cookieBlockRequestsMatching:requestMatch];
+        NSInteger cookieBlockRemoveAfterCount = [tunnelRequest.parameters[SBTUITunnelCookieBlockQueryIterationsKey] integerValue];
+        
+        cookieBlockId = [SBTProxyURLProtocol cookieBlockRequestsMatching:requestMatch activeIterations:cookieBlockRemoveAfterCount];
     }
     
     return @{ SBTUITunnelResponseResultKey: cookieBlockId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
@@ -1134,13 +1136,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if ([[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete]) {
         [UITextField disableAutocompleteOnce];
     }
-}
-
-- (NSString *)identifierForCookieBlockRequest:(GCDWebServerRequest *)tunnelRequest
-{
-    NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:tunnelRequest.parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
-    SBTRequestMatch *requestMatch = [NSKeyedUnarchiver unarchiveObjectWithData:requestMatchData];
-    return [@"cookie_block-" stringByAppendingString:requestMatch.identifier];
 }
 
 - (BOOL)validStubRequest:(GCDWebServerRequest *)tunnelRequest

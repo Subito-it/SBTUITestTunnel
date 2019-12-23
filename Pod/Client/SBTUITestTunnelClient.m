@@ -479,15 +479,15 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match
 {
-    return [self blockCookiesInRequestsMatching:match iterations:0];
+    return [self blockCookiesInRequestsMatching:match activeIterations:0];
 }
 
-- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match iterations:(NSUInteger)iterations
+- (NSString *)blockCookiesInRequestsMatching:(SBTRequestMatch *)match activeIterations:(NSUInteger)activeIterations
 {
-    //NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey: [self base64SerializeObject:match]};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey: [self base64SerializeObject:match],
+                                                     SBTUITunnelCookieBlockQueryIterationsKey: [@(activeIterations) stringValue]};
     
-#warning("TODO")
-    return @""; //[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockMatching params:params];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockMatching params:params];
 }
 
 - (BOOL)blockCookiesRequestsRemoveWithId:(NSString *)reqId

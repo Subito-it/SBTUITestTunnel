@@ -288,11 +288,11 @@
  *  Block all cookies found in requests matching a regular expression pattern. The rule is checked against the SBTRequestMatch object
  *
  *  @param match The match object that contains the matching rules
- *  @param iterations How often the request should happen before timing out
+ *  @param activeIterations The number of times the cookies are blocked
  *
  *  @return If nil request failed. Otherwise an identifier associated to the newly created throttle request. Should be used when using -(BOOL)throttleRequestRemoveWithId:
  */
-- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match iterations:(NSUInteger)iterations;
+- (nullable NSString *)blockCookiesInRequestsMatching:(nonnull SBTRequestMatch *)match activeIterations:(NSUInteger)activeIterations;
 
 /**
  *  Remove a cookie block request

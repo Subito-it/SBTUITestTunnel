@@ -62,7 +62,7 @@
 
 #pragma mark - Cookie Block Requests
 
-+ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match;
++ (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match activeIterations:(NSInteger)activeIterations;
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)cookieBlockRequestsRemoveAll;
 
