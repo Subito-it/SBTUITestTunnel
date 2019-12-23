@@ -486,7 +486,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             
             if (stubResponse.activeIterations > 0) {
                 if (--stubResponse.activeIterations == 0) {
-                    [SBTProxyURLProtocol stubRequestsRemoveWithId:[@"stb-" stringByAppendingString:requestMatch.identifier]];
+                    [SBTProxyURLProtocol stubRequestsRemoveWithId:[SBTProxyURLProtocol identifierForRule:stubRule]];
                 }
             }
         });
@@ -671,7 +671,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         if (stubResponse.activeIterations > 0) {
             if (--stubResponse.activeIterations == 0) {
-                [SBTProxyURLProtocol stubRequestsRemoveWithId:[@"stb-" stringByAppendingString:requestMatch.identifier]];
+                [SBTProxyURLProtocol stubRequestsRemoveWithId:[SBTProxyURLProtocol identifierForRule:headersStubRequest]];
             }
         }
         
@@ -749,6 +749,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSString *prefix = nil;
     if (rule[SBTProxyURLProtocolStubResponse]) {
         prefix = @"stb-";
+    } else if (rule[SBTProxyURLProtocolBlockCookiesKey]) {
+        prefix = @"coo-";
     } else if (rule[SBTProxyURLProtocolDelayResponseTimeKey]) {
         prefix = @"thr-";
     } else if (rule[SBTProxyURLProtocolRewriteResponse]) {
