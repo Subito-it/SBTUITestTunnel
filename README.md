@@ -20,6 +20,8 @@ SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * CLLocationManager stubbing
 * UNUserNotificationCenter stubbing
 
+The library supports concurrent parallel testing, so multiple Simulators can be used at once.
+
 The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.
 
 ## Should I use this?
