@@ -55,14 +55,12 @@ import Foundation
     @objc public var returnCode: Int
     /// If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
     @objc public var responseTime: TimeInterval
-    /// The connection error failure code that will be used to when stubbing the URLConnectionDidFail NSError
-    @objc public var failureCode: Int
     /// The number of times the stubbing will be performed
     @objc public var activeIterations: Int
     
     // MARK: - Private
     
-    private struct ContentType {
+    struct ContentType {
         static let json = "application/json"
         static let xml = "application/xml"
         static let text = "text/plain"
@@ -70,7 +68,7 @@ import Foundation
         static let html = "text/html"
     }
     
-    private struct Defaults {
+    struct Defaults {
         var responseTime: TimeInterval = 0.0
         var returnCode: Int = 200
         var contentTypeDictionary = ContentType.json
@@ -78,7 +76,7 @@ import Foundation
         var contentTypeData = ContentType.data
     }
     
-    private static var defaults = Defaults()
+    static var defaults = Defaults()
     
     @objc public override var hash: Int {
         var hasher = Hasher()
@@ -87,7 +85,6 @@ import Foundation
         hasher.combine(headers)
         hasher.combine(returnCode)
         hasher.combine(responseTime)
-        hasher.combine(failureCode)
         hasher.combine(activeIterations)
         return hasher.finalize()
     }
@@ -100,7 +97,6 @@ import Foundation
             headers == object.headers &&
             returnCode == object.returnCode &&
             responseTime == object.responseTime &&
-            failureCode == object.failureCode &&
             activeIterations == object.activeIterations
     }
     
@@ -120,14 +116,6 @@ import Foundation
 
     @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, activeIterations: Int = 0) {
         self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
-    }
-    
-    @objc static func makeFailureStubResponse(errorCode: Int, responseTime: TimeInterval, activeIterations: Int = 0) -> SBTStubResponse {
-        return makeFailureStubResponse(errorCode: errorCode, responseTime: responseTime as TimeInterval?, activeIterations: activeIterations)
-    }
-
-    @objc static func makeFailureStubResponse(errorCode: Int, activeIterations: Int = 0) -> SBTStubResponse {
-        return makeFailureStubResponse(errorCode: errorCode, responseTime: nil, activeIterations: activeIterations)
     }
 
     // MARK: - Initializers
@@ -180,7 +168,6 @@ import Foundation
         self.headers = mHeaders
         self.returnCode = returnCode
         self.responseTime = responseTime ?? SBTStubResponse.defaults.responseTime
-        self.failureCode = 0
         self.activeIterations = activeIterations
     }
     
@@ -242,19 +229,12 @@ import Foundation
         self.init(response: stubData!, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
     }
     
-    static func makeFailureStubResponse(errorCode: Int, responseTime: TimeInterval? = nil, activeIterations: Int = 0) -> SBTStubResponse {
-        let stubResponse = SBTStubResponse(response: "", headers: nil, contentType: nil, returnCode: defaults.returnCode, activeIterations: activeIterations)
-        stubResponse.failureCode = errorCode
-        return stubResponse
-    }
-    
     @objc public func encode(with coder: NSCoder) {
         coder.encode(data, forKey: "data")
         coder.encode(contentType, forKey: "contentType")
         coder.encode(headers, forKey: "headers")
         coder.encode(returnCode, forKey: "returnCode")
         coder.encode(responseTime, forKey: "responseTime")
-        coder.encode(failureCode, forKey: "failureCode")
         coder.encode(activeIterations, forKey: "activeIterations")
     }
             
@@ -270,7 +250,6 @@ import Foundation
         self.headers = headers
         self.returnCode = coder.decodeInteger(forKey: "returnCode")
         self.responseTime = coder.decodeDouble(forKey: "responseTime")
-        self.failureCode = coder.decodeInteger(forKey: "failureCode")
         self.activeIterations = coder.decodeInteger(forKey: "activeIterations")
     }
     
@@ -284,5 +263,64 @@ import Foundation
     /// Reset defaults values of responseTime, returnCode and contentTypes
     public static func resetUnspecifiedDefaults() {
         defaults = Defaults()
+    }
+}
+
+@objc public class SBTStubFailureResponse: SBTStubResponse {
+    /// The connection error failure code that will be used to when stubbing the URLConnectionDidFail NSError
+    @objc public var failureCode: Int
+
+    public init(errorCode: Int, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+        self.failureCode = errorCode
+        super.init(response: "", headers: nil, contentType: nil, returnCode: SBTStubResponse.defaults.returnCode, responseTime: responseTime, activeIterations: activeIterations)
+    }
+    
+    // MARK: - Objective-C Initializers
+        
+    @objc public convenience init(errorCode: Int, responseTime: TimeInterval, activeIterations: Int = 0) {
+        self.init(errorCode: errorCode, responseTime: responseTime as TimeInterval?, activeIterations: activeIterations)
+    }
+
+    @objc public convenience init(errorCode: Int, activeIterations: Int = 0) {
+        self.init(errorCode: errorCode, responseTime: nil, activeIterations: activeIterations)
+    }
+    
+    @objc public override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        coder.encode(failureCode, forKey: "failureCode")
+    }
+            
+    @objc required public init?(coder: NSCoder) {
+        self.failureCode = coder.decodeInteger(forKey: "failureCode")
+        super.init(coder: coder)
+    }
+    
+    @objc public override func copy(with zone: NSZone? = nil) -> Any {
+        let copy = SBTStubFailureResponse(errorCode: failureCode, responseTime: responseTime, activeIterations: activeIterations)
+        return copy
+    }
+    
+    @objc public override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(data)
+        hasher.combine(contentType)
+        hasher.combine(headers)
+        hasher.combine(returnCode)
+        hasher.combine(responseTime)
+        hasher.combine(failureCode)
+        hasher.combine(activeIterations)
+        return hasher.finalize()
+    }
+    
+    @objc public override func isEqual(_ object: Any?) -> Bool {
+        guard let object = object as? SBTStubFailureResponse else { return false }
+
+        return data == object.data &&
+            contentType == object.contentType &&
+            headers == object.headers &&
+            returnCode == object.returnCode &&
+            responseTime == object.responseTime &&
+            failureCode == object.failureCode &&
+            activeIterations == object.activeIterations
     }
 }

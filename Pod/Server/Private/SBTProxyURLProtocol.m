@@ -461,8 +461,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
             }
             
-            if (stubResponse.failureCode != 0) {
-                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:stubResponse.failureCode userInfo:nil];
+            if ([stubResponse isKindOfClass:[SBTStubFailureResponse class]]) {
+                SBTStubFailureResponse *failureStubResponse = (SBTStubFailureResponse *)stubResponse;
+                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:failureStubResponse.failureCode userInfo:nil];
                 
                 [client URLProtocol:strongSelf didFailWithError:error];
                 [client URLProtocolDidFinishLoading:strongSelf];
