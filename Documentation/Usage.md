@@ -179,7 +179,7 @@ let response = SBTStubFailureResponse(errorCode: URLError.notConnectedToInternet
 app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: response)
 ```
 
-The URLSession will fail with an according `Error`
+The URLSession will fail with an `Error` according to the specified `errorCode`.
 
 ### Upload / Download items
 
@@ -258,6 +258,8 @@ The class has a wide set of initializers that allow to specify request and respo
 The header rewrite is specified by passing a dictionary where the key will replace (if key already exist) or add new values to the headers. To remove a specific key just pass an empty value.
 
 The other rewrite are specified by an array of `SBTRewriteReplacement`.
+
+As for `SBTStubResponse` you can instantiate passing the `activeIterations` parameter to rewrite a specific number of network requests
 
 #### SBTRewriteReplacement
 
