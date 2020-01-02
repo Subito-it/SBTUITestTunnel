@@ -442,8 +442,9 @@ class StubTests: XCTestCase {
         let stubs2 = app.stubRequestsAll()
 
         XCTAssertEqual(stubs2.count, 2)
-        XCTAssertEqual("stb-" + Array(stubs2.keys)[0].identifier(), stubId1)
-        XCTAssertEqual("stb-" + Array(stubs2.keys)[1].identifier(), stubId2)
+        let stubbedIdentifiers2 = Array(stubs2.keys).map { "stb-\($0.identifier())" }
+        XCTAssert(stubbedIdentifiers2.contains(stubId1))
+        XCTAssert(stubbedIdentifiers2.contains(stubId2))
         
         app.stubRequestsRemove(withId: stubId1)
         

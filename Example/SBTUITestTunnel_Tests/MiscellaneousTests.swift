@@ -132,10 +132,10 @@ class MiscellaneousTests: XCTestCase {
 
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
+                
+        app.terminate()
         
         Thread.sleep(forTimeInterval: 3.0)
-        
-        app.terminate()
         
         app.launchTunnel()
         // UserDefaults shouldn't get reset

@@ -117,9 +117,7 @@ let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "So
 let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "!UnwantedBodyContent")
 ```
 
-This will match if the request headers contain both a header with key `Accept-Enc*=gzip*` and another header `Accept-Language=en`
-
-The request MUST contain at least both these headers for the SBTRequestMatch to match
+This will match if the request headers contain both a header with key `Accept-Enc*=gzip*` and another header `Accept-Language=en`. The request MUST contain at least both these headers for the SBTRequestMatch to match.
 
 ```swift	
 let sr = SBTRequestMatch(url: "myhost.com", requestHeaders: ["Accept-Enc.*": "gzip.*", "Accept-Language": "en"])
