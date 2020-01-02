@@ -49,6 +49,8 @@ class NetworkRequests: NSObject {
     }
     
     func headers(_ headers: [String: String], isEqual: [String: String]) -> Bool {
+        guard headers.count > 0 else { return false }
+        
         var eq = true
         for (k, v) in headers {
             if isEqual[k] != v  {

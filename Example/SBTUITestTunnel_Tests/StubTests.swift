@@ -46,10 +46,30 @@ class StubTests: XCTestCase {
         XCTAssertFalse(request.isStubbed(result2))
     }
     
-    func testStubContentType() {
+    func testStubJSONContentType() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
         let expectedHeaders = ["Content-Type": "application/json"]
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let headers = result["responseHeaders"] as! [String: String]
+        XCTAssert(request.headers(headers, isEqual: expectedHeaders))
+    }
+    
+    func testStubTextContentType() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: "stubbed text"))
+        
+        let expectedHeaders = ["Content-Type": "text/plain"]
+        
+        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let headers = result["responseHeaders"] as! [String: String]
+        XCTAssert(request.headers(headers, isEqual: expectedHeaders))
+    }
+    
+    func testStubDataContentType() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: "stubbed data".data(using: .utf8) as Any))
+        
+        let expectedHeaders = ["Content-Type": "application/octet-stream"]
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
