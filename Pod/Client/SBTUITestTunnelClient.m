@@ -238,6 +238,18 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubAndRemoveMatching params:params];
 }
 
+- (NSDictionary<SBTRequestMatch *, NSNumber *> *)unusedStubsPeekAll
+{
+    NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandUnusedStubsMatchesPeek params:nil];
+    if (objectBase64) {
+        NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
+        
+        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @{};
+    }
+    
+    return nil;
+}
+
 #pragma mark - Stub Remove Commands
 
 - (BOOL)stubRequestsRemoveWithId:(NSString *)stubId

@@ -89,6 +89,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSCountedSet<NSString *> *rewritesToRemoveAfterCount;
 @property (nonatomic, strong) NSCountedSet<NSString *> *cookieBlockToRemoveAfterCount;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SBTRequestMatch *> *stubsMatches;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, assign) BOOL cruising;
@@ -284,6 +285,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         NSString *requestIdentifier = [self identifierForStubRequest:tunnelRequest];
         
+        [self.stubsMatches setObject:requestMatch forKey:requestIdentifier];
+        
         __weak typeof(self)weakSelf = self;
         stubId = [SBTProxyURLProtocol stubRequestsMatching:requestMatch stubResponse:response didStubRequest:^(NSURLRequest *request) {
             __strong typeof(weakSelf)strongSelf = weakSelf;
@@ -292,6 +295,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 [strongSelf.stubsToRemoveAfterCount removeObject:requestIdentifier];
                 
                 if ([strongSelf.stubsToRemoveAfterCount countForObject:requestIdentifier] == 0) {
+                    [strongSelf.stubsMatches removeObjectForKey:requestIdentifier];
                     [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId];
                 }
             }
@@ -299,6 +303,56 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     return @{ SBTUITunnelResponseResultKey: stubId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
+}
+
+
+- (NSDictionary *)commandUnusedStubsMatchesPeek:(GCDWebServerRequest *)tunnelRequest
+{
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    __block NSString *ret = @"";
+    __block NSString *debugInfo = @"";
+    
+    __weak typeof(self)weakSelf = self;
+    void (^monitorBlock)(void) = ^{
+        __strong typeof(weakSelf)strongSelf = weakSelf;
+        NSCountedSet<NSString *> *unusedStubs = [strongSelf.stubsToRemoveAfterCount copy];
+        NSDictionary<NSString *, SBTRequestMatch *> *stubsMatches = [strongSelf.stubsMatches copy];
+        
+        NSMutableDictionary<NSData *, NSNumber *> *unusedMatches = [NSMutableDictionary dictionary];
+        
+        for (NSString *identifier in [unusedStubs allObjects]) {
+            SBTRequestMatch *match = [stubsMatches objectForKey:identifier];
+            NSNumber *count = [NSNumber numberWithUnsignedInteger:[unusedStubs countForObject:identifier]];
+            [unusedMatches setObject:count forKey:match];
+        }
+        
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:unusedMatches];
+        if (data) {
+            ret = [data base64EncodedStringWithOptions:0];
+        }
+        
+        debugInfo = [NSString stringWithFormat:@"Found %ld unused stub matches", (unsigned long)unusedMatches.count];
+    };
+    
+    if ([tunnelRequest.parameters[SBTUITunnelLocalExecutionKey] boolValue]) {
+        if ([NSThread isMainThread]) {
+            monitorBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{ monitorBlock(); });
+        }
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // we use main thread to synchronize access to self.monitoredRequests
+            monitorBlock();
+            
+            dispatch_semaphore_signal(sem);
+        });
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
 #pragma mark - Stub and Remove Commands
@@ -328,6 +382,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSString *ret = @"NO";
     if ([self.stubsToRemoveAfterCount countForObject:stubId] == 0) {
+        [self.stubsMatches removeObjectForKey:stubId];
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId] ? @"YES" : @"NO";
     }
     
@@ -1430,6 +1485,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     self.rewritesToRemoveAfterCount = [NSCountedSet set];
     self.cookieBlockToRemoveAfterCount = [NSCountedSet set];
     self.monitoredRequests = [NSMutableArray array];
+    self.stubsMatches = [NSMutableDictionary dictionary];
 
     [[self customCommands] removeAllObjects];
 }

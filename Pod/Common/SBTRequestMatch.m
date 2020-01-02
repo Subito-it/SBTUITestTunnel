@@ -22,6 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
+#define IsEqualToString(x,y) ((x && [x isEqualToString:y]) || (!x && !y))
+#define IsEqualToArray(x,y) ((x && [x isEqualToArray:y]) || (!x && !y))
+#define IsEqualToDictionary(x,y) ((x && [x isEqualToDictionary:y]) || (!x && !y))
+
 #import "SBTRequestMatch.h"
 
 @interface SBTRequestMatch()
@@ -64,6 +68,48 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"URL: %@\nQuery: %@\nMethod: %@\nBody: %@\nRequest headers: %@\nResponse headers: %@", self.url ?: @"N/A", self.query ?: @"N/A", self.method ?: @"N/A", self.body ?: @"N/A", self.requestHeaders ?: @"N/A", self.responseHeaders ?: @"N/A"];
+}
+
+- (id)copyWithZone:(NSZone*)zone
+{
+    SBTRequestMatch* matchCopy = [[[self class] allocWithZone:zone] init];
+
+    if (matchCopy)
+    {
+        matchCopy.url = _url;
+        matchCopy.query = _query;
+        matchCopy.method = _method;
+        matchCopy.body = _body;
+        matchCopy.requestHeaders = _requestHeaders;
+        matchCopy.responseHeaders = _responseHeaders;
+    }
+
+    return matchCopy;
+}
+
+- (BOOL)isEqual:(id)object {
+  if (self == object) {
+    return YES;
+  }
+
+  if (![object isKindOfClass:[self class]]) {
+    return NO;
+  }
+
+  return [self isEqualToRequestMatch:(SBTRequestMatch *)object];
+}
+
+- (BOOL)isEqualToRequestMatch:(SBTRequestMatch *)match {
+    return IsEqualToString(self.url, match.url) &&
+        IsEqualToArray(self.query, match.query) &&
+        IsEqualToString(self.method, match.method) &&
+        IsEqualToString(self.body, match.body) &&
+        IsEqualToDictionary(self.requestHeaders, match.requestHeaders) &&
+        IsEqualToDictionary(self.responseHeaders, match.responseHeaders);
+}
+
+- (NSUInteger)hash {
+    return [self.url hash] ^ [self.query hash] ^ [self.method hash] ^ [self.body hash] ^ [self.requestHeaders hash] ^ [self.responseHeaders hash];
 }
 
 #pragma clang diagnostic push

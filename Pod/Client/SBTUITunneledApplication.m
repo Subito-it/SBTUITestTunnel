@@ -125,6 +125,12 @@
     return [self.client stubRequestsMatching:match response:response];
 }
 
+
+- (NSDictionary<SBTRequestMatch *, NSNumber *> *)unusedStubsPeekAll
+{
+    return [self.client unusedStubsPeekAll];
+}
+
 #pragma mark - Stub And Remove Commands
 
 - (NSString *)stubRequestsMatching:(SBTRequestMatch *)match response:(SBTStubResponse *)response removeAfterIterations:(NSUInteger)iterations
