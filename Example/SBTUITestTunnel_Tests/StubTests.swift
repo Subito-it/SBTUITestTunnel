@@ -249,6 +249,7 @@ class StubTests: XCTestCase {
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
+        XCTAssertEqual(result["responseCode"] as? Int, SBTStubResponse.defaultReturnCode)
         var delta = start.timeIntervalSinceNow
         XCTAssert(delta < -5.0)
 
@@ -263,6 +264,7 @@ class StubTests: XCTestCase {
         delta = start.timeIntervalSinceNow
         let headers2 = result2["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers2, isEqual: expectedHeaders))
+        XCTAssertEqual(result2["responseCode"] as? Int, 200)
         XCTAssert(delta > -5.0)
     }
     

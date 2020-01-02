@@ -103,19 +103,19 @@ import Foundation
     // MARK: - Objective-C Initializers
     
     @objc public convenience init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
-        self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime as TimeInterval?, activeIterations: activeIterations)
+        self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode == -1 ? nil : returnCode, responseTime: responseTime as TimeInterval?, activeIterations: activeIterations)
     }
 
     @objc public convenience init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int = -1, activeIterations: Int = 0) {
-        self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
+        self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode == -1 ? nil : returnCode, responseTime: nil, activeIterations: activeIterations)
     }
 
     @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
-        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
+        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode == -1 ? nil : returnCode, responseTime: responseTime, activeIterations: activeIterations)
     }
 
     @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, activeIterations: Int = 0) {
-        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode, responseTime: nil, activeIterations: activeIterations)
+        self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode == -1 ? nil : returnCode, responseTime: nil, activeIterations: activeIterations)
     }
 
     // MARK: - Initializers
@@ -129,7 +129,7 @@ import Foundation
     *  @param responseTime if positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
     *  @param activeIterations the number of times the stubbing will be performed
     */
-    public init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int = -1, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+    public init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         let stubContentType: String
         if let contentType = contentType {
             stubContentType = contentType
@@ -166,7 +166,7 @@ import Foundation
 
         self.contentType = stubContentType
         self.headers = mHeaders
-        self.returnCode = returnCode
+        self.returnCode = returnCode ?? SBTStubResponse.defaults.returnCode
         self.responseTime = responseTime ?? SBTStubResponse.defaults.responseTime
         self.activeIterations = activeIterations
     }
@@ -186,7 +186,7 @@ import Foundation
     *  - .htm*: text/html
     *  - .txt: text/plain
     */
-    public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+    public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         guard let url = URL(string: fileNamed) else {
             fatalError("Invalid filename provided")
         }
