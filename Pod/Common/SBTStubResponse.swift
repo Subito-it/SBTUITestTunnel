@@ -140,7 +140,7 @@ import Foundation
             case is String:
                 stubContentType = SBTStubResponse.defaults.contentTypeString
             case is NSDictionary:
-                stubContentType = SBTStubResponse.defaults.contentTypeString
+                stubContentType = SBTStubResponse.defaults.contentTypeDictionary
             default:
                 fatalError("Invalid response type, expecting Data, String or Dictionary")
             }
@@ -161,11 +161,12 @@ import Foundation
             fatalError("Invalid response type, expecting Data, String or Dictionary")
         }
         
-        var mHeaders = headers ?? [:]
-        mHeaders["Content-Type"] = contentType
-
         self.contentType = stubContentType
+        
+        var mHeaders = headers ?? [:]
+        mHeaders["Content-Type"] = self.contentType
         self.headers = mHeaders
+        
         self.returnCode = returnCode ?? SBTStubResponse.defaults.returnCode
         self.responseTime = responseTime ?? SBTStubResponse.defaults.responseTime
         self.activeIterations = activeIterations
