@@ -545,7 +545,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSString *ret = @"NO";
     if (objKey) {
-        NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+        NSUserDefaults *userDefault;
+        if ([suiteName length] > 0) {
+            userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+        } else {
+            userDefault = [NSUserDefaults standardUserDefaults];
+        }
 
         [userDefault setObject:obj forKey:objKey];
         ret = [userDefault synchronize] ? @"YES" : @"NO";
@@ -561,7 +566,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSString *ret = @"NO";
     if (objKey) {
-        NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+        NSUserDefaults *userDefault;
+        if ([suiteName length] > 0) {
+            userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+        } else {
+            userDefault = [NSUserDefaults standardUserDefaults];
+        }
         
         [userDefault removeObjectForKey:objKey];
         ret = [userDefault synchronize] ? @"YES" : @"NO";
@@ -575,7 +585,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *objKey = tunnelRequest.parameters[SBTUITunnelObjectKeyKey];
     NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
     
-    NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+    NSUserDefaults *userDefault;
+    if ([suiteName length] > 0) {
+        userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+    } else {
+        userDefault = [NSUserDefaults standardUserDefaults];
+    }
     
     NSObject *obj = [userDefault objectForKey:objKey];
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
@@ -591,7 +606,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *suiteName = tunnelRequest.parameters[SBTUITunnelUserDefaultSuiteNameKey];
     
-    NSUserDefaults *userDefault = [[NSUserDefaults alloc] initWithSuiteName:([suiteName length] > 0) ? suiteName : nil];
+    NSUserDefaults *userDefault;
+    if ([suiteName length] > 0) {
+        userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+    } else {
+        userDefault = [NSUserDefaults standardUserDefaults];
+    }
     
     [userDefault removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
     [userDefault synchronize];
