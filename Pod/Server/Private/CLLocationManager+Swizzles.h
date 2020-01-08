@@ -26,7 +26,7 @@
 
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
-#import <CoreLocation/CLLocationManager.h>
+@import CoreLocation;
 
 @interface CLLocationManager (Swizzles)
 

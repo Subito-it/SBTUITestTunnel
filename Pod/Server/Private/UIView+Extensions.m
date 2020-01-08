@@ -22,7 +22,8 @@
 
 #if ENABLE_UITUNNEL
 
-#import <UIKit/UIKit.h>
+@import UIKit;
+
 #import "UIView+Extensions.h"
 
 @implementation UIView (Recursion)

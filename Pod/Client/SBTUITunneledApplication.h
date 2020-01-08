@@ -22,7 +22,8 @@
 
 #if ENABLE_UITUNNEL
 
-#import <XCTest/XCTest.h>
+@import XCTest;
+
 #import "SBTUITestTunnelClientProtocol.h"
 
 /**

@@ -22,7 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;

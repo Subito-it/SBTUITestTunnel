@@ -22,10 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
-#import <XCTest/XCTest.h>
+@import XCTest;
+@import SBTUITestTunnelCommon;
+
 #import "SBTUITestTunnelClient.h"
-#import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
-#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 

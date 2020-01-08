@@ -22,8 +22,9 @@
 
 #if ENABLE_UITUNNEL
 
+@import SBTUITestTunnelCommon;
+
 #import "UITextField+DisableAutocomplete.h"
-#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
 
 @implementation UITextField (DisableAutocomplete)
 

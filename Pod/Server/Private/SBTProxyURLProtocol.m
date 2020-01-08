@@ -22,9 +22,8 @@
 
 #if ENABLE_UITUNNEL
 
-#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
-#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
-#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
+@import SBTUITestTunnelCommon;
+
 #import "SBTProxyURLProtocol.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";

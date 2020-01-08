@@ -24,8 +24,9 @@
 
 #if ENABLE_UITUNNEL
 
+@import SBTUITestTunnelCommon;
+
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
-#import <SBTUITestTunnelCommon/SBTSwizzleHelpers.h>
 #import "SBTProxyURLProtocol.h"
 
 @implementation NSURLSessionConfiguration (SBTUITestTunnel)

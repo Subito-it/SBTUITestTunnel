@@ -22,7 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 @interface SBTAnyViewControllerPreviewing: NSObject <UIViewControllerPreviewing>
 

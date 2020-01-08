@@ -22,16 +22,12 @@
 
 #if ENABLE_UITUNNEL
 
+@import SBTUITestTunnelCommon;
+@import GCDWebServer;
+@import CoreLocation;
+@import UserNotifications;
+
 #import "SBTUITestTunnelServer.h"
-#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
-#import <SBTUITestTunnelCommon/SBTUITestTunnel.h>
-#import <SBTUITestTunnelCommon/NSURLRequest+SBTUITestTunnelMatch.h>
-#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
-#import <GCDWebServer/GCDWebServer.h>
-#import <GCDWebServer/GCDWebServerURLEncodedFormRequest.h>
-#import <GCDWebServer/GCDWebServerDataResponse.h>
-#import <CoreLocation/CoreLocation.h>
-#import <UserNotifications/UNUserNotificationCenter.h>
 #import "UITextField+DisableAutocomplete.h"
 #import "SBTProxyURLProtocol.h"
 #import "SBTAnyViewControllerPreviewing.h"

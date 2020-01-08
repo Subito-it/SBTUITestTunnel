@@ -22,11 +22,9 @@
 
 #if ENABLE_UITUNNEL
 
-#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
-#import <SBTUITestTunnelCommon/SBTMonitoredNetworkRequest.h>
-#import <CoreLocation/CLLocation.h>
-#import <CoreLocation/CLLocationManager.h>
-#import <UserNotifications/UNNotificationSettings.h>
+@import SBTUITestTunnelCommon;
+@import CoreLocation;
+@import UserNotifications;
 
 @protocol SBTUITestTunnelClientProtocol <NSObject>
 

@@ -26,7 +26,7 @@
 
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 
-#import <UserNotifications/UNUserNotificationCenter.h>
+@import UserNotifications;
 
 @interface UNUserNotificationCenter (Swizzles)
 

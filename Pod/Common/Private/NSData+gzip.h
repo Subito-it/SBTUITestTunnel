@@ -5,7 +5,7 @@
 //  Created by Tomas Camin on 15/02/2019.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 @interface NSData (gzip)
 
