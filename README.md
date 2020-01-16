@@ -1,6 +1,6 @@
 # SBTUITestTunnel
 
-[![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnel.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
+[![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
 [![License](https://img.shields.io/cocoapods/l/SBTUITestTunnel.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
 [![Platform](https://img.shields.io/cocoapods/p/SBTUITestTunnel.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
 
