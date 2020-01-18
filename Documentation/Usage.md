@@ -2,6 +2,12 @@
 
 - [Launching tests](#launching-tests)
 - [Networking features](#networking-features)
+    - [Stubbing](#stubbing)
+    - [Monitoring](#network-monitoring)
+    - [Throttling](#throttling)
+    - [Block cookies](#block-cookies)
+    - [Rewrite](#rewrite)
+    
 - [User defaults access](#user-defaults-access)
 - [Custom code blocks](#custom-code-blocks)
 - [Fine grain scrolling](#fine-grain-scrolling)

@@ -26,7 +26,7 @@ The library consists of two separated components which communicate with each oth
 
 ## Should I use this?
 
-SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a subclass of XCUIApplication which comes with additional features, so it is very easy to integrate (or at least try it out 😉) with your existing testing code.
+SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace it. It all boils down to a single subclass of XCUIApplication which comes with the additional features listed above, so it is very easy to integrate with your existing testing code.
 
 ## Documentation
 
