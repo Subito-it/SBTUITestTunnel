@@ -71,9 +71,9 @@ import Foundation
     struct Defaults {
         var responseTime: TimeInterval = 0.0
         var returnCode: Int = 200
-        var contentTypeDictionary = ContentType.json
-        var contentTypeString = ContentType.text
-        var contentTypeData = ContentType.data
+        var contentTypeDictionary = ContentType.json.rawValue
+        var contentTypeString = ContentType.text.rawValue
+        var contentTypeData = ContentType.data.rawValue
     }
     
     static var defaults = Defaults()
@@ -218,13 +218,13 @@ import Foundation
         let contentType: String
         switch stubExtension.lowercased() {
         case "json":
-            contentType = ContentType.json
+            contentType = ContentType.json.rawValue
         case "xml":
-            contentType = ContentType.xml
+            contentType = ContentType.xml.rawValue
         case "txt":
-            contentType = ContentType.text
+            contentType = ContentType.text.rawValue
         case "htm", "html":
-            contentType = ContentType.html
+            contentType = ContentType.html.rawValue
         default:
             fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html")
         }
