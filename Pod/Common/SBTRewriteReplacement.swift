@@ -30,7 +30,7 @@ public class SBTRewriteReplacement: NSObject, NSCoding, NSCopying {
     
     @available(*, unavailable)
     override init() {
-        fatalError()
+        fatalError("Unavailable")
     }
     
     @objc public func encode(with coder: NSCoder) {

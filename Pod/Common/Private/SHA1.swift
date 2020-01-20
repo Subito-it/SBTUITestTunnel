@@ -6,11 +6,14 @@ import Foundation
 
 /// Left rotation (or cyclic shift) operator
 infix operator <<<: BitwiseShiftPrecedence
-private func <<< (lhs: UInt32, rhs: UInt32) -> UInt32 {
-    lhs << rhs | lhs >> (32 - rhs)
+
+private extension UInt32 {
+    static func <<< (lhs: UInt32, rhs: UInt32) -> UInt32 {
+        lhs << rhs | lhs >> (32 - rhs)
+    }
 }
 
-public struct SHA1 {
+public enum SHA1 {
     // One chunk consists of 80 big-endian longwords (32 bits, unsigned)
     private static let CHUNKSIZE = 80
     // SHA-1 magic words
