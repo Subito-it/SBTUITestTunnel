@@ -60,12 +60,12 @@ import Foundation
     
     // MARK: - Private
     
-    struct ContentType {
-        static let json = "application/json"
-        static let xml = "application/xml"
-        static let text = "text/plain"
-        static let data = "application/octet-stream"
-        static let html = "text/html"
+    enum ContentType: String {
+        case json = "application/json"
+        case xml = "application/xml"
+        case text = "text/plain"
+        case data = "application/octet-stream"
+        case html = "text/html"
     }
     
     struct Defaults {
@@ -102,6 +102,7 @@ import Foundation
     
     // MARK: - Objective-C Initializers
     
+    // swiftlint:disable:next function_default_parameter_at_end
     @objc public convenience init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
         self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode == -1 ? nil : returnCode, responseTime: responseTime as TimeInterval?, activeIterations: activeIterations)
     }
@@ -110,6 +111,7 @@ import Foundation
         self.init(response: response, headers: headers, contentType: contentType, returnCode: returnCode == -1 ? nil : returnCode, responseTime: nil, activeIterations: activeIterations)
     }
     
+    // swiftlint:disable:next function_default_parameter_at_end
     @objc public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int = -1, responseTime: TimeInterval, activeIterations: Int = 0) {
         self.init(fileNamed: fileNamed, headers: headers, returnCode: returnCode == -1 ? nil : returnCode, responseTime: responseTime, activeIterations: activeIterations)
     }
@@ -148,12 +150,12 @@ import Foundation
         
         switch response {
         case is Data:
-            self.data = response as! Data
+            self.data = response as! Data // swiftlint:disable:this force_cast
         case is String:
-            self.data = Data((response as! String).utf8)
+            self.data = Data((response as! String).utf8) // swiftlint:disable:this force_cast
         case is NSDictionary:
             do {
-                self.data = try JSONSerialization.data(withJSONObject: response as! NSDictionary, options: .prettyPrinted)
+                self.data = try JSONSerialization.data(withJSONObject: response as! NSDictionary, options: .prettyPrinted) // swiftlint:disable:this force_cast
             } catch {
                 fatalError("Failed to convert stub dictionary to JSON! Got \(error)")
             }
@@ -209,7 +211,7 @@ import Foundation
             }
         }
         
-        guard stubData != nil else {
+        guard let returnStubData = stubData else {
             fatalError("No data found in stub")
         }
         
@@ -227,7 +229,7 @@ import Foundation
             fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html")
         }
         
-        self.init(response: stubData!, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
+        self.init(response: returnStubData, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
     }
     
     @objc public func encode(with coder: NSCoder) {

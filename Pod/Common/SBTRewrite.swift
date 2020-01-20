@@ -48,7 +48,7 @@ public class SBTRewrite: NSObject, NSCoding {
     
     @available(*, unavailable)
     override init() {
-        fatalError()
+        fatalError("Unavailable")
     }
     
     /**
@@ -107,7 +107,7 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteUrl:)
     public func rewrite(url: URL) -> URL {
-        guard urlReplacement.count > 0 else { return url }
+        guard urlReplacement.isEmpty == false else { return url }
         
         var absoluteString = url.absoluteString
         urlReplacement.forEach { absoluteString = $0.replace(string: absoluteString) }
@@ -122,13 +122,11 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteRequestHeaders:)
     public func rewrite(requestHeaders: [String: String]) -> [String: String] {
-        guard requestHeadersReplacement.count > 0 else { return requestHeaders }
+        guard requestHeadersReplacement.isEmpty == false else { return requestHeaders }
         
         var headers = requestHeaders
         for (key, value) in requestHeadersReplacement {
-            let shouldRemoveKey = value.count == 0
-            
-            if shouldRemoveKey {
+            if value.isEmpty {
                 headers.removeValue(forKey: key)
             } else {
                 headers[key] = value
@@ -145,13 +143,11 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteResponseHeaders:)
     public func rewrite(responseHeaders: [String: String]) -> [String: String] {
-        guard responseHeadersReplacement.count > 0 else { return responseHeaders }
+        guard responseHeadersReplacement.isEmpty == false else { return responseHeaders }
         
         var headers = responseHeaders
         for (key, value) in responseHeadersReplacement {
-            let shouldRemoveKey = value.count == 0
-            
-            if shouldRemoveKey {
+            if value.isEmpty {
                 headers.removeValue(forKey: key)
             } else {
                 headers[key] = value
@@ -168,7 +164,7 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteRequestBody:)
     public func rewrite(requestBody: Data) -> Data {
-        guard requestReplacement.count > 0 else { return requestBody }
+        guard requestReplacement.isEmpty == false else { return requestBody }
         
         var body = String(decoding: requestBody, as: UTF8.self)
         requestReplacement.forEach { body = $0.replace(string: body) }
@@ -183,7 +179,7 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteResponseBody:)
     public func rewrite(responseBody: Data) -> Data {
-        guard responseReplacement.count > 0 else { return responseBody }
+        guard responseReplacement.isEmpty == false else { return responseBody }
         
         var body = String(decoding: responseBody, as: UTF8.self)
         responseReplacement.forEach { body = $0.replace(string: body) }
