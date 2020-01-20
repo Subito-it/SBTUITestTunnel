@@ -9,10 +9,9 @@
 import UIKit
 
 class SBTExtensionTableViewController1: UITableViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         tableView.accessibilityIdentifier = "table"
     }
 }

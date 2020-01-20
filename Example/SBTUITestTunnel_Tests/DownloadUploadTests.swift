@@ -14,12 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnelClient
 import Foundation
+import SBTUITestTunnelClient
 import XCTest
 
 class DownloadUploadTests: XCTestCase {
-    
     override func setUp() {
         super.setUp()
         
@@ -38,7 +37,7 @@ class DownloadUploadTests: XCTestCase {
         let testFilePath = paths.first!.appending("/test_file_a.txt")
         
         if FileManager.default.fileExists(atPath: testFilePath) {
-           try! FileManager.default.removeItem(atPath: testFilePath)
+            try! FileManager.default.removeItem(atPath: testFilePath)
         }
         
         try! (randomString.data(using: .utf8))?.write(to: URL(fileURLWithPath: testFilePath))
@@ -73,7 +72,7 @@ class DownloadUploadTests: XCTestCase {
             
             for uploadData in uploadDatas {
                 let uploadedString = String(data: uploadData, encoding: .utf8)
-             
+                
                 XCTAssertTrue(randomString == uploadedString)
             }
         } else {

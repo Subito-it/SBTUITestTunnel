@@ -38,7 +38,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         
         return "URL: \(url ?? "N/A")\nQuery: \(queryDescription)\nMethod: \(method ?? "N/A")\nBody: \(body ?? "N/A")\nRequest headers: \(requestHeadersDescription)\nResponse headers: \(responseHeadersDescription)"
     }
-  
+    
     @objc public override var hash: Int {
         var hasher = Hasher()
         hasher.combine(url)
@@ -49,7 +49,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         hasher.combine(responseHeaders)
         return hasher.finalize()
     }
-
+    
     @objc public override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? SBTRequestMatch else { return false }
         
@@ -62,15 +62,15 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
     }
     
     /**
-    *  Initializer
-    *
-    *  @param url a regex that is matched against the request url
-    *  @param query an array of a regex that are matched against the request query (params in GET and DELETE, body in POST and PUT). Instance will match if all regex are fulfilled. You can specify that a certain query should not match by prefixing it with an exclamation mark `!`
-    *  @param method HTTP method
-    *  @param body a regex that is matched against the request body
-    *  @param requestHeaders a regex that is matched against request headers
-    *  @param responseHeaders a regex that is matched against response headers
-    */
+     *  Initializer
+     *
+     *  @param url a regex that is matched against the request url
+     *  @param query an array of a regex that are matched against the request query (params in GET and DELETE, body in POST and PUT). Instance will match if all regex are fulfilled. You can specify that a certain query should not match by prefixing it with an exclamation mark `!`
+     *  @param method HTTP method
+     *  @param body a regex that is matched against the request body
+     *  @param requestHeaders a regex that is matched against request headers
+     *  @param responseHeaders a regex that is matched against response headers
+     */
     @objc public init(url: String? = nil, query: [String]? = nil, method: String? = nil, body: String? = nil, requestHeaders: [String: String]? = nil, responseHeaders: [String: String]? = nil) {
         self.url = url
         self.query = query
@@ -89,7 +89,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         coder.encode(responseHeaders, forKey: "responseHeaders")
     }
     
-    @objc required public init?(coder: NSCoder) {
+    @objc public required init?(coder: NSCoder) {
         self.url = coder.decodeObject(forKey: "url") as? String
         self.query = coder.decodeObject(forKey: "query") as? [String]
         self.method = coder.decodeObject(forKey: "method") as? String
@@ -108,4 +108,3 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         return SHA1.hexString(from: &data)?.replacingOccurrences(of: " ", with: "-") ?? ""
     }
 }
-

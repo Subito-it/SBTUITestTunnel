@@ -32,7 +32,6 @@ class Extension2Test: BaseTest {}
 class Extension3Test: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
-    
     fileprivate var sessionTask: URLSessionTask!
     fileprivate var sessionSemaphore: DispatchSemaphore?
     fileprivate var sessionData: Data?
@@ -53,9 +52,9 @@ class SBTTableViewController: UITableViewController {
                                         Extension1Test(testSelector: #selector(showExtensionTable1)),
                                         Extension2Test(testSelector: #selector(showExtensionTable2)),
                                         Extension3Test(testSelector: #selector(showExtensionScrollView))]
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return testList.count
+        testList.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -86,7 +85,7 @@ class SBTTableViewController: UITableViewController {
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        return false
+        false
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -103,7 +102,6 @@ class SBTTableViewController: UITableViewController {
 }
 
 extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate {
-    
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         sessionSemaphore?.signal()
         sessionSemaphore = nil
@@ -118,12 +116,11 @@ extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate
     }
 }
 
-
 extension SBTTableViewController {
     func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
-        return ["responseCode": status ?? 0,
-                "responseHeaders": headers ?? [:],
-                "data": data?.base64EncodedString() ?? ""] as [String : Any]
+        ["responseCode": status ?? 0,
+         "responseHeaders": headers ?? [:],
+         "data": data?.base64EncodedString() ?? ""] as [String: Any]
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
@@ -137,20 +134,20 @@ extension SBTTableViewController {
                 request.httpBody = httpBody.data(using: .utf8)
             }
             
-            var retData: Data! = nil
-            var retResponse: HTTPURLResponse! = nil
-            var retHeaders: [String: String]! = nil
+            var retData: Data!
+            var retResponse: HTTPURLResponse!
+            var retHeaders: [String: String]!
             
             URLSession.shared.dataTask(with: request) {
-                data, response, error in
+                data, response, _ in
                 
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
-                }
-                .resume()
+            }
+            .resume()
             
             sem.wait()
             
@@ -173,21 +170,21 @@ extension SBTTableViewController {
             if httpBody {
                 request.httpBody = "The http body".data(using: .utf8)
             }
-
-            var retData: Data! = nil
-            var retResponse: HTTPURLResponse! = nil
-            var retHeaders: [String: String]! = nil
+            
+            var retData: Data!
+            var retResponse: HTTPURLResponse!
+            var retHeaders: [String: String]!
             
             URLSession.shared.uploadTask(with: request, from: data) {
-                data, response, error in
+                data, response, _ in
                 
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
-                }
-                .resume()
+            }
+            .resume()
             
             sem.wait()
             
@@ -211,12 +208,12 @@ extension SBTTableViewController {
                 request.httpBody = "The http body".data(using: .utf8)
             }
             
-            var retData: Data! = nil
-            var retResponse: HTTPURLResponse! = nil
-            var retHeaders: [String: String]! = nil
+            var retData: Data!
+            var retResponse: HTTPURLResponse!
+            var retHeaders: [String: String]!
             
             URLSession.shared.downloadTask(with: request) {
-                dataUrl, response, error in
+                dataUrl, response, _ in
                 
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
@@ -225,13 +222,13 @@ extension SBTTableViewController {
                 }
                 
                 sem.signal()
-                }
-                .resume()
+            }
+            .resume()
             
             sem.wait()
             
             if shouldPushResult {
-              DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
                     self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
@@ -286,10 +283,10 @@ extension SBTTableViewController {
             self?.sessionSemaphore?.wait()
             
             if shouldPushResult {
-              DispatchQueue.main.async { [weak self] in
-                        let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
-                        let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-                        self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                DispatchQueue.main.async { [weak self] in
+                    let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
+                    let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
+                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -325,7 +322,6 @@ extension SBTTableViewController {
 }
 
 extension SBTTableViewController {
-    
     @objc func executeDataTaskRequest() {
         dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
     }
@@ -342,12 +338,12 @@ extension SBTTableViewController {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!)
     }
-
+    
     @objc func executeUploadDataTaskRequest2() {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "PUT")
     }
-
+    
     @objc func executeBackgroundUploadDataTaskRequest() {
         let data = "This is a test".data(using: .utf8)
         
@@ -362,7 +358,7 @@ extension SBTTableViewController {
     @objc func executePostDataTaskRequestWithHTTPBody() {
         dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
     }
-
+    
     @objc func executeUploadDataTaskRequestWithHTTPBody() {
         let data = "This is a test".data(using: .utf8)
         uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "POST", httpBody: true)
@@ -385,35 +381,30 @@ extension SBTTableViewController {
 }
 
 extension SBTTableViewController {
-    
     @objc func showAutocompleteForm() {
-        self.performSegue(withIdentifier: "autocompleteSegue", sender: nil)
+        performSegue(withIdentifier: "autocompleteSegue", sender: nil)
     }
 }
 
 extension SBTTableViewController {
-    
     @objc func showExtensionTable1() {
-        self.performSegue(withIdentifier: "extensionTable1Segue", sender: nil)
+        performSegue(withIdentifier: "extensionTable1Segue", sender: nil)
     }
 }
 
 extension SBTTableViewController {
-    
     @objc func showExtensionTable2() {
-        self.performSegue(withIdentifier: "extensionTable2Segue", sender: nil)
+        performSegue(withIdentifier: "extensionTable2Segue", sender: nil)
     }
 }
 
 extension SBTTableViewController {
-    
     @objc func showExtensionScrollView() {
-        self.performSegue(withIdentifier: "extensionScrollSegue", sender: nil)
+        performSegue(withIdentifier: "extensionScrollSegue", sender: nil)
     }
 }
 
 extension SBTTableViewController {
-    
     func dataTaskNetworkWithCookies(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
@@ -425,9 +416,9 @@ extension SBTTableViewController {
                 request.httpBody = httpBody.data(using: .utf8)
             }
             
-            var retData: Data! = nil
-            var retResponse: HTTPURLResponse! = nil
-            var retHeaders: [String: String]! = nil
+            var retData: Data!
+            var retResponse: HTTPURLResponse!
+            var retHeaders: [String: String]!
             
             let jar = HTTPCookieStorage.shared
             let cookieHeaderField = ["Set-Cookie": "key=value, key2=value2"]
@@ -435,15 +426,15 @@ extension SBTTableViewController {
             jar.setCookies(cookies, for: request.url!, mainDocumentURL: request.url!)
             
             URLSession.shared.dataTask(with: request) {
-                data, response, error in
+                data, response, _ in
                 
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
                 
                 sem.signal()
-                }
-                .resume()
+            }
+            .resume()
             
             sem.wait()
             
@@ -463,7 +454,7 @@ extension SBTTableViewController {
 
 class ScrollViewWithIdentifier: UIScrollView {
     override var accessibilityIdentifier: String? {
-        get { return "scrollView" }
+        get { "scrollView" }
         set {}
     }
 }

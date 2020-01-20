@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import SBTUITestTunnelClient
 import SBTUITestTunnelServer
-import Foundation
 import XCTest
 
 class RewriteTests: XCTestCase {
-    
     private let request = NetworkRequests()
     
     func testURLRewrite() {
@@ -161,7 +160,6 @@ class RewriteTests: XCTestCase {
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "This is a test where I want to replace param2_val2 and param1_val1")
         
-        
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
         let postDict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
@@ -245,7 +243,7 @@ class RewriteTests: XCTestCase {
 extension RewriteTests {
     override func setUp() {
         app.launchConnectionless { (path, params) -> String in
-            return SBTUITestTunnelServer.performCommand(path, params: params)
+            SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
 }

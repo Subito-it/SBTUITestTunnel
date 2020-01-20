@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import SBTUITestTunnelClient
 import SBTUITestTunnelServer
-import Foundation
 import XCTest
 
 class MonitorTests: XCTestCase {
-    
     private let request = NetworkRequests()
     
     func testMonitorRemoveSpecific() {
@@ -60,12 +59,12 @@ class MonitorTests: XCTestCase {
         }
         
         XCTAssert(app.monitorRequestRemoveAll())
-
+        
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
     }
-
+    
     func testMonitorPeek() {
         XCTAssert(app.monitoredRequestsPeekAll().count == 0)
         
@@ -106,14 +105,14 @@ class MonitorTests: XCTestCase {
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result))
-
+        
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testMonitorTwice() {
         // should not crash
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
@@ -129,7 +128,7 @@ class MonitorTests: XCTestCase {
         
         let result2 = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
         XCTAssertFalse(request.isStubbed(result2))
-
+        
         let requests3 = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests3.count, 2)
         
@@ -139,7 +138,7 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testMonitorAndStubWithRemoveAfterTwoIterations() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
@@ -156,7 +155,7 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testMonitorAndThrottle() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
@@ -164,7 +163,7 @@ class MonitorTests: XCTestCase {
         let start = Date()
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
-
+        
         XCTAssert(delta < -5.0 && delta > -8.0)
         
         let requests = app.monitoredRequestsFlushAll()
@@ -173,7 +172,7 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testMonitorPostRequestWithHTTPBody() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
         
@@ -198,21 +197,21 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testSyncWaitForMonitoredRequestsDoesNotTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-
+        
         let start = Date()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 2.5) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
-
+        
         XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0))
         let delta = start.timeIntervalSinceNow
-
+        
         XCTAssert(delta < -1.0, "Failed with delta: \(delta)")
     }
-
+    
     func testSyncWaitForMonitoredRequestsDoesTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
@@ -222,7 +221,7 @@ class MonitorTests: XCTestCase {
         
         XCTAssert(delta > -5.0)
     }
-
+    
     func testSyncWaitForMonitoredRequestsWithIterationsDoesNotTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
@@ -250,7 +249,7 @@ class MonitorTests: XCTestCase {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.0) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
         }
-
+        
         XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 5.0, iterations: 1))
     }
 }
@@ -258,7 +257,7 @@ class MonitorTests: XCTestCase {
 extension MonitorTests {
     override func setUp() {
         app.launchConnectionless { (path, params) -> String in
-            return SBTUITestTunnelServer.performCommand(path, params: params)
+            SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
 }

@@ -14,25 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import SBTUITestTunnelClient
 import SBTUITestTunnelServer
-import Foundation
 import XCTest
 
 class ThrottleTests: XCTestCase {
-    
     private let request = NetworkRequests()
     
     func testThrottle() {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
-
+        
         let start = Date()
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
-
+    
     func testThrottleOverridesStubResponseTime() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
@@ -43,7 +42,7 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
-
+    
     func testThrottleOverridesStubResponseTime2() {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
@@ -105,7 +104,7 @@ class ThrottleTests: XCTestCase {
 extension ThrottleTests {
     override func setUp() {
         app.launchConnectionless { (path, params) -> String in
-            return SBTUITestTunnelServer.performCommand(path, params: params)
+            SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
 }

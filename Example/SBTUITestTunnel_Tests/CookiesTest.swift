@@ -6,26 +6,25 @@
 //  Copyright © 2018 Tomas Camin. All rights reserved.
 //
 
+import Foundation
 import SBTUITestTunnelClient
 import SBTUITestTunnelServer
-import Foundation
 import XCTest
 
 class CookiesTest: XCTestCase {
-    
     private let request = NetworkRequests()
     
     private func countCookies() -> Int {
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies")
         let json = request.json(result)
-
-        return (json["cookies"] as? [String : Any])?.keys.count ?? 0
+        
+        return (json["cookies"] as? [String: Any])?.keys.count ?? 0
     }
     
     func testCookiesGetBlocked() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
-
+        
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.blockCookiesInRequests(matching: requestMatch)
         
@@ -68,7 +67,7 @@ class CookiesTest: XCTestCase {
 extension CookiesTest {
     override func setUp() {
         app.launchConnectionless { (path, params) -> String in
-            return SBTUITestTunnelServer.performCommand(path, params: params)
+            SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
 }

@@ -24,15 +24,15 @@ public class SBTRewriteReplacement: NSObject, NSCoding, NSCopying {
     public override var description: String {
         let findString = String(decoding: findData, as: UTF8.self)
         let replaceString = String(decoding: replaceData, as: UTF8.self)
-            
+        
         return "`\(findString)` -> `\(replaceString)`"
     }
-
+    
     @available(*, unavailable)
     override init() {
-      fatalError()
+        fatalError()
     }
-
+    
     @objc public func encode(with coder: NSCoder) {
         coder.encode(findData, forKey: "findData")
         coder.encode(replaceData, forKey: "replaceData")
@@ -40,20 +40,20 @@ public class SBTRewriteReplacement: NSObject, NSCoding, NSCopying {
     
     @objc public required init?(coder: NSCoder) {
         guard let findData = coder.decodeObject(forKey: "findData") as? Data,
-              let replaceData = coder.decodeObject(forKey: "replaceData") as? Data else {
+            let replaceData = coder.decodeObject(forKey: "replaceData") as? Data else {
             return nil
         }
-            
+        
         self.findData = findData
         self.replaceData = replaceData
     }
-        
+    
     /**
-    *  Initializer
-    *
-    *  @param find a string regex that search for a string
-    *  @param replace a string that replaces the string matched by find
-    */
+     *  Initializer
+     *
+     *  @param find a string regex that search for a string
+     *  @param replace a string that replaces the string matched by find
+     */
     @objc(initWithFind:replace:)
     public init(find: String, replace: String) {
         self.findData = Data(find.utf8)
@@ -63,26 +63,26 @@ public class SBTRewriteReplacement: NSObject, NSCoding, NSCopying {
     @objc public func copy(with zone: NSZone? = nil) -> Any {
         let findString = String(decoding: findData, as: UTF8.self)
         let replaceString = String(decoding: replaceData, as: UTF8.self)
-
+        
         let copy = SBTRewriteReplacement(find: findString, replace: replaceString)
         return copy
     }
     
     /**
-    *  Process a string by applying replacement specified in initializer
-    *
-    *  @param string string to replace
-    */
+     *  Process a string by applying replacement specified in initializer
+     *
+     *  @param string string to replace
+     */
     @objc(replace:)
     public func replace(string: String) -> String {
         let findString = String(decoding: findData, as: UTF8.self)
         let replaceString = String(decoding: replaceData, as: UTF8.self)
-
+        
         do {
             let regex = try NSRegularExpression(pattern: findString, options: .caseInsensitive)
             return regex.stringByReplacingMatches(in: string, options: [], range: NSRange(location: 0, length: string.count), withTemplate: replaceString)
         } catch {
             return "invalid-regex"
         }
-    }    
+    }
 }

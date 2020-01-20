@@ -9,15 +9,15 @@
 import Foundation
 
 class NetworkRequests: NSObject {
-    public var sessionData: Data? = nil
-    public var sessionResponse: HTTPURLResponse? = nil
-    public var sessionTask: URLSessionTask? = nil
+    public var sessionData: Data?
+    public var sessionResponse: HTTPURLResponse?
+    public var sessionTask: URLSessionTask?
     
     private let doneSynchQueue = DispatchQueue(label: "NetworkRequests.done.synch.queue")
     private var _done: Bool = false
     fileprivate var done: Bool {
         get {
-            return doneSynchQueue.sync { return _done }
+            doneSynchQueue.sync { _done }
         }
         set {
             doneSynchQueue.sync { _done = newValue }
@@ -25,9 +25,9 @@ class NetworkRequests: NSObject {
     }
     
     private func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
-        return ["responseCode": status ?? 0,
-                "responseHeaders": headers ?? [:],
-                "data": data?.base64EncodedString() ?? ""] as [String : Any]
+        ["responseCode": status ?? 0,
+         "responseHeaders": headers ?? [:],
+         "data": data?.base64EncodedString() ?? ""] as [String: Any]
     }
     
     func isStubbed(_ result: [String: Any]) -> Bool {
@@ -45,7 +45,7 @@ class NetworkRequests: NSObject {
     }
     
     func returnCode(_ result: [String: Any]) -> Int {
-        return result["responseCode"] as? Int ?? -1
+        result["responseCode"] as? Int ?? -1
     }
     
     func headers(_ headers: [String: String], isEqual: [String: String]) -> Bool {
@@ -53,14 +53,14 @@ class NetworkRequests: NSObject {
         
         var eq = true
         for (k, v) in headers {
-            if isEqual[k] != v  {
+            if isEqual[k] != v {
                 eq = false
             }
         }
         
         return eq
     }
-        
+    
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, requestHeaders: [String: String] = [:], delay: TimeInterval = 0.0) -> [String: Any] {
         let (retResponse, retHeaders, retData) = dataTaskNetworkWithResponse(urlString: urlString, httpMethod: httpMethod, httpBody: httpBody, requestHeaders: requestHeaders, delay: delay)
         
@@ -68,13 +68,13 @@ class NetworkRequests: NSObject {
     }
     
     func dataTaskNetworkWithResponse(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, requestHeaders: [String: String] = [:], delay: TimeInterval = 0.0) -> (response: HTTPURLResponse, headers: [String: String], data: Data) {
-        var retData: Data! = nil
-        var retResponse: HTTPURLResponse! = nil
-        var retHeaders: [String: String]! = nil
+        var retData: Data!
+        var retResponse: HTTPURLResponse!
+        var retHeaders: [String: String]!
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
-
+        
         requestHeaders.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
         
         request.httpMethod = httpMethod
@@ -83,7 +83,7 @@ class NetworkRequests: NSObject {
         }
         
         done = false
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { data, response, _ in
             DispatchQueue.main.async {
                 guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
                 retResponse = httpResponse
@@ -102,9 +102,9 @@ class NetworkRequests: NSObject {
     }
     
     func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
-        var retData: Data! = nil
-        var retResponse: HTTPURLResponse! = nil
-        var retHeaders: [String: String]! = nil
+        var retData: Data!
+        var retResponse: HTTPURLResponse!
+        var retHeaders: [String: String]!
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -115,7 +115,7 @@ class NetworkRequests: NSObject {
         
         done = false
         URLSession.shared.uploadTask(with: request, from: data) {
-            data, response, error in
+            data, response, _ in
             DispatchQueue.main.async {
                 guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
                 retResponse = httpResponse
@@ -132,11 +132,11 @@ class NetworkRequests: NSObject {
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
-
+    
     func downloadTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
-        var retData: Data! = nil
-        var retResponse: HTTPURLResponse! = nil
-        var retHeaders: [String: String]! = nil
+        var retData: Data!
+        var retResponse: HTTPURLResponse!
+        var retHeaders: [String: String]!
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -147,7 +147,7 @@ class NetworkRequests: NSObject {
         
         done = false
         URLSession.shared.downloadTask(with: request) {
-            dataUrl, response, error in
+            dataUrl, response, _ in
             DispatchQueue.main.async {
                 guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
                 retResponse = httpResponse
@@ -166,7 +166,7 @@ class NetworkRequests: NSObject {
         
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
-
+    
     func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -188,7 +188,7 @@ class NetworkRequests: NSObject {
         let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
         return returnDictionary(status: sessionResponse?.statusCode, headers: retHeaders, data: sessionData)
     }
-
+    
     func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -210,7 +210,7 @@ class NetworkRequests: NSObject {
         let retHeaders = sessionResponse?.allHeaderFields as? [String: String]
         return returnDictionary(status: sessionResponse?.statusCode, headers: retHeaders, data: sessionData)
     }
-
+    
     func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -235,7 +235,6 @@ class NetworkRequests: NSObject {
 }
 
 extension NetworkRequests: URLSessionTaskDelegate, URLSessionDataDelegate {
-    
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         DispatchQueue.main.async { [weak self] in
             self?.done = true

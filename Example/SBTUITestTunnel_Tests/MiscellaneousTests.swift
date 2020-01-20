@@ -14,37 +14,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnelClient
 import Foundation
+import SBTUITestTunnelClient
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
-    
     func testStartupCommands() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         
-        app.launchTunnel() {
+        app.launchTunnel {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
         }
         
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
-
+    
     func testStartupCommandsWaitsAppropriately() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-
+        
         var startupBlockProcessed = false
-
-        app.launchTunnel() {
+        
+        app.launchTunnel {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
             Thread.sleep(forTimeInterval: 8.0)
             startupBlockProcessed = true
         }
-
+        
         XCTAssert(startupBlockProcessed)
     }
     
@@ -75,7 +74,7 @@ class MiscellaneousTests: XCTestCase {
     func testTakeOffWait() {
         app.launchArguments = ["wait_for_startup_test"]
         
-        var start = Date.distantFuture;
+        var start = Date.distantFuture
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
             start = Date()
         }
@@ -129,10 +128,10 @@ class MiscellaneousTests: XCTestCase {
         let userDefaultKey = "test_key"
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
-
+        
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
-                
+        
         app.terminate()
         
         Thread.sleep(forTimeInterval: 3.0)
@@ -150,7 +149,7 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
         
         app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false)
-
+        
         expectation(for: NSPredicate(format: "isHittable == true"), evaluatedWith: app.staticTexts["Label5"])
         waitForExpectations(timeout: 15.0, handler: nil)
     }

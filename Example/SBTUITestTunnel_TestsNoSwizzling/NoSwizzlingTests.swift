@@ -14,30 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SBTUITestTunnelClient
 import Foundation
+import SBTUITestTunnelClient
 import XCTest
 
-
 class NoSwizzlingTests: XCTestCase {
-
     let app = MyCustomApplication()
-
+    
     override func setUp() {
         super.setUp()
-
+        
         app.launchTunnel()
-
+        
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
         waitForExpectations(timeout: 15.0, handler: nil)
-
+        
         Thread.sleep(forTimeInterval: 1.0)
     }
     
     func testShutdown() {
         app.terminate()
         XCTAssert(app.wait(for: .notRunning, timeout: 5))
-
+        
         app.launchTunnel()
         XCTAssert(app.wait(for: .runningForeground, timeout: 5))
         

@@ -45,23 +45,23 @@ public class SBTRewrite: NSObject, NSCoding {
         
         return description.joined(separator: "\n")
     }
-
+    
     @available(*, unavailable)
     override init() {
-      fatalError()
+        fatalError()
     }
     
     /**
-    *  Initializer
-    *
-    *  @param urlReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request URL (host + query)
-    *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
-    *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
-    *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
-    *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
-    *  @param responseStatusCode the response HTTP code to return
-    * @param activeIterations the number of times the rewrite will be performed
-    */
+     *  Initializer
+     *
+     *  @param urlReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request URL (host + query)
+     *  @param responseReplacement an array or SBTRewriteReplacement objects that will perform replacements on the response body
+     *  @param responseHeadersReplacement a dictionary that represents the response headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
+     *  @param requestReplacement an array or SBTRewriteReplacement objects that will perform replacements on the request body
+     *  @param requestHeadersReplacement a dictionary that represents the request headers. Keys not present will be added while existing keys will be replaced. If the value is empty the key will be removed
+     *  @param responseStatusCode the response HTTP code to return
+     * @param activeIterations the number of times the rewrite will be performed
+     */
     @objc public init(urlReplacement: [SBTRewriteReplacement] = [], requestReplacement: [SBTRewriteReplacement] = [], requestHeadersReplacement: [String: String] = [:], responseReplacement: [SBTRewriteReplacement] = [], responseHeadersReplacement: [String: String] = [:], responseStatusCode: Int = -1, activeIterations: Int = 0) {
         self.urlReplacement = urlReplacement
         self.requestReplacement = requestReplacement
@@ -71,7 +71,7 @@ public class SBTRewrite: NSObject, NSCoding {
         self.responseStatusCode = responseStatusCode
         self.activeIterations = activeIterations
     }
-
+    
     @objc public func encode(with coder: NSCoder) {
         coder.encode(urlReplacement, forKey: "urlReplacement")
         coder.encode(requestReplacement, forKey: "requestReplacement")
@@ -82,12 +82,12 @@ public class SBTRewrite: NSObject, NSCoding {
         coder.encode(activeIterations, forKey: "activeIterations")
     }
     
-    @objc required public init?(coder: NSCoder) {
+    @objc public required init?(coder: NSCoder) {
         guard let urlReplacement = coder.decodeObject(forKey: "urlReplacement") as? [SBTRewriteReplacement],
-              let requestReplacement = coder.decodeObject(forKey: "requestReplacement") as? [SBTRewriteReplacement],
-              let responseReplacement = coder.decodeObject(forKey: "responseReplacement") as? [SBTRewriteReplacement],
-              let requestHeadersReplacement = coder.decodeObject(forKey: "requestHeadersReplacement") as? [String: String],
-              let responseHeadersReplacement = coder.decodeObject(forKey: "responseHeadersReplacement") as? [String: String] else {
+            let requestReplacement = coder.decodeObject(forKey: "requestReplacement") as? [SBTRewriteReplacement],
+            let responseReplacement = coder.decodeObject(forKey: "responseReplacement") as? [SBTRewriteReplacement],
+            let requestHeadersReplacement = coder.decodeObject(forKey: "requestHeadersReplacement") as? [String: String],
+            let responseHeadersReplacement = coder.decodeObject(forKey: "responseHeadersReplacement") as? [String: String] else {
             return nil
         }
         
@@ -101,10 +101,10 @@ public class SBTRewrite: NSObject, NSCoding {
     }
     
     /**
-    *  Process a url by applying replacement specified in initializer
-    *
-    *  @param url url to replace
-    */
+     *  Process a url by applying replacement specified in initializer
+     *
+     *  @param url url to replace
+     */
     @objc(rewriteUrl:)
     public func rewrite(url: URL) -> URL {
         guard urlReplacement.count > 0 else { return url }
@@ -116,10 +116,10 @@ public class SBTRewrite: NSObject, NSCoding {
     }
     
     /**
-    *  Process a dictionary of request headers by applying replacement specified in initializer
-    *
-    *  @param requestHeaders request headers to replace
-    */
+     *  Process a dictionary of request headers by applying replacement specified in initializer
+     *
+     *  @param requestHeaders request headers to replace
+     */
     @objc(rewriteRequestHeaders:)
     public func rewrite(requestHeaders: [String: String]) -> [String: String] {
         guard requestHeadersReplacement.count > 0 else { return requestHeaders }
@@ -137,12 +137,12 @@ public class SBTRewrite: NSObject, NSCoding {
         
         return headers
     }
-
+    
     /**
-    *  Process a dictionary of response headers by applying replacement specified in initializer
-    *
-    *  @param responseHeaders response headers to replace
-    */
+     *  Process a dictionary of response headers by applying replacement specified in initializer
+     *
+     *  @param responseHeaders response headers to replace
+     */
     @objc(rewriteResponseHeaders:)
     public func rewrite(responseHeaders: [String: String]) -> [String: String] {
         guard responseHeadersReplacement.count > 0 else { return responseHeaders }
@@ -160,12 +160,12 @@ public class SBTRewrite: NSObject, NSCoding {
         
         return headers
     }
-
+    
     /**
-    *  Process a request body by applying replacement specified in initializer
-    *
-    *  @param requestBody request body
-    */
+     *  Process a request body by applying replacement specified in initializer
+     *
+     *  @param requestBody request body
+     */
     @objc(rewriteRequestBody:)
     public func rewrite(requestBody: Data) -> Data {
         guard requestReplacement.count > 0 else { return requestBody }
@@ -177,10 +177,10 @@ public class SBTRewrite: NSObject, NSCoding {
     }
     
     /**
-    *  Process a response body by applying replacement specified in initializer
-    *
-    *  @param responseBody response body
-    */
+     *  Process a response body by applying replacement specified in initializer
+     *
+     *  @param responseBody response body
+     */
     @objc(rewriteResponseBody:)
     public func rewrite(responseBody: Data) -> Data {
         guard responseReplacement.count > 0 else { return responseBody }
@@ -190,14 +190,14 @@ public class SBTRewrite: NSObject, NSCoding {
         
         return Data(body.utf8)
     }
-
+    
     /**
-    *  Process a status code by applying replacement specified in initializer
-    *
-    *  @param statusCode the status code
-    */
+     *  Process a status code by applying replacement specified in initializer
+     *
+     *  @param statusCode the status code
+     */
     @objc(rewriteStatusCode:)
     public func rewrite(statusCode: Int) -> Int {
-        return responseStatusCode < 0 ? statusCode : responseStatusCode
+        responseStatusCode < 0 ? statusCode : responseStatusCode
     }
 }
