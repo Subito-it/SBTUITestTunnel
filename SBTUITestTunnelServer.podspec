@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "SBTUITestTunnelServer"
-    s.version          = "6.0.0"
+    s.version          = "6.1.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
     s.source           = { :git => "https://github.com/Subito-it/SBTUITestTunnel.git", :tag => s.version.to_s }
 
     s.platform = :ios, '9.0'
+    s.swift_version = '5.0'
     s.requires_arc = true
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
@@ -21,7 +22,7 @@ Pod::Spec.new do |s|
 
     s.source_files = 'Pod/Server/**/*.{h,m,swift}'
     s.private_header_files = 'Pod/Server/Private/*.h'
-
+    
     s.dependency 'SBTUITestTunnelCommon'
     s.dependency 'GCDWebServer', '~> 3.0'
 end
