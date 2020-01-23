@@ -2,11 +2,11 @@ PODS:
   - GCDWebServer (3.3.4):
     - GCDWebServer/Core (= 3.3.4)
   - GCDWebServer/Core (3.3.4)
-  - SBTUITestTunnelClient/Connectionless (6.0.0):
+  - SBTUITestTunnelClient/Connectionless (6.1.0):
     - SBTUITestTunnelCommon
     - SBTUITestTunnelServer
-  - SBTUITestTunnelCommon (6.0.0)
-  - SBTUITestTunnelServer (6.0.0):
+  - SBTUITestTunnelCommon (6.1.0)
+  - SBTUITestTunnelServer (6.1.0):
     - GCDWebServer (~> 3.0)
     - SBTUITestTunnelCommon
 
@@ -33,10 +33,10 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   GCDWebServer: 0bd712acb4f246ce04d2ac321d33278fb1f72e63
-  SBTUITestTunnelClient: 6807a011d9e940e69cdfb7c2342df3d3b7bcde73
-  SBTUITestTunnelCommon: 052a60d8320ac5d439646945d798e08ef549743d
-  SBTUITestTunnelServer: f67c4b3e93b442845bbb5e32e97b2031bdd0424e
+  SBTUITestTunnelClient: 72aff8a16f78866d753c767a04d2707807b962e8
+  SBTUITestTunnelCommon: a5d0a148172346f43c5df3d8336b554c8e411855
+  SBTUITestTunnelServer: 6cecc834df909c96e16b852aeeec2dd3440d94f1
 
 PODFILE CHECKSUM: b81b226be6715c434e4df3ee1686d1cfc981fcfc
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.6.2
