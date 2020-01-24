@@ -7,6 +7,9 @@
 //  Copyright © 2019 Tomas Camin. All rights reserved.
 //
 
+// swiftlint:disable implicit_return
+// swiftformat:disable redundantReturn
+
 import UIKit
 
 class SBTExtensionTableViewController2: UITableViewController {

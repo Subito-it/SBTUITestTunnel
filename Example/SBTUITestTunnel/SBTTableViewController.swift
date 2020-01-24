@@ -14,6 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// swiftlint:disable implicit_return
+// swiftformat:disable redundantReturn
+
 import UIKit
 
 class BaseTest {

@@ -2,6 +2,9 @@
 // $AUTHOR: Iggy Drougge
 // $VER: 2.3.1
 
+// swiftlint:disable implicit_return
+// swiftformat:disable redundantReturn
+
 import Foundation
 
 /// Left rotation (or cyclic shift) operator
