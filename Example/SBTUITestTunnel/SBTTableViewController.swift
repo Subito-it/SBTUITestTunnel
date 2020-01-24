@@ -54,7 +54,7 @@ class SBTTableViewController: UITableViewController {
                                         Extension3Test(testSelector: #selector(showExtensionScrollView))]
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        testList.count
+        return testList.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -85,7 +85,7 @@ class SBTTableViewController: UITableViewController {
     }
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        false
+        return false
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -118,9 +118,9 @@ extension SBTTableViewController: URLSessionTaskDelegate, URLSessionDataDelegate
 
 extension SBTTableViewController {
     func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
-        ["responseCode": status ?? 0,
-         "responseHeaders": headers ?? [:],
-         "data": data?.base64EncodedString() ?? ""] as [String: Any]
+        return ["responseCode": status ?? 0,
+                "responseHeaders": headers ?? [:],
+                "data": data?.base64EncodedString() ?? ""] as [String: Any]
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
@@ -454,7 +454,7 @@ extension SBTTableViewController {
 
 class ScrollViewWithIdentifier: UIScrollView {
     override var accessibilityIdentifier: String? {
-        get { "scrollView" }
+        get { return "scrollView" }
         set {}
     }
 }
