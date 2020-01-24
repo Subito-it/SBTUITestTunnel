@@ -19,31 +19,31 @@ import Foundation
 @objc public class SBTStubResponse: NSObject, NSCoding, NSCopying {
     /// Set the default response time for all SBTStubResponses when not specified in intializer. If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
     @objc public static var defaultResponseTime: TimeInterval {
-        get { defaults.responseTime }
+        get { return defaults.responseTime }
         set { defaults.responseTime = newValue }
     }
     
     /// Set the default return code for all SBTStubResponses when not specified in intializer
     @objc public static var defaultReturnCode: Int {
-        get { defaults.returnCode }
+        get { return defaults.returnCode }
         set { defaults.returnCode = newValue }
     }
     
     /// Set the default Content-Type to be used when passing NSDictionary's as responses
     @objc public static var defaultDictionaryContentType: String {
-        get { defaults.contentTypeDictionary }
+        get { return defaults.contentTypeDictionary }
         set { defaults.contentTypeDictionary = newValue }
     }
     
     /// Set the default Content-Type to be used when passing NSData's as responses
     @objc public static var defaultDataContentType: String {
-        get { defaults.contentTypeData }
+        get { return defaults.contentTypeData }
         set { defaults.contentTypeData = newValue }
     }
     
     /// Set the default Content-Type to be used when passing NSString's as responses
     @objc public static var defaultStringContentType: String {
-        get { defaults.contentTypeString }
+        get { return defaults.contentTypeString }
         set { defaults.contentTypeString = newValue }
     }
     

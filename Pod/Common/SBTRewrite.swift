@@ -194,6 +194,6 @@ public class SBTRewrite: NSObject, NSCoding {
      */
     @objc(rewriteStatusCode:)
     public func rewrite(statusCode: Int) -> Int {
-        responseStatusCode < 0 ? statusCode : responseStatusCode
+        return responseStatusCode < 0 ? statusCode : responseStatusCode
     }
 }

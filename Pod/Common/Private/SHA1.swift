@@ -9,7 +9,7 @@ infix operator <<<: BitwiseShiftPrecedence
 
 private extension UInt32 {
     static func <<< (lhs: UInt32, rhs: UInt32) -> UInt32 {
-        lhs << rhs | lhs >> (32 - rhs)
+        return lhs << rhs | lhs >> (32 - rhs)
     }
 }
 
@@ -153,22 +153,22 @@ public enum SHA1 {
     
     /// Return a hexadecimal hash from a file
     public static func hexString(fromFile filename: String) -> String? {
-        hexString(SHA1.dataFromFile(named: filename))
+        return hexString(SHA1.dataFromFile(named: filename))
     }
     
     /// Return the hash of a file as an array of Ints
     public static func hash(fromFile filename: String) -> [Int]? {
-        dataFromFile(named: filename)?.h.map { Int($0) }
+        return dataFromFile(named: filename)?.h.map { Int($0) }
     }
     
     /// Return a hexadecimal hash from NSData
     public static func hexString(from data: inout Data) -> String? {
-        hexString(SHA1.process(data: &data))
+        return hexString(SHA1.process(data: &data))
     }
     
     /// Return the hash of NSData as an array of Ints
     public static func hash(from data: inout Data) -> [Int]? {
-        process(data: &data)?.h.map { Int($0) }
+        return process(data: &data)?.h.map { Int($0) }
     }
     
     /// Return a hexadecimal hash from a string
