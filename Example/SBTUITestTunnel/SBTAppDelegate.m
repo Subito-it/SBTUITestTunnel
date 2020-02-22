@@ -18,6 +18,7 @@
 
 #if DEBUG
     @import SBTUITestTunnelServer;
+    @import CoreLocation;
 #endif
 
 @implementation SBTAppDelegate
@@ -45,6 +46,10 @@
 
                 return @"123";
             }];
+            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAuthStatus" block:^NSObject *(NSObject *object) {
+                return [@([CLLocationManager authorizationStatus]) stringValue];
+            }];
+
 
             [SBTUITestTunnelServer takeOffCompleted:YES];
         }
