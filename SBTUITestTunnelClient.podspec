@@ -26,6 +26,9 @@ Pod::Spec.new do |s|
 
     s.dependency 'SBTUITestTunnelCommon'
 
+    # XCTest requires bitcode to be disabled
+    s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
+
     # Used only for testing purposes
     s.subspec 'Connectionless' do |client|
         client.source_files = 'Pod/Client/**/*.{h,m,swift}'
