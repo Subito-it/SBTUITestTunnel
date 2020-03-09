@@ -130,6 +130,10 @@ import Foundation
      *
      *  @param response an instance of NSDictionary, NSData, NSString that represents the data to be returned
      *  @param headers a dictionary that represents the response headers
+     *  @param contentType the content type of the response.
+     *                     If the value of this parameter is not `nil`, then the content type will be set to the value provided.
+     *                     On the other hand, if this parameter is `nil` and `Content-Type` is provided in `headers`, then the value provided in `headers` will be used.
+     *                     The content type will be determined automatically using the type of `response` otherwise.
      *  @param returnCode the HTTP return code of the stubbed response
      *  @param responseTime if positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
      *  @param activeIterations the number of times the stubbing will be performed
@@ -137,6 +141,8 @@ import Foundation
     public init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         let stubContentType: String
         if let contentType = contentType {
+            stubContentType = contentType
+        } else if let contentType = headers?["Content-Type"] {
             stubContentType = contentType
         } else {
             switch response {
