@@ -357,7 +357,7 @@ class StubTests: XCTestCase {
         _ = {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
-            
+
             let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result))
             self.app.stubRequestsRemove(withId: stubId)

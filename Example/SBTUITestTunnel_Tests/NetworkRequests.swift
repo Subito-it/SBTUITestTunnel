@@ -101,7 +101,7 @@ class NetworkRequests: NSObject {
         return (retResponse, retHeaders, retData)
     }
     
-    func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+    func uploadTaskNetwork(urlString: String, data: Data?, httpMethod: String = "POST", delay: TimeInterval = 0.0) -> [String: Any] {
         var retData: Data!
         var retResponse: HTTPURLResponse!
         var retHeaders: [String: String]!
@@ -109,8 +109,8 @@ class NetworkRequests: NSObject {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
-        if httpBody {
-            request.httpBody = "The http body".data(using: .utf8)
+        if let data = data {
+            request.httpBody = data
         }
         
         done = false
@@ -133,7 +133,7 @@ class NetworkRequests: NSObject {
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
     
-    func downloadTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+    func downloadTaskNetwork(urlString: String, data: Data? = nil, httpMethod: String, delay: TimeInterval = 0.0) -> [String: Any] {
         var retData: Data!
         var retResponse: HTTPURLResponse!
         var retHeaders: [String: String]!
@@ -141,8 +141,8 @@ class NetworkRequests: NSObject {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
-        if httpBody {
-            request.httpBody = "The http body".data(using: .utf8)
+        if let data = data {
+            request.httpBody = data
         }
         
         done = false
@@ -167,12 +167,12 @@ class NetworkRequests: NSObject {
         return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
     }
     
-    func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0) -> [String: Any] {
+    func backgroundDataTaskNetwork(urlString: String, data: Data?, httpMethod: String, delay: TimeInterval = 0.0) -> [String: Any] {
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
-        if httpBody {
-            request.httpBody = "The http body".data(using: .utf8)
+        if let data = data {
+            request.httpBody = data
         }
         
         done = false
