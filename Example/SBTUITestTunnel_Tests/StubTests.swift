@@ -364,7 +364,7 @@ class StubTests: XCTestCase {
         }()
         
         _ = {
-            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
             let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
@@ -411,7 +411,7 @@ class StubTests: XCTestCase {
         }()
         
         _ = {
-            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"], responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"], responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
             let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
