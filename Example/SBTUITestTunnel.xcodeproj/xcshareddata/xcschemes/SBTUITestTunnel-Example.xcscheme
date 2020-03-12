@@ -69,21 +69,21 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0FC36532261DCAF54A2CA8642801645"
+            BlueprintIdentifier = "D5C1F902BDC004DB20E7AF5BFF597094"
             BuildableName = "SBTUITestTunnelClient.framework"
             BlueprintName = "SBTUITestTunnelClient"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
          </BuildableReference>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F66CA6636E6084163F694E6568A4C36D"
+            BlueprintIdentifier = "FAC80A98AD9D3441462BC35CA399333F"
             BuildableName = "SBTUITestTunnelCommon.framework"
             BlueprintName = "SBTUITestTunnelCommon"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
          </BuildableReference>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "36A42BB2AC0B176E06E245ABDC10714D"
+            BlueprintIdentifier = "F24C5B034F09C03165223554D5453588"
             BuildableName = "SBTUITestTunnelServer.framework"
             BlueprintName = "SBTUITestTunnelServer"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
@@ -108,7 +108,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      enableThreadSanitizer = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
