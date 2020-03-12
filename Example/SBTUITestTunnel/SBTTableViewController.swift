@@ -33,6 +33,7 @@ class CookiesTest: BaseTest {}
 class Extension1Test: BaseTest {}
 class Extension2Test: BaseTest {}
 class Extension3Test: BaseTest {}
+class Extension4Test: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     fileprivate var sessionTask: URLSessionTask!
@@ -54,7 +55,8 @@ class SBTTableViewController: UITableViewController {
                                         CookiesTest(testSelector: #selector(executeRequestWithCookies)),
                                         Extension1Test(testSelector: #selector(showExtensionTable1)),
                                         Extension2Test(testSelector: #selector(showExtensionTable2)),
-                                        Extension3Test(testSelector: #selector(showExtensionScrollView))]
+                                        Extension3Test(testSelector: #selector(showExtensionScrollView)),
+                                        Extension4Test(testSelector: #selector(showCoreLocationViewController))]
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
@@ -74,6 +76,8 @@ class SBTTableViewController: UITableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension2Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension3Test {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension3Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension4Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension4Cell", for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -404,6 +408,12 @@ extension SBTTableViewController {
 extension SBTTableViewController {
     @objc func showExtensionScrollView() {
         performSegue(withIdentifier: "extensionScrollSegue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    @objc func showCoreLocationViewController() {
+        performSegue(withIdentifier: "extensionCoreLocationSegue", sender: nil)
     }
 }
 
