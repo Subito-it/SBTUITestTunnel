@@ -106,10 +106,14 @@ static NSString *_serviceStatus;
     return [_instanceHashTable objectForKey:self];
 }
 
-+ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable authorizationStatus:(NSString *)autorizationStatus
++ (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus
+{
+    _autorizationStatus = autorizationStatus;
+}
+
++ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
 {
     _instanceHashTable = hashTable;
-    _autorizationStatus = autorizationStatus;
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

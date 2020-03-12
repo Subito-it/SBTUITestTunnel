@@ -86,7 +86,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) dispatch_semaphore_t launchSemaphore;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
-@property (nonatomic, strong) NSMutableString *coreLocationStubbedAuthorizationStatus;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
 @property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
 
@@ -1019,7 +1018,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     BOOL stubSystemLocation = [tunnelRequest.parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
     if (stubSystemLocation) {
-        [CLLocationManager loadSwizzlesWithInstanceHashTable:self.coreLocationActiveManagers authorizationStatus:self.coreLocationStubbedAuthorizationStatus];
+        [CLLocationManager loadSwizzlesWithInstanceHashTable:self.coreLocationActiveManagers];
     } else {
         [CLLocationManager removeSwizzles];
     }
@@ -1031,7 +1030,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *authorizationStatus = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
     
-    [self.coreLocationStubbedAuthorizationStatus setString:authorizationStatus];
+    [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
     for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
     }

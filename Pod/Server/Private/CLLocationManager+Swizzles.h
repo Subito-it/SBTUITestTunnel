@@ -30,8 +30,8 @@
 
 @interface CLLocationManager (Swizzles)
 
-+ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
-                      authorizationStatus:(NSString *)autorizationStatus;
++ (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus;
++ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable;
 + (void)removeSwizzles;
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate;

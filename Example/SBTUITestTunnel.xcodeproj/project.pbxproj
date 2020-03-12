@@ -14,6 +14,7 @@
 		6003F59A195388D20070C39A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F599195388D20070C39A /* main.m */; };
 		6003F59E195388D20070C39A /* SBTAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F59D195388D20070C39A /* SBTAppDelegate.m */; };
 		6003F5A9195388D20070C39A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5A8195388D20070C39A /* Images.xcassets */; };
+		746907E8240109970000ADC7 /* CoreLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746907E7240109970000ADC7 /* CoreLocationTests.swift */; };
 		7E9AB1A722AEEA16001205E9 /* NoSwizzlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9AB1A622AEEA16001205E9 /* NoSwizzlingTests.swift */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		8CB30A965F90DB278A9F5DEC /* Pods_SBTUITestTunnel_TestsNoSwizzling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75BC5D08325F7CD8FC97BF4C /* Pods_SBTUITestTunnel_TestsNoSwizzling.framework */; };
@@ -88,6 +89,7 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		7177B09786F764558E92133F /* Pods-SBTUITestTunnel_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.debug.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		7255D52519AE2B772452E63C /* Pods-SBTUITestTunnel_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Tests.release.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_Tests/Pods-SBTUITestTunnel_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		746907E7240109970000ADC7 /* CoreLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreLocationTests.swift; sourceTree = "<group>"; };
 		75BC5D08325F7CD8FC97BF4C /* Pods_SBTUITestTunnel_TestsNoSwizzling.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_TestsNoSwizzling.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E9AB19C22AEE9DB001205E9 /* SBTUITestTunnel_TestsNoSwizzling.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SBTUITestTunnel_TestsNoSwizzling.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E9AB1A022AEE9DB001205E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 				C3E3DFD91D8A78B5003D6BB2 /* DownloadUploadTests.swift */,
 				C3F380211D8FCACA002CDE17 /* ThrottleTest.swift */,
 				C30FD8E22029EED50054EA5C /* CookiesTest.swift */,
+				746907E7240109970000ADC7 /* CoreLocationTests.swift */,
 				C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */,
 				C363E5F520502B9F00DFCEB1 /* test_file.json */,
 				C39B79FC1CB41C3A000C8B0D /* Info.plist */,
@@ -594,6 +597,7 @@
 				FC5F178223A8D2C2003BBCA1 /* UnusedStubsPeekAll.swift in Sources */,
 				C3763A082332505700C0FAF5 /* SBTUITestTunnelServer+Extension.swift in Sources */,
 				C3881A971FED847C00EB6579 /* MiscellaneousTests.swift in Sources */,
+				746907E8240109970000ADC7 /* CoreLocationTests.swift in Sources */,
 				C3881A931FED847C00EB6579 /* UserDefaultsTests.swift in Sources */,
 				C3E3DFE01D8ECA9A003D6BB2 /* MonitorTests.swift in Sources */,
 				C3881A941FED847C00EB6579 /* StubTests.swift in Sources */,
