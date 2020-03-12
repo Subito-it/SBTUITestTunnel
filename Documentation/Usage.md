@@ -65,7 +65,7 @@ The startup block contains code that will be executed before the app enters the 
 
 The stubbing/monitoring/throttling/cookie blocking and rewrite functionalities of the library require a `SBTRequestMatch` object in order to determine whether they should respond to a certain network request.
 
-You can specify a regex on the URL, multiple regex on the query (in `POST` and `PUT` requests they will match against the body) and HTTP method using one of the several class methods available.
+You can specify a regex on the URL, multiple regex on the query, body and HTTP method using one of the several available class methods.
 
 #### Query parameter
 
