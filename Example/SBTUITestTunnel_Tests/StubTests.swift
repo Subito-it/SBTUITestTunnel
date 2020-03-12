@@ -566,6 +566,150 @@ class StubTests: XCTestCase {
         XCTAssertNil(stubs2[match1])
         XCTAssertNil(stubs2[match2])
     }
+    
+    func testStubPostWithQueryRequest() {
+        XCTContext.runActivity(named: "Test POST stubbing with only body succeeds") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+            XCTAssert(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with body and query succeeds") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
+            XCTAssert(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val2"], method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!)
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+        
+        XCTContext.runActivity(named: "Test POST stubbing with query matching body #1 fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param6=val6&param5=val5"], method: "POST")
+            app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
+            
+            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+
+        XCTContext.runActivity(named: "Test POST stubbing with query matching body #2 fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param1=val1"], method: "POST")
+            app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
+            
+            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+
+        XCTContext.runActivity(named: "Test GET stubbing with query matching body #3 fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param6=val6"], method: "GET")
+            app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
+            
+            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            XCTAssertFalse(request.isStubbed(result))
+            XCTAssert(app.stubRequestsRemoveAll())
+        }
+    }
+    
+    func testStubGetWithQueryRequest() {
+        XCTContext.runActivity(named: "Test GET stubbing with only body succeeds") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssert(request.isStubbed(result))
+        }
+        
+        XCTAssert(app.stubRequestsRemoveAll())
+        
+        XCTContext.runActivity(named: "Test GET stubbing with body and query succeeds") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssert(request.isStubbed(result))
+        }
+        
+        XCTAssert(app.stubRequestsRemoveAll())
+        
+        XCTContext.runActivity(named: "Test GET stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssertFalse(request.isStubbed(result))
+        }
+        
+        XCTAssert(app.stubRequestsRemoveAll())
+        
+        XCTContext.runActivity(named: "Test GET stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val2"], method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssertFalse(request.isStubbed(result))
+        }
+        
+        XCTAssert(app.stubRequestsRemoveAll())
+        
+        XCTContext.runActivity(named: "Test GET stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssertFalse(request.isStubbed(result))
+        }
+        
+        XCTAssert(app.stubRequestsRemoveAll())
+        
+        XCTContext.runActivity(named: "Test GET stubbing with body and query fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+                        
+            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "POST")
+            XCTAssertFalse(request.isStubbed(result))
+        }
+
+    }
 }
 
 extension StubTests {

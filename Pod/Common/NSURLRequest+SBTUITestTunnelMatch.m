@@ -43,17 +43,10 @@
 
     BOOL matchesQuery = YES;
     if (match.query) {
-        NSString *queryString = nil;
+        NSURLComponents *components = [NSURLComponents componentsWithURL:self.URL resolvingAgainstBaseURL:NO];
         
-        if ([self.HTTPMethod isEqualToString:@"POST"] || [self.HTTPMethod isEqualToString:@"PUT"]) {
-            NSData *requestData = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
-            queryString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
-        } else if ([self.HTTPMethod isEqualToString:@"GET"] || [self.HTTPMethod isEqualToString:@"DELETE"]) {
-            NSURLComponents *components = [NSURLComponents componentsWithURL:self.URL resolvingAgainstBaseURL:NO];
-            
-            queryString = components.query ?: @"";
-            queryString = [@"&" stringByAppendingString:queryString]; // prepend & to allow always prepending `&` in SBTMatchRequest's queries 
-        }
+        NSString *queryString = components.query ?: @"";
+        queryString = [@"&" stringByAppendingString:queryString]; // prepend & to allow always prepending `&` in SBTMatchRequest's queries
         
         if (queryString) {
             for (NSString *matchQuery in match.query) {
