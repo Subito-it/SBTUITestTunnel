@@ -34,5 +34,6 @@ Pod::Spec.new do |s|
         client.source_files = 'Pod/Client/**/*.{h,m,swift}'
         client.private_header_files = 'Pod/Client/Private/*.h'
         client.dependency 'SBTUITestTunnelServer'
+        client.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     end
 end
