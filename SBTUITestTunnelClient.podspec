@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
     s.swift_version = '5.0'
     s.requires_arc = true
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
-    s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
+    s.pod_target_xcconfig = { :prebuild_configuration => 'debug', 'ENABLE_BITCODE' => 'NO' } # XCTest requires bitcode to be disabled
     s.library = 'z'
 
     s.frameworks = 'XCTest'
@@ -25,15 +25,11 @@ Pod::Spec.new do |s|
     s.private_header_files = 'Pod/Client/Private/*.h'
 
     s.dependency 'SBTUITestTunnelCommon'
-
-    # XCTest requires bitcode to be disabled
-    s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
-
+    
     # Used only for testing purposes
     s.subspec 'Connectionless' do |client|
         client.source_files = 'Pod/Client/**/*.{h,m,swift}'
         client.private_header_files = 'Pod/Client/Private/*.h'
         client.dependency 'SBTUITestTunnelServer'
-        client.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     end
 end
