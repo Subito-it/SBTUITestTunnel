@@ -239,7 +239,7 @@ import Foundation
         case "pdf":
             contentType = ContentType.pdf.rawValue
         default:
-            fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html pdf")
+            fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html, pdf")
         }
         
         self.init(response: returnStubData, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
