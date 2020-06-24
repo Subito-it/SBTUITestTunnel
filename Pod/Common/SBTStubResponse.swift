@@ -69,6 +69,7 @@ import Foundation
         case text = "text/plain"
         case data = "application/octet-stream"
         case html = "text/html"
+        case pdf = "application/pdf"
     }
     
     struct Defaults {
@@ -197,6 +198,7 @@ import Foundation
      *  - .xml: application/xml
      *  - .htm*: text/html
      *  - .txt: text/plain
+     *  - .pdf application/pdf
      */
     public convenience init(fileNamed: String, headers: [String: String]? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         guard let url = URL(string: fileNamed) else {
@@ -234,8 +236,10 @@ import Foundation
             contentType = ContentType.text.rawValue
         case "htm", "html":
             contentType = ContentType.html.rawValue
+        case "pdf":
+            contentType = ContentType.pdf.rawValue
         default:
-            fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html")
+            fatalError("Unsupported file extension. Expecting json, xml, txt, htm, html, pdf")
         }
         
         self.init(response: returnStubData, headers: headers, contentType: contentType, returnCode: returnCode, responseTime: responseTime, activeIterations: activeIterations)
