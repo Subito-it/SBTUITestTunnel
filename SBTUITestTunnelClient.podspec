@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "SBTUITestTunnelClient"
-    s.version          = "6.3.0"
+    s.version          = "6.4.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
@@ -25,11 +25,4 @@ Pod::Spec.new do |s|
     s.private_header_files = 'Pod/Client/Private/*.h'
 
     s.dependency 'SBTUITestTunnelCommon'
-    
-    # Used only for testing purposes
-    s.subspec 'Connectionless' do |client|
-        client.source_files = 'Pod/Client/**/*.{h,m,swift}'
-        client.private_header_files = 'Pod/Client/Private/*.h'
-        client.dependency 'SBTUITestTunnelServer'
-    end
 end
