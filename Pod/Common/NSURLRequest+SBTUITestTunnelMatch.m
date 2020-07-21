@@ -30,6 +30,12 @@
 
 - (BOOL)matches:(SBTRequestMatch *)match
 {
+    BOOL matchesMethod = YES;
+    if (match.method) {
+        matchesMethod = [self.HTTPMethod isEqualToString:match.method];
+        if (!matchesMethod) return NO;
+    }
+
     BOOL matchesURL = YES;
     if (match.url) {
         NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:match.url options:NSRegularExpressionCaseInsensitive error:nil];
@@ -39,6 +45,7 @@
             
             matchesURL = regexMatches > 0;
         }
+        if (!matchesURL) return NO;
     }
 
     BOOL matchesQuery = YES;
@@ -63,11 +70,7 @@
                 }
             }
         }
-    }
-
-    BOOL matchesMethod = YES;
-    if (match.method) {
-        matchesMethod = [self.HTTPMethod isEqualToString:match.method];
+        if (!matchesQuery) return NO;
     }
 
     BOOL matchesBody = YES;
@@ -82,6 +85,7 @@
             NSUInteger regexMatches = [regex numberOfMatchesInString:body options:0 range:NSMakeRange(0, body.length)];
             matchesBody = invertMatch ? (regexMatches == 0) : (regexMatches > 0);
         }
+        if (!matchesBody) return NO;
     }
         
     return matchesURL && matchesQuery && matchesMethod && matchesBody;
