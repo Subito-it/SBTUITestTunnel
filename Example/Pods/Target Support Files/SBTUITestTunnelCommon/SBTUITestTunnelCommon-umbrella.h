@@ -10,8 +10,8 @@
 #endif
 #endif
 
-#import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "SBTMonitoredNetworkRequest.h"
+#import "SBTRegularExpressionMatcher.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
 #import "SBTUITestTunnelCommon.h"
