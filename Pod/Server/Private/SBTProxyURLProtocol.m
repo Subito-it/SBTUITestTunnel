@@ -370,11 +370,17 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
+    // Note #1: this method can be called internally multiple times for the same request
+    // Note #2: it is not guaranteed that request that is being passed contains the expected
+    // values for the allHTTPHeaderFields property in one of these iterations. For this
+    // reason we postpone matching the request headers after startLoading is called.
+    
     if ([NSURLProtocol propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
     }
-    
-    return ([self matchingRulesForRequest:request] != nil);
+        
+    NSArray *matchingRules = [self matchingRulesForRequest:request];
+    return (matchingRules != nil);
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
@@ -384,7 +390,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b
 {
-    return [super requestIsCacheEquivalent:a toRequest:b];
+    BOOL isCacheEquivalent = [super requestIsCacheEquivalent:a toRequest:b];
+    return isCacheEquivalent;
 }
 
 - (void)startLoading
@@ -669,14 +676,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         NSDictionary *requestHeaders = dataTask.currentRequest.allHTTPHeaderFields ?: @{};
         if (requestMatch.requestHeaders.count > 0) {
-            headersMatch &= [self expectedHeadersRegexDictionary:requestMatch.requestHeaders matchesHeaders:requestHeaders];
+            headersMatch &= [requestMatch matchesRequestHeaders:requestHeaders];
         }
         
         NSDictionary *responseHeaders = @{};
-        if (requestMatch.responseHeaders.count > 0 && [response isKindOfClass:[NSHTTPURLResponse class]]) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             responseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
             
-            headersMatch &= [self expectedHeadersRegexDictionary:requestMatch.responseHeaders matchesHeaders:responseHeaders];
+            headersMatch &= [requestMatch matchesResponseHeaders:responseHeaders];
         }
         
         SBTStubResponse *stubResponse = headersStubRequest[SBTProxyURLProtocolStubResponse];
@@ -736,7 +743,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
                 NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
                 
-                if ([(originalRequest ?: request) matches:matchingRule[SBTProxyURLProtocolMatchingRuleKey]]) {
+                SBTRequestMatch *match = matchingRule[SBTProxyURLProtocolMatchingRuleKey];
+                if ([match matchesURLRequest:originalRequest ?: request]) {
                     [ret addObject:matchingRule];
                 }
             } else {
@@ -810,39 +818,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     return nil;
-}
-
-- (BOOL)expectedHeadersRegexDictionary:(NSDictionary<NSString *, NSString *> *)expectedHeaders matchesHeaders:(NSDictionary <NSString *, NSString *>*)headers
-{
-    for (NSString *expectedHeaderKey in expectedHeaders) {
-        BOOL matchFound = NO;
-        for (NSString *headerKey in headers) {
-            BOOL keyMatches = [self regex:expectedHeaderKey matches:headerKey];
-            BOOL valueMatches = [self regex:expectedHeaders[expectedHeaderKey] matches:headers[headerKey]];
-            
-            if (keyMatches && valueMatches) {
-                matchFound = YES;
-                break;
-            }
-        }
-        if (!matchFound) {
-            return NO;
-        }
-    }
-    
-    return YES;
-}
-
-- (BOOL)regex:(NSString *)regexString matches:(NSString *)match
-{
-    BOOL invertMatch = [regexString hasPrefix:@"!"];
-    // skip first char for inverted matches
-    NSString *pattern = [regexString substringFromIndex:invertMatch ? 1 : 0];
-    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:pattern options:0 error:nil];
-    
-    NSUInteger regexMatches = [regex numberOfMatchesInString:match options:0 range:NSMakeRange(0, match.length)];
-    
-    return invertMatch ? (regexMatches == 0) : (regexMatches > 0);
 }
 
 @end

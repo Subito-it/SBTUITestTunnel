@@ -1,6 +1,6 @@
-// NSURLRequest+SBTUITestTunnelMatch.h
+// SBTRegularExpressionMatcher.h
 //
-// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2020 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Alternative approach to fix this: https://github.com/AliSoftware/OHHTTPStubs/pull/166
+
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
+    #ifndef ENABLE_UITUNNEL
         #define ENABLE_UITUNNEL 1
     #endif
 #endif
@@ -24,13 +26,11 @@
 
 @import Foundation;
 
-@class SBTRequestMatch;
+@interface SBTRegularExpressionMatcher: NSObject
 
-// FIXME: This should actually be a category on SBTUITestTunnelMatch matching agains NSURLRequests
+- (nonnull instancetype)initWithRegularExpression:(nonnull NSString *)regexString;
 
-@interface NSURLRequest (SBTUITestTunnelMatch)
-
-- (BOOL)matches:(nonnull SBTRequestMatch *)match;
+- (BOOL)matches:(nonnull NSString *)query;
 
 @end
 

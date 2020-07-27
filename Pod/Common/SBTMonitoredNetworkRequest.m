@@ -22,8 +22,9 @@
 
 #if ENABLE_UITUNNEL
 
+#import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
+
 #import "SBTMonitoredNetworkRequest.h"
-#import "NSURLRequest+SBTUITestTunnelMatch.h"
 #import "NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
@@ -135,7 +136,7 @@
 
 - (BOOL)matches:(SBTRequestMatch *)match
 {
-    return [self.originalRequest matches:match];
+    return [match matchesURLRequest:self.originalRequest];
 }
 
 - (NSData *)httpBodyFromRequest:(NSURLRequest *)request

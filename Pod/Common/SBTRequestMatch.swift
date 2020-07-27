@@ -107,4 +107,89 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         var data = NSKeyedArchiver.archivedData(withRootObject: self)
         return SHA1.hexString(from: &data)?.replacingOccurrences(of: " ", with: "-") ?? ""
     }
+    
+    @objc(matchesRequestHeaders:)
+    public func matches(requestHeaders: [String: String]?) -> Bool {
+        guard let requestHeaders = requestHeaders,
+              let matchRequestHeaders = self.requestHeaders, matchRequestHeaders.count > 0 else {
+            return true
+        }
+       
+        return requestHeaders.matches(expectedHeaders: matchRequestHeaders)
+    }
+
+    @objc(matchesResponseHeaders:)
+    public func matches(responseHeaders: [String: String]?) -> Bool {
+         guard let responseHeaders = responseHeaders,
+               let matchResponseHeaders = self.responseHeaders, matchResponseHeaders.count > 0 else {
+             return true
+         }
+        
+         return responseHeaders.matches(expectedHeaders: matchResponseHeaders)
+    }
+    
+    @objc(matchesURLRequest:)
+    public func matches(urlRequest: URLRequest?) -> Bool {
+        guard let urlRequest = urlRequest else { return false }
+        
+        if let method = method {
+            guard urlRequest.httpMethod == method else { return false }
+        }
+        
+        // guard matches(requestHeaders:urlRequest.allHTTPHeaderFields) else { return false }
+        
+        if let url = url {
+            if let regex = try? NSRegularExpression(pattern: url, options: [.caseInsensitive]),
+               let stringToMatch = urlRequest.url?.absoluteString {
+                let matchCount = regex.numberOfMatches(in: stringToMatch, options: [], range: NSRange(location: 0, length: stringToMatch.utf16.count))
+                
+                guard matchCount > 0 else { return false }
+            }
+        }
+        
+        if let query = query {
+            if let requestUrl = urlRequest.url {
+                let components = URLComponents(url: requestUrl, resolvingAgainstBaseURL: false)
+                var queryString = components?.query ?? ""
+                queryString = "&" + queryString // prepend & to allow always prepending `&` in SBTMatchRequest's queries
+                
+                for matchQuery in query {
+                    let matcher = SBTRegularExpressionMatcher(regularExpression: matchQuery)
+                    guard matcher.matches(queryString) else { return false }
+                }
+            }
+        }
+
+        if let body = body {
+            let matcher = SBTRegularExpressionMatcher(regularExpression: body)
+            let requestBody = String(decoding: urlRequest.httpBody ?? Data(), as: UTF8.self)
+
+            guard matcher.matches(requestBody) else { return false }
+        }
+
+        return true
+    }
+}
+
+private extension Dictionary where Key == String, Value == String {
+    func matches(expectedHeaders: [String: String]) -> Bool {
+        for (expectedHeaderKey, expectedValue) in expectedHeaders {
+            let keyMatcher = SBTRegularExpressionMatcher(regularExpression: expectedHeaderKey)
+            let valueMatcher = SBTRegularExpressionMatcher(regularExpression: expectedValue)
+            
+            var matchFound = false
+            for (headerKey, headerValue) in self {
+                if keyMatcher.matches(headerKey) && valueMatcher.matches(headerValue) {
+                    matchFound = true
+                    break
+                }
+            }
+            
+            guard matchFound else {
+                return false
+            }
+        }
+        
+        return true
+    }
 }
