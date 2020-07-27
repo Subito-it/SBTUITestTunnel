@@ -136,6 +136,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
             guard urlRequest.httpMethod == method else { return false }
         }
         
+        // See https://github.com/Subito-it/SBTUITestTunnel/commit/11fa1b42e944b6b603da8a955deb906b71bcc1e8#diff-589a4a62fe1a450be8720c0eaa5a467dR373
         // guard matches(requestHeaders:urlRequest.allHTTPHeaderFields) else { return false }
         
         if let url = url {
