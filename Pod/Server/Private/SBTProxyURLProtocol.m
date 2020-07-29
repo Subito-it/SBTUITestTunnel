@@ -373,15 +373,15 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         // Note that we only consider the first instance found for each rule type. We want to "skip" other instances which could be evaluated in future calls.
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
             if (stubRule == nil) {
-            stubRule = matchingRule;
+                stubRule = matchingRule;
             }
         } else if (matchingRule[SBTProxyURLProtocolRewriteResponse]) {
             if (rewriteRule == nil) {
-            rewriteRule = matchingRule;
+                rewriteRule = matchingRule;
             }
         } else if (matchingRule[SBTProxyURLProtocolBlockCookiesKey]) {
             if (cookieBlockRule == nil) {
-            cookieBlockRule = matchingRule;
+                cookieBlockRule = matchingRule;
             }
         } else {
             // we can have multiple matching rule here. For example if we throttle and monitor at the same time
@@ -462,7 +462,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             
             if (stubResponse.activeIterations > 0) {
                 if (--stubResponse.activeIterations == 0) {
-                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubRule[SBTProxyURLProtocolStubResponse]];
+                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubRule[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
                 }
             }
         });
@@ -487,7 +487,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             NSInteger cookieBlockActiveIterations = [cookieBlockRule[SBTProxyURLProtocolBlockCookiesActiveIterationsKey] integerValue];
             
             if (--cookieBlockActiveIterations == 0) {
-                [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:cookieBlockRule[SBTProxyURLProtocolStubResponse]];
+                [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:cookieBlockRule[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
             } else {
                 //cookieBlockRule[SBTProxyURLProtocolBlockCookiesActiveIterationsKey] = @(cookieBlockActiveIterations);
             }
@@ -573,7 +573,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         if (--rewrite.activeIterations == 0) {
-            [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteRule[SBTProxyURLProtocolStubResponse]];
+            [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteRule[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
         }
     }
     
@@ -658,7 +658,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         if (stubResponse.activeIterations > 0) {
             if (--stubResponse.activeIterations == 0) {
-                [SBTProxyURLProtocol stubRequestsRemoveWithId:headersStubRequest[SBTProxyURLProtocolStubResponse]];
+                [SBTProxyURLProtocol stubRequestsRemoveWithId:headersStubRequest[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
             }
         }
         
