@@ -370,21 +370,22 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *rewriteRule = nil;
     
     for (NSDictionary *matchingRule in matchingRules) {
+        // Note that we only consider the first instance found for each rule type. We want to "skip" other instances which could be evaluated in future calls.
         if (matchingRule[SBTProxyURLProtocolStubResponse]) {
-            if (stubRule != nil) {
-                NSLog(@"[UITestTunnelServer] Multiple stubs registered for request %@!", self.request);
-                for (NSDictionary *dMatchingRule in matchingRules) {
-                    NSLog(@"[UITestTunnelServer] -> %@", dMatchingRule);
-                }
-            }
-            
+            if (stubRule == nil) {
             stubRule = matchingRule;
+            }
         } else if (matchingRule[SBTProxyURLProtocolRewriteResponse]) {
+            if (rewriteRule == nil) {
             rewriteRule = matchingRule;
+            }
         } else if (matchingRule[SBTProxyURLProtocolBlockCookiesKey]) {
+            if (cookieBlockRule == nil) {
             cookieBlockRule = matchingRule;
+            }
         } else {
             // we can have multiple matching rule here. For example if we throttle and monitor at the same time
+            // TODO: should check for (proxyRule == nil) here? (I cannot fully understand the comment...)
             proxyRule = matchingRule;
         }
     }
