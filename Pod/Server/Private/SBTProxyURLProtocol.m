@@ -85,7 +85,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                                             SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime)}];
     
     @synchronized (self.sharedInstance) {
-        [self.sharedInstance.matchingRules addObject:rule];
+        [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
     
     return rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
@@ -130,7 +130,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match}];
     
     @synchronized (self.sharedInstance) {
-        [self.sharedInstance.matchingRules addObject:rule];
+        [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
     
     return rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
@@ -186,7 +186,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                                             SBTProxyURLProtocolStubResponse: stubResponse}];
     
     @synchronized (self.sharedInstance) {
-        [self.sharedInstance.matchingRules addObject:rule];
+        [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
     
     return rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
@@ -248,7 +248,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match,
                                             SBTProxyURLProtocolRewriteResponse: rewrite}];
     @synchronized (self.sharedInstance) {
-        [self.sharedInstance.matchingRules addObject:rule];
+        [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
     
     return rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
@@ -295,7 +295,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                                              SBTProxyURLProtocolBlockCookiesActiveIterationsKey: @(activeIterations)}];
     
     @synchronized (self.sharedInstance) {
-        [self.sharedInstance.matchingRules addObject:rule];
+        [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
     
     return rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
