@@ -81,8 +81,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (NSString *)throttleRequestsMatching:(SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime;
 {
-    NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match,
-                                            SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime)}];
+    NSDictionary *rule = [self makeRuleWithAttributes:@{SBTProxyURLProtocolMatchingRuleKey: match,
+                                                        SBTProxyURLProtocolDelayResponseTimeKey: @(delayResponseTime)}];
     
     @synchronized (self.sharedInstance) {
         [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
@@ -127,7 +127,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (NSString *)monitorRequestsMatching:(SBTRequestMatch *)match;
 {
-    NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match}];
+    NSDictionary *rule = [self makeRuleWithAttributes:@{SBTProxyURLProtocolMatchingRuleKey: match}];
     
     @synchronized (self.sharedInstance) {
         [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
@@ -182,8 +182,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (NSString *)stubRequestsMatching:(SBTRequestMatch *)match stubResponse:(SBTStubResponse *)stubResponse;
 {
-    NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match,
-                                            SBTProxyURLProtocolStubResponse: stubResponse}];
+    NSDictionary *rule = [self makeRuleWithAttributes:@{SBTProxyURLProtocolMatchingRuleKey: match,
+                                                        SBTProxyURLProtocolStubResponse: stubResponse}];
     
     @synchronized (self.sharedInstance) {
         [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
@@ -245,8 +245,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (NSString *)rewriteRequestsMatching:(SBTRequestMatch *)match rewrite:(SBTRewrite *)rewrite
 {
-    NSDictionary *rule = [self createRule:@{SBTProxyURLProtocolMatchingRuleKey: match,
-                                            SBTProxyURLProtocolRewriteResponse: rewrite}];
+    NSDictionary *rule = [self makeRuleWithAttributes:@{SBTProxyURLProtocolMatchingRuleKey: match,
+                                                        SBTProxyURLProtocolRewriteResponse: rewrite}];
     @synchronized (self.sharedInstance) {
         [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
     }
@@ -290,9 +290,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match activeIterations:(NSInteger)activeIterations
 {
-    NSDictionary *rule = [self createRule: @{SBTProxyURLProtocolMatchingRuleKey: match,
-                                             SBTProxyURLProtocolBlockCookiesKey: @(YES),
-                                             SBTProxyURLProtocolBlockCookiesActiveIterationsKey: @(activeIterations)}];
+    NSDictionary *rule = [self makeRuleWithAttributes: @{SBTProxyURLProtocolMatchingRuleKey: match,
+                                                         SBTProxyURLProtocolBlockCookiesKey: @(YES),
+                                                         SBTProxyURLProtocolBlockCookiesActiveIterationsKey: @(activeIterations)}];
     
     @synchronized (self.sharedInstance) {
         [self.sharedInstance.matchingRules insertObject:rule atIndex:0];
@@ -345,7 +345,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     if ([NSURLProtocol propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
     }
-        
+    
     NSArray *matchingRules = [self matchingRulesForRequest:request];
     return (matchingRules != nil);
 }
@@ -555,7 +555,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     BOOL isRequestRewritten = (rewriteRule != nil);
     
     NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
-        
+    
     NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
     NSAssert(responseData != nil, @"Should not be nil");
     [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
@@ -666,7 +666,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             [self.client URLProtocol:self didLoadData:stubResponse.data];
             [self.client URLProtocolDidFinishLoading:self];
-
+            
             return;
         } else {
             [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
@@ -724,7 +724,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return ret.count > 0 ? ret : nil;
 }
 
-+ (NSDictionary *)createRule:(NSDictionary *)attributes
++ (NSDictionary *)makeRuleWithAttributes:(NSDictionary *)attributes
 {
     NSString *prefix = nil;
     if (attributes[SBTProxyURLProtocolStubResponse]) {
