@@ -75,15 +75,25 @@ class StubTests: XCTestCase {
     }
     
     func testMultipleStubsForSameRequestMatch() {
-        // Rules are evaluated in a LIFO order
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99], activeIterations: 1))
+        XCTContext.runActivity(named: "When adding multiple stubs for the same requests match") { _ in
+            app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], returnCode: 200))
+            app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], returnCode: 401, activeIterations: 1))
+            app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], returnCode: 500, activeIterations: 2))
+        }
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertFalse(request.isStubbed(result))
-        
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result2))
+        XCTContext.runActivity(named: "They are evaluated in LIFO order and removed when finishing active iterations") { _ in
+            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertEqual(request.returnCode(result), 500)
+            
+            let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertEqual(request.returnCode(result2), 500)
+            
+            let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertEqual(request.returnCode(result3), 401)
+
+            let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            XCTAssertEqual(request.returnCode(result4), 200)
+        }
     }
     
     func testStubAddTwiceAndRemovedOnce() {

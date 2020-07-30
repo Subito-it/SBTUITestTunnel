@@ -113,10 +113,43 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.monitorRequestRemoveAll())
     }
     
-    func testMonitorTwice() {
-        // should not crash
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+    func testMultipleMonitorForSameRequestMatch() {
+        XCTContext.runActivity(named: "When adding multiple monitor for the same request match") { _ in
+            XCTAssert(app.monitoredRequestsPeekAll().count == 0)
+            
+            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        }
+        
+        XCTContext.runActivity(named: "They should behave as only one of them has been added") { _ in
+            _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+            _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+            
+            XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
+            
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            
+            let requests = app.monitoredRequestsPeekAll()
+            XCTAssertEqual(requests.count, 3)
+            let requests2 = app.monitoredRequestsPeekAll()
+            XCTAssertEqual(requests2.count, 3)
+            
+            for request in requests {
+                XCTAssert((request.responseString()!).contains("httpbin.org"))
+                XCTAssert(request.timestamp > 0.0)
+                XCTAssert(request.requestTime > 0.0)
+            }
+            
+            XCTAssert(app.monitorRequestRemoveAll())
+            app.monitoredRequestsFlushAll()
+            
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            
+            XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
+        }
     }
     
     func testMonitorAndStubDescription() {
