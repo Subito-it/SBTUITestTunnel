@@ -74,34 +74,33 @@ class StubTests: XCTestCase {
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
     
-    func testStubAddTwice() {
-        // first rule should win
+    func testMultipleStubsForSameRequestMatch() {
+        // Rules are evaluated in a LIFO order
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99]))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99], activeIterations: 1))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result))
+        XCTAssertFalse(request.isStubbed(result))
         
-        XCTAssert(app.stubRequestsRemoveAll())
         let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertFalse(request.isStubbed(result2))
+        XCTAssert(request.isStubbed(result2))
     }
     
     func testStubAddTwiceAndRemovedOnce() {
-        // first rule should win
-        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
-        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99])) ?? ""
+        // Rules are evaluated in a LIFO order
+        let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["not-stubbed": 99])) ?? ""
+        let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1])) ?? ""
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result))
-        app.stubRequestsRemove(withIds: [stubId1])
+        app.stubRequestsRemove(withIds: [stubId2])
         let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result2))
         
         XCTAssert(app.stubRequestsRemoveAll())
         let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result3))
-        app.stubRequestsRemove(withIds: [stubId2])
+        app.stubRequestsRemove(withIds: [stubId1])
         let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result4))
     }
@@ -454,24 +453,20 @@ class StubTests: XCTestCase {
         let stubs1 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs1.count, 1)
-        XCTAssertEqual("stb-" + Array(stubs1.keys)[0].identifier(), stubId1)
+        XCTAssertTrue(stubId1.starts(with: "stb-"), "Expecting stub identifier to start with stb-")
         
         let match2 = SBTRequestMatch(url: "httpbin2.org")
-        let stubId2 = app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
+        _ = app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
         
         let stubs2 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs2.count, 2)
-        let stubbedIdentifiers2 = Array(stubs2.keys).map { "stb-\($0.identifier())" }
-        XCTAssert(stubbedIdentifiers2.contains(stubId1))
-        XCTAssert(stubbedIdentifiers2.contains(stubId2))
         
         app.stubRequestsRemove(withId: stubId1)
         
         let stubs3 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs3.count, 1)
-        XCTAssertEqual("stb-" + Array(stubs3.keys)[0].identifier(), stubId2)
         
         app.stubRequestsRemoveAll()
         
