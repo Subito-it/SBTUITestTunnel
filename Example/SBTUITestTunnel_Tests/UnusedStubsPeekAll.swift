@@ -34,7 +34,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: match, response: response)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
         let expected: [SBTRequestMatch: Int] = [match: 1]
@@ -50,7 +50,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         
         for _ in 0 ... 1 {
             let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
-            XCTAssert(request.isStubbed(result))
+            XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         }
         
         let given = unusedStubsPeekAll()
@@ -76,7 +76,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: match, response: response)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
         let expected = [SBTRequestMatch: Int]()
@@ -103,7 +103,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: match, response: response)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
         let expected = [SBTRequestMatch: Int]()
@@ -135,7 +135,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: secondMatch, response: response)
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
         let expected: [SBTRequestMatch: Int] = [firstMatch: 1, secondMatch: 2]
