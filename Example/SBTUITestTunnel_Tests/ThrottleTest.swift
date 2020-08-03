@@ -99,6 +99,30 @@ class ThrottleTests: XCTestCase {
         
         XCTAssert(delta < -3.0 && delta > -15.0)
     }
+    
+    func testMultipleThrottleForSameRequestMatch() throws {
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let delay1 = 2.0
+        let delay2 = 4.0
+        _ = app.throttleRequests(matching: requestMatch, responseTime: delay1)
+        let throttle2Id = try XCTUnwrap(app.throttleRequests(matching: requestMatch, responseTime: delay2))
+        
+        XCTContext.runActivity(named: "When adding two throttles for the same requests the last one is used.") { _ in
+            let start = Date()
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let delta = start.timeIntervalSinceNow
+            XCTAssert(delta < -(delay2) && delta > -(delay2 + 5.0))
+        }
+        
+        XCTContext.runActivity(named: "After removing the second throttle rule, the first one is used.") { _ in
+            app.rewriteRequestsRemove(withId: throttle2Id)
+            let start = Date()
+            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let delta = start.timeIntervalSinceNow
+            XCTAssert(delta < -(delay1) && delta > -(delay1 + 5.0))
+        }
+    }
 }
 
 extension ThrottleTests {

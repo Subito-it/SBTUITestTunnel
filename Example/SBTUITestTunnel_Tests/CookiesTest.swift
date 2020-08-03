@@ -62,6 +62,23 @@ class CookiesTest: XCTestCase {
         XCTAssert(app.blockCookiesRequestsRemove(withId: requestId))
         XCTAssertEqual(countCookies(), 1)
     }
+
+    func testMultipleBlockCookiesForSameRequestMatch() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+                
+        XCTContext.runActivity(named: "When adding multiple block cookies for the same requests match") { _ in
+            let requestMatch = SBTRequestMatch(url: "httpbin.org")
+            app.blockCookiesInRequests(matching: requestMatch, activeIterations: 1)
+            app.blockCookiesInRequests(matching: requestMatch, activeIterations: 1)
+        }
+        
+        XCTContext.runActivity(named: "They are removed when finishing active iterations") { _ in
+            XCTAssertEqual(countCookies(), 0)
+            XCTAssertEqual(countCookies(), 0)
+            XCTAssertEqual(countCookies(), 1)
+        }
+    }
 }
 
 extension CookiesTest {
