@@ -30,9 +30,10 @@ class NetworkRequests: NSObject {
          "data": data?.base64EncodedString() ?? ""] as [String: Any]
     }
     
-    func isStubbed(_ result: [String: Any]) -> Bool {
+    func isStubbed(_ result: [String: Any], expectedStubValue: Int) -> Bool {
         let networkJson = json(result)
-        return (networkJson["stubbed"] != nil)
+        let stubValue = networkJson["stubbed"] as? Int
+        return (stubValue == expectedStubValue)
     }
     
     func json(_ result: [String: Any]) -> [String: Any] {

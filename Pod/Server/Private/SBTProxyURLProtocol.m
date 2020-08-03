@@ -339,8 +339,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 {
     // Note #1: this method can be called internally multiple times for the same request
     // Note #2: it is not guaranteed that request that is being passed contains the expected
-    // values for the allHTTPHeaderFields property in one of these iterations. For this
-    // reason we postpone matching the request headers after startLoading is called.
+    // values for the allHTTPHeaderFields property in one of these callse. For this reason
+    // we postpone matching the request headers after startLoading is called.
     
     if ([NSURLProtocol propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;

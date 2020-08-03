@@ -104,7 +104,7 @@ class MonitorTests: XCTestCase {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
@@ -157,10 +157,10 @@ class MonitorTests: XCTestCase {
         app.monitorRequests(matching: SBTRequestMatch(url: ".*"))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let result2 = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
-        XCTAssertFalse(request.isStubbed(result2))
+        XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
         
         let requests3 = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests3.count, 2)
@@ -177,10 +177,10 @@ class MonitorTests: XCTestCase {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
         let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result))
+        XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssert(request.isStubbed(result2))
+        XCTAssert(request.isStubbed(result2, expectedStubValue: 1))
         
         let requests2 = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests2.count, 2)
