@@ -103,8 +103,8 @@ class ThrottleTests: XCTestCase {
     func testMultipleThrottleForSameRequestMatch() throws {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         
-        let delay1 = 2.0
-        let delay2 = 4.0
+        let delay1 = 7.0
+        let delay2 = 1.0
         _ = app.throttleRequests(matching: requestMatch, responseTime: delay1)
         let throttle2Id = try XCTUnwrap(app.throttleRequests(matching: requestMatch, responseTime: delay2))
         

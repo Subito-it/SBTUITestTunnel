@@ -363,37 +363,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)startLoading
 {
-    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
-    NSDictionary *stubRule = nil;
-    NSDictionary *throttleRule = nil;
-    NSDictionary *monitorRule = nil;
-    NSDictionary *cookieBlockRule = nil;
-    NSDictionary *rewriteRule = nil;
-    
-    for (NSDictionary *matchingRule in matchingRules) {
-        // Note that we only consider the first instance found for each rule type. We want to "skip" other instances which could be evaluated in future calls.
-        if (matchingRule[SBTProxyURLProtocolStubResponse]) {
-            if (stubRule == nil) {
-                stubRule = matchingRule;
-            }
-        } else if (matchingRule[SBTProxyURLProtocolRewriteResponse]) {
-            if (rewriteRule == nil) {
-                rewriteRule = matchingRule;
-            }
-        } else if (matchingRule[SBTProxyURLProtocolBlockCookiesKey]) {
-            if (cookieBlockRule == nil) {
-                cookieBlockRule = matchingRule;
-            }
-        } else if (matchingRule[SBTProxyURLProtocolDelayResponseTimeKey]) {
-            if (throttleRule == nil) {
-                throttleRule = matchingRule;
-            }
-        } else {
-            if (monitorRule == nil) {
-                monitorRule = matchingRule;
-            }
-        }
-    }
+    NSDictionary *stubRule = [self stubRuleForCurrentRequest];
+    NSDictionary *throttleRule = [self throttleRuleForCurrentRequest];
+    NSDictionary *cookieBlockRule = [self blockCookieRuleForCurrentRequest];
+    NSDictionary *rewriteRule = [self rewriteRuleForCurrentRequest];
+    NSDictionary *monitorRule = [self monitorRuleForCurrentRequest];
     
     SBTRequestMatch *requestMatch = stubRule[SBTProxyURLProtocolMatchingRuleKey];
     BOOL stubbingHeaders = requestMatch.requestHeaders != nil || requestMatch.responseHeaders != nil;
@@ -689,23 +663,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (NSTimeInterval)delayResponseTime
 {
     NSTimeInterval retResponseTime = 0.0;
-    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
-    
-    for (NSDictionary *matchingRule in matchingRules) {
-        NSTimeInterval delayResponseTime = [matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
-        if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
-            // When negative delayResponseTime is the faked response time expressed in KB/s
-            NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
-            
-            NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
-            
-            delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
-        }
+    NSDictionary *throttleRule = [self throttleRuleForCurrentRequest];
+
+    NSTimeInterval delayResponseTime = [throttleRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+    if (delayResponseTime < 0 && [self.response isKindOfClass:[NSHTTPURLResponse class]]) {
+        // When negative delayResponseTime is the faked response time expressed in KB/s
+        NSHTTPURLResponse *requestResponse = (NSHTTPURLResponse *)self.response;
         
-        retResponseTime = MAX(retResponseTime, delayResponseTime);
+        NSUInteger contentLength = [requestResponse.allHeaderFields[@"Content-Length"] unsignedIntValue];
+        delayResponseTime = contentLength / (1024 * ABS(delayResponseTime));
     }
-    
-    return retResponseTime;
+
+    return MAX(retResponseTime, delayResponseTime);
 }
 
 + (NSArray<NSDictionary *> *)matchingRulesForRequest:(NSURLRequest *)request
@@ -780,7 +749,35 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 {
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     for (NSDictionary *matchingRule in matchingRules) {
-        if (matchingRule[SBTProxyURLProtocolStubResponse] == nil && matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] == nil && matchingRule[SBTProxyURLProtocolRewriteResponse] == nil) {
+        if (matchingRule[SBTProxyURLProtocolStubResponse] == nil &&
+            matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] == nil &&
+            matchingRule[SBTProxyURLProtocolRewriteResponse] == nil &&
+            matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] == nil &&
+            matchingRule[SBTProxyURLProtocolBlockCookiesKey] == nil) {
+            return matchingRule;
+        }
+    }
+    
+    return nil;
+}
+
+- (NSDictionary *)throttleRuleForCurrentRequest
+{
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    for (NSDictionary *matchingRule in matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolDelayResponseTimeKey] != nil) {
+            return matchingRule;
+        }
+    }
+    
+    return nil;
+}
+
+- (NSDictionary *)blockCookieRuleForCurrentRequest
+{
+    NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
+    for (NSDictionary *matchingRule in matchingRules) {
+        if (matchingRule[SBTProxyURLProtocolBlockCookiesKey] != nil) {
             return matchingRule;
         }
     }
