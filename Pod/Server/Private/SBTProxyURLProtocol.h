@@ -66,8 +66,6 @@
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId;
 + (void)cookieBlockRequestsRemoveAll;
 
-+ (nonnull NSString *)identifierForRule:(nonnull NSDictionary *)rule;
-
 @end
 
 #endif

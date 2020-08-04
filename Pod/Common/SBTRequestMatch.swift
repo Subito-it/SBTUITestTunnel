@@ -103,11 +103,6 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
         return copy
     }
     
-    @objc public func identifier() -> String {
-        var data = NSKeyedArchiver.archivedData(withRootObject: self)
-        return SHA1.hexString(from: &data)?.replacingOccurrences(of: " ", with: "-") ?? ""
-    }
-    
     @objc(matchesRequestHeaders:)
     public func matches(requestHeaders: [String: String]?) -> Bool {
         guard let requestHeaders = requestHeaders,

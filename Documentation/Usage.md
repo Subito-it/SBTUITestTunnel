@@ -185,6 +185,29 @@ app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: response
 
 The URLSession will fail with an `Error` according to the specified `errorCode`.
 
+#### Multiple stubs for same request match 
+
+It's possible to specify multiple stubs for the same request match: stubs are evaluated in LIFO order (the latest added stub will be used). Adding multiple stubs for the same request match can be very powerful when combined with `activeIterations`; we can specify in advance a "series" of stubs we want to use which will be applied in order and removed when their `activeIterations` value reaches zero. This allows to test some cases where multple network calls are peformed subsequently and is not possibile to "manually" substitute a stub for the same network call. 
+
+For example we can test that, when receiving an authentication error, a client performs a credentials refresh and retries the original network request.
+
+```swift
+app.stubRequests(matching: requestMatchForAuthenticatedCall,
+                 response: successfulResponse)
+
+// Note that we remove authentication error response after one iteration
+app.stubRequests(matching: requestMatchForAuthenticatedCall,
+                 response: authenticationErrorResponse(activeIterations: 1))
+ 
+app.monitorRequests(matching: credentialsRefreshCall, during: {
+   // action to perform authenticated call
+})
+    
+verifyAuthenticatedCallSuccess()
+
+```
+
+
 ### Upload / Download items
 
 #### Upload

@@ -238,6 +238,29 @@ class RewriteTests: XCTestCase {
         let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(result.response.statusCode, statusCode)
     }
+    
+    func testMultipleRewriteForSameRequestMatch() throws {
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        let rewrite1 = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param_b=val_b", replace: "param_b1=val_b1"),
+                                                   SBTRewriteReplacement(find: "param_a=val_a", replace: "param_a1=val_a1")])
+        let rewrite2 = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "param_b=val_b", replace: "param_b2=val_b2"),
+                                                   SBTRewriteReplacement(find: "param_a=val_a", replace: "param_a2=val_a2")])
+        
+        var rewrite2Id = ""
+        try XCTContext.runActivity(named: "When adding two rewrites for the same requests the last one is used.") { _ in
+            _ = app.rewriteRequests(matching: requestMatch, rewrite: rewrite1)
+            rewrite2Id = try XCTUnwrap(app.rewriteRequests(matching: requestMatch, rewrite: rewrite2))
+            
+            let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param_a=val_a&param_b=val_b")
+            XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param_a2=val_a2&param_b2=val_b2")
+        }
+        
+        XCTContext.runActivity(named: "After removing the second rewrite rule, the first one is used.") { _ in
+            app.rewriteRequestsRemove(withId: rewrite2Id)
+            let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param_a=val_a&param_b=val_b")
+            XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param_a1=val_a1&param_b1=val_b1")
+        }
+    }
 }
 
 extension RewriteTests {
