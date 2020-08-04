@@ -116,7 +116,7 @@ class ThrottleTests: XCTestCase {
         }
         
         XCTContext.runActivity(named: "After removing the second throttle rule, the first one is used.") { _ in
-            app.rewriteRequestsRemove(withId: throttle2Id)
+            app.throttleRequestRemove(withId: throttle2Id)
             let start = Date()
             _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
             let delta = start.timeIntervalSinceNow
