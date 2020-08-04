@@ -365,7 +365,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 {
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *stubRule = nil;
-    NSDictionary *proxyRule = nil;
+    NSDictionary *throttleRule = nil;
+    NSDictionary *monitorRule = nil;
     NSDictionary *cookieBlockRule = nil;
     NSDictionary *rewriteRule = nil;
     
@@ -383,10 +384,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             if (cookieBlockRule == nil) {
                 cookieBlockRule = matchingRule;
             }
+        } else if (matchingRule[SBTProxyURLProtocolDelayResponseTimeKey]) {
+            if (throttleRule == nil) {
+                throttleRule = matchingRule;
+            }
         } else {
-            // we can have multiple matching rule here. For example if we throttle and monitor at the same time
-            // TODO: should check for (proxyRule == nil) here? (I cannot fully understand the comment...)
-            proxyRule = matchingRule;
+            if (monitorRule == nil) {
+                monitorRule = matchingRule;
+            }
         }
     }
     
@@ -399,9 +404,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSInteger stubbingStatusCode = stubResponse.returnCode;
         
         NSTimeInterval stubbingResponseTime = stubResponse.responseTime;
-        if (stubbingResponseTime == 0.0 && proxyRule) {
+        if (stubbingResponseTime == 0.0 && throttleRule) {
             // if response time is not set in stub but set in proxy
-            stubbingResponseTime = [proxyRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
+            stubbingResponseTime = [throttleRule[SBTProxyURLProtocolDelayResponseTimeKey] doubleValue];
         }
         
         if (stubbingResponseTime < 0) {
@@ -470,12 +475,13 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         return;
     }
     
-    if (proxyRule != nil || rewriteRule != nil || cookieBlockRule != nil || stubbingHeaders) {
-        __unused SBTRequestMatch *requestMatch1 = proxyRule[SBTProxyURLProtocolMatchingRuleKey];
+    if (monitorRule != nil || throttleRule != nil || rewriteRule != nil || cookieBlockRule != nil || stubbingHeaders) {
+        __unused SBTRequestMatch *requestMatch1 = throttleRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch4 = stubRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[UITestTunnelServer] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4);
+        __unused SBTRequestMatch *requestMatch5 = monitorRule[SBTProxyURLProtocolMatchingRuleKey];
+        NSLog(@"[UITestTunnelServer] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
