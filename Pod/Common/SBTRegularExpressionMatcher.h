@@ -16,14 +16,6 @@
 
 // Alternative approach to fix this: https://github.com/AliSoftware/OHHTTPStubs/pull/166
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import Foundation;
 
 @interface SBTRegularExpressionMatcher: NSObject
@@ -33,5 +25,3 @@
 - (BOOL)matches:(nonnull NSString *)query;
 
 @end
-
-#endif
