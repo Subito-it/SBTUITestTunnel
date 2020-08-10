@@ -106,7 +106,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
     @objc(matchesRequestHeaders:)
     public func matches(requestHeaders: [String: String]?) -> Bool {
         guard let requestHeaders = requestHeaders,
-              let matchRequestHeaders = self.requestHeaders, matchRequestHeaders.count > 0 else {
+              let matchRequestHeaders = self.requestHeaders, !matchRequestHeaders.isEmpty else {
             return true
         }
        
@@ -116,7 +116,7 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
     @objc(matchesResponseHeaders:)
     public func matches(responseHeaders: [String: String]?) -> Bool {
          guard let responseHeaders = responseHeaders,
-               let matchResponseHeaders = self.responseHeaders, matchResponseHeaders.count > 0 else {
+               let matchResponseHeaders = self.responseHeaders, !matchResponseHeaders.isEmpty else {
              return true
          }
         
