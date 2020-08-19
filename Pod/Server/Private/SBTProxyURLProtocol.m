@@ -416,7 +416,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             
             if ([stubResponse isKindOfClass:[SBTStubFailureResponse class]]) {
                 SBTStubFailureResponse *failureStubResponse = (SBTStubFailureResponse *)stubResponse;
-                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:failureStubResponse.failureCode userInfo:nil];
+                NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:failureStubResponse.failureCode userInfo:nil];
                 
                 [client URLProtocol:strongSelf didFailWithError:error];
                 [client URLProtocolDidFinishLoading:strongSelf];
