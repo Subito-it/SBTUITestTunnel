@@ -723,7 +723,16 @@ class StubTests: XCTestCase {
             let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "POST")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
         }
-
+    }
+    
+    func testStubFailure() {
+        XCTContext.runActivity(named: "Test GET stubbing fails") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubFailureResponse(errorCode: URLError.notConnectedToInternet.rawValue))
+            
+            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            XCTAssert(request.isNotConnectedError(result))
+        }
     }
 }
 

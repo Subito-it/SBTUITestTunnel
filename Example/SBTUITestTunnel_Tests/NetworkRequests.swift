@@ -36,6 +36,15 @@ class NetworkRequests: NSObject {
         return (stubValue == expectedStubValue)
     }
     
+    func isNotConnectedError(_ result: [String: Any]) -> Bool {
+        let errorLocalizedDescriptionRaw = result["data"] as! String
+        
+        let decodedData = Data(base64Encoded: errorLocalizedDescriptionRaw)!
+        let decodedString = String(decoding: decodedData, as: UTF8.self)
+
+        return decodedString.contains("NSURLErrorDomain error -1009")
+    }
+
     func json(_ result: [String: Any]) -> [String: Any] {
         let networkBase64 = result["data"] as! String
         if let networkData = Data(base64Encoded: networkBase64) {
@@ -136,8 +145,8 @@ class NetworkRequests: NSObject {
     
     func downloadTaskNetwork(urlString: String, data: Data? = nil, httpMethod: String, delay: TimeInterval = 0.0) -> [String: Any] {
         var retData: Data!
-        var retResponse: HTTPURLResponse!
-        var retHeaders: [String: String]!
+        var retResponse: HTTPURLResponse?
+        var retHeaders: [String: String]?
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -148,13 +157,20 @@ class NetworkRequests: NSObject {
         
         done = false
         URLSession.shared.downloadTask(with: request) {
-            dataUrl, response, _ in
+            dataUrl, response, error in
             DispatchQueue.main.async {
-                guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
-                retResponse = httpResponse
-                retHeaders = (retResponse?.allHeaderFields as! [String: String])
-                if let dataUrl = dataUrl {
-                    retData = try? Data(contentsOf: dataUrl)
+                if let error = error as? URLError {
+                    print(error.localizedDescription)
+                    print(error.errorUserInfo)
+                    print(error.errorCode)
+                    retData = Data(error.localizedDescription.utf8)
+                } else {
+                    guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+                    retResponse = httpResponse
+                    retHeaders = (retResponse?.allHeaderFields as! [String: String])
+                    if let dataUrl = dataUrl {
+                        retData = try? Data(contentsOf: dataUrl)
+                    }
                 }
                 
                 self.done = true
@@ -165,7 +181,7 @@ class NetworkRequests: NSObject {
             RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
-        return returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData)
+        return returnDictionary(status: retResponse?.statusCode ?? -1, headers: retHeaders ?? [:], data: retData)
     }
     
     func backgroundDataTaskNetwork(urlString: String, data: Data?, httpMethod: String, delay: TimeInterval = 0.0) -> [String: Any] {
