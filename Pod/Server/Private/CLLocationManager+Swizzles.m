@@ -89,6 +89,13 @@ static NSString *_serviceStatus;
     return (CLAuthorizationStatus)status;
 }
 
+- (CLAuthorizationStatus)swz_authorizationStatus
+{
+    NSString *defaultStatus = [@(kCLAuthorizationStatusAuthorizedAlways) stringValue];
+    NSInteger status = (_autorizationStatus.length > 0 ? _autorizationStatus : defaultStatus).intValue;
+    return (CLAuthorizationStatus)status;
+}
+
 + (BOOL)swz_locationServicesEnabled
 {
     NSString *defaultStatus = @"YES";
@@ -127,7 +134,10 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
-
+        if (@available(iOS 14, *)) {
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+        }
+            
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));
     });
@@ -150,6 +160,9 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
+        if (@available(iOS 14, *)) {
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+        }
 
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));
