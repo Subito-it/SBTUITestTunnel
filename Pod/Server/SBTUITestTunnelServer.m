@@ -1033,6 +1033,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
     for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
+        if (@available(iOS 14, *)) {
+            [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+        }
     }
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
