@@ -1041,6 +1041,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+- (NSDictionary *)commandCoreLocationStubAccuracyAuthorization:(GCDWebServerRequest *)tunnelRequest
+{
+    NSString *accuracyAuthorization = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
+    
+    [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
+    for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
+        if (@available(iOS 14, *)) {
+            [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+        }
+    }
+
+    return @{ SBTUITunnelResponseResultKey: @"YES" };
+}
+
 - (NSDictionary *)commandCoreLocationStubServiceStatus:(GCDWebServerRequest *)tunnelRequest
 {
     NSString *serviceStatus = tunnelRequest.parameters[SBTUITunnelObjectValueKey];

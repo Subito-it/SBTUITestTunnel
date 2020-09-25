@@ -390,6 +390,11 @@
     return [self.client coreLocationStubAuthorizationStatus:status];
 }
 
+- (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization;
+{
+    return [self.client coreLocationStubAccuracyAuthorization:authorization];
+}
+
 - (BOOL)coreLocationStubLocationServicesEnabled:(BOOL)flag
 {
     return [self.client coreLocationStubLocationServicesEnabled:flag];
