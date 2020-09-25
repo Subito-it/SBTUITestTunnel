@@ -33,6 +33,7 @@
 
 static NSMapTable *_instanceHashTable;
 static NSString *_autorizationStatus;
+static NSString *_accuracyAuthorization;
 static NSString *_serviceStatus;
 
 @implementation CLLocationManager (Swizzles)
@@ -89,6 +90,20 @@ static NSString *_serviceStatus;
     return (CLAuthorizationStatus)status;
 }
 
+- (CLAuthorizationStatus)swz_authorizationStatus
+{
+    NSString *defaultStatus = [@(kCLAuthorizationStatusAuthorizedAlways) stringValue];
+    NSInteger status = (_autorizationStatus.length > 0 ? _autorizationStatus : defaultStatus).intValue;
+    return (CLAuthorizationStatus)status;
+}
+
+- (CLAccuracyAuthorization)swz_accuracyAuthorization API_AVAILABLE(ios(14.0))
+{
+    NSString *defaultAccuracy = [@(CLAccuracyAuthorizationFullAccuracy) stringValue];
+    NSInteger accuracy = (_accuracyAuthorization.length > 0 ? _accuracyAuthorization : defaultAccuracy).intValue;
+    return (CLAccuracyAuthorization)accuracy;
+}
+
 + (BOOL)swz_locationServicesEnabled
 {
     NSString *defaultStatus = @"YES";
@@ -111,6 +126,11 @@ static NSString *_serviceStatus;
     _autorizationStatus = autorizationStatus;
 }
 
++ (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization
+{
+    _accuracyAuthorization = accuracyAuthorization;
+}
+
 + (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
 {
     _instanceHashTable = hashTable;
@@ -127,7 +147,11 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
-
+        if (@available(iOS 14, *)) {
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(accuracyAuthorization), @selector(swz_accuracyAuthorization));
+        }
+            
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));
     });
@@ -150,6 +174,10 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
+        if (@available(iOS 14, *)) {
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+            SBTTestTunnelInstanceSwizzle(self.class, @selector(accuracyAuthorization), @selector(swz_accuracyAuthorization));
+        }
 
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));

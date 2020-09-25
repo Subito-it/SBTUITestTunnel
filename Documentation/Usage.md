@@ -391,6 +391,14 @@ When stubbing is enable you can change the value that will be returned by `+[CLL
 app.coreLocationStubAuthorizationStatus(.denied)
 ```
 
+### accuracyAuthorization
+
+When stubbing is enable you can change the value that will be returned by `CLLocationManager.accuracyAuthorization` using
+
+```swift
+app.coreLocationStubAuthorizationStatus(.denied)
+```
+
 ### locationServicesEnabled
 
 When stubbing is enable you can change the value that will be returned by `+[CLLocationManager locationServicesEnabled]` using

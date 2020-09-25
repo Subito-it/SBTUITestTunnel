@@ -536,6 +536,15 @@
 - (BOOL)coreLocationStubAuthorizationStatus:(CLAuthorizationStatus)status;
 
 /**
+*  Stub CLLocationManager accuracyAuthorization
+*
+*  @param authorization accuracy authorization. The default value returned by `CLLocationManager.accuracyAuthorization` when enabling core location stubbing is CLAccuracyAuthorizationFullAccuracy
+*
+*  @return `YES` on success
+*/
+- (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14));
+
+/**
 *  Stub CLLocationManager locationServicesEnabled
 *
 *  @param flag location service status. The default value returned `+[CLLocationManager locationServicesEnabled]` by  when enabling core location stubbing is YES
