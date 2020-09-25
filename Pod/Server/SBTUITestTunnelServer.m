@@ -1041,7 +1041,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
-- (NSDictionary *)commandCoreLocationStubAccuracyAuthorization:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandCoreLocationStubAccuracyAuthorization:(GCDWebServerRequest *)tunnelRequest API_AVAILABLE(ios(14))
 {
     NSString *accuracyAuthorization = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
     
