@@ -37,16 +37,15 @@ class CoreLocationTests: XCTestCase {
     @available(iOS 14, *)
     func testCoreLocationStubAccuracyAuthorization() {
         app.launchTunnel()
-        
+
         app.coreLocationStubEnabled(true)
-    
+
         app.coreLocationStubAccuracyAuthorization(.fullAccuracy)
         XCTAssertEqual(getStubbedCoreLocationAccuracyAuthorization(), .fullAccuracy)
-        
+
         app.coreLocationStubAccuracyAuthorization(.reducedAccuracy)
         XCTAssertEqual(getStubbedCoreLocationAccuracyAuthorization(), .reducedAccuracy)
     }
-
     
     private func getStubbedCoreLocationAuthorizationStatus() -> CLAuthorizationStatus {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnCLAuthStatus", object: nil) as! String

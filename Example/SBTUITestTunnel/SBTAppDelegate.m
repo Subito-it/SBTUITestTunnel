@@ -49,12 +49,14 @@
             [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAuthStatus" block:^NSObject *(NSObject *object) {
                 return [@([CLLocationManager authorizationStatus]) stringValue];
             }];
-            if (@available(iOS 14, *)) {
+            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+            if (@available(iOS 14.0, *)) {
                 [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAccuracyAuth" block:^NSObject *(NSObject *object) {
                     CLLocationManager *manager = [CLLocationManager new];
                     return [@(manager.accuracyAuthorization) stringValue];
                 }];
             }
+            #endif
 
 
             [SBTUITestTunnelServer takeOffCompleted:YES];

@@ -1033,9 +1033,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
     for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
         [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
-        if (@available(iOS 14, *)) {
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+        if (@available(iOS 14.0, *)) {
             [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
         }
+        #endif
     }
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1043,14 +1045,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubAccuracyAuthorization:(GCDWebServerRequest *)tunnelRequest API_AVAILABLE(ios(14))
 {
-    NSString *accuracyAuthorization = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
-    
-    [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
-    for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-        if (@available(iOS 14, *)) {
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+        NSString *accuracyAuthorization = tunnelRequest.parameters[SBTUITunnelObjectValueKey];
+        
+        [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
+        for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
         }
-    }
+    #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }

@@ -542,7 +542,9 @@
 *
 *  @return `YES` on success
 */
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14));
+#endif
 
 /**
 *  Stub CLLocationManager locationServicesEnabled

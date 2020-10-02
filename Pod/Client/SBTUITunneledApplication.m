@@ -390,10 +390,12 @@
     return [self.client coreLocationStubAuthorizationStatus:status];
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14));
 {
     return [self.client coreLocationStubAccuracyAuthorization:authorization];
 }
+#endif
 
 - (BOOL)coreLocationStubLocationServicesEnabled:(BOOL)flag
 {

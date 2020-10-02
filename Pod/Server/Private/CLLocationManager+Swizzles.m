@@ -97,12 +97,14 @@ static NSString *_serviceStatus;
     return (CLAuthorizationStatus)status;
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (CLAccuracyAuthorization)swz_accuracyAuthorization API_AVAILABLE(ios(14.0))
 {
     NSString *defaultAccuracy = [@(CLAccuracyAuthorizationFullAccuracy) stringValue];
     NSInteger accuracy = (_accuracyAuthorization.length > 0 ? _accuracyAuthorization : defaultAccuracy).intValue;
     return (CLAccuracyAuthorization)accuracy;
 }
+#endif
 
 + (BOOL)swz_locationServicesEnabled
 {
@@ -147,10 +149,11 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
-        if (@available(iOS 14, *)) {
-            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+        
+        SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));            
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
             SBTTestTunnelInstanceSwizzle(self.class, @selector(accuracyAuthorization), @selector(swz_accuracyAuthorization));
-        }
+        #endif
             
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));
@@ -174,10 +177,11 @@ static NSString *_serviceStatus;
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestAlwaysAuthorization), @selector(swz_requestAlwaysAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(requestWhenInUseAuthorization), @selector(swz_requestWhenInUseAuthorization));
         SBTTestTunnelInstanceSwizzle(self.class, @selector(setDelegate:), @selector(swz_setDelegate:));
-        if (@available(iOS 14, *)) {
-            SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+        
+        SBTTestTunnelInstanceSwizzle(self.class, @selector(authorizationStatus), @selector(swz_authorizationStatus));
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
             SBTTestTunnelInstanceSwizzle(self.class, @selector(accuracyAuthorization), @selector(swz_accuracyAuthorization));
-        }
+        #endif
 
         SBTTestTunnelClassSwizzle(self, @selector(authorizationStatus), @selector(swz_authorizationStatus));
         SBTTestTunnelClassSwizzle(self, @selector(locationServicesEnabled), @selector(swz_locationServicesEnabled));

@@ -735,12 +735,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationStubAuthorizationStatus params:params] boolValue];
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14))
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectValueKey: [@(authorization) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationStubAccuracyAuthorization params:params] boolValue];
 }
+#endif
 
 - (BOOL)coreLocationStubLocationServicesEnabled:(BOOL)flag
 {
