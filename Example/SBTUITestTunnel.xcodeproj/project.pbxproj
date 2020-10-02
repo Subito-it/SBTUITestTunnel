@@ -106,6 +106,8 @@
 		C363E5F520502B9F00DFCEB1 /* test_file.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = test_file.json; sourceTree = "<group>"; };
 		C3763A072332505700C0FAF5 /* SBTUITestTunnelServer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SBTUITestTunnelServer+Extension.swift"; sourceTree = "<group>"; };
 		C37C522D1E225A64005FC27D /* MatchRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchRequestTests.swift; sourceTree = "<group>"; };
+		C385D1BC2527590A000B0C8A /* SBTUITestTunnel_ExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBTUITestTunnel_ExampleUITests.swift; sourceTree = "<group>"; };
+		C385D1BE2527590A000B0C8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C392784C241A860B00C47A81 /* SBTExtensionViewController4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBTExtensionViewController4.swift; sourceTree = "<group>"; };
 		C392784E241A86ED00C47A81 /* CoreLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreLocationTests.swift; sourceTree = "<group>"; };
 		C3927850241A895500C47A81 /* XCTestCase+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extension.swift"; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				6003F593195388D20070C39A /* Example for SBTUITestTunnel */,
 				C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */,
 				7E9AB19D22AEE9DB001205E9 /* SBTUITestTunnel_TestsNoSwizzling */,
+				C385D1BB2527590A000B0C8A /* SBTUITestTunnel_ExampleUITests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				DAB024EC32FF7BB83F2760F6 /* Pods */,
@@ -248,6 +251,15 @@
 				7E9AB1A022AEE9DB001205E9 /* Info.plist */,
 			);
 			path = SBTUITestTunnel_TestsNoSwizzling;
+			sourceTree = "<group>";
+		};
+		C385D1BB2527590A000B0C8A /* SBTUITestTunnel_ExampleUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C385D1BC2527590A000B0C8A /* SBTUITestTunnel_ExampleUITests.swift */,
+				C385D1BE2527590A000B0C8A /* Info.plist */,
+			);
+			path = SBTUITestTunnel_ExampleUITests;
 			sourceTree = "<group>";
 		};
 		C39B79F91CB41C3A000C8B0D /* SBTUITestTunnel_Tests */ = {
@@ -358,7 +370,7 @@
 			attributes = {
 				CLASSPREFIX = SBT;
 				DefaultBuildSystemTypeForWorkspace = Latest;
-				LastSwiftUpdateCheck = 1020;
+				LastSwiftUpdateCheck = 1200;
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Tomas Camin";
 				TargetAttributes = {

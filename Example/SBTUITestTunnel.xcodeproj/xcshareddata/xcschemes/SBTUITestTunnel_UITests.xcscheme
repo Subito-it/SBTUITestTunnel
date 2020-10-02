@@ -13,31 +13,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       codeCoverageEnabled = "YES"
       onlyGenerateCoverageForSpecifiedTargets = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "SBTUITestTunnel_Example.app"
-            BlueprintName = "SBTUITestTunnel_Example"
-            ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <CodeCoverageTargets>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2D84DC265A693B560837CAEE17E8426D"
-            BuildableName = "SBTUITestTunnel.framework"
-            BlueprintName = "SBTUITestTunnel-Client-Server"
-            ReferencedContainer = "container:Pods/Pods.xcodeproj">
-         </BuildableReference>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "34CA856100077569E33E345B85A65F24"
-            BuildableName = "SBTUITestTunnel.framework"
-            BlueprintName = "SBTUITestTunnel-Server"
-            ReferencedContainer = "container:Pods/Pods.xcodeproj">
-         </BuildableReference>
-      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "NO">
