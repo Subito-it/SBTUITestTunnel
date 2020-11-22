@@ -77,7 +77,7 @@ extern NSString * _Nonnull const SBTUITunnelResponseDebugKey;
 
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandPing;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandFingerprint;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandQuit;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubMatching;

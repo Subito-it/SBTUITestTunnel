@@ -75,7 +75,7 @@ NSString * const SBTUITunnelResponseDebugKey = @"debug";
 
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
-NSString * const SBTUITunneledApplicationCommandPing = @"commandPing";
+NSString * const SBTUITunneledApplicationCommandFingerprint = @"commandFingerprint";
 NSString * const SBTUITunneledApplicationCommandQuit = @"commandQuit";
 
 NSString * const SBTUITunneledApplicationCommandStubMatching = @"commandStubMatching";

@@ -180,11 +180,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     SBTUITunneledApplicationDefaultTimeout = timeout;
 }
 
-#pragma mark - Ping Command
+#pragma mark - Fingerprint Command
 
-- (BOOL)ping
+- (NSString *)commandFingerprint
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil assertOnError:NO] isEqualToString:@"YES"];
+    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFingerprint params:nil assertOnError:NO];
 }
 
 #pragma mark - Quit Command

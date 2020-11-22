@@ -236,14 +236,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 /* Rememeber to always return something at the end of the command otherwise [self performSelector] will crash with an EXC_I386_GPFLT */
 
-#pragma mark - Ping Command
+#pragma mark - Fingerprint Command
 
-- (NSDictionary *)commandPing:(GCDWebServerRequest *)tunnelRequest
+- (NSDictionary *)commandFingerprint:(GCDWebServerRequest *)tunnelRequest
 {
-    return @{ SBTUITunnelResponseResultKey: @"YES" };
+    return @{ SBTUITunnelResponseResultKey: self.connectionFingerprint };
 }
 
-#pragma mark - Ping Command
+#pragma mark - Quit Command
 
 - (NSDictionary *)commandQuit:(GCDWebServerRequest *)tunnelRequest
 {
