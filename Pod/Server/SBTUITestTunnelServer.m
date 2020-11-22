@@ -79,6 +79,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @interface SBTUITestTunnelServer()
 
 @property (nonatomic, strong) GCDWebServer *server;
+@property (nonatomic, strong) NSString *connectionFingerprint;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 
@@ -127,6 +128,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
     NSString *tunnelPort = environment[SBTUITunneledApplicationLaunchEnvironmentPortKey];
+    self.connectionFingerprint = environment[SBTUITunneledApplicationLaunchEnvironmentFingerprintKey];
     
     if (!tunnelPort) {
         // Required methods missing, presumely app wasn't launched from ui test

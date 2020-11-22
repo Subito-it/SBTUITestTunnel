@@ -40,6 +40,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 @property (nonatomic, weak) XCUIApplication *application;
 @property (nonatomic, assign) NSInteger connectionPort;
+@property (nonatomic, strong) NSString *connectionFingerprint;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
 @property (nonatomic, strong) NSMutableArray *stubOnceIds;
@@ -80,6 +81,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     self.connected = NO;
     self.connectionPort = 0;
+    self.connectionFingerprint = [[NSUUID UUID] UUIDString];
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
 }
 
@@ -122,6 +124,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [self.application.launchEnvironment mutableCopy];
     launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
+    launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentFingerprintKey] = self.connectionFingerprint ?: @"-";
 
     self.application.launchEnvironment = launchEnvironment;
         

@@ -25,6 +25,7 @@
 #import "SBTUITestTunnel.h"
 
 NSString * const SBTUITunneledApplicationLaunchEnvironmentPortKey = @"SBTUITunneledApplicationLaunchEnvironmentPortKey";
+NSString * const SBTUITunneledApplicationLaunchEnvironmentFingerprintKey = @"SBTUITunneledApplicationLaunchEnvironmentFingerprintKey";
 NSString * const SBTUITunneledApplicationDefaultHost = @"localhost";
 
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
