@@ -81,7 +81,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) GCDWebServer *server;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
-@property (nonatomic, assign) BOOL cruising;
 
 @property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
 
@@ -103,7 +102,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance = [[SBTUITestTunnelServer alloc] init];
         sharedInstance.server = [[GCDWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
-        sharedInstance.cruising = YES;
         sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
@@ -206,7 +204,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 + (void)takeOffCompleted:(BOOL)completed
 {
-    self.sharedInstance.cruising = completed;
+
 }
 
 - (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request returnObject:(NSObject **)returnObject
@@ -249,13 +247,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     exit(0);
     return @{ SBTUITunnelResponseResultKey: @"YES" };
-}
-
-#pragma mark - Ready Command
-
-- (NSDictionary *)commandCruising:(GCDWebServerRequest *)tunnelRequest
-{
-    return @{ SBTUITunnelResponseResultKey: self.cruising ? @"YES" : @"NO" };
 }
 
 #pragma mark - Stubs Commands
