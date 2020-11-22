@@ -146,13 +146,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)waitForServerRunning
 {
-    const int timeout = self.connectionTimeout;
-    int i = 0;
-    for (i = 0; i < timeout; i++) {
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+    while (CFAbsoluteTimeGetCurrent() - start < self.connectionTimeout) {
         if ([self pingServer]) {
             return;
         }
-        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+        [NSThread sleepForTimeInterval:0.5];
     }
 
     NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
