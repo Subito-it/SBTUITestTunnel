@@ -28,39 +28,29 @@
     #if DEBUG
         [SBTUITestTunnelServer takeOff];
 
-        if ([[NSProcessInfo processInfo].arguments containsObject:@"wait_for_startup_test"]) {
-            [SBTUITestTunnelServer takeOffCompleted:NO];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [SBTUITestTunnelServer takeOffCompleted:YES];
-            });
-        } else {
-            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
-                [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
+            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
 
-                return nil;
+            return nil;
+        }];
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturn123" block:^NSObject *(NSObject *object) {
+            [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+
+            return @"123";
+        }];
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAuthStatus" block:^NSObject *(NSObject *object) {
+            return [@([CLLocationManager authorizationStatus]) stringValue];
+        }];
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+        if (@available(iOS 14.0, *)) {
+            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAccuracyAuth" block:^NSObject *(NSObject *object) {
+                CLLocationManager *manager = [CLLocationManager new];
+                return [@(manager.accuracyAuthorization) stringValue];
             }];
-            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturn123" block:^NSObject *(NSObject *object) {
-                [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-
-                return @"123";
-            }];
-            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAuthStatus" block:^NSObject *(NSObject *object) {
-                return [@([CLLocationManager authorizationStatus]) stringValue];
-            }];
-            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-            if (@available(iOS 14.0, *)) {
-                [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAccuracyAuth" block:^NSObject *(NSObject *object) {
-                    CLLocationManager *manager = [CLLocationManager new];
-                    return [@(manager.accuracyAuthorization) stringValue];
-                }];
-            }
-            #endif
-
-
-            [SBTUITestTunnelServer takeOffCompleted:YES];
         }
+        #endif
     #endif
     
     return YES;

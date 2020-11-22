@@ -204,11 +204,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSLog(@"[UITestTunnelServer] Up and running!");
 }
 
-+ (void)takeOffCompleted:(BOOL)completed
-{
-
-}
-
 - (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request returnObject:(NSObject **)returnObject
 {
     NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];

@@ -65,36 +65,3 @@ post_install do |installer|
     end
 end
 ```
-
-## Errors
-
-### Workarounding _UI Testing Failure - Failure getting snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204_
-
-**⚠️ This should no longer be needed as of Xcode 9 and newer, keeping here for reference**
-
-To workaround this issue, which seem to occur more frequently in apps with long startup, an additional step is required during the setup of the tunnel in the application target:
-
-Call `SBTUITestTunnelServer.takeOffCompleted(false)` right after `takeOff` (which should be on topo of your `application(_:didFinishLaunchingWithOptions:)`)
-
-```swift
-import UIKit
-import SBTUITestTunnelServer
-
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
-
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        #if DEBUG
-            SBTUITestTunnelServer.takeOff()
-            SBTUITestTunnelServer.takeOffCompleted(false)
-        #endif
-
-        return true
-    }
-}
-```
-
-🔥🔥🔥**You then HAVE TO call `SBTUITestTunnelServer.takeOffCompleted(true)` once you're sure that all your startup tasks are completed and your primary view controller is up and running on screen.**
-
-This will guarantee that the tests will start executing once the view hierarchy of the app is ready.
