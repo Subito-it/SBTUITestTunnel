@@ -198,7 +198,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)pingServer
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil] isEqualToString:@"YES"];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFingerprint params:nil] isEqualToString:self.connectionFingerprint];
 }
 
 #pragma mark - Stub Commands
