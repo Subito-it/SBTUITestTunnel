@@ -83,7 +83,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, assign) BOOL cruising;
 
-@property (nonatomic, strong) dispatch_semaphore_t launchSemaphore;
+@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -104,7 +104,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[GCDWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.cruising = YES;
-        sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
+        sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString string];
@@ -196,7 +196,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return;
     }
     
-    if (dispatch_semaphore_wait(self.launchSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
+    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
         BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
         return;
     }
@@ -731,7 +731,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    dispatch_semaphore_signal(self.launchSemaphore);
+    dispatch_semaphore_signal(self.startupCompletedSemaphore);
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
