@@ -141,12 +141,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithError:nil];
 }
 
-- (void)waitForAppReady
+- (void)waitForServerRunning
 {
     const int timeout = self.connectionTimeout;
     int i = 0;
     for (i = 0; i < timeout; i++) {
-        if ([self isAppCruising]) {
+        if ([self pingServer]) {
             return;
         }
         [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
@@ -181,9 +181,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - Ready Command
 
-- (BOOL)isAppCruising
+- (BOOL)pingServer
 {
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCruising params:nil] isEqualToString:@"YES"];
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil] isEqualToString:@"YES"];
 }
 
 #pragma mark - Stub Commands
