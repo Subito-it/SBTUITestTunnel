@@ -32,7 +32,7 @@
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
 
-@interface SBTUITestTunnelClient()
+@interface SBTUITestTunnelClient() <NSNetServiceDelegate>
 {
     BOOL _userInterfaceAnimationsEnabled;
     NSInteger _userInterfaceAnimationSpeed;
@@ -43,7 +43,10 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, strong) NSString *connectionFingerprint;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
+@property (nonatomic, assign) BOOL enableBonjourDiscovering;
 @property (nonatomic, strong) NSMutableArray *stubOnceIds;
+@property (nonatomic, strong) NSString *bonjourName;
+@property (nonatomic, strong) NSNetService *bonjourBrowser;
 @property (nonatomic, strong) void (^startupBlock)(void);
 @property (nonatomic, copy) NSArray<NSString *> *initialLaunchArguments;
 @property (nonatomic, copy) NSDictionary<NSString *, NSString *> *initialLaunchEnvironment;
@@ -65,6 +68,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         _application = application;
         _userInterfaceAnimationsEnabled = YES;
         _userInterfaceAnimationSpeed = 1;
+        #if TARGET_OS_SIMULATOR
+            _enableBonjourDiscovering = YES;
+        #else
+            _enableBonjourDiscovering = NO;
+        #endif
         
         [self resetInternalState];
     }
@@ -74,10 +82,20 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)resetInternalState
 {
+    [self.bonjourBrowser stop];
+
     self.application.launchArguments = self.initialLaunchArguments;
     self.application.launchEnvironment = self.initialLaunchEnvironment;
 
     self.startupBlock = nil;
+
+
+    self.bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
+    
+    if (self.enableBonjourDiscovering) {
+        self.bonjourBrowser = [[NSNetService alloc] initWithDomain:@"local." type:@"_http._tcp." name:self.bonjourName];
+        self.bonjourBrowser.delegate = self;
+    }
 
     self.connected = NO;
     self.connectionPort = 0;
@@ -123,27 +141,41 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.application.launchArguments = launchArguments;
 
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [self.application.launchEnvironment mutableCopy];
-    launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
+    if (self.enableBonjourDiscovering) {
+        launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey] = self.bonjourName;
+    } else {
+        launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
+    }
+
     launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentFingerprintKey] = self.connectionFingerprint ?: @"-";
 
     self.application.launchEnvironment = launchEnvironment;
     
-    // [self.delegate testTunnelClientIsReadyToLaunch:self] will synchronously launch the AUT and return once
-    // the appDidFinishLaunching did complete.
-    //
-    // In the meantime we start polling the server with the choosen port
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if (self.enableBonjourDiscovering) {
+        NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
+        [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
+        
+        [self.delegate testTunnelClientIsReadyToLaunch:self];
+
         [self waitForServerRunning];
-        
-        if (self.startupBlock) {
-            self.startupBlock(); // this will eventually add some commands in the startup command queue
-        }
-                
-        [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
-    });
-        
-    // This will synchronously launch the AUT and will return once the appDidFinishLaunching did complete
-    [self.delegate testTunnelClientIsReadyToLaunch:self];
+    } else {
+        // [self.delegate testTunnelClientIsReadyToLaunch:self] will synchronously launch the AUT and return once
+        // the appDidFinishLaunching did complete.
+        //
+        // In the meantime we start polling the server with the choosen port
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self waitForServerRunning];
+            
+            if (self.startupBlock) {
+                self.startupBlock(); // this will eventually add some commands in the startup command queue
+            }
+                    
+            [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+        });
+            
+        // This will synchronously launch the AUT and will return once the appDidFinishLaunching did complete
+        [self.delegate testTunnelClientIsReadyToLaunch:self];
+    }
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
@@ -164,11 +196,44 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         if ([self pingServer]) {
             return;
         }
+
         [NSThread sleepForTimeInterval:0.5];
     }
 
     NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
                                        message:@"Failed waiting for app to be ready"];
+    [self shutDownWithError:error];
+}
+
+#pragma mark - Bonjour
+
+- (void)netServiceDidResolveAddress:(NSNetService *)service;
+{
+    if ([service.name isEqualToString:self.bonjourName] && !self.connected) {
+        NSAssert(service.port > 0, @"[SBTUITestTunnel] unexpected port 0!");
+        
+        self.connected = YES;
+        
+        NSLog(@"[SBTUITestTunnel] Tunnel established on port %ld", (unsigned long)service.port);
+        self.connectionPort = service.port;
+        
+        if (self.startupBlock) {
+            self.startupBlock(); // this will eventually add some commands in the startup command queue
+        }
+        
+        [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+    }
+}
+
+- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *,NSNumber *> *)errorDict
+{
+    if (!self.connected || ![sender.name isEqualToString:self.bonjourName]) {
+        return;
+    }
+
+    NSString *message = [NSString localizedStringWithFormat:@"[SBTUITestTunnel] Failed to connect to client app %@", errorDict];
+    NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorConnectionToApplicationFailed
+                                       message:message];
     [self shutDownWithError:error];
 }
 

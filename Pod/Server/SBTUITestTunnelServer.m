@@ -127,10 +127,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (void)takeOffOnce
 {
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
+    
+    NSString *bonjourName = environment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey];
     NSString *tunnelPort = environment[SBTUITunneledApplicationLaunchEnvironmentPortKey];
     self.connectionFingerprint = environment[SBTUITunneledApplicationLaunchEnvironmentFingerprintKey];
     
-    if (!tunnelPort) {
+    if (!tunnelPort && !bonjourName) {
         // Required methods missing, presumely app wasn't launched from ui test
         NSLog(@"[UITestTunnelServer] required environment parameters missing, safely landing");
         return;
@@ -183,13 +185,21 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
     
     [serverOptions setValue:@NO forKey:GCDWebServerOption_AutomaticallySuspendInBackground];
-    [serverOptions setValue:@([tunnelPort intValue]) forKey:GCDWebServerOption_Port];
     [serverOptions setValue:@(YES) forKey:GCDWebServerOption_BindToLocalhost];
     
+    if (tunnelPort) {
+        [serverOptions setValue:@([tunnelPort intValue]) forKey:GCDWebServerOption_Port];
+        NSLog(@"[SBTUITestTunnel] Starting server on port: %@", tunnelPort);
+    } else if (bonjourName) {
+        [serverOptions setValue:bonjourName forKey:GCDWebServerOption_BonjourName];
+        [serverOptions setValue:@"_http._tcp." forKey:GCDWebServerOption_BonjourType];
+        NSLog(@"[SBTUITestTunnel] Starting server with bonjour name: %@", bonjourName);
+    } else {
+        NSAssert(NO, @"No valid discovery method passed");
+    }
+    
     [GCDWebServer setLogLevel:3];
-    
-    NSLog(@"[SBTUITestTunnel] Starting server on port: %@", tunnelPort);
-    
+
     NSError *serverError = nil;
     if (![self.server startWithOptions:serverOptions error:&serverError]) {
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);

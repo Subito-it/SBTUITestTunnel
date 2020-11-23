@@ -25,6 +25,7 @@
 @import Foundation;
 @import ObjectiveC.NSObject;
 
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentPortKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentFingerprintKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;
