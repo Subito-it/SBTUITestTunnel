@@ -25,7 +25,7 @@
 #import <SBTUITestTunnelCommon/SBTUITestTunnelCommon-Swift.h>
 
 #import "SBTMonitoredNetworkRequest.h"
-#import "NSData+gzip.h"
+#import "Private/NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 
