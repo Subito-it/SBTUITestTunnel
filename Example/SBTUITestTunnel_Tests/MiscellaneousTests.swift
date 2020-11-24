@@ -19,6 +19,10 @@ import SBTUITestTunnelClient
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
+    override open class func setUp() {
+        UserDefaults.standard.setValue(false, forKey: "sbtuitesttunnel.disable.bonjour.discovery")
+    }
+
     func testStartupCommands() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString

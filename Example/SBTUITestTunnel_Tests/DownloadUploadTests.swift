@@ -19,6 +19,10 @@ import SBTUITestTunnelClient
 import XCTest
 
 class DownloadUploadTests: XCTestCase {
+    override open class func setUp() {
+        UserDefaults.standard.setValue(false, forKey: "sbtuitesttunnel.disable.bonjour.discovery")
+    }
+    
     override func setUp() {
         super.setUp()
         

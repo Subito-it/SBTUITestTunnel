@@ -19,6 +19,10 @@ import SBTUITestTunnelClient
 import XCTest
 
 class NoSwizzlingTests: XCTestCase {
+    override open class func setUp() {
+        UserDefaults.standard.setValue(false, forKey: "sbtuitesttunnel.disable.bonjour.discovery")
+    }
+
     let app = MyCustomApplication()
     
     override func setUp() {
