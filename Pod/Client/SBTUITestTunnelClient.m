@@ -70,6 +70,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         _userInterfaceAnimationSpeed = 1;
         #if TARGET_OS_SIMULATOR
             _enableBonjourDiscovering = YES;
+            
+            NSNumber *disableBonjourDiscovery = [NSUserDefaults.standardUserDefaults valueForKey:@"sbtuitesttunnel.disable.bonjour.discovery"];
+            if (disableBonjourDiscovery) {
+                _enableBonjourDiscovering = ![disableBonjourDiscovery boolValue];
+            }
         #else
             _enableBonjourDiscovering = NO;
         #endif
