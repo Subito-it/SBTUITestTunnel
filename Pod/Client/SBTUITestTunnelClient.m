@@ -129,21 +129,21 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
 
     self.startupBlock = startupBlock;
-    self.connectionPort = [self findOpenPort];
-    
-    if (self.connectionPort < 0) {
-        NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                           message:[NSString stringWithFormat:@"Failed finding open port, error: %ld", self.connectionPort]];
-        [self shutDownWithError:error];
-        return;
-    }
-    
     self.application.launchArguments = launchArguments;
 
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [self.application.launchEnvironment mutableCopy];
     if (self.enableBonjourDiscovering) {
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey] = self.bonjourName;
     } else {
+        self.connectionPort = [self findOpenPort];
+        
+        if (self.connectionPort < 0) {
+            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
+                                               message:[NSString stringWithFormat:@"Failed finding open port, error: %ld", self.connectionPort]];
+            [self shutDownWithError:error];
+            return;
+        }
+
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
     }
 
