@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
+    #ifndef ENABLE_UITUNNEL
         #define ENABLE_UITUNNEL 1
     #endif
 #endif
@@ -51,6 +51,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, copy) NSArray<NSString *> *initialLaunchArguments;
 @property (nonatomic, copy) NSDictionary<NSString *, NSString *> *initialLaunchEnvironment;
 @property (nonatomic, strong) NSString *(^connectionlessBlock)(NSString *, NSDictionary<NSString *, NSString *> *);
+@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
 
 @end
 
@@ -68,6 +69,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         _application = application;
         _userInterfaceAnimationsEnabled = YES;
         _userInterfaceAnimationSpeed = 1;
+        _startupCompletedSemaphore = dispatch_semaphore_create(0);
+        
         #if TARGET_OS_SIMULATOR
             _enableBonjourDiscovering = YES;
             
@@ -106,6 +109,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.connectionPort = 0;
     self.connectionFingerprint = [[NSUUID UUID] UUIDString];
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
+    self.startupCompletedSemaphore = dispatch_semaphore_create(0);
 }
 
 - (void)shutDownWithError:(NSError *)error
@@ -159,28 +163,32 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (self.enableBonjourDiscovering) {
         NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
         [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
-        
-        [self.delegate testTunnelClientIsReadyToLaunch:self];
-
-        [self waitForServerRunning];
     } else {
+        __weak typeof(self)weakSelf = self;
+        
         // [self.delegate testTunnelClientIsReadyToLaunch:self] will synchronously launch the AUT and return once
         // the appDidFinishLaunching did complete.
         //
         // In the meantime we start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self waitForServerRunning];
+            [weakSelf waitForServerRunning];
             
-            if (self.startupBlock) {
-                self.startupBlock(); // this will eventually add some commands in the startup command queue
-            }
-                    
-            [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                weakSelf.connected = YES;
+                if (weakSelf.startupBlock) {
+                    weakSelf.startupBlock(); // this will eventually add some commands in the startup command queue
+                }
+                        
+                [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+                dispatch_semaphore_signal(weakSelf.startupCompletedSemaphore);
+            });
         });
             
-        // This will synchronously launch the AUT and will return once the appDidFinishLaunching did complete
-        [self.delegate testTunnelClientIsReadyToLaunch:self];
     }
+
+    [self.delegate testTunnelClientIsReadyToLaunch:self];
+    dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC)));
+    NSLog(@"[SBTUITestTunnel] AUT did finish launching");
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
@@ -227,6 +235,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         }
         
         [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+        dispatch_semaphore_signal(self.startupCompletedSemaphore);
     }
 }
 
