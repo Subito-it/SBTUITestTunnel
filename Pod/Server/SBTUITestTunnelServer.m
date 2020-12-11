@@ -731,6 +731,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     dispatch_semaphore_signal(self.startupCompletedSemaphore);
     
+    // Wait one runloop so that we make sure that appDidFinishLaunching did complete successfully
+    dispatch_semaphore_t oneRunloopSemaphore = dispatch_semaphore_create(0);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_semaphore_signal(oneRunloopSemaphore);
+    });
+    dispatch_semaphore_wait(oneRunloopSemaphore, DISPATCH_TIME_FOREVER);
+    
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
