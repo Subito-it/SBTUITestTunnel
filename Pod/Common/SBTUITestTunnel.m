@@ -26,7 +26,6 @@
 
 NSString * const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey = @"SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey";
 NSString * const SBTUITunneledApplicationLaunchEnvironmentPortKey = @"SBTUITunneledApplicationLaunchEnvironmentPortKey";
-NSString * const SBTUITunneledApplicationLaunchEnvironmentFingerprintKey = @"SBTUITunneledApplicationLaunchEnvironmentFingerprintKey";
 NSString * const SBTUITunneledApplicationDefaultHost = @"localhost";
 
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
@@ -76,7 +75,6 @@ NSString * const SBTUITunnelResponseDebugKey = @"debug";
 
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
-NSString * const SBTUITunneledApplicationCommandFingerprint = @"commandFingerprint";
 NSString * const SBTUITunneledApplicationCommandQuit = @"commandQuit";
 
 NSString * const SBTUITunneledApplicationCommandStubMatching = @"commandStubMatching";

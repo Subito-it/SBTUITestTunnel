@@ -27,7 +27,6 @@
 
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentPortKey;
-extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentFingerprintKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;
 
 extern const double
@@ -78,7 +77,6 @@ extern NSString * _Nonnull const SBTUITunnelResponseDebugKey;
 
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandFingerprint;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandQuit;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubMatching;

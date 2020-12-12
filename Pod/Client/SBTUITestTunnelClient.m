@@ -28,6 +28,7 @@
 #import "SBTUITestTunnelClient.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
@@ -40,7 +41,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 
 @property (nonatomic, weak) XCUIApplication *application;
 @property (nonatomic, assign) NSInteger connectionPort;
-@property (nonatomic, strong) NSString *connectionFingerprint;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
 @property (nonatomic, assign) BOOL enableBonjourDiscovering;
@@ -107,7 +107,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     self.connected = NO;
     self.connectionPort = 0;
-    self.connectionFingerprint = [[NSUUID UUID] UUIDString];
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
     self.startupCompletedSemaphore = dispatch_semaphore_create(0);
 }
@@ -156,8 +155,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
     }
 
-    launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentFingerprintKey] = self.connectionFingerprint ?: @"-";
-
     self.application.launchEnvironment = launchEnvironment;
     
     if (self.enableBonjourDiscovering) {
@@ -166,12 +163,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     } else {
         __weak typeof(self)weakSelf = self;
         
-        // [self.delegate testTunnelClientIsReadyToLaunch:self] will synchronously launch the AUT and return once
-        // the appDidFinishLaunching did complete.
-        //
         // In the meantime we start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [weakSelf waitForServerRunning];
+            [weakSelf waitForConnection];
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
@@ -183,10 +177,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                 dispatch_semaphore_signal(weakSelf.startupCompletedSemaphore);
             });
         });
-            
     }
-
+    
     [self.delegate testTunnelClientIsReadyToLaunch:self];
+
     dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC)));
     NSLog(@"[SBTUITestTunnel] AUT did finish launching");
 }
@@ -202,15 +196,47 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithError:nil];
 }
 
-- (void)waitForServerRunning
+- (void)waitForConnection
 {
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < self.connectionTimeout) {
-        if ([self pingServer]) {
+        char *hostname = "localhost";
+        
+        int sockfd;
+        struct sockaddr_in serv_addr;
+        struct hostent *server;
+        
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) {
+            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
+                                               message:@"Failed opening socket"];
+            [self shutDownWithError:error];
             return;
         }
-
-        [NSThread sleepForTimeInterval:0.5];
+        
+        server = gethostbyname(hostname);
+        if (server == NULL) {
+            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
+                                               message:@"Invalid host"];
+            [self shutDownWithError:error];
+            return;
+        }
+        
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr,
+              (char *)&serv_addr.sin_addr.s_addr,
+              server->h_length);
+        
+        serv_addr.sin_port = htons(self.connectionPort);
+        BOOL serverUp = connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) >= 0;
+        close(sockfd);
+        
+        if (serverUp) {
+            return;
+        } else {
+            [NSThread sleepForTimeInterval:0.5];
+        }
     }
 
     NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
@@ -259,25 +285,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     SBTUITunneledApplicationDefaultTimeout = timeout;
 }
 
-#pragma mark - Fingerprint Command
-
-- (NSString *)commandFingerprint
-{
-    return [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFingerprint params:nil assertOnError:NO];
-}
-
 #pragma mark - Quit Command
 
 - (void)quit
 {
     [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandQuit params:nil assertOnError:NO];
-}
-
-#pragma mark - Ready Command
-
-- (BOOL)pingServer
-{
-    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFingerprint params:nil] isEqualToString:self.connectionFingerprint];
 }
 
 #pragma mark - Stub Commands
