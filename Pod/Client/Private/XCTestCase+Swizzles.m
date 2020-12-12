@@ -36,6 +36,7 @@
 
 - (void)swz_tearDown
 {
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"sbtuitesttunnel.disable.bonjour.discovery"];
     [self.app terminate];
     
     [self swz_tearDown];
