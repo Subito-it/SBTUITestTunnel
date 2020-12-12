@@ -78,6 +78,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             if (disableBonjourDiscovery) {
                 _enableBonjourDiscovering = ![disableBonjourDiscovery boolValue];
             }
+            [NSUserDefaults.standardUserDefaults removeObjectForKey:@"sbtuitesttunnel.disable.bonjour.discovery"];
         #else
             _enableBonjourDiscovering = NO;
         #endif
@@ -181,8 +182,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC)));
     NSLog(@"[SBTUITestTunnel] AUT did finish launching");
-    
-    [NSThread sleepForTimeInterval:3.0];
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
