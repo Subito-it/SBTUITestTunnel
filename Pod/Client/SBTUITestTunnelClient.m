@@ -96,11 +96,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.application.launchEnvironment = self.initialLaunchEnvironment;
 
     self.startupBlock = nil;
-
-
-    self.bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
     
     if (self.enableBonjourDiscovering) {
+        self.bonjourName = [NSString stringWithFormat:@"com.subito.test.%d.%.0f", [NSProcessInfo processInfo].processIdentifier, (double)(CFAbsoluteTimeGetCurrent() * 100000)];
         self.bonjourBrowser = [[NSNetService alloc] initWithDomain:@"local." type:@"_http._tcp." name:self.bonjourName];
         self.bonjourBrowser.delegate = self;
     }
@@ -156,7 +154,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
 
     self.application.launchEnvironment = launchEnvironment;
-    
+        
     if (self.enableBonjourDiscovering) {
         NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
         [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
