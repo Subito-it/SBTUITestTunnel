@@ -976,28 +976,34 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (int)findOpenPort
 {
-    struct sockaddr_in addr;
-    socklen_t len = sizeof(addr);
-    addr.sin_family = AF_INET;
-    addr.sin_port = 0;
-    inet_aton("0.0.0.0", &addr.sin_addr);
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        return -1;
+    // Unexpectedly this is binding on ports out of the IPPORT_RESERVED < port < IPPORT_USERRESERVED
+    // A lame workaround is to simply try again
+    for (int retry = 0; retry < 50; retry++) {
+        struct sockaddr_in addr;
+        socklen_t len = sizeof(addr);
+        addr.sin_family = AF_INET;
+        addr.sin_port = 0;
+        inet_aton("0.0.0.0", &addr.sin_addr);
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            return -1;
+        }
+        if (bind(sock, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
+            return -2;
+        }
+        if (getsockname(sock, (struct sockaddr*) &addr, &len) != 0) {
+            return -3;
+        }
+        
+        if (addr.sin_port > 1023) {
+            return addr.sin_port;
+        } else {
+            NSLog(@"[SBTUITestTunnel] Invalid port assigned, trying again");
+            close(sock);
+        }
     }
-    if (bind(sock, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
-        return -2;
-    }
-    if (getsockname(sock, (struct sockaddr*) &addr, &len) != 0) {
-        return -3;
-    }
-    
-    int port = addr.sin_port;
-    if (port < 127) {
-        return -4;
-    }
-    
-    return (addr.sin_port);
+
+    return -4;
 }
 
 #pragma mark - Error Helpers
