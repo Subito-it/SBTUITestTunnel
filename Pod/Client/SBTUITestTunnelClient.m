@@ -128,6 +128,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
+    NSTimeInterval launchStart = CFAbsoluteTimeGetCurrent();
+    
     NSMutableArray *launchArguments = [self.application.launchArguments mutableCopy];
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
 
@@ -141,47 +143,60 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSMutableDictionary<NSString *, NSString *> *launchEnvironment = [self.application.launchEnvironment mutableCopy];
     if (self.enableBonjourDiscovering) {
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey] = self.bonjourName;
+        self.application.launchEnvironment = launchEnvironment;
+        
+        NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
+        [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
     } else {
         self.connectionPort = [self findOpenPort];
+        NSLog(@"[SBTUITestTunnel] Resolving connection on port %ld", self.connectionPort);
         
         if (self.connectionPort < 0) {
             NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                               message:[NSString stringWithFormat:@"Failed finding open port, error: %ld", self.connectionPort]];
+                                               message:[NSString stringWithFormat:@"[SBTUItestTunnel] Failed finding open port, error: %ld", self.connectionPort]];
             [self shutDownWithError:error];
             return;
         }
 
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
-    }
-
-    self.application.launchEnvironment = launchEnvironment;
+        self.application.launchEnvironment = launchEnvironment;
         
-    if (self.enableBonjourDiscovering) {
-        NSLog(@"[SBTUITestTunnel] Resolving bonjour service %@", self.bonjourName);
-        [self.bonjourBrowser resolveWithTimeout:self.connectionTimeout];
-    } else {
         __weak typeof(self)weakSelf = self;
         
         // In the meantime we start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
+            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
                 if (weakSelf.startupBlock) {
-                    weakSelf.startupBlock(); // this will eventually add some commands in the startup command queue
+                    weakSelf.startupBlock();
+                    NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
                         
-                [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+                NSString *result = [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+                if (![result isEqualToString:@"YES"]) {
+                    NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
+                                                       message:[NSString stringWithFormat:@"[SBTUITestTunnel] Failed sending startup completed command"]];
+                    [self shutDownWithError:error];
+                    return;
+                }
                 dispatch_semaphore_signal(weakSelf.startupCompletedSemaphore);
             });
         });
     }
-    
+
     [self.delegate testTunnelClientIsReadyToLaunch:self];
 
-    dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC)));
-    NSLog(@"[SBTUITestTunnel] AUT did finish launching");
+    NSTimeInterval deltaLaunch = MAX(0, SBTUITunneledApplicationDefaultTimeout - (CFAbsoluteTimeGetCurrent() - launchStart));
+    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(deltaLaunch * NSEC_PER_SEC))) != 0) {
+        NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
+                                           message:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"]];
+        [self shutDownWithError:error];
+        return;
+    }
+    NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *, NSString *> *))command
@@ -256,7 +271,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.connectionPort = service.port;
         
         if (self.startupBlock) {
-            self.startupBlock(); // this will eventually add some commands in the startup command queue
+            self.startupBlock();
         }
         
         [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];

@@ -200,7 +200,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
     NSError *serverError = nil;
     if (![self.server startWithOptions:serverOptions error:&serverError]) {
-        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server. %@", serverError.description);
+        BlockAssert(NO, @"[UITestTunnelServer] Failed to start server on port %d. %@", [tunnelPort intValue], serverError.description);
         return;
     }
     
