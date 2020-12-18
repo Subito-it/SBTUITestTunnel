@@ -51,7 +51,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, copy) NSArray<NSString *> *initialLaunchArguments;
 @property (nonatomic, copy) NSDictionary<NSString *, NSString *> *initialLaunchEnvironment;
 @property (nonatomic, strong) NSString *(^connectionlessBlock)(NSString *, NSDictionary<NSString *, NSString *> *);
-@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
+@property (nonatomic, assign) BOOL startupCompleted;
 
 @end
 
@@ -69,7 +69,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         _application = application;
         _userInterfaceAnimationsEnabled = YES;
         _userInterfaceAnimationSpeed = 1;
-        _startupCompletedSemaphore = dispatch_semaphore_create(0);
+        _startupCompleted = NO;
         
         #if TARGET_OS_SIMULATOR
             _enableBonjourDiscovering = YES;
@@ -107,7 +107,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.connected = NO;
     self.connectionPort = 0;
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
-    self.startupCompletedSemaphore = dispatch_semaphore_create(0);
+    self.startupCompleted = NO;
 }
 
 - (void)shutDownWithError:(NSError *)error
@@ -135,6 +135,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
+    NSAssert([NSThread isMainThread], @"This method should be invoked from main thread");
+    
     NSTimeInterval launchStart = CFAbsoluteTimeGetCurrent();
     
     NSMutableArray *launchArguments = [self.application.launchArguments mutableCopy];
@@ -167,7 +169,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         
         __weak typeof(self)weakSelf = self;
         
-        // In the meantime we start polling the server with the choosen port
+        // Start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
             NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
@@ -179,27 +181,25 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                     NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
                 
-                NSString *result = [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
-                if (![result isEqualToString:@"YES"]) {
-                    NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                                       message:[NSString stringWithFormat:@"[SBTUITestTunnel] Failed sending startup completed command"]];
-                    [self shutDownWithError:error];
-                    return;
-                }
-                dispatch_semaphore_signal(weakSelf.startupCompletedSemaphore);
+                weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
             });
         });
     }
 
     [self.delegate testTunnelClientIsReadyToLaunch:self];
     
-    NSTimeInterval deltaLaunch = MAX(0, SBTUITunneledApplicationDefaultTimeout - (CFAbsoluteTimeGetCurrent() - launchStart));
-    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(deltaLaunch * NSEC_PER_SEC))) != 0) {
-        NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                           message:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"]];
-        [self shutDownWithError:error];
-        return;
+    while (YES) {
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        
+        if (CFAbsoluteTimeGetCurrent() - launchStart > SBTUITunneledApplicationDefaultTimeout) {
+            return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
+        }
+        
+        if (self.startupCompleted && [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"]) {
+            break;
+        }
     }
+    
     NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
 }
 
@@ -271,7 +271,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         }
         
         [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
-        dispatch_semaphore_signal(self.startupCompletedSemaphore);
+        
+        __weak typeof(self)weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
+        });
     }
 }
 

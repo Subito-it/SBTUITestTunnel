@@ -82,7 +82,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 
-@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
+@property (nonatomic, assign) BOOL startupCompleted;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -102,7 +102,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance = [[SBTUITestTunnelServer alloc] init];
         sharedInstance.server = [[GCDWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
-        sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
+        sharedInstance.startupCompleted = NO;
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString string];
@@ -204,12 +204,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return;
     }
     
-    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
-        BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
-        return;
+    NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+    while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        
+        if (self.startupCompleted) {
+            NSLog(@"[UITestTunnelServer] Up and running!");
+            return;
+        }
     }
     
-    NSLog(@"[UITestTunnelServer] Up and running!");
+    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
 }
 
 - (BOOL)processCustomCommandIfNecessary:(GCDWebServerRequest *)request returnObject:(NSObject **)returnObject
@@ -727,14 +733,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStartupCompleted:(GCDWebServerRequest *)tunnelRequest
 {
-    dispatch_semaphore_signal(self.startupCompletedSemaphore);
+    __weak typeof(self)weakSelf = self;
     
     // Wait one runloop so that we make sure that appDidFinishLaunching did complete successfully
-    dispatch_semaphore_t oneRunloopSemaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t mainSemaphore = dispatch_semaphore_create(0);
     dispatch_async(dispatch_get_main_queue(), ^{
-        dispatch_semaphore_signal(oneRunloopSemaphore);
+        weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
+        dispatch_semaphore_signal(mainSemaphore);
     });
-    dispatch_semaphore_wait(oneRunloopSemaphore, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(mainSemaphore, DISPATCH_TIME_FOREVER);
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
