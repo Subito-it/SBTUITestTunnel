@@ -299,6 +299,13 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     SBTUITunneledApplicationDefaultTimeout = timeout;
 }
 
+#pragma mark - Ping Command
+
+- (BOOL)ping
+{
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandPing params:nil assertOnError:NO] isEqualToString:@"YES"];
+}
+
 #pragma mark - Quit Command
 
 - (void)quit
