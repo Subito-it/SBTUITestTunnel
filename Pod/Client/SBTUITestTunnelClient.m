@@ -246,7 +246,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         BOOL serverUp = connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) >= 0;
         close(sockfd);
         
-        if (serverUp) {
+        if (serverUp && [self ping]) {
             return;
         } else {
             [NSThread sleepForTimeInterval:0.5];
