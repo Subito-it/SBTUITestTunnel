@@ -121,6 +121,13 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
 }
 
+- (void)shutDownWithErrorMessage:(NSString *)message code:(SBTUITestTunnelError)code
+{
+    NSError *error = [self.class errorWithCode:code
+                                       message:message];
+    [self shutDownWithError:error];
+}
+
 - (void)launchTunnel
 {
     [self launchTunnelWithStartupBlock:nil];
@@ -152,10 +159,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         NSLog(@"[SBTUITestTunnel] Resolving connection on port %ld", self.connectionPort);
         
         if (self.connectionPort < 0) {
-            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                               message:[NSString stringWithFormat:@"[SBTUItestTunnel] Failed finding open port, error: %ld", self.connectionPort]];
-            [self shutDownWithError:error];
-            return;
+            return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUItestTunnel] Failed finding open port, error: %ld", self.connectionPort] code:SBTUITestTunnelErrorLaunchFailed];
         }
 
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentPortKey] = [NSString stringWithFormat: @"%ld", (long)self.connectionPort];
@@ -174,7 +178,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                     weakSelf.startupBlock();
                     NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
-                        
+                
                 NSString *result = [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
                 if (![result isEqualToString:@"YES"]) {
                     NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
@@ -188,7 +192,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
 
     [self.delegate testTunnelClientIsReadyToLaunch:self];
-
+    
     NSTimeInterval deltaLaunch = MAX(0, SBTUITunneledApplicationDefaultTimeout - (CFAbsoluteTimeGetCurrent() - launchStart));
     if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(deltaLaunch * NSEC_PER_SEC))) != 0) {
         NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
@@ -222,18 +226,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0) {
-            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                               message:@"Failed opening socket"];
-            [self shutDownWithError:error];
-            return;
+            return [self shutDownWithErrorMessage:@"Failed opening socket" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
         }
         
         server = gethostbyname(hostname);
         if (server == NULL) {
-            NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                               message:@"Invalid host"];
-            [self shutDownWithError:error];
-            return;
+            return [self shutDownWithErrorMessage:@"Invalid host" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
         }
         
         bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -253,9 +251,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         }
     }
 
-    NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorLaunchFailed
-                                       message:@"Failed waiting for app to be ready"];
-    [self shutDownWithError:error];
+    [self shutDownWithErrorMessage:@"Failed waiting for app to be ready" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
 }
 
 #pragma mark - Bonjour
@@ -284,11 +280,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (!self.connected || ![sender.name isEqualToString:self.bonjourName]) {
         return;
     }
-
-    NSString *message = [NSString localizedStringWithFormat:@"[SBTUITestTunnel] Failed to connect to client app %@", errorDict];
-    NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorConnectionToApplicationFailed
-                                       message:message];
-    [self shutDownWithError:error];
+    
+    [self shutDownWithErrorMessage:[NSString localizedStringWithFormat:@"[SBTUITestTunnel] Failed to connect to client app %@", errorDict] code:SBTUITestTunnelErrorConnectionToApplicationFailed];
 }
 
 #pragma mark - Timeout
@@ -898,9 +891,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)base64SerializeData:(NSData *)data
 {
     if (!data) {
-        NSError *error = [self.class errorWithCode:SBTUITestTunnelErrorOtherFailure
-                                           message:@"[SBTUITestTunnel] Failed to serialize object"];
-        [self shutDownWithError:error];
+        [self shutDownWithErrorMessage:@"[SBTUITestTunnel] Failed to serialize object" code:SBTUITestTunnelErrorOtherFailure];
         return @"";
     } else {
         return [[data base64EncodedStringWithOptions:0] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
