@@ -42,7 +42,7 @@ class NetworkRequests: NSObject {
         let decodedData = Data(base64Encoded: errorLocalizedDescriptionRaw)!
         let decodedString = String(decoding: decodedData, as: UTF8.self)
 
-        return decodedString.contains("NSURLErrorDomain error -1009")
+        return decodedString.contains("NSURLErrorDomain") && decodedString.contains("-1009")
     }
 
     func json(_ result: [String: Any]) -> [String: Any] {
