@@ -267,15 +267,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.connectionPort = service.port;
         
         if (self.startupBlock) {
+            NSAssert([NSThread isMainThread], @"Startup needs to be called from main thread");
             self.startupBlock();
         }
         
         [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
-        
-        __weak typeof(self)weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
-        });
+        self.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
     }
 }
 
