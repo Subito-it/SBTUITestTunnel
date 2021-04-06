@@ -22,7 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
-@import Foundation;
+@import UIKit;
 
 @interface UIViewController (SBTUITestTunnel)
 
