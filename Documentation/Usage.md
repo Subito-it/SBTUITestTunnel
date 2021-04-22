@@ -409,18 +409,26 @@ app.coreLocationStubLocationServicesEnabled(false)
 
 ### Trigger location updates
 
-When stubbing is enable you can trigger a location change by using
+When stubbing is enable ([see](#CLLocationManager-stubbing)) you can trigger a location change by using
 
 ```swift
+app.coreLocationStubEnabled(true)
+
+...
+
 let locations: [CLLocation] = ...
 app.coreLocationNotifyLocationUpdate(locations)
 ```
 
 ### Trigger location update failure
 
-When stubbing is enable you can trigger a location change by using
+When stubbing is enable ([see](#CLLocationManager-stubbing)) you can trigger a location change by using
 
 ```swift
+app.coreLocationStubEnabled(true)
+
+...
+
 let errror: Error = ...
 app.coreLocationNotifyLocationError(errror)
 ```
