@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16095" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="DUh-KF-iax">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="DUh-KF-iax">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16084.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -258,7 +259,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CsN-7w-9JD">
-                                                    <rect key="frame" x="16" y="22" width="50" height="21"/>
+                                                    <rect key="frame" x="16" y="22" width="49" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -341,7 +342,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label4" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="REG-DZ-b9b">
-                                                    <rect key="frame" x="16" y="22" width="53" height="21"/>
+                                                    <rect key="frame" x="16" y="22" width="52" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -444,7 +445,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QKK-bM-Ktu">
                                         <rect key="frame" x="67" y="1200" width="240" height="128"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rhz-H6-07f">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rhz-H6-07f">
                                                 <rect key="frame" x="97" y="49" width="46" height="30"/>
                                                 <state key="normal" title="Button"/>
                                             </button>
@@ -494,11 +495,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dnY-EI-hBw">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dnY-EI-hBw">
                                 <rect key="frame" x="16" y="70" width="138" height="30"/>
                                 <state key="normal" title="Authorization status"/>
                                 <connections>
                                     <action selector="authorizationStatusTapped:" destination="ddr-0R-Jhm" eventType="touchUpInside" id="ggg-uF-faO"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lo7-YO-SrW">
+                                <rect key="frame" x="16" y="146" width="109" height="30"/>
+                                <state key="normal" title="Update location"/>
+                                <connections>
+                                    <action selector="updateTapped:" destination="ddr-0R-Jhm" eventType="touchUpInside" id="9n4-Ng-PEq"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u18-q9-vmK">
@@ -508,17 +516,29 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eCN-GB-ZhH">
+                                <rect key="frame" x="16" y="184" width="8" height="21"/>
+                                <accessibility key="accessibilityConfiguration" identifier="location_pos"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="u18-q9-vmK" firstAttribute="leading" secondItem="ZCG-Qs-mYC" secondAttribute="leading" constant="16" id="4XR-eU-f7R"/>
                             <constraint firstItem="dnY-EI-hBw" firstAttribute="top" secondItem="EqA-av-fTp" secondAttribute="bottom" constant="26" id="G6i-sb-TwR"/>
+                            <constraint firstItem="lo7-YO-SrW" firstAttribute="top" secondItem="dnY-EI-hBw" secondAttribute="bottom" constant="46" id="JDL-NA-197"/>
+                            <constraint firstItem="eCN-GB-ZhH" firstAttribute="leading" secondItem="lo7-YO-SrW" secondAttribute="leading" id="Jn3-jK-kaa"/>
                             <constraint firstItem="u18-q9-vmK" firstAttribute="top" secondItem="dnY-EI-hBw" secondAttribute="bottom" constant="5" id="SQ0-kL-lRv"/>
                             <constraint firstItem="dnY-EI-hBw" firstAttribute="leading" secondItem="ZCG-Qs-mYC" secondAttribute="leading" constant="16" id="g5i-H2-aL7"/>
+                            <constraint firstItem="eCN-GB-ZhH" firstAttribute="top" secondItem="lo7-YO-SrW" secondAttribute="bottom" constant="8" symbolic="YES" id="tr9-Uz-HbC"/>
+                            <constraint firstItem="lo7-YO-SrW" firstAttribute="leading" secondItem="dnY-EI-hBw" secondAttribute="leading" id="xxl-Ec-b9V"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="tTL-Np-baw"/>
                     <connections>
+                        <outlet property="locationLabel" destination="eCN-GB-ZhH" id="O55-Zd-yn7"/>
                         <outlet property="statusLabel" destination="u18-q9-vmK" id="P5w-2F-2aL"/>
                     </connections>
                 </viewController>
@@ -527,4 +547,9 @@
             <point key="canvasLocation" x="1665" y="207"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>
