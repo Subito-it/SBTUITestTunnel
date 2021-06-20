@@ -150,17 +150,17 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
                 queryString = "&" + queryString // prepend & to allow always prepending `&` in SBTMatchRequest's queries
                 
                 for matchQuery in query {
-                    let matcher = SBTRegularExpressionMatcher(regularExpression: matchQuery)
-                    guard matcher.matches(queryString) else { return false }
+                    let matcher = SBTRegularExpressionMatcher(regexString: matchQuery)
+                    guard matcher.matches(pattern: queryString) else { return false }
                 }
             }
         }
 
         if let body = body {
-            let matcher = SBTRegularExpressionMatcher(regularExpression: body)
+            let matcher = SBTRegularExpressionMatcher(regexString: body)
             let requestBody = String(decoding: urlRequest.httpBody ?? Data(), as: UTF8.self)
 
-            guard matcher.matches(requestBody) else { return false }
+            guard matcher.matches(pattern: requestBody) else { return false }
         }
 
         return true
@@ -170,12 +170,12 @@ public class SBTRequestMatch: NSObject, NSCoding, NSCopying {
 private extension Dictionary where Key == String, Value == String {
     func matches(expectedHeaders: [String: String]) -> Bool {
         for (expectedHeaderKey, expectedValue) in expectedHeaders {
-            let keyMatcher = SBTRegularExpressionMatcher(regularExpression: expectedHeaderKey)
-            let valueMatcher = SBTRegularExpressionMatcher(regularExpression: expectedValue)
+            let keyMatcher = SBTRegularExpressionMatcher(regexString: expectedHeaderKey)
+            let valueMatcher = SBTRegularExpressionMatcher(regexString: expectedValue)
             
             var matchFound = false
             for (headerKey, headerValue) in self {
-                if keyMatcher.matches(headerKey) && valueMatcher.matches(headerValue) {
+                if keyMatcher.matches(pattern: headerKey) && valueMatcher.matches(pattern: headerValue) {
                     matchFound = true
                     break
                 }
