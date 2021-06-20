@@ -22,7 +22,13 @@
 
 #if ENABLE_UITUNNEL
 
+@import SBTUITestTunnelCommon;
+
 #import "SBTUITestTunnelClientProtocol.h"
+
+// These imports are required for SPM as this file will be the umbrella header
+#import "XCTestCase+AppExtension.h"
+#import "SBTUITunneledApplication.h"
 
 typedef enum: NSUInteger {
     SBTUITestTunnelErrorLaunchFailed = 101,
