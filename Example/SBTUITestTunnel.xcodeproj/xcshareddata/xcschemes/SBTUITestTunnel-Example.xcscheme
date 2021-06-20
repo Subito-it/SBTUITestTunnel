@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1130"
+   LastUpgradeVersion = "1300"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -99,16 +99,6 @@
                BlueprintIdentifier = "C39B79F71CB41C3A000C8B0D"
                BuildableName = "SBTUITestTunnel_Tests.xctest"
                BlueprintName = "SBTUITestTunnel_Tests"
-               ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C385D1B92527590A000B0C8A"
-               BuildableName = "SBTUITestTunnel_ExampleUITests.xctest"
-               BlueprintName = "SBTUITestTunnel_ExampleUITests"
                ReferencedContainer = "container:SBTUITestTunnel.xcodeproj">
             </BuildableReference>
          </TestableReference>
