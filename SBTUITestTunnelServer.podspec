@@ -21,9 +21,9 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
 
-    s.source_files = 'Pod/Server/**/*.{h,m,swift}'
-    s.private_header_files = 'Pod/Server/Private/*.h'
+    s.source_files = 'Sources/SBTUITestTunnelServer/**/*.{h,m}'
     
     s.dependency 'SBTUITestTunnelCommon'
-    s.dependency 'GCDWebServer', '~> 3.0'
+    s.dependency 'SBTUITestTunnelCommonSwift'
+    s.dependency 'GCDWebServer'
 end

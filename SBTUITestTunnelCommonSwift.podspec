@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-    s.name             = "SBTUITestTunnelClient"
+    s.name             = "SBTUITestTunnelCommonSwift"
     s.version          = "6.6.4"
     s.summary          = "Enable network mocks and more in UI Tests"
 
@@ -13,17 +13,13 @@ Pod::Spec.new do |s|
     s.author           = { "Tomas Camin" => "tomas.camin@adevinta.com" }
     s.source           = { :git => "https://github.com/Subito-it/SBTUITestTunnel.git", :tag => s.version.to_s }
 
-    s.ios.deployment_target = '9.0'
+    s.ios.deployment_target = '10.0'
     s.tvos.deployment_target = '9.0'
     s.swift_version = '5.0'
     s.requires_arc = true
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
-    s.pod_target_xcconfig = { :prebuild_configuration => 'debug', 'ENABLE_BITCODE' => 'NO' } # XCTest requires bitcode to be disabled
+    s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
 
-    s.frameworks = 'XCTest'
-    s.source_files = 'Sources/SBTUITestTunnelClient/**/*.{h,m}'
-
-    s.dependency 'SBTUITestTunnelCommon'
-    s.dependency 'SBTUITestTunnelCommonSwift'
+    s.source_files = 'Sources/SBTUITestTunnelCommonSwift/**/*.{swift}'
 end
