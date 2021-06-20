@@ -22,7 +22,7 @@
 
 #if ENABLE_UITUNNEL
 
-#import "SBTUITestTunnel.h"
+#import "include/SBTUITestTunnel.h"
 
 NSString * const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey = @"SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey";
 NSString * const SBTUITunneledApplicationDefaultHost = @"localhost";

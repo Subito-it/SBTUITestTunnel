@@ -4,7 +4,7 @@
 //
 // https://gist.github.com/niklasberglund/5553224
 
-#import "NSData+gzip.h"
+#import "private/NSData+gzip.h"
 #include <zlib.h>
 
 @implementation NSData (gzip)

@@ -29,8 +29,8 @@
 @import SBTUITestTunnelCommon;
 
 #import "XCTestCase+Swizzles.h"
-#import "XCTestCase+AppExtension.h"
-#import "SBTUITunneledApplication.h"
+#import "../include/XCTestCase+AppExtension.h"
+#import "../include/SBTUITunneledApplication.h"
 
 @implementation XCTestCase (Swizzles)
 

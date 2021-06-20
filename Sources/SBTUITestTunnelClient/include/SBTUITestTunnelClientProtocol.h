@@ -26,6 +26,10 @@
 @import CoreLocation;
 @import UserNotifications;
 
+@class SBTRequestMatch;
+@class SBTStubResponse;
+@class SBTRewrite;
+
 @protocol SBTUITestTunnelClientProtocol <NSObject>
 
 /**

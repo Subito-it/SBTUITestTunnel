@@ -25,7 +25,7 @@
 @import XCTest;
 @import SBTUITestTunnelCommon;
 
-#import "SBTUITestTunnelClient.h"
+#import "include/SBTUITestTunnelClient.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 

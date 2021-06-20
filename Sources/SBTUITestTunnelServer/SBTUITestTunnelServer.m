@@ -23,18 +23,19 @@
 #if ENABLE_UITUNNEL
 
 @import SBTUITestTunnelCommon;
+@import SBTUITestTunnelCommonSwift;
 @import GCDWebServer;
 @import CoreLocation;
 @import UserNotifications;
 
-#import "SBTUITestTunnelServer.h"
-#import "UITextField+DisableAutocomplete.h"
-#import "SBTProxyURLProtocol.h"
-#import "SBTAnyViewControllerPreviewing.h"
-#import "UIViewController+SBTUITestTunnel.h"
-#import "UIView+Extensions.h"
-#import "CLLocationManager+Swizzles.h"
-#import "UNUserNotificationCenter+Swizzles.h"
+#import "include/SBTUITestTunnelServer.h"
+#import "include/SBTAnyViewControllerPreviewing.h"
+#import "include/UIViewController+SBTUITestTunnel.h"
+#import "private/CLLocationManager+Swizzles.h"
+#import "private/UNUserNotificationCenter+Swizzles.h"
+#import "private/UITextField+DisableAutocomplete.h"
+#import "private/SBTProxyURLProtocol.h"
+#import "private/UIView+Extensions.h"
 
 #if !defined(NS_BLOCK_ASSERTIONS)
 
