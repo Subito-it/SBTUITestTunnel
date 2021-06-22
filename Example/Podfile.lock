@@ -2,14 +2,14 @@ PODS:
   - GCDWebServer (3.5.4):
     - GCDWebServer/Core (= 3.5.4)
   - GCDWebServer/Core (3.5.4)
-  - SBTUITestTunnelClient (6.6.4):
+  - SBTUITestTunnelClient (7.0.0):
     - SBTUITestTunnelCommon
     - SBTUITestTunnelCommonSwift
-  - SBTUITestTunnelCommon (6.6.4):
+  - SBTUITestTunnelCommon (7.0.0):
     - SBTUITestTunnelCommonSwift
-  - SBTUITestTunnelCommonSwift (6.6.4)
-  - SBTUITestTunnelServer (6.6.4):
-    - GCDWebServer (~> 3.0)
+  - SBTUITestTunnelCommonSwift (7.0.0)
+  - SBTUITestTunnelServer (7.0.0):
+    - GCDWebServer
     - SBTUITestTunnelCommon
     - SBTUITestTunnelCommonSwift
 
@@ -39,10 +39,10 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   GCDWebServer: c68349164e523a7f7a2f514108b3b6c21d843f97
-  SBTUITestTunnelClient: 5195e4a02f256f651c2ce20f8ddc5c8b875eac77
-  SBTUITestTunnelCommon: 786120aafb58d370747c901ea55a0a8c3d18c470
-  SBTUITestTunnelCommonSwift: 530dcfbb9a78c4641d542b1ca20b4248c147f292
-  SBTUITestTunnelServer: 5972b12fbc4a4216bf27552abf2474aaf05426e8
+  SBTUITestTunnelClient: 89305a0dd39d8a6aace4d41bd2e99cff21b591bb
+  SBTUITestTunnelCommon: 93807a923ca543629cc515e6820d4e5e0955f860
+  SBTUITestTunnelCommonSwift: 2520848e0a50278de8089c7cc25aa3d25cb2e91c
+  SBTUITestTunnelServer: 4a03a37a60c5e6596a570ebeadd4eddd354664a9
 
 PODFILE CHECKSUM: 7a41fa286bea012eec5fef6f7d011bda4e747a3f
 
