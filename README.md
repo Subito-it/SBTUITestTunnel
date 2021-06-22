@@ -3,6 +3,7 @@
 [![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
 [![License](https://img.shields.io/cocoapods/l/SBTUITestTunnel.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
 [![Platform](https://img.shields.io/cocoapods/p/SBTUITestTunnel.svg?style=flat)](http://cocoadocs.org/docsets/SBTUITestTunnel)
+[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-green?style=flat)](https://img.shields.io/badge/Swift_Package_Manager-compatible-green?style=flat)
 
 ## Overview
 

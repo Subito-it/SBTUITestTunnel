@@ -348,7 +348,7 @@ extension SBTTableViewController {
     
     @objc func executeUploadDataTaskRequest2() {
         let data = "This is a test".data(using: .utf8)
-        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "PUT")
+        uploadTaskNetwork(urlString: "http://httpbin.org/put", data: data!, httpMethod: "PUT")
     }
     
     @objc func executeBackgroundUploadDataTaskRequest() {

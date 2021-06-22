@@ -91,13 +91,13 @@ class MatchRequestTests: XCTestCase {
     }
     
     func testPostWithBodyInverted() {
-        let requestMatchInverted = SBTRequestMatch(url: "httpbin.org", query: [], method: "POST", body: "!QueryName")
+        let requestMatchInverted = SBTRequestMatch(url: "httpbin.org/post", query: [], method: "POST", body: "!QueryName")
         app.stubRequests(matching: requestMatchInverted, response: SBTStubResponse(response: ["stubbed": 1]))
         
-        let containingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org", httpMethod: "POST", httpBody: "query QueryName")
+        let containingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "query QueryName")
         XCTAssertFalse(request.isStubbed(containingBodyMatch, expectedStubValue: 1))
         
-        let notContainingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org", httpMethod: "POST", httpBody: "query AnotherQuery")
+        let notContainingBodyMatch = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "query AnotherQuery")
         XCTAssert(request.isStubbed(notContainingBodyMatch, expectedStubValue: 1))
     }
     

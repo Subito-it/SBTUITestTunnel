@@ -1,6 +1,0 @@
-framework module SBTUITestTunnelClient {
-  umbrella header "SBTUITestTunnelClient-umbrella.h"
-
-  export *
-  module * { export * }
-}

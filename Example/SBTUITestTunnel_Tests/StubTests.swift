@@ -244,27 +244,27 @@ class StubTests: XCTestCase {
     
     func testStubPutRequest() {
         let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "PUT"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId1))
-        let result2 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result2 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
         
         let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result3, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId2))
-        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result4, expectedStubValue: 1))
         
         let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result5 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result5 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result5, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId3))
-        let result6 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result6 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result6, expectedStubValue: 1))
     }
     

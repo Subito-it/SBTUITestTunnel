@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-    s.name             = "SBTUITestTunnelCommon"
+    s.name             = "SBTUITestTunnelCommonSwift"
     s.version          = "7.0.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
@@ -21,7 +21,5 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
 
-    s.source_files = 'Sources/SBTUITestTunnelCommon/**/*.{h,m}'   
-
-    s.dependency 'SBTUITestTunnelCommonSwift'
+    s.source_files = 'Sources/SBTUITestTunnelCommonSwift/**/*.{swift}'
 end

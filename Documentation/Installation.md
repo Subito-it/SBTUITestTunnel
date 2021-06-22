@@ -1,6 +1,10 @@
-# Installation (CocoaPods)
+# Installation (Swift Package Manager)
 
-It is strongly suggested to use [cocoapods](https://cocoapods.org) as it is the easiest way to embed the library in your project.
+From the _File_ menu select _Add Packages..._. Enter `https://github.com/Subito-it/SBTUITestTunnel` in the Package URL.
+
+Now add the `SBTUITestTunnelServer` package to your main app target and `SBTUITestTunnelClient` to your UI test target.
+
+# Installation (CocoaPods)
 
 Your Podfile should include the sub project `SBTUITestTunnelServer` for the app target and `SBTUITestTunnelClient` for the UI test target.
 
@@ -33,4 +37,3 @@ If you're on an Objective-C project
 If you're on a Swift project:
 1. Add "SBTUITestTunnelServer.h" to the Application's bridging header file and call SBTUITestTunnelServer.takeOff() as the first line in appDidFinishLaunching. **You need to wrap the import statement around an #if DEBUG conditional**, see [Setup](Setup.md) section for additional details.
 2. Add #import "SBTUITunneledApplication.h" and #import "XCTestCase+AppExtension.h" to your UITesting's bridging headers files
-

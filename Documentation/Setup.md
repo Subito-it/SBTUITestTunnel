@@ -46,7 +46,7 @@ If your integrating the framwork in a Swift project make sure that the _Acive Co
 **This is needed to make sure that test code doesn't get mixed by mistake with production code. Make sure that these build settings are defined both in your application and Pods targets.**
 
 
-## Project advanced usage
+## Project advanced usage (CocoaPods)
 
 In some advanced cases the `DEBUG=1` may not (or can not) be defined in your application's target or Pods project. This can happen when using some customly named build_configurations (ie QA) where Cocoapods doesn't automatically set the `DEBUG` preprocessors for you.
 

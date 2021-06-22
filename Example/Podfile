@@ -1,4 +1,4 @@
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 platform :ios, '10.0'
@@ -9,13 +9,14 @@ def test_target
   # You should normally use SBTUITestTunnelClient only instead
   pod 'SBTUITestTunnelClient', :path => '../'
   pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git', :inhibit_warnings => true
+  pod 'SBTUITestTunnelCommonSwift', :path => '../'
+  pod 'GCDWebServer', :git=> 'https://github.com/Subito-it/GCDWebServer.git', :inhibit_warnings => true
 end
 
 target 'SBTUITestTunnel_Example' do
   pod 'SBTUITestTunnelServer', :path => '../'
   pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/tcamin/GCDWebServer.git', :inhibit_warnings => true
+  pod 'GCDWebServer', :git=> 'https://github.com/Subito-it/GCDWebServer.git', :inhibit_warnings => true
 end
 
 target 'SBTUITestTunnel_Tests' do
