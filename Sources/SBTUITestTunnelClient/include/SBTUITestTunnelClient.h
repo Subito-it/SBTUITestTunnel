@@ -23,7 +23,6 @@
 #if ENABLE_UITUNNEL
 
 @import SBTUITestTunnelCommon;
-@import SBTUITestTunnelCommonSwift;
 
 #import "SBTUITestTunnelClientProtocol.h"
 

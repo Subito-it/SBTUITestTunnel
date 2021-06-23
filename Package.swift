@@ -11,13 +11,7 @@ let package = Package(
             targets: ["SBTUITestTunnelServer"]),
         .library(
             name: "SBTUITestTunnelClient",
-            targets: ["SBTUITestTunnelClient"]),
-        .library(
-            name: "SBTUITestTunnelCommon",
-            targets: ["SBTUITestTunnelCommon"]),
-        .library(
-            name: "SBTUITestTunnelCommonSwift",
-            targets: ["SBTUITestTunnelCommonSwift"]),
+            targets: ["SBTUITestTunnelClient"])
     ],
     dependencies: [
         .package(url: "https://github.com/Subito-it/GCDWebServer.git", from: "4.0.0"),
@@ -28,8 +22,14 @@ let package = Package(
             dependencies: ["GCDWebServer", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"]
         ),
         .target(
+            name: "SBTUITestTunnelClientCocoaPods",
+            dependencies: ["SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
+            path: "Sources/SBTUITestTunnelClient"
+        ),
+        .target(
             name: "SBTUITestTunnelClient",
-            dependencies: ["SBTUITestTunnelCommon"]
+            dependencies: ["SBTUITestTunnelClientCocoaPods", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
+            path: "Sources/SBTUITestTunnelClientSPM"
         ),
         .target(
             name: "SBTUITestTunnelCommon",
