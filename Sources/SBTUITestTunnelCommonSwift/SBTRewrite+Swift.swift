@@ -15,6 +15,9 @@
 // limitations under the License.
 
 import Foundation
+#if SWIFT_PACKAGE
+    import SBTUITestTunnelCommon
+#endif
 
 public extension SBTRewrite {
     convenience init(urlReplacement: [SBTRewriteReplacement] = [], requestReplacement: [SBTRewriteReplacement] = [], requestHeadersReplacement: [String: String] = [:], responseReplacement: [SBTRewriteReplacement] = [], responseHeadersReplacement: [String: String] = [:], responseStatusCode: Int = -1, activeIterations: Int = 0) {

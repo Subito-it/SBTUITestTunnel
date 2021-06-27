@@ -1,4 +1,4 @@
-// SBTRequestMatch+Swift.swift
+// SBTStubFailureResponse+Swift.swift
 //
 // Copyright (C) 2021 Subito.it S.r.l (www.subito.it)
 //
@@ -15,9 +15,12 @@
 // limitations under the License.
 
 import Foundation
+#if SWIFT_PACKAGE
+    import SBTUITestTunnelCommon
+#endif
 
-public extension SBTRequestMatch {
-    convenience init(url: String? = nil, query: [String]? = nil, method: String? = nil, body: String? = nil, requestHeaders: [String: String]? = nil, responseHeaders: [String: String]? = nil) {
-        self.init(_url: url, _query: query, _method: method, _body: body, _requestHeaders: requestHeaders, _responseHeaders: responseHeaders)
+public extension SBTStubFailureResponse {
+    convenience init(errorCode: Int, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+        self.init(_errorCode: errorCode, _responseTime: responseTime ?? NSTimeIntervalSince1970, _activeInterations: activeIterations)
     }
 }

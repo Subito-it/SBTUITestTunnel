@@ -15,6 +15,9 @@
 // limitations under the License.
 
 import Foundation
+#if SWIFT_PACKAGE
+    import SBTUITestTunnelCommon
+#endif
 
 public extension SBTStubResponse {
     convenience init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
