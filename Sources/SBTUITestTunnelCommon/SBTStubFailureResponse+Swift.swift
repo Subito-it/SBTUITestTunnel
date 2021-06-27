@@ -1,6 +1,6 @@
-// SBTUITestTunnelCommon.h
+// SBTStubFailureResponse+Swift.swift
 //
-// Copyright (C) 2018 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2021 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SBTMonitoredNetworkRequest.h"
-#import "SBTRequestMatch.h"
-#import "SBTRewrite.h"
-#import "SBTRewriteReplacement.h"
-#import "SBTStubFailureResponse.h"
-#import "SBTStubResponse.h"
-#import "SBTSwizzleHelpers.h"
-#import "SBTUITestTunnel.h"
+import Foundation
+
+public extension SBTStubFailureResponse {
+    convenience init(errorCode: Int, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
+        self.init(_errorCode: errorCode, _responseTime: responseTime ?? NSTimeIntervalSince1970, _activeInterations: activeIterations)
+    }
+}
