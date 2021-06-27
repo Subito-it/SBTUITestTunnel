@@ -9,7 +9,6 @@ def test_target
   # You should normally use SBTUITestTunnelClient only instead
   pod 'SBTUITestTunnelClient', :path => '../'
   pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'SBTUITestTunnelCommonSwift', :path => '../'
   pod 'GCDWebServer', :git=> 'https://github.com/Subito-it/GCDWebServer.git', :inhibit_warnings => true
 end
 
