@@ -30,9 +30,9 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
     
     func testURLRewriteAndThrottle() {
@@ -45,11 +45,11 @@ class RewriteTests: XCTestCase {
         app.throttleRequests(matching: requestMatch, responseTime: 5.0)
         
         let start = Date()
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0, "Got \(delta)")
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
     
     func testURLRewriteAndThrottleAndMonitor() {
@@ -63,17 +63,17 @@ class RewriteTests: XCTestCase {
         app.monitorRequests(matching: requestMatch)
         
         let start = Date()
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         let monitoredRequests = app.monitoredRequestsFlushAll()
         
         XCTAssertEqual(monitoredRequests.count, 1)
-        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(monitoredRequests.first?.isRewritten, true)
-        XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(delta < -5.0)
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
     
     func testURLRewriteAndMonitorAndThrottle() {
@@ -88,17 +88,17 @@ class RewriteTests: XCTestCase {
         app.throttleRequests(matching: requestMatch, responseTime: 5.0)
         
         let start = Date()
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         let monitoredRequests = app.monitoredRequestsFlushAll()
         
         XCTAssertEqual(monitoredRequests.count, 1)
-        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(monitoredRequests.first?.request?.url?.absoluteString, "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(monitoredRequests.first?.isRewritten, true)
-        XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(monitoredRequests.first?.response?.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(delta < -5.0)
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
     }
     
     func testURLRewriteAndRemove() {
@@ -111,11 +111,11 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
         
-        let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result2.response.url?.absoluteString, "https://httpbin.org/get?param1=val1&param2=val2")
     }
     
     func testURLRewriteAndRemoveSpecific() {
@@ -127,11 +127,11 @@ class RewriteTests: XCTestCase {
         
         let requestId = app.rewriteRequests(matching: requestMatch, rewrite: rewrite) ?? ""
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(app.rewriteRequestsRemove(withId: requestId))
-        let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result2.response.url?.absoluteString, "https://httpbin.org/get?param1=val1&param2=val2")
     }
     
     func testURLRewriteAndRemoveAll() {
@@ -143,11 +143,11 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param1a=val1a&param2a=val2a")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param1a=val1a&param2a=val2a")
         XCTAssert(app.rewriteRequestsRemoveAll())
-        let result2 = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
-        XCTAssertEqual(result2.response.url?.absoluteString, "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        XCTAssertEqual(result2.response.url?.absoluteString, "https://httpbin.org/get?param1=val1&param2=val2")
     }
     
     func testRequestBodyRewrite() {
@@ -158,7 +158,7 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "This is a test where I want to replace param2_val2 and param1_val1")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "This is a test where I want to replace param2_val2 and param1_val1")
         
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
@@ -175,7 +175,7 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get", requestHeaders: ["param1": "val1", "param2": "val2", "remove_param": "value"])
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get", requestHeaders: ["param1": "val1", "param2": "val2", "remove_param": "value"])
         
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
@@ -197,7 +197,7 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/gzip")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/gzip")
         
         let networkBase64 = result["data"] as! String
         let networkData = Data(base64Encoded: networkBase64)!
@@ -216,7 +216,7 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/response-headers?param1=val1&param2=val2&param3=val3")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/response-headers?param1=val1&param2=val2&param3=val3")
         
         let headers = result.headers
         
@@ -235,7 +235,7 @@ class RewriteTests: XCTestCase {
         
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(result.response.statusCode, statusCode)
     }
     
@@ -251,14 +251,14 @@ class RewriteTests: XCTestCase {
             _ = app.rewriteRequests(matching: requestMatch, rewrite: rewrite1)
             rewrite2Id = try XCTUnwrap(app.rewriteRequests(matching: requestMatch, rewrite: rewrite2))
             
-            let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param_a=val_a&param_b=val_b")
-            XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param_a2=val_a2&param_b2=val_b2")
+            let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param_a=val_a&param_b=val_b")
+            XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param_a2=val_a2&param_b2=val_b2")
         }
         
         XCTContext.runActivity(named: "After removing the second rewrite rule, the first one is used.") { _ in
             app.rewriteRequestsRemove(withId: rewrite2Id)
-            let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org/get?param_a=val_a&param_b=val_b")
-            XCTAssertEqual(result.response.url?.absoluteString, "http://httpbin.org/get?param_a1=val_a1&param_b1=val_b1")
+            let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org/get?param_a=val_a&param_b=val_b")
+            XCTAssertEqual(result.response.url?.absoluteString, "https://httpbin.org/get?param_a1=val_a1&param_b1=val_b1")
         }
     }
 }

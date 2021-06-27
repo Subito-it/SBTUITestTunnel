@@ -33,7 +33,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         
         app.stubRequests(matching: match, response: response)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
@@ -49,7 +49,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: match, response: response)
         
         for _ in 0 ... 1 {
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -75,7 +75,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         
         app.stubRequests(matching: match, response: response)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
@@ -102,7 +102,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         
         app.stubRequests(matching: match, response: response)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()
@@ -134,7 +134,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: firstMatch, response: response)
         app.stubRequests(matching: secondMatch, response: response)
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         let given = unusedStubsPeekAll()

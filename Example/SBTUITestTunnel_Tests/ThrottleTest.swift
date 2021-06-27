@@ -26,7 +26,7 @@ class ThrottleTests: XCTestCase {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
@@ -37,7 +37,7 @@ class ThrottleTests: XCTestCase {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
@@ -48,7 +48,7 @@ class ThrottleTests: XCTestCase {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
@@ -58,14 +58,14 @@ class ThrottleTests: XCTestCase {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
         
         XCTAssert(app.throttleRequestRemoveAll())
         let start2 = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
         
         XCTAssert(delta2 > -2.0, "Got \(delta2)")
@@ -75,14 +75,14 @@ class ThrottleTests: XCTestCase {
         let requestId = app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0) ?? ""
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -5.0 && delta > -8.0)
         
         XCTAssert(app.throttleRequestRemove(withId: requestId))
         let start2 = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
         
         XCTAssert(delta2 > -2.0)
@@ -94,7 +94,7 @@ class ThrottleTests: XCTestCase {
         app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org/ge"), responseTime: 3.0)
         
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
         XCTAssert(delta < -3.0 && delta > -15.0)
@@ -110,7 +110,7 @@ class ThrottleTests: XCTestCase {
         
         XCTContext.runActivity(named: "When adding two throttles for the same requests the last one is used.") { _ in
             let start = Date()
-            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             let delta = start.timeIntervalSinceNow
             XCTAssert(delta < -(delay2) && delta > -(delay2 + 5.0))
         }
@@ -118,7 +118,7 @@ class ThrottleTests: XCTestCase {
         XCTContext.runActivity(named: "After removing the second throttle rule, the first one is used.") { _ in
             app.throttleRequestRemove(withId: throttle2Id)
             let start = Date()
-            _ = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             let delta = start.timeIntervalSinceNow
             XCTAssert(delta < -(delay1) && delta > -(delay1 + 5.0))
         }

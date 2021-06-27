@@ -25,22 +25,22 @@ class StubTests: XCTestCase {
     func testStubRemoveWithID() {
         let stubId = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))!
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId))
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
     }
     
     func testStubRemoveAll() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemoveAll())
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
     }
     
@@ -49,7 +49,7 @@ class StubTests: XCTestCase {
         
         let expectedHeaders = ["Content-Type": "application/json"]
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
@@ -59,7 +59,7 @@ class StubTests: XCTestCase {
         
         let expectedHeaders = ["Content-Type": "text/plain"]
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
@@ -69,7 +69,7 @@ class StubTests: XCTestCase {
         
         let expectedHeaders = ["Content-Type": "application/octet-stream"]
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
@@ -82,19 +82,19 @@ class StubTests: XCTestCase {
         }
         
         XCTContext.runActivity(named: "They are evaluated in LIFO order and removed when finishing active iterations") { _ in
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result, expectedStubValue: 3))
             XCTAssertEqual(request.returnCode(result), 500)
             
-            let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result2, expectedStubValue: 3))
             XCTAssertEqual(request.returnCode(result2), 500)
             
-            let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result3 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result3, expectedStubValue: 2))
             XCTAssertEqual(request.returnCode(result3), 401)
 
-            let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result4 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result4, expectedStubValue: 1))
             XCTAssertEqual(request.returnCode(result4), 200)
         }
@@ -105,22 +105,22 @@ class StubTests: XCTestCase {
         let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 2])) ?? ""
         
         XCTContext.runActivity(named: "Verify that stubs are evaluated in LIFO order") { _ in
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result, expectedStubValue: 2))
             app.stubRequestsRemove(withId: stubId2)
 
-            let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(request.isStubbed(result2, expectedStubValue: 1))
             app.stubRequestsRemove(withIds: [stubId1])
             
-            let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result3 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(request.isStubbed(result3, expectedStubValue: 1))
         }
         
         XCTContext.runActivity(named: "Verify that removing a non active stubId works") { _ in
             app.stubRequestsRemove(withId: stubId1)
 
-            let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result4 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(request.isStubbed(result4, expectedStubValue: 1))
         }
     }
@@ -128,29 +128,29 @@ class StubTests: XCTestCase {
     func testStubAndRemoveCommand() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result2, expectedStubValue: 1))
-        let result3 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result3 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result3, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemoveAll())
-        let result4 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result4 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result4, expectedStubValue: 1))
     }
     
     func testStubDataTask() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
     }
     
     func testStubUploadDataTask() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
         
-        let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
     }
     
@@ -165,7 +165,7 @@ class StubTests: XCTestCase {
         
         try! data?.write(to: fileURL)
         
-        let result = request.backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+        let result = request.backgroundUploadTaskNetwork(urlString: "https://httpbin.org/post", fileUrl: fileURL)
         XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
     }
     
@@ -173,7 +173,7 @@ class StubTests: XCTestCase {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], responseTime: 5.0))
         
         let start = Date()
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         XCTAssert(delta < -5.0 && delta > -8.0)
@@ -182,7 +182,7 @@ class StubTests: XCTestCase {
     func testStubResponseCode() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], returnCode: 401))
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssertEqual(request.returnCode(result), 401)
     }
     
@@ -197,7 +197,7 @@ class StubTests: XCTestCase {
         expectedHeaders["Content-Length"] = String(genericReturnData.count)
         expectedHeaders["Content-Type"] = "text/plain"
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
@@ -208,7 +208,7 @@ class StubTests: XCTestCase {
         
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: genericReturnData, headers: [:], contentType: "text/plain", returnCode: 200, responseTime: 0.0))
         
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         
         let networkBase64 = result["data"] as! String
         let networkString = String(data: Data(base64Encoded: networkBase64)!, encoding: .utf8)
@@ -218,53 +218,53 @@ class StubTests: XCTestCase {
     
     func testStubPostRequest() {
         let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId1))
-        let result2 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result2 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
         
         let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result3 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssert(request.isStubbed(result3, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId2))
-        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result4 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssertFalse(request.isStubbed(result4, expectedStubValue: 1))
         
         let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result5 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result5 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssertFalse(request.isStubbed(result5, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId3))
-        let result6 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result6 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssertFalse(request.isStubbed(result6, expectedStubValue: 1))
     }
     
     func testStubPutRequest() {
         let stubId1 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "PUT"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId1))
-        let result2 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result2 = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
         
         let stubId2 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result3 = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result3, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId2))
-        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result4 = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result4, expectedStubValue: 1))
         
         let stubId3 = app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "GET"), response: SBTStubResponse(response: ["stubbed": 1]))!
-        let result5 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result5 = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result5, expectedStubValue: 1))
         
         XCTAssert(app.stubRequestsRemove(withId: stubId3))
-        let result6 = request.uploadTaskNetwork(urlString: "http://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
+        let result6 = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: "This is a test".data(using: .utf8)!, httpMethod: "PUT")
         XCTAssertFalse(request.isStubbed(result6, expectedStubValue: 1))
     }
     
@@ -283,7 +283,7 @@ class StubTests: XCTestCase {
         expectedHeaders["Content-Type"] = contentType
         
         var start = Date()
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
         XCTAssertEqual(result["responseCode"] as? Int, SBTStubResponse.defaultReturnCode)
@@ -297,7 +297,7 @@ class StubTests: XCTestCase {
         expectedHeaders["Content-Type"] = "text/plain"
         
         start = Date()
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         delta = start.timeIntervalSinceNow
         let headers2 = result2["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers2, isEqual: expectedHeaders))
@@ -313,7 +313,7 @@ class StubTests: XCTestCase {
         let response = SBTStubResponse(response: "", headers: ["Location": redirectionUrl], contentType: "application/octet-stream", returnCode: 302, responseTime: 0.0)
         app.stubRequests(matching: match, response: response)
         
-        let result = request.dataTaskNetworkWithResponse(urlString: "http://httpbin.org", httpMethod: "GET", httpBody: nil, requestHeaders: [:], delay: 0.0)
+        let result = request.dataTaskNetworkWithResponse(urlString: "https://httpbin.org", httpMethod: "GET", httpBody: nil, requestHeaders: [:], delay: 0.0)
         
         XCTAssertEqual(result.response.url?.absoluteString, redirectionUrl)
         XCTAssertEqual(result.response.statusCode, 200)
@@ -330,7 +330,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -339,7 +339,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -348,7 +348,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "invalid"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -357,7 +357,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Invalid": "gzip"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -366,7 +366,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid", "Accept-Language": "en"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -377,7 +377,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
 
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -386,7 +386,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -395,7 +395,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "invalid"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -404,7 +404,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Invalid": "application.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -413,7 +413,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", responseHeaders: ["Content-Type": "application.*", "Server": "invalid"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -424,7 +424,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"], responseHeaders: ["Content-Type": "application.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -433,7 +433,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"], responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssert(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -442,7 +442,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid"], responseHeaders: ["Content-Type": "application.*"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -451,7 +451,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*"], responseHeaders: ["Content-Type": "Invalid"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -460,7 +460,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "Invalid"], responseHeaders: ["Content-Type": "Invalid"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = self.request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+            let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
             XCTAssertFalse(self.request.isStubbed(result, expectedStubValue: 1))
             self.app.stubRequestsRemove(withId: stubId)
         }()
@@ -506,7 +506,7 @@ class StubTests: XCTestCase {
         XCTAssertEqual(stubs1[match1]?.activeIterations, 2)
         XCTAssertEqual(stubs1[match2]?.activeIterations, 0)
         
-        let result1 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result1 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result1, expectedStubValue: 1))
         
         let stubs2 = app.stubRequestsAll()
@@ -514,7 +514,7 @@ class StubTests: XCTestCase {
         XCTAssertEqual(stubs2[match1]?.activeIterations, 1)
         XCTAssertEqual(stubs2[match2]?.activeIterations, 0)
         
-        let result2 = request.dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result2, expectedStubValue: 1))
         
         let stubs3 = app.stubRequestsAll()
@@ -522,14 +522,14 @@ class StubTests: XCTestCase {
         XCTAssertNil(stubs3[match1])
         XCTAssertEqual(stubs2[match2]?.activeIterations, 0)
         
-        let result3 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result3 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssert(request.isStubbed(result3, expectedStubValue: 1))
         
         let stubs4 = app.stubRequestsAll()
         
         XCTAssertEqual(stubs4[match2]?.activeIterations, 0)
         
-        let result4 = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+        let result4 = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
         XCTAssert(request.isStubbed(result4, expectedStubValue: 1))
         
         let stubs5 = app.stubRequestsAll()
@@ -587,7 +587,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -596,7 +596,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -605,7 +605,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: "This is a test".data(using: .utf8)!)
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -614,7 +614,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val2"], method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post?param1=val1", data: "This is a test".data(using: .utf8)!)
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -623,7 +623,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!)
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!)
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -632,7 +632,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "POST", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -641,7 +641,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param6=val6&param5=val5"], method: "POST")
             app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
             
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -650,7 +650,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param1=val1"], method: "POST")
             app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
             
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -659,7 +659,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param5=val5", "&param6=val6"], method: "GET")
             app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))
             
-            let result = request.dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
             XCTAssert(app.stubRequestsRemoveAll())
         }
@@ -670,7 +670,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -680,7 +680,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -690,7 +690,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -700,7 +700,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val2"], method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get?param1=val1", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -710,7 +710,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
         }
         
@@ -720,7 +720,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", query: ["&param1=val1"], method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
                         
-            let result = request.uploadTaskNetwork(urlString: "http://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "POST")
+            let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post?param1=val1", data: "This is not a test".data(using: .utf8)!, httpMethod: "POST")
             XCTAssertFalse(request.isStubbed(result, expectedStubValue: 1))
         }
     }
@@ -730,7 +730,7 @@ class StubTests: XCTestCase {
             let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
             _ = app.stubRequests(matching: match, response: SBTStubFailureResponse(errorCode: URLError.notConnectedToInternet.rawValue))
             
-            let result = request.downloadTaskNetwork(urlString: "http://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
+            let result = request.downloadTaskNetwork(urlString: "https://httpbin.org/get", data: "This is a test".data(using: .utf8)!, httpMethod: "GET")
             XCTAssert(request.isNotConnectedError(result))
         }
     }

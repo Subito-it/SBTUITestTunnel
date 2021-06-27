@@ -15,7 +15,7 @@ class CookiesTest: XCTestCase {
     private let request = NetworkRequests()
     
     private func countCookies() -> Int {
-        let result = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies")
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies")
         let json = request.json(result)
         
         return (json["cookies"] as? [String: Any])?.keys.count ?? 0
@@ -23,7 +23,7 @@ class CookiesTest: XCTestCase {
     
     func testCookiesGetBlocked() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies/set?name=value") // set a random cookie
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.blockCookiesInRequests(matching: requestMatch)
@@ -33,7 +33,7 @@ class CookiesTest: XCTestCase {
     
     func testBlockCookiesAndRemove() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies/set?name=value") // set a random cookie
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.blockCookiesInRequests(matching: requestMatch, activeIterations: 1)
@@ -43,7 +43,7 @@ class CookiesTest: XCTestCase {
     
     func testBlockCookiesAndRemoveAll() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies/set?name=value") // set a random cookie
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.blockCookiesInRequests(matching: requestMatch)
@@ -54,7 +54,7 @@ class CookiesTest: XCTestCase {
     
     func testBlockCookiesAndRemoveSpecific() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies/set?name=value") // set a random cookie
         
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         let requestId = app.blockCookiesInRequests(matching: requestMatch) ?? ""
@@ -65,7 +65,7 @@ class CookiesTest: XCTestCase {
 
     func testMultipleBlockCookiesForSameRequestMatch() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        _ = request.dataTaskNetwork(urlString: "http://httpbin.org/cookies/set?name=value") // set a random cookie
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/cookies/set?name=value") // set a random cookie
                 
         XCTContext.runActivity(named: "When adding multiple block cookies for the same requests match") { _ in
             let requestMatch = SBTRequestMatch(url: "httpbin.org")
