@@ -24,6 +24,5 @@ Pod::Spec.new do |s|
     s.source_files = 'Sources/SBTUITestTunnelServer/**/*.{h,m}'
     
     s.dependency 'SBTUITestTunnelCommon'
-    s.dependency 'SBTUITestTunnelCommonSwift'
     s.dependency 'GCDWebServer'
 end

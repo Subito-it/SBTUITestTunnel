@@ -21,7 +21,5 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
 
-    s.source_files = 'Sources/SBTUITestTunnelCommon/**/*.{h,m}'   
-
-    s.dependency 'SBTUITestTunnelCommonSwift'
+    s.source_files = ['Sources/SBTUITestTunnelCommon/**/*.{h,m}', 'Sources/SBTUITestTunnelCommonSwift/**/*.{swift}']
 end

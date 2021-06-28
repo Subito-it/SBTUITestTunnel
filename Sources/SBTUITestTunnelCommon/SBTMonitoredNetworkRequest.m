@@ -22,9 +22,8 @@
 
 #if ENABLE_UITUNNEL
 
-@import SBTUITestTunnelCommonSwift;
-
 #import "include/SBTMonitoredNetworkRequest.h"
+#import "include/SBTRequestMatch.h"
 #import "private/NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject

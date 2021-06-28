@@ -25,5 +25,4 @@ Pod::Spec.new do |s|
     s.source_files = 'Sources/SBTUITestTunnelClient/**/*.{h,m}'
 
     s.dependency 'SBTUITestTunnelCommon'
-    s.dependency 'SBTUITestTunnelCommonSwift'
 end

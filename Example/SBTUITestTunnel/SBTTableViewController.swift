@@ -330,7 +330,7 @@ extension SBTTableViewController {
 
 extension SBTTableViewController {
     @objc func executeDataTaskRequest() {
-        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2")
+        dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
     }
     
     @objc func executeDataTaskRequest2() {
@@ -338,17 +338,17 @@ extension SBTTableViewController {
     }
     
     @objc func executeDataTaskRequest3() {
-        dataTaskNetwork(urlString: "http://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
+        dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
     
     @objc func executeUploadDataTaskRequest() {
         let data = "This is a test".data(using: .utf8)
-        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!)
+        uploadTaskNetwork(urlString: "https://httpbin.org/post", data: data!)
     }
     
     @objc func executeUploadDataTaskRequest2() {
         let data = "This is a test".data(using: .utf8)
-        uploadTaskNetwork(urlString: "http://httpbin.org/put", data: data!, httpMethod: "PUT")
+        uploadTaskNetwork(urlString: "https://httpbin.org/put", data: data!, httpMethod: "PUT")
     }
     
     @objc func executeBackgroundUploadDataTaskRequest() {
@@ -359,16 +359,16 @@ extension SBTTableViewController {
         
         try! data?.write(to: fileURL)
         
-        backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+        backgroundUploadTaskNetwork(urlString: "https://httpbin.org/post", fileUrl: fileURL)
     }
     
     @objc func executePostDataTaskRequestWithHTTPBody() {
-        dataTaskNetwork(urlString: "http://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
     }
     
     @objc func executeUploadDataTaskRequestWithHTTPBody() {
         let data = "This is a test".data(using: .utf8)
-        uploadTaskNetwork(urlString: "http://httpbin.org/post", data: data!, httpMethod: "POST", httpBody: true)
+        uploadTaskNetwork(urlString: "https://httpbin.org/post", data: data!, httpMethod: "POST", httpBody: true)
     }
     
     @objc func executeBackgroundUploadDataTaskRequestWithHTTPBody() {
@@ -379,7 +379,7 @@ extension SBTTableViewController {
         
         try! data?.write(to: fileURL)
         
-        backgroundUploadTaskNetwork(urlString: "http://httpbin.org/post", fileUrl: fileURL)
+        backgroundUploadTaskNetwork(urlString: "https://httpbin.org/post", fileUrl: fileURL)
     }
     
     @objc func executeRequestWithRedirect() {
@@ -461,7 +461,7 @@ extension SBTTableViewController {
     }
     
     @objc func executeRequestWithCookies() {
-        dataTaskNetworkWithCookies(urlString: "http://httpbin.org/get", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
+        dataTaskNetworkWithCookies(urlString: "https://httpbin.org/get", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
 }
 

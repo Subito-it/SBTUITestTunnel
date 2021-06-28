@@ -22,21 +22,21 @@ let package = Package(
             dependencies: ["GCDWebServer", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"]
         ),
         .target(
-            name: "SBTUITestTunnelClientCocoaPods",
-            dependencies: ["SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
+            name: "SBTUITestTunnelClientObjC",
+            dependencies: ["SBTUITestTunnelCommon"],
             path: "Sources/SBTUITestTunnelClient"
         ),
         .target(
             name: "SBTUITestTunnelClient",
-            dependencies: ["SBTUITestTunnelClientCocoaPods", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
+            dependencies: ["SBTUITestTunnelClientObjC", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
             path: "Sources/SBTUITestTunnelClientSPM"
         ),
         .target(
-            name: "SBTUITestTunnelCommon",
-            dependencies: ["SBTUITestTunnelCommonSwift"]
+            name: "SBTUITestTunnelCommon"
         ),
         .target(
-            name: "SBTUITestTunnelCommonSwift"
+            name: "SBTUITestTunnelCommonSwift",
+            dependencies: ["SBTUITestTunnelCommon"]            
         )
     ]
 )

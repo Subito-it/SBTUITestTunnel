@@ -1,6 +1,6 @@
-// SBTUITestTunnelCommon.h
+// SBTRegularExpressionMatcher.h
 //
-// Copyright (C) 2018 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2020 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SBTMonitoredNetworkRequest.h"
-#import "SBTRequestMatch.h"
-#import "SBTRewrite.h"
-#import "SBTRewriteReplacement.h"
-#import "SBTStubFailureResponse.h"
-#import "SBTStubResponse.h"
-#import "SBTSwizzleHelpers.h"
-#import "SBTUITestTunnel.h"
+// Alternative approach to fix this: https://github.com/AliSoftware/OHHTTPStubs/pull/166
+
+@import Foundation;
+
+@interface SBTRegularExpressionMatcher: NSObject
+
+- (nonnull instancetype)initWithRegularExpression:(nonnull NSString *)regexString;
+
+- (BOOL)matches:(nonnull NSString *)query;
+
+@end
