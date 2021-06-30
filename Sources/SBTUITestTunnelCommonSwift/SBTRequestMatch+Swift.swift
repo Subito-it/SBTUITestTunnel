@@ -19,8 +19,10 @@ import Foundation
     import SBTUITestTunnelCommon
 #endif
 
+#if DEBUG || ENABLE_UITUNNEL
 public extension SBTRequestMatch {
     convenience init(url: String? = nil, query: [String]? = nil, method: String? = nil, body: String? = nil, requestHeaders: [String: String]? = nil, responseHeaders: [String: String]? = nil) {
         self.init(_url: url, _query: query, _method: method, _body: body, _requestHeaders: requestHeaders, _responseHeaders: responseHeaders)
     }
 }
+#endif

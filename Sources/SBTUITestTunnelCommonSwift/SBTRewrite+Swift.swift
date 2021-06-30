@@ -19,8 +19,10 @@ import Foundation
     import SBTUITestTunnelCommon
 #endif
 
+#if DEBUG || ENABLE_UITUNNEL
 public extension SBTRewrite {
     convenience init(urlReplacement: [SBTRewriteReplacement] = [], requestReplacement: [SBTRewriteReplacement] = [], requestHeadersReplacement: [String: String] = [:], responseReplacement: [SBTRewriteReplacement] = [], responseHeadersReplacement: [String: String] = [:], responseStatusCode: Int = -1, activeIterations: Int = 0) {
         self.init(_urlReplacement: urlReplacement, _requestReplacement: requestReplacement, _responseReplacement: responseReplacement, _requestHeadersReplacement: requestHeadersReplacement, _responseHeadersReplacement: responseHeadersReplacement, _responseStatusCode: responseStatusCode, _activeIterations: activeIterations)
     }
 }
+#endif
