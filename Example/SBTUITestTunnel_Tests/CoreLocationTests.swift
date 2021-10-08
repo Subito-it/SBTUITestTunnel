@@ -52,6 +52,31 @@ class CoreLocationTests: XCTestCase {
         
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
     }
+
+    func testCoreLocationStopAndResume() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
+
+        app.tables.cells["showCoreLocationViewController"].tap()
+        app.buttons["Update location"].tap()
+
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+
+        wait { self.app.staticTexts["location_pos"].label == "44.0 11.1" }
+
+        app.buttons["Stop location updates"].tap()
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 0.0, longitude: 0.0)])
+        Thread.sleep(forTimeInterval: 2.0)
+        wait { self.app.staticTexts["location_pos"].label == "44.0 11.1" }
+
+        app.buttons["Update location"].tap()
+
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 11.1, longitude: 44.0)])
+
+        wait(withTimeout: 2) { self.app.staticTexts["location_pos"].label == "11.1 44.0" }
+    }
     
     @available(iOS 14, *)
     func testCoreLocationStubAccuracyAuthorization() {

@@ -523,15 +523,24 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nR3-or-wlq">
+                                <rect key="frame" x="133" y="146" width="150" height="30"/>
+                                <state key="normal" title="Stop location updates"/>
+                                <connections>
+                                    <action selector="stopTapped:" destination="ddr-0R-Jhm" eventType="touchUpInside" id="xQT-Wj-2ij"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="u18-q9-vmK" firstAttribute="leading" secondItem="ZCG-Qs-mYC" secondAttribute="leading" constant="16" id="4XR-eU-f7R"/>
+                            <constraint firstItem="nR3-or-wlq" firstAttribute="leading" secondItem="lo7-YO-SrW" secondAttribute="trailing" constant="8" symbolic="YES" id="7bR-YG-KRP"/>
                             <constraint firstItem="dnY-EI-hBw" firstAttribute="top" secondItem="EqA-av-fTp" secondAttribute="bottom" constant="26" id="G6i-sb-TwR"/>
                             <constraint firstItem="lo7-YO-SrW" firstAttribute="top" secondItem="dnY-EI-hBw" secondAttribute="bottom" constant="46" id="JDL-NA-197"/>
                             <constraint firstItem="eCN-GB-ZhH" firstAttribute="leading" secondItem="lo7-YO-SrW" secondAttribute="leading" id="Jn3-jK-kaa"/>
                             <constraint firstItem="u18-q9-vmK" firstAttribute="top" secondItem="dnY-EI-hBw" secondAttribute="bottom" constant="5" id="SQ0-kL-lRv"/>
                             <constraint firstItem="dnY-EI-hBw" firstAttribute="leading" secondItem="ZCG-Qs-mYC" secondAttribute="leading" constant="16" id="g5i-H2-aL7"/>
+                            <constraint firstItem="nR3-or-wlq" firstAttribute="centerY" secondItem="lo7-YO-SrW" secondAttribute="centerY" id="me9-Bn-KFw"/>
                             <constraint firstItem="eCN-GB-ZhH" firstAttribute="top" secondItem="lo7-YO-SrW" secondAttribute="bottom" constant="8" symbolic="YES" id="tr9-Uz-HbC"/>
                             <constraint firstItem="lo7-YO-SrW" firstAttribute="leading" secondItem="dnY-EI-hBw" secondAttribute="leading" id="xxl-Ec-b9V"/>
                         </constraints>
