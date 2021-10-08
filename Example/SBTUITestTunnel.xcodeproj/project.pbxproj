@@ -40,6 +40,7 @@
 		C3E3DFDC1D8BE45C003D6BB2 /* SBTNetworkTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFDB1D8BE45C003D6BB2 /* SBTNetworkTestViewController.swift */; };
 		C3E3DFE01D8ECA9A003D6BB2 /* MonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E3DFDF1D8ECA9A003D6BB2 /* MonitorTests.swift */; };
 		C3F6E9F11D63225F009D5733 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */; };
+		E44853EE27106ECB002C75E8 /* NotificationCenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44853ED27106ECB002C75E8 /* NotificationCenterTests.swift */; };
 		FC5F178223A8D2C2003BBCA1 /* UnusedStubsPeekAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5F178123A8D2C2003BBCA1 /* UnusedStubsPeekAll.swift */; };
 /* End PBXBuildFile section */
 
@@ -128,6 +129,7 @@
 		C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		C71885513B6D96D5C0130D3D /* Pods-SBTUITestTunnel_TestsNoSwizzling.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_TestsNoSwizzling.debug.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_TestsNoSwizzling/Pods-SBTUITestTunnel_TestsNoSwizzling.debug.xcconfig"; sourceTree = "<group>"; };
 		E1CB7E79DDD1BE095D5A2022 /* Pods-SBTUITestTunnel_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SBTUITestTunnel_Example.release.xcconfig"; path = "Target Support Files/Pods-SBTUITestTunnel_Example/Pods-SBTUITestTunnel_Example.release.xcconfig"; sourceTree = "<group>"; };
+		E44853ED27106ECB002C75E8 /* NotificationCenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterTests.swift; sourceTree = "<group>"; };
 		E6A87F86CCE500F03DF809C9 /* SBTUITestTunnel.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SBTUITestTunnel.podspec; path = ../SBTUITestTunnel.podspec; sourceTree = "<group>"; };
 		FC5F178123A8D2C2003BBCA1 /* UnusedStubsPeekAll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnusedStubsPeekAll.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -282,6 +284,7 @@
 				C3E3DFD51D8A0082003D6BB2 /* MiscellaneousTests.swift */,
 				C363E5F520502B9F00DFCEB1 /* test_file.json */,
 				C39B79FC1CB41C3A000C8B0D /* Info.plist */,
+				E44853ED27106ECB002C75E8 /* NotificationCenterTests.swift */,
 			);
 			path = SBTUITestTunnel_Tests;
 			sourceTree = "<group>";
@@ -618,6 +621,7 @@
 				FC5F178223A8D2C2003BBCA1 /* UnusedStubsPeekAll.swift in Sources */,
 				C3763A082332505700C0FAF5 /* SBTUITestTunnelServer+Extension.swift in Sources */,
 				C3881A971FED847C00EB6579 /* MiscellaneousTests.swift in Sources */,
+				E44853EE27106ECB002C75E8 /* NotificationCenterTests.swift in Sources */,
 				C392784F241A86ED00C47A81 /* CoreLocationTests.swift in Sources */,
 				C3881A931FED847C00EB6579 /* UserDefaultsTests.swift in Sources */,
 				C3E3DFE01D8ECA9A003D6BB2 /* MonitorTests.swift in Sources */,
