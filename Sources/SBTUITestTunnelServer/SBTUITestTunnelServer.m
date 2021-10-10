@@ -107,7 +107,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.launchSemaphore = dispatch_semaphore_create(0);
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
-        sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString string];
+        sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
 
         [sharedInstance reset];
         

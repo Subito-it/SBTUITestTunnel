@@ -59,6 +59,32 @@
             #endif
 
 
+            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnUNAuthRequest" block:^NSObject *(NSObject *object) {
+                dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+                __block BOOL authGranted;
+                [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions: UNAuthorizationOptionNone completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                    authGranted = granted;
+                    dispatch_semaphore_signal(sema);
+                }];
+
+                dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+                return [@(authGranted) stringValue];
+            }];
+
+
+            [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnUNAuthStatus" block:^NSObject *(NSObject *object) {
+                dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+
+                __block UNNotificationSettings *notificationSettings;
+                [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+                    notificationSettings = settings;
+                    dispatch_semaphore_signal(sema);
+                }];
+
+                dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+                return [@(notificationSettings.authorizationStatus) stringValue];
+            }];
+
             [SBTUITestTunnelServer takeOffCompleted:YES];
         }
     #endif
