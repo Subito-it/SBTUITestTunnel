@@ -22,6 +22,10 @@
 
 #if ENABLE_UITUNNEL
 
+#ifdef SPM
+    @import SBTUITestTunnelCommonNoARC;
+#endif
+
 @import SBTUITestTunnelCommon;
 @import GCDWebServer;
 @import CoreLocation;
@@ -152,27 +156,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
     self.ipcConnection.exportedInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
     self.ipcConnection.exportedObject = self;
-    
+
     [self.ipcConnection resume];
-    
+
     [self processLaunchOptionsIfNeeded];
-    
+
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
         return;
     }
-    
+
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-        
+
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
             return;
         }
     }
-    
+
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
 }
 

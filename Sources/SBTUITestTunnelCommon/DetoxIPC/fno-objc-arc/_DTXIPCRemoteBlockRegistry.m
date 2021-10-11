@@ -20,7 +20,7 @@
 
 #import "_DTXIPCRemoteBlockRegistry.h"
 #import "_DTXIPCDistantObject.h"
-#import "Swiftier.h"
+#import "../DTXObjectiveCHelpers/Swiftier.h"
 @import ObjectiveC;
 @import Darwin;
 

@@ -22,3 +22,8 @@
 #import "SBTStubResponse.h"
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
+#import "SBTIPCTunnel.h"
+
+#ifdef SPM
+    #import "../DetoxIPC/DTXIPCConnection.h"
+#endif
