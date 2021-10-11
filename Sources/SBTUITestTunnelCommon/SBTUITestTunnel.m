@@ -24,7 +24,8 @@
 
 #import "include/SBTUITestTunnel.h"
 
-NSString * const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey = @"SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey";
+NSString * const SBTUITunneledApplicationLaunchEnvironmentIPCKey = @"SBTUITunneledApplicationLaunchEnvironmentIPCKey";
+NSString * const SBTUITunneledApplicationLaunchEnvironmentPortKey = @"SBTUITunneledApplicationLaunchEnvironmentPortKey";
 NSString * const SBTUITunneledApplicationDefaultHost = @"localhost";
 
 const double SBTUITunnelStubsDownloadSpeedGPRS   =-    56 / 8; // kbps -> KB/s
@@ -38,6 +39,8 @@ NSString * const SBTUITunneledApplicationLaunchOptionResetFilesystem = @"SBTUITu
 NSString * const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete = @"SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete";
 NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTUITunneledApplicationLaunchOptionHasStartupCommands";
 
+NSString * const SBTUITunnelIPCCommand = @"ipc_command";
+
 NSString * const SBTUITunnelHTTPMethod = @"POST";
 
 NSString * const SBTUITunnelStubMatchRuleKey = @"match_rule";
@@ -45,8 +48,6 @@ NSString * const SBTUITunnelStubResponseKey = @"response";
 
 NSString * const SBTUITunnelRewriteMatchRuleKey = @"match_rule";
 NSString * const SBTUITunnelRewriteKey = @"rewrite_rule";
-
-NSString * const SBTUITunnelLocalExecutionKey = @"local_exec";
 
 NSString * const SBTUITunnelProxyQueryRuleKey = @"rule";
 NSString * const SBTUITunnelProxyQueryResponseTimeKey = @"time_response";
@@ -76,8 +77,6 @@ NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
 NSString * const SBTUITunneledApplicationCommandPing = @"commandPing";
 NSString * const SBTUITunneledApplicationCommandQuit = @"commandQuit";
-
-NSString * const SBTUITunneledApplicationCommandCruising = @"commandCruising";
 
 NSString * const SBTUITunneledApplicationCommandStubMatching = @"commandStubMatching";
 NSString * const SBTUITunneledApplicationCommandStubRequestsRemove = @"commandStubRequestsRemove";
@@ -116,8 +115,6 @@ NSString * const SBTUITunneledApplicationCommandSetUserInterfaceAnimationSpeed =
 
 NSString * const SBTUITunneledApplicationCommandUploadData = @"commandUpload";
 NSString * const SBTUITunneledApplicationCommandDownloadData = @"commandDownload";
-
-NSString * const SBTUITunneledApplicationCommandShutDown = @"commandShutDown";
 
 NSString * const SBTUITunneledApplicationCommandStartupCommandsCompleted = @"commandStartupCompleted";
 

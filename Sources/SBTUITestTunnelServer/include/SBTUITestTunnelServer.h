@@ -36,13 +36,6 @@
 + (void)takeOff;
 
 /**
- *  This method is used to workaround the 'UI Testing Failure - Failure getting refresh snapshot Error Domain=XCTestManagerErrorDomain Code=9 "Error getting main window -25204"' error
- *
- *  Usage: after takeOff immediately call takeOffCompleted:NO, then once you're sure the initial viewcontroller is up and running, call takeOffCompleted:YES
- */
-+ (void)takeOffCompleted:(BOOL)completed;
-
-/**
  *  Register a custom command. It is your responsibility to unregister the custom command when it is no longer needed
  *
  *  @param commandName that will match [SBTUITestTunnelClient performCustomCommandNamed:object:]

@@ -1,6 +1,6 @@
-// XCTestCase+AppExtension.h
+// SBTIPCTunnel.h
 //
-// Copyright (C) 2018 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2021 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,24 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
+#import <Foundation/Foundation.h>
 
-    #ifndef ENABLE_UITUNNEL_SWIZZLING
-        #define ENABLE_UITUNNEL_SWIZZLING 1
-    #endif
-#endif
+@protocol SBTIPCTunnel <NSObject>
 
-#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
-
-@import XCTest;
-
-@interface XCTestCase (Swizzles)
-
-+ (void)loadSwizzles;
+- (void)performCommandWithParameters:(NSDictionary *)parameters block:(void(^)(NSDictionary *))block;
 
 @end
 
-#endif

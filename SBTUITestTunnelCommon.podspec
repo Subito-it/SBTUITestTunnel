@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "SBTUITestTunnelCommon"
-    s.version          = "7.0.0"
+    s.version          = "8.0.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
@@ -16,10 +16,12 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = '10.0'
     s.tvos.deployment_target = '9.0'
     s.swift_version = '5.0'
-    s.requires_arc = true
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug' }
     s.library = 'z'
+    s.static_framework = true
 
     s.source_files = ['Sources/SBTUITestTunnelCommon/**/*.{h,m}', 'Sources/SBTUITestTunnelCommonSwift/**/*.{swift}']
+    s.requires_arc = false
+    s.requires_arc = ['Sources/SBTUITestTunnelCommon/*.{m}', 'Sources/SBTUITestTunnelCommon/DetoxIPC/*.{m}', 'Sources/SBTUITestTunnelCommon/DetoxIPC/Apple/**/*.{m}', 'Sources/SBTUITestTunnelCommon/DetoxIPC/DTXObjectiveCHelpers/**/*.{m}']
 end

@@ -49,6 +49,7 @@ We made additional resources available to improve the UI Testing experience:
 Kudos to the developers of the following pods which we use in SBTUITestTunnel:
 
 * [GCDWebServer](https://github.com/swisspol/GCDWebServer)
+* [DetoxIPC](https://github.com/wix/DetoxIPC)
 
 ## Contributions
 

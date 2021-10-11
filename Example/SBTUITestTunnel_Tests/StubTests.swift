@@ -336,7 +336,7 @@ class StubTests: XCTestCase {
         }()
         
         _ = {
-            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"])
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Encoding": "gzip"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
             let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
@@ -430,7 +430,7 @@ class StubTests: XCTestCase {
         }()
         
         _ = {
-            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Language": "en"], responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
+            let match = SBTRequestMatch(url: "httpbin.org", requestHeaders: ["Accept": "gzip.*", "Accept-Encoding": "gzip"], responseHeaders: ["Content-Type": "application.*", "Server": "gunicorn"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
             
             let result = self.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
@@ -738,6 +738,7 @@ class StubTests: XCTestCase {
 
 extension StubTests {
     override func setUp() {
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
         app.launchConnectionless { (path, params) -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }

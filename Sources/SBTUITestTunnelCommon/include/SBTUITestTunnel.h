@@ -25,7 +25,8 @@
 @import Foundation;
 @import ObjectiveC.NSObject;
 
-extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentBonjourNameKey;
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentIPCKey;
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchEnvironmentPortKey;
 extern NSString * _Nonnull const SBTUITunneledApplicationDefaultHost;
 
 extern const double
@@ -40,6 +41,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionResetFilesy
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupCommands;
 
+extern NSString * _Nonnull const SBTUITunnelIPCCommand;
+
 extern NSString * _Nonnull const SBTUITunnelHTTPMethod;
 
 extern NSString * _Nonnull const SBTUITunnelStubMatchRuleKey;
@@ -47,8 +50,6 @@ extern NSString * _Nonnull const SBTUITunnelStubResponseKey;
 
 extern NSString * _Nonnull const SBTUITunnelRewriteMatchRuleKey;
 extern NSString * _Nonnull const SBTUITunnelRewriteKey;
-
-extern NSString * _Nonnull const SBTUITunnelLocalExecutionKey;
 
 extern NSString * _Nonnull const SBTUITunnelProxyQueryRuleKey;
 extern NSString * _Nonnull const SBTUITunnelProxyQueryResponseTimeKey;
@@ -78,8 +79,6 @@ extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandPing;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandQuit;
-
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandCruising;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubMatching;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubRequestsRemove;
@@ -118,8 +117,6 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandSetUserInterface
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandUploadData;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandDownloadData;
-
-extern NSString * _Nonnull const SBTUITunneledApplicationCommandShutDown;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandStartupCommandsCompleted;
 

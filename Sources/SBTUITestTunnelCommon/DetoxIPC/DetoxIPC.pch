@@ -1,0 +1,14 @@
+//
+//  DetoxIPC.pch
+//  DetoxIPC
+//
+//  Created by Leo Natan (Wix) on 12/10/17.
+//  Copyright © 2017 Wix. All rights reserved.
+//
+
+#ifndef Detox_pch
+#define Detox_pch
+
+#import "Swiftier.h"
+
+#endif /* Detox_pch */

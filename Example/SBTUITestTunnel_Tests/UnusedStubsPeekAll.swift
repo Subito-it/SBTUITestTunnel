@@ -145,6 +145,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
 
 extension UnusedStubsPeekAllTests {
     override func setUp() {
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
         app.launchConnectionless { (path, params) -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }

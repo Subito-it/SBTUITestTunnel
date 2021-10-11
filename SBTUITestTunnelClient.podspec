@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "SBTUITestTunnelClient"
-    s.version          = "7.0.0"
+    s.version          = "8.0.0"
     s.summary          = "Enable network mocks and more in UI Tests"
 
     s.description      = <<-DESC
@@ -20,6 +20,7 @@ Pod::Spec.new do |s|
     s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
     s.pod_target_xcconfig = { :prebuild_configuration => 'debug', 'ENABLE_BITCODE' => 'NO' } # XCTest requires bitcode to be disabled
     s.library = 'z'
+    s.static_framework = true
 
     s.frameworks = 'XCTest'
     s.source_files = 'Sources/SBTUITestTunnelClient/**/*.{h,m}'

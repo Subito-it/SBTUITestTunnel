@@ -34,7 +34,7 @@ class MonitorTests: XCTestCase {
     }
     
     func testMonitorFlush() {
-        XCTAssert(app.monitoredRequestsFlushAll().count == 0)
+        XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
         
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
@@ -66,7 +66,7 @@ class MonitorTests: XCTestCase {
     }
     
     func testMonitorPeek() {
-        XCTAssert(app.monitoredRequestsPeekAll().count == 0)
+        XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
         
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
@@ -289,6 +289,7 @@ class MonitorTests: XCTestCase {
 
 extension MonitorTests {
     override func setUp() {
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
         app.launchConnectionless { (path, params) -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }

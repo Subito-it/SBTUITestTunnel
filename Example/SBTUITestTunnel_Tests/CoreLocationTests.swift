@@ -11,7 +11,6 @@ import SBTUITestTunnelClient
 import XCTest
 
 class CoreLocationTests: XCTestCase {
-
     func testCoreLocationStubAuthorizationStatus() {
         app.launchTunnel()
 

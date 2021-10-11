@@ -18,17 +18,12 @@
     #ifndef ENABLE_UITUNNEL
         #define ENABLE_UITUNNEL 1
     #endif
-
-    #ifndef ENABLE_UITUNNEL_SWIZZLING
-        #define ENABLE_UITUNNEL_SWIZZLING 1
-    #endif
 #endif
 
 #if ENABLE_UITUNNEL
 
 #import "include/SBTUITunneledApplication.h"
 #import "include/SBTUITestTunnelClient.h"
-#import "private/XCTestCase+Swizzles.h"
 
 @interface SBTUITunneledApplication () <SBTUITestTunnelClientDelegate>
 @property (nonatomic, strong) SBTUITestTunnelClient *client;
@@ -45,16 +40,6 @@
         _client.delegate = self;
     }
     return self;
-}
-
-+ (void)load
-{
-#if ENABLE_UITUNNEL_SWIZZLING
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [XCTestCase loadSwizzles];
-    });
-#endif
 }
 
 - (void)launchTunnelWithOptions:(NSArray<NSString *> *)options startupBlock:(void (^)(void))startupBlock
@@ -79,7 +64,6 @@
     if (error != nil) {
         NSAssert(NO, error.localizedDescription);
     }
-    [super terminate];
 }
 
 # pragma mark - SBTUITestTunnelClientProtocol -
@@ -102,6 +86,8 @@
 - (void)terminate
 {
     [self.client terminate];
+    
+    [super terminate];
 }
 
 #pragma mark - Timeout

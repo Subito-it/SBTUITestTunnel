@@ -46,6 +46,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
+@property (nonatomic, strong) dispatch_queue_t monitoredRequestsSyncQueue;
 
 @property (nonatomic, strong) NSURLResponse *response;
 
@@ -75,6 +76,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     self.tasksData = [NSMutableDictionary dictionary];
     self.tasksTime = [NSMutableDictionary dictionary];
     self.monitoredRequests = [NSMutableArray array];
+    self.monitoredRequestsSyncQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.queue", DISPATCH_QUEUE_SERIAL);
 }
 
 # pragma mark - Throttling
@@ -119,7 +121,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[SBTUITestTunnel] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -164,18 +166,25 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[SBTUITestTunnel] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
 + (NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsAll
 {
-    return [self.sharedInstance.monitoredRequests copy];
+    __block NSArray<SBTMonitoredNetworkRequest *> *ret;
+    dispatch_sync(self.sharedInstance.monitoredRequestsSyncQueue, ^{
+        ret = [self.sharedInstance.monitoredRequests copy];
+    });
+    
+    return ret;
 }
 
 + (void)monitoredRequestsFlushAll
 {
-    [self.sharedInstance.monitoredRequests removeAllObjects];
+    dispatch_sync(self.sharedInstance.monitoredRequestsSyncQueue, ^{
+        [self.sharedInstance.monitoredRequests removeAllObjects];
+    });
 }
 
 #pragma mark - Stubbing
@@ -220,7 +229,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[SBTUITestTunnel] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -282,7 +291,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[SBTUITestTunnel] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -329,7 +338,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-        NSLog(@"[UITestTunnelServer] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
+        NSLog(@"[SBTUITestTunnel] %ld matching rules left", (long)self.sharedInstance.matchingRules.count);
     }
 }
 
@@ -411,7 +420,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 monitoredRequest.isStubbed = YES;
                 monitoredRequest.isRewritten = NO;
                 
-                [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+                dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
+                    [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+                });
             }
             
             if ([stubResponse isKindOfClass:[SBTStubFailureResponse class]]) {
@@ -455,7 +466,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch4 = stubRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch5 = monitorRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[UITestTunnelServer] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
+        NSLog(@"[SBTUITestTunnel] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
@@ -581,7 +592,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             monitoredRequest.isStubbed = NO;
             monitoredRequest.isRewritten = isRequestRewritten;
             
-            [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+            dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
+                [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+            });
         }
         
         if (isRequestRewritten) {
@@ -627,9 +640,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             headersMatch &= [requestMatch matchesRequestHeaders:requestHeaders];
         }
         
-        NSDictionary *responseHeaders = @{};
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-            responseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
+            NSDictionary *responseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
             
             headersMatch &= [requestMatch matchesResponseHeaders:responseHeaders];
         }
