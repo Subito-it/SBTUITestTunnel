@@ -406,8 +406,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             
             strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
             
-            // TODO: this is a re-fetch from before the dispatch. Is that ok?
-            NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
             if ([strongSelf monitorRuleFromMatchingRules:matchingRules] != nil) {
                 SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
                 
@@ -489,7 +487,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [self moveCookiesToHeader:newRequest];
         }
         
-        // TODO: do we need to do this at all? why not use rewriteRule?
         SBTRewrite *rewrite = [self rewriteRuleFromMatchingRules:matchingRules][SBTProxyURLProtocolRewriteResponse];
         if (rewrite != nil) {
             newRequest.URL = [rewrite rewriteUrl:newRequest.URL];
