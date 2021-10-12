@@ -28,6 +28,10 @@ class SBTExtensionViewController4: UIViewController, CLLocationManagerDelegate {
     @IBAction func updateTapped(_ sender: Any) {
         locationManager.startUpdatingLocation()
     }
+
+    @IBAction func stopTapped(_ sender: Any) {
+        locationManager.stopUpdatingLocation()
+    }
     
     @IBAction func authorizationStatusTapped(_ sender: Any) {
         statusLabel.text = "\(CLLocationManager.authorizationStatus().rawValue)"

@@ -32,6 +32,7 @@
 #import "CLLocationManager+Swizzles.h"
 
 static NSMapTable *_instanceHashTable;
+static NSMapTable *_delegatesHashTable;
 static NSString *_autorizationStatus;
 static NSString *_accuracyAuthorization;
 static NSString *_serviceStatus;
@@ -40,32 +41,32 @@ static NSString *_serviceStatus;
 
 - (void)swz_startMonitoring
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_startUpdatingLocation
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_startUpdatingHeading
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_requestLocation
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_requestAlwaysAuthorization
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_requestWhenInUseAuthorization
 {
-    [_instanceHashTable setObject:[_instanceHashTable objectForKey:self] forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (void)swz_stopMonitoring
@@ -115,7 +116,7 @@ static NSString *_serviceStatus;
 
 - (void)swz_setDelegate:(id<CLLocationManagerDelegate>)delegate
 {
-    [_instanceHashTable setObject:delegate forKey:self];
+    [_delegatesHashTable setObject:delegate forKey:self];
 }
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate
@@ -136,6 +137,7 @@ static NSString *_serviceStatus;
 + (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
 {
     _instanceHashTable = hashTable;
+    _delegatesHashTable = [hashTable copy];
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -163,6 +165,7 @@ static NSString *_serviceStatus;
 + (void)removeSwizzles
 {
     [_instanceHashTable removeAllObjects];
+    [_delegatesHashTable removeAllObjects];
     
     // Repeat swizzle to restore default implementation
     static dispatch_once_t onceToken;
