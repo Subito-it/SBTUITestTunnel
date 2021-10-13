@@ -613,6 +613,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
 {
     NSMutableURLRequest *mRequest = [request mutableCopy];
+    if (response.statusCode == 302 || response.statusCode == 303) {
+        mRequest.HTTPBody = [NSData data]; // GET redirects should not forward HTTPBody
+    }
     
     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:mRequest];
     if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:mRequest]) {
