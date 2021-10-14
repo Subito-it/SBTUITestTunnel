@@ -5,6 +5,14 @@
 //  Created by Leo Natan (Wix) on 12/4/19.
 //
 
+#if DEBUG
+    #ifndef ENABLE_UITUNNEL
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
+
 #ifndef DTXSwizzlingHelper_h
 #define DTXSwizzlingHelper_h
 #if __OBJC__
@@ -145,3 +153,5 @@ static Class DTXDynamicSubclassSuper(id obj, Class dynamic)
 
 #endif /* __OBJC__ */
 #endif /* DTXSwizzlingHelper_h */
+
+#endif

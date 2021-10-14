@@ -2,8 +2,15 @@
 //  NSData+gzip.h
 //  SBTUITestTunnel-Server
 //
-//  Created by Tomas Camin on 15/02/2019.
-//
+// https://gist.github.com/niklasberglund/5553224
+
+#if DEBUG
+    #ifndef ENABLE_UITUNNEL
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
 
 @import Foundation;
 
@@ -13,3 +20,5 @@
 - (NSData *)gzipDeflate;
 
 @end
+
+#endif

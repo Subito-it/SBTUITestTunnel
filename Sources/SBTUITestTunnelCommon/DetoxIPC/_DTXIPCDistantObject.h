@@ -6,6 +6,14 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
+#if DEBUG
+    #ifndef ENABLE_UITUNNEL
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
+
 #import <Foundation/Foundation.h>
 @class DTXIPCConnection;
 @class _DTXIPCExportedObject;
@@ -24,3 +32,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
