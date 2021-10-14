@@ -18,6 +18,14 @@
 * WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
 */
 
+#if DEBUG
+    #ifndef ENABLE_UITUNNEL
+        #define ENABLE_UITUNNEL 1
+    #endif
+#endif
+
+#if ENABLE_UITUNNEL
+
 #import "NSInvocation+DTXRemoteSerialization.h"
 #import "_DTXIPCRemoteBlockRegistry.h"
 #import "DTXIPCConnection-Private.h"
@@ -463,3 +471,5 @@ static void _decodeInvocation(NSDictionary* serialized, NSInvocation* invocation
 }
 
 @end
+
+#endif
