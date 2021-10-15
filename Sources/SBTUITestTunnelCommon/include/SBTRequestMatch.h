@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import Foundation;
 
 @interface SBTRequestMatch: NSObject<NSCoding, NSCopying>
@@ -68,5 +60,3 @@
 - (BOOL)matchesResponseHeaders:(nullable NSDictionary<NSString *, NSString *> *)responseHeaders;
 
 @end
-
-#endif
