@@ -149,7 +149,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.buttons["Button"].isHittable)
         
-        app.scrollScrollView(withIdentifier: "scrollView", toElementWitIdentifier: "Button", animated: true)
+        app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true)
         
         expectation(for: NSPredicate(format: "exists == true"), evaluatedWith: app.buttons["Button"])
         waitForExpectations(timeout: 15.0, handler: nil)

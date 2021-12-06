@@ -506,7 +506,7 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
 
 #pragma mark - XCUITest 3D touch extensions
 

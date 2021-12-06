@@ -352,9 +352,9 @@
     return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row animated:flag];
 }
 
-- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
 {
-    return [self.client scrollScrollViewWithIdentifier:identifier toElementWitIdentifier:targetIdentifier animated:flag];
+    return [self.client scrollScrollViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
 }
 
 #pragma mark - XCUITest 3D touch extensions
