@@ -487,13 +487,15 @@
 - (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
 
 /**
-*  Scroll UICollection view to the specified row (flattening sections if any).
-*
-*  @param identifier accessibilityIdentifier of the UICollectionView
-*  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
-*  @param flag pass YES to animate the scroll; otherwise, pass NO
-*
-*  @return `YES` on success
+
+/**
+ *  Scroll UICollection view to the specified row (flattening sections if any).
+ *
+ *  @param identifier accessibilityIdentifier of the UICollectionView
+ *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
 */
 - (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
 
@@ -522,94 +524,94 @@
 #pragma mark - XCUITest CLLocation extensions
 
 /**
-*  Enable CLLocationManager stubbing
-*
-*  @param flag stubbing status
-*
-*  @return `YES` on success
+ *  Enable CLLocationManager stubbing
+ *
+ *  @param flag stubbing status
+ *
+ *  @return `YES` on success
 */
 - (BOOL)coreLocationStubEnabled:(BOOL)flag;
 
 /**
-*  Stub CLLocationManager authorizationStatus
-*
-*  @param status location authorization status. The default value returned by `+[CLLocationManager authorizationStatus]` when enabling core location stubbing is kCLAuthorizationStatusAuthorizedAlways
-*
-*  @return `YES` on success
+ *  Stub CLLocationManager authorizationStatus
+ *
+ *  @param status location authorization status. The default value returned by `+[CLLocationManager authorizationStatus]` when enabling core location stubbing is kCLAuthorizationStatusAuthorizedAlways
+ *
+ *  @return `YES` on success
 */
 - (BOOL)coreLocationStubAuthorizationStatus:(CLAuthorizationStatus)status;
 
 /**
-*  Stub CLLocationManager accuracyAuthorization
-*
-*  @param authorization accuracy authorization. The default value returned by `CLLocationManager.accuracyAuthorization` when enabling core location stubbing is CLAccuracyAuthorizationFullAccuracy
-*
-*  @return `YES` on success
+ *  Stub CLLocationManager accuracyAuthorization
+ *
+ *  @param authorization accuracy authorization. The default value returned by `CLLocationManager.accuracyAuthorization` when enabling core location stubbing is CLAccuracyAuthorizationFullAccuracy
+ *
+ *  @return `YES` on success
 */
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14));
 #endif
 
 /**
-*  Stub CLLocationManager locationServicesEnabled
-*
-*  @param flag location service status. The default value returned `+[CLLocationManager locationServicesEnabled]` by  when enabling core location stubbing is YES
-*
-*  @return `YES` on success
+ *  Stub CLLocationManager locationServicesEnabled
+ *
+ *  @param flag location service status. The default value returned `+[CLLocationManager locationServicesEnabled]` by  when enabling core location stubbing is YES
+ *
+ *  @return `YES` on success
 */
 
 - (BOOL)coreLocationStubLocationServicesEnabled:(BOOL)flag;
 
 /**
-*  Tells all active CLLocationManager's delegates that the location manager
-*  has a new location data available.
-*
-*  @param locations an array of CLLocation objects containing the location data. This array should always contains at least one object representing the current location
-*
-*  @return `YES` on success
+ *  Tells all active CLLocationManager's delegates that the location manager
+ *  has a new location data available.
+ *
+ *  @param locations an array of CLLocation objects containing the location data. This array should always contains at least one object representing the current location
+ *
+ *  @return `YES` on success
 */
 - (BOOL)coreLocationNotifyLocationUpdate:(nonnull NSArray<CLLocation *>*)locations;
 
 /**
-*  Tells all active CLLocationManager's delegates that the location manager
-*  was unable to retrieve a location value.
-*
-*  @param error the error object containing the reason the location or heading could not be retrieved.
-*
-*  @return `YES` on success
+ *  Tells all active CLLocationManager's delegates that the location manager
+ *  was unable to retrieve a location value.
+ *
+ *  @param error the error object containing the reason the location or heading could not be retrieved.
+ *
+ *  @return `YES` on success
 */
 - (BOOL)coreLocationNotifyLocationError:(nonnull NSError *)error;
 
 #pragma mark - XCUITest UNUserNotificationCenter extensions
 
 /**
-*  Enable UNUserNotificationCenter stubbing
-*
-*  @param flag stubbing status
-*
-*  @return `YES` on success
+ *  Enable UNUserNotificationCenter stubbing
+ *
+ *  @param flag stubbing status
+ *
+ *  @return `YES` on success
 */
 - (BOOL)notificationCenterStubEnabled:(BOOL)flag API_AVAILABLE(ios(10));
 
 /**
-*  Stub UNUserNotificationCenter authorizationStatus
-*
-*  @param status notification center authorization status. The default value returned by `UNNotificationSettings.authorizationStatus` when enabling notication center stubbing is UNAuthorizationStatusAuthorized
-*
-*  @return `YES` on success
+ *  Stub UNUserNotificationCenter authorizationStatus
+ *
+ *  @param status notification center authorization status. The default value returned by `UNNotificationSettings.authorizationStatus` when enabling notication center stubbing is UNAuthorizationStatusAuthorized
+ *
+ *  @return `YES` on success
 */
 - (BOOL)notificationCenterStubAuthorizationStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10));
 
 #pragma mark - XCUITest WKWebView stubbing
 
 /**
-*  Toggle stubbing/throttling/monitoring in WKWebViews. You'll need to enable this before being able to interact with WKWebView's network requests.
-*
-*  Important: WKWebView do not publicly support for NSURLProtocol. To workaround this we're calling some private APIs that unfortunately have as a side effect that bodies of POST requests inside the WKWebViews are stripped away. Use with care!
-*
-*  @param flag stubbing status
-*
-*  @return `YES` on success
+ *  Toggle stubbing/throttling/monitoring in WKWebViews. You'll need to enable this before being able to interact with WKWebView's network requests.
+ *
+ *  Important: WKWebView do not publicly support for NSURLProtocol. To workaround this we're calling some private APIs that unfortunately have as a side effect that bodies of POST requests inside the WKWebViews are stripped away. Use with care!
+ *
+ *  @param flag stubbing status
+ *
+ *  @return `YES` on success
 */
 - (BOOL)wkWebViewStubEnabled:(BOOL)flag;
 
