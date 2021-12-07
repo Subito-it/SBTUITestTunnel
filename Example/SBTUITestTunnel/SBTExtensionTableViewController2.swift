@@ -16,6 +16,8 @@ class SBTExtensionTableViewController2: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.accessibilityIdentifier = "table"
+        
         tableView.rowHeight = 150
     }
     
