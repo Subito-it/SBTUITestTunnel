@@ -811,7 +811,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)base64SerializeObject:(id)obj
 {
-    NSData *objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    NSData *objData;
+    if (@available(iOS 11.0, *)) {
+        objData = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
+    } else {
+        objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    }
     
     return [self base64SerializeData:objData];
 }

@@ -295,7 +295,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if (block) {
             NSObject *outObject = block(inObj);
             
-            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:outObject];
+            NSData *data;
+            if (@available(iOS 11.0, *)) {
+                data = [NSKeyedArchiver archivedDataWithRootObject:outObject requiringSecureCoding:NO error:nil];
+            } else {
+                data = [NSKeyedArchiver archivedDataWithRootObject:outObject];
+            }
             
             NSString *ret = data ? [data base64EncodedStringWithOptions:0] : @"";
             *returnObject = @{ SBTUITunnelResponseResultKey: ret };
@@ -372,7 +377,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *ret = nil;
     
     NSDictionary *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs];
+    
+    NSData *data;
+    if (@available(iOS 11.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs requiringSecureCoding:NO error:nil];
+    } else {
+        data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs];
+    }
     
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -462,8 +473,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if (flag) {
         [SBTProxyURLProtocol monitoredRequestsFlushAll];
     }
-
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush];
+    
+    NSData *data;
+    if (@available(iOS 11.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush requiringSecureCoding:NO error:nil];
+    } else {
+        data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush];
+    }
+    
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -614,7 +631,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
     
     NSObject *obj = [userDefault objectForKey:objKey];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    
+    NSData *data;
+    if (@available(iOS 11.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
+    } else {
+        data = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    }
+
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -644,7 +668,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandMainBundleInfoDictionary:(NSDictionary *)parameters
 {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary]];
+    NSData *data;
+    if (@available(iOS 11.0, *)) {
+        data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary] requiringSecureCoding:NO error:nil];
+    } else {
+        data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary]];
+    }
+
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -705,8 +735,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         
         [filesDataArr addObject:fileData];
     }
-    
-    NSData *filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr];
+        
+    NSData *filesDataArrData;
+    if (@available(iOS 11.0, *)) {
+        filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr requiringSecureCoding:NO error:nil];
+    } else {
+        filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr];
+    }
     
     NSString *ret = [filesDataArrData base64EncodedStringWithOptions:0];
     
