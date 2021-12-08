@@ -801,7 +801,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSArray *allViews = [rootViewController.view allSubviews];
     for (UIView *view in [allViews reverseObjectEnumerator]) {
         if ([view isKindOfClass:elementClass]) {
-            BOOL withinVisibleBounds = CGRectContainsRect( UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+            BOOL withinVisibleBounds = CGRectContainsRect(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
             
             if (!withinVisibleBounds) {
                 continue;
@@ -855,6 +855,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *targetElementIdentifier = parameters[SBTUITunnelObjectValueKey];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
+    return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetElementIdentifier animated:animated];
+}
+
+- (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetIdentifier:(NSString *)targetElementIdentifier animated:(BOOL)animated
+{
     __block BOOL result = NO;
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
@@ -869,7 +874,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSArray *allViews = [rootViewController.view allSubviews];
         for (UIView *view in [allViews reverseObjectEnumerator]) {
             if ([view isKindOfClass:[UIScrollView class]]) {
-                BOOL withinVisibleBounds = CGRectContainsRect( UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+                BOOL withinVisibleBounds = CGRectContainsRect(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
                 
                 if (!withinVisibleBounds) {
                     continue;
@@ -878,20 +883,40 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
                 if (expectedIdentifier) {
                     UIScrollView *scrollView = (UIScrollView *)view;
-                    NSArray *allScrollViewViews = [view allSubviews];
-                    for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
-                        BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
-                        if (expectedTargetIdentifier) {
-                            CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
-                            CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
+                                        
+                    while (!result) {
+                        NSArray *allScrollViewViews = [scrollView allSubviews];
+                        for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
+                            BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
                             
-                            [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                                dispatch_semaphore_signal(sem);
-                            });
-
-                            result = YES;
+                            if (expectedTargetIdentifier) {
+                                CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
+                                CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
+                                
+                                [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
+                                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                    dispatch_semaphore_signal(sem);
+                                });
+                                
+                                result = YES;
+                                break;
+                            }
+                        }
+                        
+                        if (result) {
                             break;
+                        } else {
+                            if (scrollView.contentOffset.y < scrollView.contentSize.height)  {
+                                CGFloat targetContentOffsetY = MIN(scrollView.contentSize.height, scrollView.contentOffset.y + scrollView.frame.size.height);
+                                
+                                [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
+                                NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+                                while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
+                                    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                                }
+                            } else {
+                                break;
+                            }
                         }
                     }
                 }
@@ -901,7 +926,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {}
     
     NSString *debugInfo = result ? @"" : @"element not found!";
     
@@ -916,7 +941,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
     if ([scrollType isEqualToString:@"identifier"]) {
-        return nil; // TODO
+        return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
     } else {
         return [self commandScrollTableViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
     }
@@ -986,7 +1011,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
     if ([scrollType isEqualToString:@"identifier"]) {
-        return nil; // TODO
+        return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
     } else {
         return [self commandScrollCollectionViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
     }
