@@ -347,9 +347,18 @@
     return [self.client scrollTableViewWithIdentifier:identifier toRow:row animated:flag];
 }
 
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag {
+    return [self.client scrollTableViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+}
+
+
 - (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row animated:flag];
+}
+
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag {
+    return [self.client scrollCollectionViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
 }
 
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag

@@ -73,6 +73,8 @@ NSString * const SBTUITunnelDownloadBasePathKey = @"base";
 NSString * const SBTUITunnelResponseResultKey = @"result";
 NSString * const SBTUITunnelResponseDebugKey = @"debug";
 
+NSString * const SBTUITunnelXCUIExtensionScrollType = @"type";
+
 NSString * const SBTUITunnelCustomCommandKey = @"cust_command";
 
 NSString * const SBTUITunneledApplicationCommandPing = @"commandPing";

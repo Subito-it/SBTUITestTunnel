@@ -911,16 +911,26 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandScrollTableView:(NSDictionary *)parameters
 {
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
-    NSInteger elementRow = [parameters[SBTUITunnelObjectValueKey] intValue];
+    NSString *targetDestination = parameters[SBTUITunnelObjectValueKey];
+    NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
+    if ([scrollType isEqualToString:@"identifier"]) {
+        return nil; // TODO
+    } else {
+        return [self commandScrollTableViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
+    }
+}
+    
+- (NSDictionary *)commandScrollTableViewWithIdentifier:(NSString *)tableIdentifier targetRow:(NSInteger)elementRow animated:(BOOL)animated
+{
     __block BOOL result = NO;
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        result = [weakSelf scrollElementWithIdentifier:elementIdentifier
+        result = [weakSelf scrollElementWithIdentifier:tableIdentifier
                                       elementClass:[UITableView class]
                                              toRow:elementRow
                                   numberOfSections:^NSInteger (UIView *view) {
@@ -971,16 +981,26 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandScrollCollectionView:(NSDictionary *)parameters
 {
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
-    NSInteger elementRow = [parameters[SBTUITunnelObjectValueKey] intValue];
+    NSString *targetDestination = parameters[SBTUITunnelObjectValueKey];
+    NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
+    if ([scrollType isEqualToString:@"identifier"]) {
+        return nil; // TODO
+    } else {
+        return [self commandScrollCollectionViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
+    }
+}
+    
+- (NSDictionary *)commandScrollCollectionViewWithIdentifier:(NSString *)collectionIdentifier targetRow:(NSInteger)elementRow animated:(BOOL)animated
+{
     __block BOOL result = NO;
     
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        result = [weakSelf scrollElementWithIdentifier:elementIdentifier
+        result = [weakSelf scrollElementWithIdentifier:collectionIdentifier
                                       elementClass:[UICollectionView class]
                                              toRow:elementRow
                                   numberOfSections:^NSInteger (UIView *view) {

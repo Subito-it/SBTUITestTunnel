@@ -487,6 +487,15 @@
 - (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
 
 /**
+ *  Scroll UITablewViews view to the specified row (flattening sections if any).
+ *
+ *  @param identifier accessibilityIdentifier of the UITableView
+ *  @param targetIdentifier accessibilityIdentifier of the element the table view should scroll to
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
 
 /**
  *  Scroll UICollection view to the specified row (flattening sections if any).
@@ -498,6 +507,17 @@
  *  @return `YES` on success
 */
 - (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
+
+/**
+ *  Scroll UICollection view to the specified row (flattening sections if any).
+ *
+ *  @param identifier accessibilityIdentifier of the UICollectionView
+ *  @param targetIdentifier accessibilityIdentifier of the element the collection view should scroll to
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+*/
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
 
 /**
  *  Scroll UIScrollView view to the specified element
