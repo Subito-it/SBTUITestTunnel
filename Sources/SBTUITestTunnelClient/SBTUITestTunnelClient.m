@@ -723,7 +723,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
 }
 
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag {
+- (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
