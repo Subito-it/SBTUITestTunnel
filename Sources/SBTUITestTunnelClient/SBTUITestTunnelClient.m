@@ -700,6 +700,18 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
 }
 
+- (BOOL)scrollTableViewWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: targetIdentifier,
+                                                     SBTUITunnelXCUIExtensionScrollType: @"identifier",
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
+}
+
 - (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
@@ -711,7 +723,18 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
 }
 
-- (BOOL)scrollScrollViewWithIdentifier:(NSString *)identifier toElementWitIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
+- (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag {
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: targetIdentifier,
+                                                     SBTUITunnelXCUIExtensionScrollType: @"identifier",
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView params:params] boolValue];
+}
+
+- (BOOL)scrollScrollViewWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     NSAssert([targetIdentifier length] > 0, @"Invalid empty target identifier!");
@@ -811,7 +834,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)base64SerializeObject:(id)obj
 {
-    NSData *objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    NSData *objData;
+    if (@available(iOS 11.0, *)) {
+        objData = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
+    } else {
+        objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
+    }
     
     return [self base64SerializeData:objData];
 }

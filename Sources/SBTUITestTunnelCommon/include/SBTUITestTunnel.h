@@ -75,6 +75,8 @@ extern NSString * _Nonnull const SBTUITunnelDownloadBasePathKey;
 extern NSString * _Nonnull const SBTUITunnelResponseResultKey;
 extern NSString * _Nonnull const SBTUITunnelResponseDebugKey;
 
+extern NSString * _Nonnull const SBTUITunnelXCUIExtensionScrollType;
+
 extern NSString * _Nonnull const SBTUITunnelCustomCommandKey;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandPing;
