@@ -349,18 +349,38 @@ The tunnel adds methods to perform fine grain scrolling for table/collection/scr
 
 ### UITableView
 
+#### Target row
+
 Pass the accessibility label/identifier of the table along with the row you want to scroll to. The row is an int which is section-wise flattened, if you want to scroll to last cell you can pass Int.max or any integer greater than the number of items in datasource
 
 ```swift
 app.scrollTableView(withIdentifier: "identifier", toRow: .max, animated: false)
 ```
 
+#### Target identifier
+
+Pass the accessibility label/identifier of the table along with the accessibility label/identifier of the element you want the table to be scrolled to. Currently only vertical scrolling is supported.
+
+```swift
+app.scrollTableView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
+```
+
 ### UICollectionView
+
+#### Target row
 
 Pass the accessibility label/identifier of the collection along with the row you want to scroll to. The row is an int which is section-wise flattened, if you want to scroll to last cell you can pass Int.max or any integer greater than the number of items in datasource
 
 ```swift
 app.scrollCollectionView(withIdentifier: "identifier", toRow: .max, animated: false)
+```
+
+#### Target identifier
+
+Pass the accessibility label/identifier of the collection along with the accessibility label/identifier of the element you want the collection to be scrolled to. Currently only vertical scrolling is supported.
+
+```swift
+app.scrollCollectionView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
 ```
 
 ### UIScrollview scrolling
