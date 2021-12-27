@@ -1,6 +1,6 @@
 # Installation (Swift Package Manager)
 
-From the _File_ menu select _Add Packages..._. Enter `https://github.com/Subito-it/SBTUITestTunnel` in the Package URL. Select the package and select the `master` _branch_ as _Dependency Rule_.
+From the _File_ menu select _Add Packages..._. Enter `https://github.com/Subito-it/SBTUITestTunnel` in the Package URL. Select the package and **select the `master` _branch_** as _Dependency Rule_.
 
 Now add the `SBTUITestTunnelServer` package to your main app target and `SBTUITestTunnelClient` to your UI test target.
 
