@@ -801,7 +801,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSArray *allViews = [rootViewController.view allSubviews];
     for (UIView *view in [allViews reverseObjectEnumerator]) {
         if ([view isKindOfClass:elementClass]) {
-            BOOL withinVisibleBounds = CGRectContainsRect(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+            CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+            BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
             
             if (!withinVisibleBounds) {
                 continue;
@@ -874,8 +875,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSArray *allViews = [rootViewController.view allSubviews];
         for (UIView *view in [allViews reverseObjectEnumerator]) {
             if ([view isKindOfClass:[UIScrollView class]]) {
-                BOOL withinVisibleBounds = CGRectContainsRect(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
-                
+                CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+                BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
+
                 if (!withinVisibleBounds) {
                     continue;
                 }
@@ -926,7 +928,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
     });
     
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC))) != 0) {}
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
     
     NSString *debugInfo = result ? @"" : @"element not found!";
     
