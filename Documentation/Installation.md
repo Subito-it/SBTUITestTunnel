@@ -13,7 +13,6 @@ use_frameworks!
 
 target 'APP_TARGET' do
   pod 'SBTUITestTunnelServer'
-  pod 'GCDWebServer', :inhibit_warnings => true
 end
 
 target 'UITESTS_TARGET' do

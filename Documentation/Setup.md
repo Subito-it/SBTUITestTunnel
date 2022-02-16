@@ -39,27 +39,23 @@ While no setup is required in your UI Test target to use this library it might b
 
 #### 🔥 IMPORTANT, PLEASE READ
 
-To use the framework you're required to define `DEBUG=1` or `ENABLE_UITUNNEL=1` in your preprocessor macros build settings.
+To use the framework you're required to define `DEBUG=1` or `ENABLE_UITUNNEL=1` in your _Preprocessor Macros_ and `DEBUG` or `ENABLE_UITUNNEL` in the _Swift Active Compilation Conditions_ (`SWIFT_ACTIVE_COMPILATION_CONDITIONS`) build settings. 
 
-If your integrating the framwork in a Swift project make sure that the _Acive Compilation Conditions_ (`SWIFT_ACTIVE_COMPILATION_CONDITIONS`) build settings contains `DEBUG` or `ENABLE_UITUNNEL` as well.
-
-**This is needed to make sure that test code doesn't get mixed by mistake with production code. Make sure that these build settings are defined both in your application and Pods targets.**
-
+**Without these build settings compilation will fail with a `Undefined symbol: _OBJC_CLASS_$_SBTUITestTunnelServer`.**
 
 ## Project advanced usage (CocoaPods)
 
-In some advanced cases the `DEBUG=1` may not (or can not) be defined in your application's target or Pods project. This can happen when using some customly named build_configurations (ie QA) where Cocoapods doesn't automatically set the `DEBUG` preprocessors for you.
+In some advanced cases the tou may be running tests on a custom build configuration that is missing the `DEBUG` preprocessor macro.
 
-<img src="https://raw.githubusercontent.com/Subito-it/SBTUITestTunnel/master/Images/qa_preprocessor_macros.png" width="460" />
-
-In that case you'll need to add `ENABLE_UITUNNEL=1` in your application target build setting as shown above and modify your Podfile by adding the following `post_install` action (and re running `pod install`):
+In that case you'll need to add the `ENABLE_UITUNNEL` and `ENABLE_UITUNNEL_SWIZZLING` macros the tunnel targets build setting by modify your Podfile and adding the following `post_install` action:
 
 ```ruby
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
             if config.name == 'QA' # the name of your build configuration
-                config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'ENABLE_UITUNNEL=1']
+              config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ['$(inherited)', 'ENABLE_UITUNNEL=1', 'ENABLE_UITUNNEL_SWIZZLING=1']
+              config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = ['$(inherited)', 'ENABLE_UITUNNEL', 'ENABLE_UITUNNEL_SWIZZLING']
             end
         end
     end
