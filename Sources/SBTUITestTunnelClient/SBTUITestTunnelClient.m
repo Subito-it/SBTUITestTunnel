@@ -43,7 +43,6 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, assign) NSInteger connectionPort;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) NSTimeInterval connectionTimeout;
-@property (nonatomic, assign) BOOL enableIPC;
 @property (nonatomic, strong) NSMutableArray *stubOnceIds;
 @property (nonatomic, strong) void (^startupBlock)(void);
 @property (nonatomic, copy) NSArray<NSString *> *initialLaunchArguments;
