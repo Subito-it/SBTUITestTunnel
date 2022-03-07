@@ -209,6 +209,22 @@ class RewriteTests: XCTestCase {
         XCTAssertEqual(rewrittenBody["Host"], "myserver.com")
     }
     
+    func testResponseBodyRewriteAll() {
+        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        
+        let rewrite = SBTRewrite(responseReplacement: [SBTRewriteReplacement(find: "^.*", replace: "replacement")])
+        
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+        
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/gzip")
+        
+        let networkBase64 = result["data"] as! String
+        let networkData = Data(base64Encoded: networkBase64)!
+        let output = String(decoding: networkData, as: UTF8.self)
+                
+        XCTAssertEqual(output, "replacement")
+    }
+    
     func testResponseHeaderRewrite() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         

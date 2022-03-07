@@ -82,7 +82,7 @@
     NSString *replaceString = [[NSString alloc] initWithData:self.replaceData encoding:NSUTF8StringEncoding];
     
     NSError *error = nil;
-    NSRegularExpression *regexExpression = [NSRegularExpression regularExpressionWithPattern:findString options:NSRegularExpressionCaseInsensitive error:&error];
+    NSRegularExpression *regexExpression = [NSRegularExpression regularExpressionWithPattern:findString options:NSRegularExpressionCaseInsensitive | NSRegularExpressionDotMatchesLineSeparators error:&error];
     
     NSString *replacedString = [regexExpression stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:replaceString];
     
