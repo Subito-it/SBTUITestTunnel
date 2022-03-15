@@ -186,22 +186,25 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
     NSString *commandString = [command stringByAppendingString:@":"];
     SEL commandSelector = NSSelectorFromString(commandString);
-    NSDictionary *response = nil;
-
-    if (![self processCustomCommandIfNecessary:command parameters:parameters returnObject:&response]) {
-        if (![self respondsToSelector:commandSelector]) {
-            BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
-        }
-
-        IMP imp = [self methodForSelector:commandSelector];
-
-        NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
-
-        NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
-        response = func(self, commandSelector, parameters);
-    }
     
-    block(response);
+    dispatch_async(self.commandDispatchQueue, ^{
+        NSDictionary *response = nil;
+
+        if (![self processCustomCommandIfNecessary:command parameters:parameters returnObject:&response]) {
+            if (![self respondsToSelector:commandSelector]) {
+                BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
+            }
+
+            IMP imp = [self methodForSelector:commandSelector];
+
+            NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
+
+            NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
+            response = func(self, commandSelector, parameters);
+        }
+        
+        block(response);
+    });
 }
 
 - (void)takeOffOnceUsingHTTPPort:(NSString *)tunnelPort
