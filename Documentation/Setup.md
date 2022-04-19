@@ -61,3 +61,5 @@ post_install do |installer|
     end
 end
 ```
+
+**Note**: You can set `ENABLE_UITUNNEL_SWIZZLING=0` if you plan on disabling swizzling and having your own sub-class of `XCUIApplication` instead of the automatically provided one.
