@@ -24,15 +24,17 @@
     #endif
 #endif
 
-#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
+#if ENABLE_UITUNNEL
+  #ifdef ENABLE_UITUNNEL_SWIZZLING
 
-@import UserNotifications;
+    @import UserNotifications;
 
-@interface UNUserNotificationCenter (Swizzles)
+    @interface UNUserNotificationCenter (Swizzles)
 
-+ (void)loadSwizzlesWithAuthorizationStatus:(NSString *)autorizationStatus;
-+ (void)removeSwizzles;
+    + (void)loadSwizzlesWithAuthorizationStatus:(NSString *)autorizationStatus;
+    + (void)removeSwizzles;
 
-@end
+    @end
 
+  #endif
 #endif

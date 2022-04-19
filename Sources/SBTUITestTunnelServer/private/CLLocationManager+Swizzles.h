@@ -24,19 +24,21 @@
     #endif
 #endif
 
-#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
+#if ENABLE_UITUNNEL
+  #ifdef ENABLE_UITUNNEL_SWIZZLING
 
-@import CoreLocation;
+    @import CoreLocation;
 
-@interface CLLocationManager (Swizzles)
+    @interface CLLocationManager (Swizzles)
 
-+ (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus;
-+ (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization API_AVAILABLE(ios(14));
-+ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable;
-+ (void)removeSwizzles;
+    + (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus;
+    + (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization API_AVAILABLE(ios(14));
+    + (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable;
+    + (void)removeSwizzles;
 
-- (id<CLLocationManagerDelegate>)stubbedDelegate;
+    - (id<CLLocationManagerDelegate>)stubbedDelegate;
 
-@end
+    @end
 
+  #endif
 #endif
