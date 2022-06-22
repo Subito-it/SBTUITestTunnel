@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
+    #ifndef ENABLE_UITUNNEL
         #define ENABLE_UITUNNEL 1
     #endif
 #endif
@@ -350,7 +350,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     // Note #2: it is not guaranteed that request that is being passed contains the expected
     // values for the allHTTPHeaderFields property in one of these callse. For this reason
     // we postpone matching the request headers after startLoading is called.
-    
+        
     if ([NSURLProtocol propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
     }
@@ -386,7 +386,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         // STUB REQUEST
         SBTStubResponse *stubResponse = stubRule[SBTProxyURLProtocolStubResponse];
         NSInteger stubbingStatusCode = stubResponse.returnCode;
-        
+                
         NSTimeInterval stubbingResponseTime = stubResponse.responseTime;
         if (stubbingResponseTime == 0.0 && throttleRule) {
             // if response time is not set in stub but set in proxy
@@ -499,7 +499,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [SBTProxyURLProtocol sharedInstance].tasksTime[self.connection] = [NSDate date];
         [SBTProxyURLProtocol sharedInstance].tasksData[self.connection] = [NSMutableData data];
         
-        [self.connection resume];
+        NSTimeInterval delayResponseTime = [self delayResponseTime];
+        __weak typeof(self)weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [weakSelf.connection resume];
+        });
     }
 }
 
@@ -571,46 +575,38 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
     }
     
-    NSTimeInterval delayResponseTime = [self delayResponseTime];
-    NSTimeInterval blockDispatchTime = MAX(0.0, delayResponseTime - requestTime);
+    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
     
-    __weak typeof(self)weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(blockDispatchTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf)strongSelf = weakSelf;
+    if ([self monitorRuleFromMatchingRules:matchingRules] != nil) {
+        SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
         
-        NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+        monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
+        monitoredRequest.requestTime = requestTime;
+        monitoredRequest.request = request ?: task.currentRequest;
+        monitoredRequest.originalRequest = originalRequest ?: task.originalRequest;
         
-        if ([strongSelf monitorRuleFromMatchingRules:matchingRules] != nil) {
-            SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
-            
-            monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
-            monitoredRequest.requestTime = requestTime;
-            monitoredRequest.request = request ?: task.currentRequest;
-            monitoredRequest.originalRequest = originalRequest ?: task.originalRequest;
-            
-            monitoredRequest.response = (NSHTTPURLResponse *)strongSelf.response;
-            
-            monitoredRequest.responseData = responseData;
-            
-            monitoredRequest.isStubbed = NO;
-            monitoredRequest.isRewritten = isRequestRewritten;
-            
-            dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
-                [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
-            });
-        }
+        monitoredRequest.response = (NSHTTPURLResponse *)self.response;
         
-        if (isRequestRewritten) {
-            [weakSelf.client URLProtocol:weakSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-            [weakSelf.client URLProtocol:weakSelf didLoadData:responseData];
-        }
+        monitoredRequest.responseData = responseData;
         
-        if (error) {
-            [weakSelf.client URLProtocol:self didFailWithError:error];
-        } else {
-            [weakSelf.client URLProtocolDidFinishLoading:strongSelf];
-        }
-    });
+        monitoredRequest.isStubbed = NO;
+        monitoredRequest.isRewritten = isRequestRewritten;
+        
+        dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
+            [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+        });
+    }
+    
+    if (isRequestRewritten) {
+        [self.client URLProtocol:self didReceiveResponse:self.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+        [self.client URLProtocol:self didLoadData:responseData];
+    }
+    
+    if (error) {
+        [self.client URLProtocol:self didFailWithError:error];
+    } else {
+        [self.client URLProtocolDidFinishLoading:self];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
