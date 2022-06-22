@@ -276,7 +276,7 @@ class MonitorTests: XCTestCase {
         XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 5.0, iterations: 2))
     }
     
-    func testRedictForMonitoredRequestShouldMatch() {
+    func testRedirectForMonitoredRequestShouldMatch() {
         let redirectMatch = SBTRequestMatch(url: "httpbin.org")
         app.monitorRequests(matching: redirectMatch)
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.0) { [weak self] in
