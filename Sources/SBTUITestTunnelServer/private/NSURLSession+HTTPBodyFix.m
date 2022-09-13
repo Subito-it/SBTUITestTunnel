@@ -60,7 +60,7 @@
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 {    
-    return [self uploadTaskWithRequest:request fromFile:fileURL completionHandler:completionHandler];
+    return [self swz_uploadTaskWithRequest:request fromFile:fileURL completionHandler:completionHandler];
 }
 
 - (NSURLSessionDataTask *)swz_dataTaskWithRequest:(NSURLRequest *)request
