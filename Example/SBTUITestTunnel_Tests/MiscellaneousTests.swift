@@ -19,6 +19,35 @@ import SBTUITestTunnelClient
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
+    func testLaunchTimeWithStubs() throws {
+        func stubAndGetDuration(amount: Int) -> CFAbsoluteTime {
+            let start = CFAbsoluteTimeGetCurrent()
+            for _ in 1 ... amount {
+                app.stubRequests(
+                    matching: SBTRequestMatch(url: "something", method: "GET"),
+                    response: SBTStubResponse(response: Data(), returnCode: 200)
+                )
+            }
+            return CFAbsoluteTimeGetCurrent() - start
+        }
+
+        var durations: [CFAbsoluteTime] = []
+        app.launchTunnel {
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+        }
+
+        // All metrics should be of similar value, so compare them with the first one.
+        // Multiply the first one by two to give some room for variation
+        let referenceMetric = try XCTUnwrap(durations.first) * 2
+        XCTAssertTrue(
+            durations.allSatisfy({ $0 < referenceMetric }),
+            "Stubbing took longer than expected: metrics \(durations) are higher than the reference \(referenceMetric)"
+        )
+    }
+
     func testStartupCommands() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
