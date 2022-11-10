@@ -888,7 +888,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
                 if (expectedIdentifier) {
                     UIScrollView *scrollView = (UIScrollView *)view;
-                                        
+
                     while (!result) {
                         NSArray *allScrollViewViews = [scrollView allSubviews];
                         for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
@@ -896,13 +896,22 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             
                             if (expectedTargetIdentifier) {
                                 CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
-                                CGFloat targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
-                                
-                                [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
+                                CGFloat targetContentOffsetX = 0.0;
+                                CGFloat targetContentOffsetY = 0.0;
+
+                                if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
+                                    targetContentOffsetX = scrollView.contentOffset.x;
+                                    targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
+                                } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
+                                    targetContentOffsetX = MAX(0.0, frameInScrollView.origin.x - view.frame.size.width / 2);
+                                    targetContentOffsetY = scrollView.contentOffset.y;
+                                }
+
+                                [scrollView setContentOffset:CGPointMake(targetContentOffsetX, targetContentOffsetY) animated:animated];
                                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                                     dispatch_semaphore_signal(sem);
                                 });
-                                
+
                                 result = YES;
                                 break;
                             }
@@ -911,16 +920,30 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         if (result) {
                             break;
                         } else {
-                            if (scrollView.contentOffset.y < scrollView.contentSize.height)  {
-                                CGFloat targetContentOffsetY = MIN(scrollView.contentSize.height, scrollView.contentOffset.y + scrollView.frame.size.height);
-                                
-                                [scrollView setContentOffset:CGPointMake(0, targetContentOffsetY) animated:animated];
-                                NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-                                while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                                    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                            if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
+                                if (scrollView.contentOffset.y < scrollView.contentSize.height)  {
+                                    CGFloat targetContentOffsetY = MIN(scrollView.contentSize.height, scrollView.contentOffset.y + scrollView.frame.size.height);
+
+                                    [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
+                                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+                                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                                    }
+                                } else {
+                                    break;
                                 }
-                            } else {
-                                break;
+                            } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
+                                if (scrollView.contentOffset.x < scrollView.contentSize.width)  {
+                                    CGFloat targetContentOffsetX = MIN(scrollView.contentSize.width, scrollView.contentOffset.x + scrollView.frame.size.width);
+
+                                    [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
+                                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+                                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                                    }
+                                } else {
+                                    break;
+                                }
                             }
                         }
                     }
