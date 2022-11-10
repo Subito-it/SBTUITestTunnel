@@ -181,6 +181,30 @@ class MiscellaneousTests: XCTestCase {
                 
         XCTAssert(app.staticTexts["80"].isHittable)
     }
+
+    func testCollectionViewScrollingVertical() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewVertical"].tap()
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "50", animated: true))
+
+        XCTAssert(app.staticTexts["50"].isHittable)
+    }
+
+    func testCollectionViewScrollingHorizontal() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewHorizontal"].tap()
+
+        XCTAssertFalse(app.staticTexts["40"].isHittable)
+
+        app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true)
+
+        XCTAssert(app.staticTexts["40"].isHittable)
+    }
     
     func testScrollViewScrolling() {
         app.launchTunnel()
