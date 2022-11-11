@@ -165,7 +165,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
         
-        app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false)
+        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false))
         
         XCTAssert(app.staticTexts["Label5"].isHittable)
     }
@@ -177,7 +177,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.staticTexts["80"].isHittable)
         
-        app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true)
+        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true))
                 
         XCTAssert(app.staticTexts["80"].isHittable)
     }
@@ -201,7 +201,7 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertFalse(app.staticTexts["40"].isHittable)
 
-        app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true)
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true))
 
         XCTAssert(app.staticTexts["40"].isHittable)
     }
@@ -213,7 +213,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.buttons["Button"].isHittable)
         
-        app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true)
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
         
         XCTAssert(app.buttons["Button"].isHittable)
     }
