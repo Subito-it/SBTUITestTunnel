@@ -342,9 +342,9 @@
 
 #pragma mark - XCUITest scroll extensions
 
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRowIndex:(NSInteger)index animated:(BOOL)flag
 {
-    return [self.client scrollTableViewWithIdentifier:identifier toRow:row animated:flag];
+    return [self.client scrollTableViewWithIdentifier:identifier toRowIndex:index animated:flag];
 }
 
 - (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag {
@@ -352,9 +352,9 @@
 }
 
 
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
 {
-    return [self.client scrollCollectionViewWithIdentifier:identifier toRow:row animated:flag];
+    return [self.client scrollCollectionViewWithIdentifier:identifier toElementIndex:index animated:flag];
 }
 
 - (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag {

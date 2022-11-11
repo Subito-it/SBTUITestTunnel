@@ -165,7 +165,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
         
-        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false))
+        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRowIndex: 100, animated: false))
         
         XCTAssert(app.staticTexts["Label5"].isHittable)
     }
@@ -189,7 +189,7 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
 
-        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toRow: 30, animated: true))
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 30, animated: true))
         XCTAssert(app.staticTexts["30"].isHittable)
 
         XCTAssertFalse(app.staticTexts["50"].isHittable)
@@ -205,7 +205,7 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertFalse(app.staticTexts["10"].isHittable)
 
-        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toRow: 10, animated: true))
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 10, animated: true))
         XCTAssert(app.staticTexts["10"].isHittable)
 
         XCTAssertFalse(app.staticTexts["40"].isHittable)

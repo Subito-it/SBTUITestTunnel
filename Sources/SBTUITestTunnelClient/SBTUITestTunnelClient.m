@@ -688,7 +688,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 #pragma mark - XCUITest scroll extensions
 
-- (BOOL)scrollTableViewWithIdentifier:(NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollTableViewWithIdentifier:(NSString *)identifier toRowIndex:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
@@ -711,7 +711,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollTableView params:params] boolValue];
 }
 
-- (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag
+- (BOOL)scrollCollectionViewWithIdentifier:(NSString *)identifier toElementIndex:(NSInteger)row animated:(BOOL)flag
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
