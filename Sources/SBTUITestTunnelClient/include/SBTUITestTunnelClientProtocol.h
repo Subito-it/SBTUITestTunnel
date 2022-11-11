@@ -479,12 +479,12 @@
  *  Scroll UITablewViews view to the specified row (flattening sections if any).
  *
  *  @param identifier accessibilityIdentifier of the UITableView
- *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+ *  @param index the index of the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
  *  @param flag pass YES to animate the scroll; otherwise, pass NO
  *
  *  @return `YES` on success
  */
-- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
+- (BOOL)scrollTableViewWithIdentifier:(nonnull NSString *)identifier toRowIndex:(NSInteger)index animated:(BOOL)flag;
 
 /**
  *  Scroll UITablewViews view to the specified row (flattening sections if any).
@@ -501,12 +501,12 @@
  *  Scroll UICollection view to the specified row (flattening sections if any).
  *
  *  @param identifier accessibilityIdentifier of the UICollectionView
- *  @param row the row to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
+ *  @param index the index of the element to scroll the element to. This value flattens sections (if more than one is returned by the dataSource) and is best effort meaning it will stop at the last cell if the passed number if larger than the available cells. Passing NSIntegerMax guarantees to scroll to last cell.
  *  @param flag pass YES to animate the scroll; otherwise, pass NO
  *
  *  @return `YES` on success
 */
-- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toRow:(NSInteger)row animated:(BOOL)flag;
+- (BOOL)scrollCollectionViewWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag;
 
 /**
  *  Scroll UICollection view to the specified row (flattening sections if any).
