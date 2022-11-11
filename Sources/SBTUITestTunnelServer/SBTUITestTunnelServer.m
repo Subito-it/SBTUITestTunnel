@@ -1051,8 +1051,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                       }
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UICollectionView *collectionView = (UICollectionView *)view;
-                                        
-                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:animated];
+                                        UICollectionViewScrollPosition scrollPosition = collectionView.suggestedScrollPosition;
+
+                                        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
                                         [weakSelf runMainLoopForSeconds:0.5];
                                         
                                         __block int iteration = 0;
@@ -1061,7 +1062,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                                 return YES;
                                             } else {
                                                 iteration++;
-                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:animated];
+                                                [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
                                                 [weakSelf runMainLoopForSeconds:0.5];
                                                 return NO;
                                             }
