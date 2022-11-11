@@ -165,7 +165,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
         
-        app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false)
+        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRow: 100, animated: false))
         
         XCTAssert(app.staticTexts["Label5"].isHittable)
     }
@@ -177,9 +177,41 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.staticTexts["80"].isHittable)
         
-        app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true)
+        XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true))
                 
         XCTAssert(app.staticTexts["80"].isHittable)
+    }
+
+    func testCollectionViewScrollingVertical() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewVertical"].tap()
+
+        XCTAssertFalse(app.staticTexts["30"].isHittable)
+
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toRow: 30, animated: true))
+        XCTAssert(app.staticTexts["30"].isHittable)
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "50", animated: true))
+        XCTAssert(app.staticTexts["50"].isHittable)
+    }
+
+    func testCollectionViewScrollingHorizontal() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewHorizontal"].tap()
+
+        XCTAssertFalse(app.staticTexts["10"].isHittable)
+
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toRow: 10, animated: true))
+        XCTAssert(app.staticTexts["10"].isHittable)
+
+        XCTAssertFalse(app.staticTexts["40"].isHittable)
+
+        XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true))
+        XCTAssert(app.staticTexts["40"].isHittable)
     }
     
     func testScrollViewScrolling() {
@@ -189,7 +221,7 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.buttons["Button"].isHittable)
         
-        app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true)
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
         
         XCTAssert(app.buttons["Button"].isHittable)
     }

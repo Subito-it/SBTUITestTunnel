@@ -34,6 +34,8 @@ class Extension1Test: BaseTest {}
 class Extension2Test: BaseTest {}
 class Extension3Test: BaseTest {}
 class Extension4Test: BaseTest {}
+class Extension5Test: BaseTest {}
+class Extension6Test: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     fileprivate var sessionTask: URLSessionTask!
@@ -56,7 +58,9 @@ class SBTTableViewController: UITableViewController {
                                         Extension1Test(testSelector: #selector(showExtensionTable1)),
                                         Extension2Test(testSelector: #selector(showExtensionTable2)),
                                         Extension3Test(testSelector: #selector(showExtensionScrollView)),
-                                        Extension4Test(testSelector: #selector(showCoreLocationViewController))]
+                                        Extension4Test(testSelector: #selector(showCoreLocationViewController)),
+                                        Extension5Test(testSelector: #selector(showExtensionCollectionViewVertical)),
+                                        Extension6Test(testSelector: #selector(showExtensionCollectionViewHorizontal))]
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return testList.count
@@ -78,6 +82,10 @@ class SBTTableViewController: UITableViewController {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension3Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension4Test {
             cell = tableView.dequeueReusableCell(withIdentifier: "extension4Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension5Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension5Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension6Test {
+            cell = tableView.dequeueReusableCell(withIdentifier: "extension6Cell", for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -414,6 +422,18 @@ extension SBTTableViewController {
 extension SBTTableViewController {
     @objc func showCoreLocationViewController() {
         performSegue(withIdentifier: "extensionCoreLocationSegue", sender: nil)
+    }
+}
+
+extension SBTTableViewController {
+    @objc func showExtensionCollectionViewVertical() {
+        let targetViewController = SBTExtensionCollectionViewController(scrollDirection: .vertical)
+        navigationController?.pushViewController(targetViewController, animated: true)
+    }
+
+    @objc func showExtensionCollectionViewHorizontal() {
+        let targetViewController = SBTExtensionCollectionViewController(scrollDirection: .horizontal)
+        navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
 

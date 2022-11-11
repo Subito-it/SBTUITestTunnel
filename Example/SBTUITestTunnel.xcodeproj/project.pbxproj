@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		12A657F4291D4391007E82A3 /* SBTExtensionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A657F3291D4390007E82A3 /* SBTExtensionCollectionViewController.swift */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -76,6 +77,7 @@
 
 /* Begin PBXFileReference section */
 		0E9C608071A13A87C52BA884 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		12A657F3291D4390007E82A3 /* SBTExtensionCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SBTExtensionCollectionViewController.swift; sourceTree = "<group>"; };
 		2D75C774345D9438CDBA9828 /* Pods_SBTUITestTunnel_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3430FCC02B97D488E4B1969E /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		5DFB802891B58DAFCD4A1C90 /* Pods_SBTUITestTunnel_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SBTUITestTunnel_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -206,6 +208,7 @@
 		6003F593195388D20070C39A /* Example for SBTUITestTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				12A657F3291D4390007E82A3 /* SBTExtensionCollectionViewController.swift */,
 				6003F59C195388D20070C39A /* SBTAppDelegate.h */,
 				6003F59D195388D20070C39A /* SBTAppDelegate.m */,
 				C3F6E9F01D63225F009D5733 /* Launch Screen.storyboard */,
@@ -583,6 +586,7 @@
 				6003F59A195388D20070C39A /* main.m in Sources */,
 				C3E3DFC81D89F739003D6BB2 /* SBTTableViewController.swift in Sources */,
 				C392784D241A860B00C47A81 /* SBTExtensionViewController4.swift in Sources */,
+				12A657F4291D4391007E82A3 /* SBTExtensionCollectionViewController.swift in Sources */,
 				C34A05B822BC211200A0160B /* SBTExtensionTableViewController1.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
