@@ -1,5 +1,7 @@
 # SBTUITestTunnel
 
+[![CI](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml)
+
 [![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer)](https://cocoapods.org/pods/SBTUITestTunnel)
 [![License](https://img.shields.io/cocoapods/l/SBTUITestTunnel)](https://cocoapods.org/pods/SBTUITestTunnel)
 [![Platform](https://img.shields.io/cocoapods/p/SBTUITestTunnel)](https://cocoapods.org/pods/SBTUITestTunnel)

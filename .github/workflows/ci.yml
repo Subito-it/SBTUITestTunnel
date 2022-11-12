@@ -1,0 +1,30 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build App and run UI Test
+    runs-on: macos-latest
+    env:
+      platform: ${{ 'iOS Simulator' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Required Tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate project
+        run: |
+          cd Example
+          xcodegen
+      - name: Build App
+        run: |
+          Scripts/run_build.rb
+      - name: Run internal UI Tests
+        run: |
+          Scripts/run_uitests.rb
+      - name: Run no swizzling UI Tests
+        run: |
+          Scripts/run_uitests_no_swizzling.rb
