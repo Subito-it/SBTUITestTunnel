@@ -68,4 +68,12 @@ fastlane/test_output
 
 Example/SBTUITestTunnel.xcworkspace/xcuserdata
 push_to_trunk.sh
-Example/Pods
+
+# Visual Studio Code files
+.vscode
+
+# XcodeGen
+Example/Pods/
+Example/Podfile.lock
+Example/SBTUITestTunnel.xcodeproj/
+Example/SBTUITestTunnel.xcworkspace/
