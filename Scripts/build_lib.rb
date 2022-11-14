@@ -38,11 +38,13 @@ module Build
         platform = "iOS Simulator"
         device = available_simulators()
         destination = "platform=#{platform},name=#{device}"
+        puts "🎯 Selected destination: '#{destination}'"
         return destination
     end
 
     def self.available_simulators()
         device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`.strip
+        puts "📱 Selected simulator: '#{device}'"
         return device
     end
 end
