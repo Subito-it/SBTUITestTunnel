@@ -1,0 +1,64 @@
+name: SBTUITestTunnel
+
+options:
+  bundleIdPrefix: com.subito
+  groupSortPosition: top
+  postGenCommand: "pod install"
+
+fileGroups:
+  - SBTUITestTunnel_Example.entitlements
+
+targets:
+
+  SBTUITestTunnel_Example:
+    type: application
+    platform: iOS
+    deploymentTarget: "12.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel/SBTUITestTunnel-Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
+    sources:
+      - path: SBTUITestTunnel
+        name: "SBTUITestTunnel_Example"
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: Foundation.framework
+      - sdk: CoreGraphics.framework
+    scheme:
+      gatherCoverageData: true
+      testTargets:
+        - SBTUITestTunnel_Tests
+      coverageTargets:
+        - SBTUITestTunnel_Example
+
+  SBTUITestTunnel_Tests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "12.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel_Tests/Info.plist"
+    sources:
+      - SBTUITestTunnel_Tests
+    dependencies:
+      - target: SBTUITestTunnel_Example
+    scheme:
+      testTargets:
+        - SBTUITestTunnel_Tests
+
+  SBTUITestTunnel_TestsNoSwizzling:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "12.2"
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: ["ENABLE_UITUNNEL_SWIZZLING=0", "$(inherited)"]
+        INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
+    sources:
+      - SBTUITestTunnel_TestsNoSwizzling
+    dependencies:
+      - target: SBTUITestTunnel_Example
+    scheme:
+      testTargets:
+        - SBTUITestTunnel_TestsNoSwizzling

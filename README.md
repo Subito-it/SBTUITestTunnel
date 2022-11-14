@@ -1,5 +1,7 @@
 # SBTUITestTunnel
 
+[![CI](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml)
+
 [![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer)](https://cocoapods.org/pods/SBTUITestTunnel)
 [![License](https://img.shields.io/cocoapods/l/SBTUITestTunnel)](https://cocoapods.org/pods/SBTUITestTunnel)
 [![Platform](https://img.shields.io/cocoapods/p/SBTUITestTunnel)](https://cocoapods.org/pods/SBTUITestTunnel)
@@ -34,6 +36,7 @@ SBTUITestTunnel is intended to extend Apple's XCTest framework, not to replace i
 - [Installation](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Installation.md): Describes how to install the library
 - [Setup](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Setup.md): Describes how to integrate the library in your code
 - [Usage](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Usage.md): Describes how to use the library
+- [Example](https://github.com/Subito-it/SBTUITestTunnel/tree/master/Documentation/Example.md): Describes how to setup and use the example app
 
 
 ## Additional resources?
