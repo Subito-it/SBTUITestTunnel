@@ -34,6 +34,10 @@ On the testing target no setup is required. Note how you even don't need to inst
 While no setup is required in your UI Test target to use this library it might be that you need fine grained control of the `XCUIApplication` instance. Please refer to the [alternative target setup](Setup_alternative_target) documentation for further details.
 
 
+## Tunneling mode
+
+The library allows tunneling via HTTP or via IPC (default). You can force disabling IPC by setting a `SBTUITestTunnelDisableIPC=NO` key in the Info.plist of the UITesting target.
+
 
 ## Project
 
