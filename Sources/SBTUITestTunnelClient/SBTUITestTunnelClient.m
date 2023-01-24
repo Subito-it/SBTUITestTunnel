@@ -198,7 +198,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         [self.delegate testTunnelClientIsReadyToLaunch:self];
         
         while (YES) {
-            [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+            [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
             
             if (CFAbsoluteTimeGetCurrent() - launchStart > SBTUITunneledApplicationDefaultTimeout) {
                 return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
@@ -452,7 +452,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             return localIterations == iterations;
         }
         
-        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
     }
 
     return NO;
@@ -883,7 +883,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             NSTimeInterval start = CFAbsoluteTimeGetCurrent();
             BOOL done = NO;
             while (!done && CFAbsoluteTimeGetCurrent() - start < SBTUITunneledApplicationDefaultTimeout) {
-                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+                [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                 
                 [lock lock];
                 done = lockedDone;
