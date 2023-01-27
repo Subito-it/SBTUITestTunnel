@@ -93,6 +93,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
 
 @property (nonatomic, strong) DTXIPCConnection* ipcConnection;
+@property (nonatomic, strong) id<SBTIPCTunnel> ipcProxy;
 
 @end
 
@@ -154,10 +155,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (void)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
 {
     self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
+    self.ipcConnection.remoteObjectInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
     self.ipcConnection.exportedInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
     self.ipcConnection.exportedObject = self;
 
     [self.ipcConnection resume];
+    
+    self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
+        BlockAssert(NO, @"[UITestTunnelServer] Failed getting IPC proxy");
+    }];
+    
 
     [self processLaunchOptionsIfNeeded];
 
@@ -165,7 +172,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
         return;
     }
-
+    
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {

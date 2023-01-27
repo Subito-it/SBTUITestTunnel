@@ -33,7 +33,7 @@
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
 
-@interface SBTUITestTunnelClient() <NSNetServiceDelegate>
+@interface SBTUITestTunnelClient() <NSNetServiceDelegate, SBTIPCTunnel>
 {
     BOOL _userInterfaceAnimationsEnabled;
     NSInteger _userInterfaceAnimationSpeed;
@@ -144,6 +144,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         NSString *serviceIdentifier = [NSUUID UUID].UUIDString;
         self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
         self.ipcConnection.remoteObjectInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
+        self.ipcConnection.exportedInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
+        self.ipcConnection.exportedObject = self;
             
         [self.ipcConnection resume];
             
