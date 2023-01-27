@@ -165,6 +165,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         BlockAssert(NO, @"[UITestTunnelServer] Failed getting IPC proxy");
     }];
     
+    [self.ipcProxy serverDidConnect:nil];
 
     [self processLaunchOptionsIfNeeded];
 
@@ -1487,6 +1488,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #pragma clang diagnostic pop
     }
 }
+
+- (void)serverDidConnect:(id)sender {}
 
 @end
 

@@ -153,23 +153,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.application.launchEnvironment = launchEnvironment;
     
         [self.delegate testTunnelClientIsReadyToLaunch:self];
-    
-        self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-            [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
-        }];
-    
-        self.connected = YES;
-    
-        NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
-    
-        if (self.startupBlock) {
-            self.startupBlock();
-            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
-        }
-        
-        [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
-    
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
     } else {
         self.connectionPort = [self findOpenPort];
         NSLog(@"[SBTUITestTunnel] Resolving connection on port %ld", self.connectionPort);
@@ -226,6 +209,27 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (void)terminate
 {
     [self shutDownWithError:nil];
+}
+
+
+- (void)serverDidConnect:(id)sender
+{
+    self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
+        [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
+    }];
+
+    self.connected = YES;
+
+    NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
+
+    if (self.startupBlock) {
+        self.startupBlock();
+        NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
+    }
+    
+    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+
+    NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
 }
 
 - (void)waitForConnection
