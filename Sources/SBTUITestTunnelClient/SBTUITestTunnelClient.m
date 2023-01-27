@@ -191,7 +191,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                     NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
                 
-                weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
+                NSAssert([NSThread isMainThread], @"We synch on main thread");
+                weakSelf.startupCompleted = [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
             });
         });
         
@@ -204,7 +205,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                 return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
             }
             
-            if (self.startupCompleted && [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"]) {
+            if (self.startupCompleted) {
                 break;
             }
         }
