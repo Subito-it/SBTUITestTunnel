@@ -51,6 +51,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, assign) BOOL startupCompleted;
 @property (nonatomic, strong) DTXIPCConnection* ipcConnection;
 @property (nonatomic, strong) id<SBTIPCTunnel> ipcProxy;
+@property (nonatomic, assign) NSTimeInterval launchStart;
 
 @end
 
@@ -117,7 +118,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSAssert([NSThread isMainThread], @"This method should be invoked from main thread");
     
-    NSTimeInterval launchStart = CFAbsoluteTimeGetCurrent();
+    self.launchStart = CFAbsoluteTimeGetCurrent();
     
     NSMutableArray *launchArguments = [self.application.launchArguments mutableCopy];
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
@@ -182,7 +183,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         // Start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
-            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
+            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
@@ -201,7 +202,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         while (YES) {
             [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
             
-            if (CFAbsoluteTimeGetCurrent() - launchStart > SBTUITunneledApplicationDefaultTimeout) {
+            if (CFAbsoluteTimeGetCurrent() - self.launchStart > SBTUITunneledApplicationDefaultTimeout) {
                 return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
             }
             
@@ -210,7 +211,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             }
         }
         
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
     }
 }
 
