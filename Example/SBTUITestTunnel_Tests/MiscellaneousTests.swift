@@ -111,9 +111,9 @@ class MiscellaneousTests: XCTestCase {
 
         app.cells["executeDataTaskRequest"].tap()
 
-        let textResult = app.textViews["result"]
+        let textResult = app.staticTexts["result"]
         wait { textResult.exists }
-        let result = app.textViews["result"].value as! String
+        let result = textResult.label
         let resultData = Data(base64Encoded: result)!
         let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
 

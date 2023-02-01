@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "GCDWebServer",
+        "repositoryURL": "https://github.com/Subito-it/GCDWebServer.git",
+        "state": {
+          "branch": null,
+          "revision": "53a75d58ce45adee997340f25581bf54b46cfc20",
+          "version": "4.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
