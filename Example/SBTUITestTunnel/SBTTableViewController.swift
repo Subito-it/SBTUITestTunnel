@@ -421,7 +421,8 @@ extension SBTTableViewController {
 
 extension SBTTableViewController {
     @objc func showCoreLocationViewController() {
-        performSegue(withIdentifier: "extensionCoreLocationSegue", sender: nil)
+        let targetViewController = SBTExtensionCoreLocationViewController()
+        navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
 
