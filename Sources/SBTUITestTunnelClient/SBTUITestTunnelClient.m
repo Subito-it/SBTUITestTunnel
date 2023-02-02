@@ -33,7 +33,7 @@
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
 
-@interface SBTUITestTunnelClient() <NSNetServiceDelegate>
+@interface SBTUITestTunnelClient() <NSNetServiceDelegate, SBTIPCTunnel>
 {
     BOOL _userInterfaceAnimationsEnabled;
     NSInteger _userInterfaceAnimationSpeed;
@@ -51,6 +51,7 @@ const NSString *SBTUITunnelJsonMimeType = @"application/json";
 @property (nonatomic, assign) BOOL startupCompleted;
 @property (nonatomic, strong) DTXIPCConnection* ipcConnection;
 @property (nonatomic, strong) id<SBTIPCTunnel> ipcProxy;
+@property (nonatomic, assign) NSTimeInterval launchStart;
 
 @end
 
@@ -117,7 +118,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSAssert([NSThread isMainThread], @"This method should be invoked from main thread");
     
-    NSTimeInterval launchStart = CFAbsoluteTimeGetCurrent();
+    self.launchStart = CFAbsoluteTimeGetCurrent();
     
     NSMutableArray *launchArguments = [self.application.launchArguments mutableCopy];
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
@@ -143,6 +144,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         NSString *serviceIdentifier = [NSUUID UUID].UUIDString;
         self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
         self.ipcConnection.remoteObjectInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
+        self.ipcConnection.exportedInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
+        self.ipcConnection.exportedObject = self;
             
         [self.ipcConnection resume];
             
@@ -150,23 +153,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.application.launchEnvironment = launchEnvironment;
     
         [self.delegate testTunnelClientIsReadyToLaunch:self];
-    
-        self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-            [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
-        }];
-    
-        self.connected = YES;
-    
-        NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
-    
-        if (self.startupBlock) {
-            self.startupBlock();
-            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
-        }
-        
-        [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
-    
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
     } else {
         self.connectionPort = [self findOpenPort];
         NSLog(@"[SBTUITestTunnel] Resolving connection on port %ld", self.connectionPort);
@@ -182,7 +168,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         // Start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
-            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - launchStart);
+            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
@@ -191,25 +177,26 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
                     NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
                 
-                weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
+                NSAssert([NSThread isMainThread], @"We synch on main thread");
+                weakSelf.startupCompleted = [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
             });
         });
         
         [self.delegate testTunnelClientIsReadyToLaunch:self];
         
         while (YES) {
-            [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+            [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
             
-            if (CFAbsoluteTimeGetCurrent() - launchStart > SBTUITunneledApplicationDefaultTimeout) {
+            if (CFAbsoluteTimeGetCurrent() - self.launchStart > SBTUITunneledApplicationDefaultTimeout) {
                 return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
             }
             
-            if (self.startupCompleted && [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"]) {
+            if (self.startupCompleted) {
                 break;
             }
         }
         
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - launchStart);
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
     }
 }
 
@@ -222,6 +209,27 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (void)terminate
 {
     [self shutDownWithError:nil];
+}
+
+
+- (void)serverDidConnect:(id)sender
+{
+    self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
+        [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
+    }];
+
+    self.connected = YES;
+
+    NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
+
+    if (self.startupBlock) {
+        self.startupBlock();
+        NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
+    }
+    
+    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+
+    NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
 }
 
 - (void)waitForConnection
@@ -452,7 +460,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             return localIterations == iterations;
         }
         
-        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
     }
 
     return NO;
@@ -883,7 +891,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             NSTimeInterval start = CFAbsoluteTimeGetCurrent();
             BOOL done = NO;
             while (!done && CFAbsoluteTimeGetCurrent() - start < SBTUITunneledApplicationDefaultTimeout) {
-                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+                [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
                 
                 [lock lock];
                 done = lockedDone;

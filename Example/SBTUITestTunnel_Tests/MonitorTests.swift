@@ -38,8 +38,8 @@ class MonitorTests: XCTestCase {
         
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
-        _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
-        _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
         
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
         
@@ -70,8 +70,8 @@ class MonitorTests: XCTestCase {
         
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
-        _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
-        _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
+        _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
         
         XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
         
@@ -123,8 +123,8 @@ class MonitorTests: XCTestCase {
         }
         
         XCTContext.runActivity(named: "They should behave as only one of them has been added") { _ in
-            _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
-            _ = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+            _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
+            _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
             
             XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
             
@@ -159,7 +159,7 @@ class MonitorTests: XCTestCase {
         let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         
-        let result2 = request.dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+        let result2 = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?param1=val1&param2=val2")
         XCTAssertFalse(request.isStubbed(result2, expectedStubValue: 1))
         
         let requests3 = app.monitoredRequestsFlushAll()

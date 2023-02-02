@@ -342,7 +342,7 @@ extension SBTTableViewController {
     }
     
     @objc func executeDataTaskRequest2() {
-        dataTaskNetwork(urlString: "https://hookb.in/BYklpoNjkXF202xdPxLb?param3=val3&param4=val4")
+        dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
     }
     
     @objc func executeDataTaskRequest3() {

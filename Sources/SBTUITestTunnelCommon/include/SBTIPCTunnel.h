@@ -27,6 +27,7 @@
 @protocol SBTIPCTunnel <NSObject>
 
 - (void)performCommandWithParameters:(NSDictionary *)parameters block:(void(^)(NSDictionary *))block;
+- (void)serverDidConnect:(id)sender;
 
 @end
 
