@@ -149,6 +149,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             
         [self.ipcConnection resume];
             
+        self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
+            [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
+        }];
+            
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentIPCKey] = serviceIdentifier;
         self.application.launchEnvironment = launchEnvironment;
     
@@ -214,10 +218,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)serverDidConnect:(id)sender
 {
-    self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-        [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
-    }];
-
     self.connected = YES;
 
     NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
