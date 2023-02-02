@@ -218,18 +218,21 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)serverDidConnect:(id)sender
 {
-    self.connected = YES;
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        weakSelf.connected = YES;
 
-    NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
+        NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
 
-    if (self.startupBlock) {
-        self.startupBlock();
+        if (weakSelf.startupBlock) {
+            weakSelf.startupBlock();
         NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
     }
     
-    [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+        [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
 
-    NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+    });
 }
 
 - (void)waitForConnection
