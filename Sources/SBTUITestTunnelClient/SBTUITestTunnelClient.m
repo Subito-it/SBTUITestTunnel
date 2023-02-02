@@ -213,7 +213,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithError:nil];
 }
 
-
 - (void)serverDidConnect:(id)sender
 {
     __weak typeof(self)weakSelf = self;
@@ -227,7 +226,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
         }
         
-        [weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}];
+        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
 
         NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
     });
