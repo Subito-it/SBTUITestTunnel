@@ -110,8 +110,7 @@ class MiscellaneousTests: XCTestCase {
         
         app.cells["executeDataTaskRequest"].tap()
         
-        expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: app.textViews["result"], handler: nil)
-        waitForExpectations(timeout: 10.0, handler: nil)
+        wait { !(self.app.textViews["result"].value as! String).isEmpty }
         
         let result = app.textViews["result"].value as! String
         let resultData = Data(base64Encoded: result)!
