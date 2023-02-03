@@ -177,7 +177,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
-        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
 
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
@@ -284,7 +284,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
-        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
         
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
@@ -935,7 +935,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
                                     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
                                     while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                                        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
                                     }
                                 } else {
                                     break;
@@ -947,7 +947,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
                                     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
                                     while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                                        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
                                     }
                                 } else {
                                     break;
@@ -1014,7 +1014,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UITableView *tableView = (UITableView *)view;
                                         
                                         [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
-                                        [weakSelf runCurrenRunLoopForSeconds:0.5];
+                                        [weakSelf mainRunLoopForSeconds:0.5];
                                         
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -1023,7 +1023,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             } else {
                                                 iteration++;
                                                 [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
-                                                [weakSelf runCurrenRunLoopForSeconds:0.5];
+                                                [weakSelf mainRunLoopForSeconds:0.5];
                                                 return NO;
                                             }
                                         });
@@ -1085,7 +1085,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                         UICollectionViewScrollPosition scrollPosition = collectionView.suggestedScrollPosition;
 
                                         [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-                                        [weakSelf runCurrenRunLoopForSeconds:0.5];
+                                        [weakSelf mainRunLoopForSeconds:0.5];
                                         
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -1094,7 +1094,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             } else {
                                                 iteration++;
                                                 [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-                                                [weakSelf runCurrenRunLoopForSeconds:0.5];
+                                                [weakSelf mainRunLoopForSeconds:0.5];
                                                 return NO;
                                             }
                                         });
@@ -1156,11 +1156,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
-- (void)runCurrenRunLoopForSeconds:(NSTimeInterval)timeinterval
+- (void)mainRunLoopForSeconds:(NSTimeInterval)timeinterval
 {
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < timeinterval) {
-        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
     }
 }
 
