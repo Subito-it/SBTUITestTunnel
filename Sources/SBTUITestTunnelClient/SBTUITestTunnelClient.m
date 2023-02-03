@@ -170,7 +170,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         // Start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
-            NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
+            NSLog(@"[SBTUITestTunnel] HTTP tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
@@ -219,7 +219,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     dispatch_async(dispatch_get_main_queue(), ^{
         weakSelf.connected = YES;
 
-        NSLog(@"[SBTUITestTunnel] Did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+        NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
 
         if (weakSelf.startupBlock) {
             weakSelf.startupBlock();
