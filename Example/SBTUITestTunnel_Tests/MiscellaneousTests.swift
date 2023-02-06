@@ -110,7 +110,7 @@ class MiscellaneousTests: XCTestCase {
         
         app.cells["executeDataTaskRequest"].tap()
         
-        wait { !(self.app.textViews["result"].value as! String).isEmpty }
+        wait { (self.app.textViews["result"].value as? String)?.isEmpty == false }
         
         let result = app.textViews["result"].value as! String
         let resultData = Data(base64Encoded: result)!
