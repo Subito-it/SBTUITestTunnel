@@ -402,6 +402,11 @@
     return [self.client coreLocationNotifyLocationUpdate:locations];
 }
 
+- (BOOL)coreLocationStubManagerLocation:(CLLocation *)location
+{
+    return [self.client coreLocationStubManagerLocation:location];
+}
+
 - (BOOL)coreLocationNotifyLocationError:(nonnull NSError *)error
 {
     return [self.client coreLocationNotifyLocationError:error];

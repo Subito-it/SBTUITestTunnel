@@ -83,6 +83,118 @@ class CoreLocationTests: XCTestCase {
         }
     }
     
+    func testCoreLocationUpdateRespectsAuthorizationStatus() {
+        app.launchTunnel()
+        
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells["showCoreLocationViewController"].tap()
+        app.buttons["Update location"].tap()
+        
+        XCTContext.runActivity(named: "Without authorization no location update should occurr") { _ in
+            for status in [CLAuthorizationStatus.notDetermined, .denied, .notDetermined, .restricted] {
+                app.coreLocationStubAuthorizationStatus(status)
+                app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+                Thread.sleep(forTimeInterval: 1.0)
+                XCTAssertEqual(app.staticTexts["location_pos"].label, "-", "Unexpected update with status \(status)")
+                XCTAssertEqual(app.staticTexts["location_pos"].label, "-", "Unexpected update with status \(status)")
+            }
+        }
+        
+        XCTContext.runActivity(named: "With authorization location update should occurr") { _ in
+            var statusIndex = 0.0
+            for status in [CLAuthorizationStatus.authorizedAlways, .authorizedWhenInUse] {
+                app.coreLocationStubAuthorizationStatus(status)
+                app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1 + statusIndex)])
+
+                wait(withTimeout: 2) {
+                    self.app.staticTexts["location_pos"].label == "44.0 \(11.1 + statusIndex)" &&
+                    self.app.staticTexts["location_thread"].label == "Main"
+                }
+
+                statusIndex += 1.0
+            }
+        }
+    }
+    
+    func testCoreLocationManagerLocationRespectsAuthorizationStatus() {
+        app.launchTunnel()
+        
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells["showCoreLocationViewController"].tap()
+        
+        XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
+            for status in [CLAuthorizationStatus.notDetermined, .denied, .notDetermined, .restricted] {
+                app.coreLocationStubAuthorizationStatus(status)
+
+                app.buttons["Get manager current location"].tap()
+
+                Thread.sleep(forTimeInterval: 1.0)
+                XCTAssertEqual(app.staticTexts["manager_location"].label, "nil", "Unexpected location with status \(status)")
+            }
+        }
+        
+        XCTContext.runActivity(named: "With authorization location update should occurr") { _ in
+            var statusIndex = 0.0
+            for status in [CLAuthorizationStatus.authorizedAlways, .authorizedWhenInUse] {
+                app.coreLocationStubAuthorizationStatus(status)
+                app.coreLocationStubManagerLocation(CLLocation(latitude: 44.0, longitude: 11.1 + statusIndex))
+                
+                app.buttons["Get manager current location"].tap()
+
+                wait(withTimeout: 2) {
+                    self.app.staticTexts["manager_location"].label == "44.0 \(11.1 + statusIndex)"
+                }
+
+                statusIndex += 1.0
+            }
+        }
+        
+        XCTContext.runActivity(named: "Check that nil location is supported") { _ in
+            app.coreLocationStubAuthorizationStatus(.authorizedAlways)
+            app.coreLocationStubManagerLocation(nil)
+            
+            app.buttons["Get manager current location"].tap()
+
+            wait(withTimeout: 2) {
+                self.app.staticTexts["manager_location"].label == "nil"
+            }
+        }
+
+        XCTContext.runActivity(named: "Check that non nil location updates") { _ in
+            app.coreLocationStubAuthorizationStatus(.authorizedAlways)
+            app.coreLocationStubManagerLocation(CLLocation(latitude: 44.0, longitude: 11.1))
+            
+            app.buttons["Get manager current location"].tap()
+
+            wait(withTimeout: 2) {
+                self.app.staticTexts["manager_location"].label == "44.0 \(11.1)"
+            }
+        }
+    }
+    
+    func testCoreLocationManagerLocationGetsUpdatedOnLocationUpdates() {
+        app.launchTunnel()
+        
+        app.coreLocationStubEnabled(true)
+        app.coreLocationStubAuthorizationStatus(.authorizedAlways)
+        
+        app.tables.cells["showCoreLocationViewController"].tap()
+        
+        app.buttons["Get manager current location"].tap()
+        wait(withTimeout: 2) {
+            self.app.staticTexts["manager_location"].label == "nil"
+        }
+        
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+
+        app.buttons["Get manager current location"].tap()
+        wait(withTimeout: 2) {
+            self.app.staticTexts["manager_location"].label == "44.0 \(11.1)"
+        }
+    }
+    
     @available(iOS 14, *)
     func testCoreLocationStubAccuracyAuthorization() {
         app.launchTunnel()

@@ -37,7 +37,6 @@ class NotificationCenterTests: XCTestCase {
         XCTAssertEqual(getStubbedNotificationCenterAuthorizationStatus(), .denied)
     }
 
-
     private func getStubbedNotificationCenterAuthorizationRequest() -> Bool {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnUNAuthRequest", object: nil) as! String
         return Int(statusString) == 1

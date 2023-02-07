@@ -35,6 +35,7 @@ static NSMapTable *_instanceHashTable;
 static NSMapTable *_delegatesHashTable;
 static NSString *_autorizationStatus;
 static NSString *_accuracyAuthorization;
+static CLLocation *_currentLocation;
 static NSString *_serviceStatus;
 
 @implementation CLLocationManager (Swizzles)
@@ -132,6 +133,20 @@ static NSString *_serviceStatus;
 + (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization
 {
     _accuracyAuthorization = accuracyAuthorization;
+}
+
++ (void)setStubbedCurrentLocation:(CLLocation *)location
+{
+    _currentLocation = location;
+}
+
+- (CLLocation *)location
+{
+    if ([_currentLocation isKindOfClass:[NSNull class]]) {
+        return nil;
+    } else {
+        return _currentLocation;
+    }
 }
 
 + (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable

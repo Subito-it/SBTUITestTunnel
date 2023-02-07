@@ -22,9 +22,11 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let authorizationButton = UIButton()
     private let updateLocationButton = UIButton()
     private let stopLocationUpdateButton = UIButton()
+    private let currentLocationButton = UIButton()
     private let statusLabel = UILabel()
     private let locationLabel = UILabel()
     private let threadLabel = UILabel()
+    private let currentLocationLabel = UILabel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,12 +39,16 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
 
         threadLabel.text = "-"
         threadLabel.accessibilityIdentifier = "location_thread"
+        
+        currentLocationLabel.text = "-"
+        currentLocationLabel.accessibilityIdentifier = "manager_location"
 
         authorizationButton.setTitle("Authorization status", for: .normal)
         updateLocationButton.setTitle("Update location", for: .normal)
         stopLocationUpdateButton.setTitle("Stop location updates", for: .normal)
+        currentLocationButton.setTitle("Get manager current location", for: .normal)
 
-        [authorizationButton, updateLocationButton, stopLocationUpdateButton].forEach {
+        [authorizationButton, updateLocationButton, stopLocationUpdateButton, currentLocationButton].forEach {
             $0.setTitleColor(.systemBlue, for: .normal)
             $0.setTitleColor(.systemRed, for: .highlighted)
         }
@@ -50,9 +56,10 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         authorizationButton.addTarget(self, action: #selector(authorizationStatusTapped), for: .touchUpInside)
         updateLocationButton.addTarget(self, action: #selector(updateTapped), for: .touchUpInside)
         stopLocationUpdateButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
+        currentLocationButton.addTarget(self, action: #selector(currentLocationTapped), for: .touchUpInside)
 
         let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel])
-        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, locationLabel, threadLabel])
+        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, threadLabel, currentLocationLabel])
         let contentStack = UIStackView(arrangedSubviews: [statusStack, locationStack])
 
         [statusStack, locationStack, contentStack].forEach {
@@ -85,6 +92,14 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
 
     @objc func authorizationStatusTapped(_ sender: Any) {
         statusLabel.text = "\(CLLocationManager.authorizationStatus().rawValue)"
+    }
+    
+    @objc func currentLocationTapped(_ sender: Any) {
+        if let location = locationManager.location {
+            currentLocationLabel.text = "\(location.coordinate.latitude) \(location.coordinate.longitude)"
+        } else {
+            currentLocationLabel.text = "nil"
+        }
     }
 }
 

@@ -427,6 +427,15 @@ When stubbing is enable you can change the value that will be returned by `+[CLL
 app.coreLocationStubLocationServicesEnabled(false)
 ```
 
+### Update manager current location
+
+When stubbing is enabled you can change the value that will be returned by `-[CLLocationManager location]` using
+
+```swift
+let location: CLLocation = ...
+app.coreLocationStubManagerLocation(location)
+```
+
 ### Trigger location updates
 
 When stubbing is enable ([see](#CLLocationManager-stubbing)) you can trigger a location change by using
