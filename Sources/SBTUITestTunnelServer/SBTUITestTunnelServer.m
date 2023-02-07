@@ -1254,6 +1254,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationNotifyUpdate:(NSDictionary *)parameters
 {
+    [self commandCoreLocationStubManagerLocation:parameters];
+    
     #ifdef ENABLE_UITUNNEL_SWIZZLING
         NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
