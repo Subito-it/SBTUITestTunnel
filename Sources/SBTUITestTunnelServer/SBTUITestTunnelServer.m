@@ -1237,9 +1237,22 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
         
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
-            });
+            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+                if (@available(iOS 14.0, *)) {
+                    switch (locationManager.authorizationStatus) {
+                        case kCLAuthorizationStatusAuthorizedAlways:
+                        case kCLAuthorizationStatusAuthorizedWhenInUse: {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
+                                });
+                            
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            #endif
         }
     #else
         [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
