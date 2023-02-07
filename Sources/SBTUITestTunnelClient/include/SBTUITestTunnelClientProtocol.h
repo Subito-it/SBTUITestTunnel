@@ -593,6 +593,16 @@
 - (BOOL)coreLocationNotifyLocationUpdate:(nonnull NSArray<CLLocation *>*)locations;
 
 /**
+ *  Updates the current location of all active CLLocationManager's at the
+ *  provided location.
+ *
+ *  @param location a CLLocation object containing the location data
+ *
+ *  @return `YES` on success
+*/
+- (BOOL)coreLocationStubManagerLocation:(nullable CLLocation *)location;
+
+/**
  *  Tells all active CLLocationManager's delegates that the location manager
  *  was unable to retrieve a location value.
  *

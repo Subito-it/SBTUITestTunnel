@@ -805,6 +805,13 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationNotifyUpdate params:params] boolValue];
 }
 
+- (BOOL)coreLocationStubManagerLocation:(CLLocation *)location
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [self base64SerializeObject:@[location ?: [NSNull null]]]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCoreLocationStubManagerLocation params:params] boolValue];
+}
+
 - (BOOL)coreLocationNotifyLocationError:(NSError *)error
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [self base64SerializeObject:error]};
