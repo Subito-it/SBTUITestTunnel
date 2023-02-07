@@ -32,10 +32,12 @@
 
 + (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus;
 + (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization API_AVAILABLE(ios(14));
++ (void)setStubbedCurrentLocation:(CLLocation *)location;
 + (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable;
 + (void)removeSwizzles;
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate;
+- (CLLocation *)location;
 
 @end
 
