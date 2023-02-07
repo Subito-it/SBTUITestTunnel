@@ -1189,11 +1189,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-            [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
+            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
+                [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
+            }
             #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-            if (@available(iOS 14.0, *)) {
-                [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-        }
+                if (@available(iOS 14.0, *)) {
+                    if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                        [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+                    }
+                }
             #endif
         }
     #else
@@ -1212,7 +1216,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
             for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+                    if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                        [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+                    }
                 });
             }
         #endif
@@ -1244,9 +1250,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     switch (locationManager.authorizationStatus) {
                         case kCLAuthorizationStatusAuthorizedAlways:
                         case kCLAuthorizationStatusAuthorizedWhenInUse: {
+                            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) {
                                 dispatch_async(dispatch_get_main_queue(), ^{
                                     [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
                                 });
+                            }
                             
                             break;
                         }
@@ -1270,7 +1278,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSError *error = [NSKeyedUnarchiver unarchiveObjectWithData:paramData];
         
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-            [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
+            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didFailWithError:)]) {
+                [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
+            }
         }
     #else
         [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
