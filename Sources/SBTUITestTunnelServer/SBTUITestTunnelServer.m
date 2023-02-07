@@ -1229,11 +1229,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
             for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-                    }
-                });
+                    });
+                }
             }
         #endif
     #else
