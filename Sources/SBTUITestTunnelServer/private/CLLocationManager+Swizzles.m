@@ -118,6 +118,7 @@ static NSString *_serviceStatus;
 - (void)swz_setDelegate:(id<CLLocationManagerDelegate>)delegate
 {
     [_delegatesHashTable setObject:delegate forKey:self];
+    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 }
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate
