@@ -27,6 +27,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let locationLabel = UILabel()
     private let threadLabel = UILabel()
     private let currentLocationLabel = UILabel()
+    private let locationManager = CLLocationManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,13 +81,9 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
             contentStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ])
-    }
 
-    private lazy var locationManager: CLLocationManager = {
-        let manager = CLLocationManager()
-        manager.delegate = self
-        return manager
-    }()
+        locationManager.delegate = self
+    }
 
     @objc func updateTapped(_ sender: Any) {
         locationManager.startUpdatingLocation()
@@ -97,7 +94,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     }
 
     @objc func authorizationStatusTapped(_ sender: Any) {
-        statusLabel.text = "\(CLLocationManager.authorizationStatus().rawValue)"
+        statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
     }
     
     @objc func currentLocationTapped(_ sender: Any) {
@@ -109,12 +106,44 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     }
 }
 
+@available(iOS 14.0, *)
+extension SBTExtensionCoreLocationViewController {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        DispatchQueue.main.async { [weak self] in
+            self?.statusLabel.text = manager.authorizationStatus.description
+        }
+    }
+}
+
+extension SBTExtensionCoreLocationViewController {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if #unavailable(iOS 14.0) {
+            DispatchQueue.main.async { [weak self] in
+                self?.statusLabel.text = status.description
+            }
+        }
+    }
+}
+
 extension SBTExtensionCoreLocationViewController {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
         DispatchQueue.main.async { [weak self] in
             self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
             self?.threadLabel.text = threadName
+        }
+    }
+}
+
+extension CLAuthorizationStatus: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .authorizedAlways: return "authorizedAlways"
+        case .notDetermined: return "notDetermined"
+        case .restricted: return "restricted"
+        case .denied: return "denied"
+        case .authorizedWhenInUse: return "authorizedWhenInUse"
+        @unknown default: return "@unknown"
         }
     }
 }
