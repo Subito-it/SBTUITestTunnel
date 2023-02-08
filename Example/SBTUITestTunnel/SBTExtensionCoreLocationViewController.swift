@@ -31,16 +31,22 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = .white
+
         statusLabel.text = "-"
+        statusLabel.textColor = .black
         statusLabel.accessibilityIdentifier = "location_status"
 
         locationLabel.text = "-"
+        locationLabel.textColor = .black
         locationLabel.accessibilityIdentifier = "location_pos"
 
         threadLabel.text = "-"
+        threadLabel.textColor = .black
         threadLabel.accessibilityIdentifier = "location_thread"
         
         currentLocationLabel.text = "-"
+        currentLocationLabel.textColor = .black
         currentLocationLabel.accessibilityIdentifier = "manager_location"
 
         authorizationButton.setTitle("Authorization status", for: .normal)
