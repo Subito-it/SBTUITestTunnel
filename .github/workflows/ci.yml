@@ -1,20 +1,33 @@
 name: CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
-    name: Build App and run UI Test
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ios: "15.5"
+            os: "macos-12"
+            xcode: "13.4"
+          - ios: "16.2"
+            os: "macos-12"
+            xcode: "14.2"
+    name: Run UI Test on iOS ${{ matrix.ios }}
+    runs-on: ${{ matrix.os }}
     env:
       platform: ${{ 'iOS Simulator' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Required Tools
+      - name: Install required tools
         run: |
           brew update
           brew install xcodegen
+      - name: Select Xcode version ${{ matrix.xcode }}
+        run: |
+          sudo xcversion select ${{ matrix.xcode }}
       - name: Generate project
         run: |
           cd Example
@@ -22,9 +35,21 @@ jobs:
       - name: Build App
         run: |
           Scripts/run_build.rb
-      - name: Run internal UI Tests
+      - name: Run UI Tests
         run: |
           Scripts/run_uitests.rb
+      - name: Collect UI Tests artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: SBTUITestTunnel_Tests_iOS_${{ matrix.ios }}.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: success() || failure()
       - name: Run no swizzling UI Tests
         run: |
           Scripts/run_uitests_no_swizzling.rb
+      - name: Collect no swizzling UI Tests artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: SBTUITestTunnel_TestsNoSwizzling_iOS_${{ matrix.ios }}.xcresult
+          path: SBTUITestTunnel_TestsNoSwizzling.xcresult
+        if: success() || failure()
