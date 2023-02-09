@@ -17,22 +17,30 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
+        app.tables.cells["showCoreLocationViewController"].tap()
+        wait { self.app.staticTexts["location_status"].label == "-" }
+
         app.coreLocationStubAuthorizationStatus(.notDetermined)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .notDetermined)
+        wait { self.app.staticTexts["location_status"].label == "notDetermined" }
 
         app.coreLocationStubAuthorizationStatus(.denied)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .denied)
+        wait { self.app.staticTexts["location_status"].label == "denied" }
         
         app.coreLocationStubAuthorizationStatus(.restricted)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .restricted)
+        wait { self.app.staticTexts["location_status"].label == "restricted" }
 
         app.coreLocationStubAuthorizationStatus(.authorizedWhenInUse)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedWhenInUse)
+        wait { self.app.staticTexts["location_status"].label == "authorizedWhenInUse" }
 
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
+        wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
     }
-    
+
     func testCoreLocationUpdate() {
         app.launchTunnel()
 
