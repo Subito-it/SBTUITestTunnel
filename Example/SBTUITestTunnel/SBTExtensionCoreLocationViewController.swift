@@ -94,7 +94,11 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     }
 
     @objc func authorizationStatusTapped(_ sender: Any) {
-        statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
+        if #available(iOS 14.0, *) {
+            statusLabel.text = "\(locationManager.authorizationStatus.description)"
+        } else {
+            statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
+        }
     }
     
     @objc func currentLocationTapped(_ sender: Any) {
