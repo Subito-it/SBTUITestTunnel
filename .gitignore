@@ -77,3 +77,6 @@ Example/Pods/
 Example/Podfile.lock
 Example/SBTUITestTunnel.xcodeproj/
 Example/SBTUITestTunnel.xcworkspace/
+
+# SwiftPM resolved files
+*.resolved
