@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'fileutils'
 
 module Build
     EXAMPLE_APP_SCHEME = "SBTUITestTunnel_Example"
@@ -20,11 +21,12 @@ module Build
         return run_xcodebuild("test", UITESTS_NOSWIZZ_SCHEME)
     end
 
-    def self.run_xcodebuild(action,schemeName)
+    def self.run_xcodebuild(action,scheme_name)
         base_path = `git rev-parse --show-toplevel`.strip
         workspace = "#{base_path}/Example/SBTUITestTunnel.xcworkspace"
         destination = make_destination()
-        command = "xcodebuild #{action} -scheme #{schemeName} -workspace #{workspace} -retry-tests-on-failure -destination \"#{destination}\" | xcpretty && exit ${PIPESTATUS[0]}"
+        result_bundle_path = make_result_bundle_path(scheme_name)
+        command = "xcodebuild #{action} -scheme #{scheme_name} -workspace #{workspace} -sdk iphonesimulator -retry-tests-on-failure -test-iterations 5 -destination \"#{destination}\" -resultBundlePath \"#{result_bundle_path}\" | xcpretty && exit ${PIPESTATUS[0]}"
         result = system(command)
         if result
             puts "XcodeBuild status: ✅ SUCCESS"
@@ -33,6 +35,15 @@ module Build
         end
         return result
     end 
+
+    def self.make_result_bundle_path(scheme_name)
+        bundle_files = Dir.glob("#{scheme_name}*")
+        if !bundle_files.empty?
+            puts "🧹 Delete result bundle files: '#{bundle_files}'"
+            FileUtils.rm_r(bundle_files)
+        end
+        return "#{scheme_name}.xcresult"
+    end
 
     def self.make_destination()
         platform = "iOS Simulator"
