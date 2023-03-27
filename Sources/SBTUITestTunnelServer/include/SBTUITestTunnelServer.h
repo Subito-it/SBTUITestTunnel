@@ -20,14 +20,14 @@
     #endif
 #endif
 
-#if ENABLE_UITUNNEL
-
 @import Foundation;
 
 // These imports are required for SPM as this file will be the umbrella header
 #import "UIViewController+SBTUITestTunnel.h"
 #import "UIScrollView+SBTUITestTunnel.h"
 #import "SBTAnyViewControllerPreviewing.h"
+
+#if ENABLE_UITUNNEL
 
 @interface SBTUITestTunnelServer : NSObject
 
