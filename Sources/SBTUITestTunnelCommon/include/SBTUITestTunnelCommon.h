@@ -20,8 +20,6 @@
     #endif
 #endif
 
-#if ENABLE_UITUNNEL
-
 #import "SBTMonitoredNetworkRequest.h"
 #import "SBTRequestMatch.h"
 #import "SBTRewrite.h"
@@ -31,6 +29,8 @@
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
 #import "SBTIPCTunnel.h"
+
+#if ENABLE_UITUNNEL
 
 #ifdef SPM
     #import "../DetoxIPC/DTXIPCConnection.h"
