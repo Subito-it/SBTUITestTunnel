@@ -273,6 +273,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
     });
 }
+
+- (void)performCommandWithParameters:(NSDictionary *)parameters block:(void (^)(NSDictionary *))block {}
+
 #pragma mark - Timeout
 
 + (void)setConnectionTimeout:(NSTimeInterval)timeout
