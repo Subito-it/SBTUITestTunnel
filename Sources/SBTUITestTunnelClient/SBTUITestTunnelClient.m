@@ -97,8 +97,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     [self resetInternalState];
     
-    if ([self.delegate respondsToSelector:@selector(testTunnelClient:didShutdownWithError:)]) {
-        [self.delegate testTunnelClient:self didShutdownWithError:error];
+    if ([self.delegate respondsToSelector:@selector(tunnelClient:didShutdownWithError:)]) {
+        [self.delegate tunnelClient:self didShutdownWithError:error];
     }
 }
 
@@ -185,7 +185,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         });
     }
     
-    [self.delegate testTunnelClientIsReadyToLaunch:self];
+    [self.delegate tunnelClientIsReadyToLaunch:self];
     
     while (YES) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
@@ -211,25 +211,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (void)terminate
 {
     [self shutDownWithError:nil];
-}
-
-- (void)serverDidConnect:(id)sender
-{
-    __weak typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        weakSelf.connected = YES;
-
-        NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
-
-        if (weakSelf.startupBlock) {
-            weakSelf.startupBlock();
-            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
-        }
-        
-        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
-
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
-    });
 }
 
 - (void)waitForConnection
@@ -271,6 +252,29 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     [self shutDownWithErrorMessage:@"Failed waiting for app to be ready" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
 }
+
+// MARK: - SBTIPCTunnel
+
+- (void)serverDidConnect:(id)sender
+{
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        weakSelf.connected = YES;
+
+        NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+
+        if (weakSelf.startupBlock) {
+            weakSelf.startupBlock();
+            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
+        }
+        
+        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
+
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+    });
+}
+
+- (void)performCommandWithParameters:(NSDictionary *)parameters block:(void (^)(NSDictionary *))block {}
 
 #pragma mark - Timeout
 
@@ -848,13 +852,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (NSString *)base64SerializeObject:(id)obj
 {
-    NSData *objData;
-    if (@available(iOS 11.0, *)) {
-        objData = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
-    } else {
-        objData = [NSKeyedArchiver archivedDataWithRootObject:obj];
-    }
-    
+    NSData *objData = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
     return [self base64SerializeData:objData];
 }
 

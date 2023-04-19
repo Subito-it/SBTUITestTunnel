@@ -306,13 +306,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if (block) {
             NSObject *outObject = block(inObj);
             
-            NSData *data;
-            if (@available(iOS 11.0, *)) {
-                data = [NSKeyedArchiver archivedDataWithRootObject:outObject requiringSecureCoding:NO error:nil];
-            } else {
-                data = [NSKeyedArchiver archivedDataWithRootObject:outObject];
-            }
-            
+            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:outObject requiringSecureCoding:NO error:nil];
             NSString *ret = data ? [data base64EncodedStringWithOptions:0] : @"";
             *returnObject = @{ SBTUITunnelResponseResultKey: ret };
             
@@ -389,13 +383,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSDictionary *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
     
-    NSData *data;
-    if (@available(iOS 11.0, *)) {
-        data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs requiringSecureCoding:NO error:nil];
-    } else {
-        data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs];
-    }
-    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs requiringSecureCoding:NO error:nil];
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
     }
@@ -485,13 +473,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [SBTProxyURLProtocol monitoredRequestsFlushAll];
     }
     
-    NSData *data;
-    if (@available(iOS 11.0, *)) {
-        data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush requiringSecureCoding:NO error:nil];
-    } else {
-        data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush];
-    }
-    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush requiringSecureCoding:NO error:nil];
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -643,13 +625,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSObject *obj = [userDefault objectForKey:objKey];
     
-    NSData *data;
-    if (@available(iOS 11.0, *)) {
-        data = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
-    } else {
-        data = [NSKeyedArchiver archivedDataWithRootObject:obj];
-    }
-
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -679,13 +655,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandMainBundleInfoDictionary:(NSDictionary *)parameters
 {
-    NSData *data;
-    if (@available(iOS 11.0, *)) {
-        data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary] requiringSecureCoding:NO error:nil];
-    } else {
-        data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary]];
-    }
-
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[[NSBundle mainBundle] infoDictionary] requiringSecureCoding:NO error:nil];
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
@@ -747,13 +717,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [filesDataArr addObject:fileData];
     }
         
-    NSData *filesDataArrData;
-    if (@available(iOS 11.0, *)) {
-        filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr requiringSecureCoding:NO error:nil];
-    } else {
-        filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr];
-    }
-    
+    NSData *filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr requiringSecureCoding:NO error:nil];
     NSString *ret = [filesDataArrData base64EncodedStringWithOptions:0];
     
     NSString *debugInfo = [NSString stringWithFormat:@"Found %ld files matching download request@", (unsigned long)matchingFiles.count];
@@ -1310,13 +1274,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandNotificationCenterStubbing:(NSDictionary *)parameters
 {
     #ifdef ENABLE_UITUNNEL_SWIZZLING
-        if (@available(iOS 10.0, *)) {
-            BOOL stubNotificationCenter = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
-            if (stubNotificationCenter) {
-                [UNUserNotificationCenter loadSwizzlesWithAuthorizationStatus:self.notificationCenterStubbedAuthorizationStatus];
-            } else {
-                [UNUserNotificationCenter removeSwizzles];
-            }
+        BOOL stubNotificationCenter = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
+        if (stubNotificationCenter) {
+            [UNUserNotificationCenter loadSwizzlesWithAuthorizationStatus:self.notificationCenterStubbedAuthorizationStatus];
+        } else {
+            [UNUserNotificationCenter removeSwizzles];
         }
     #else
         [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use UNUsertNotificationCenter methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
