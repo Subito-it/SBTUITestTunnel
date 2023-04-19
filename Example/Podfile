@@ -1,27 +1,27 @@
-source 'https://cdn.cocoapods.org/'
+source "https://cdn.cocoapods.org/"
 
 use_frameworks!
 platform :ios, '10.0'
 
 def test_target
   # This is used only for testing purposes
-  pod 'SBTUITestTunnelServer', :path => '../'
+  pod "SBTUITestTunnelServer", :path => "../"
   # You should normally use SBTUITestTunnelClient only instead
-  pod 'SBTUITestTunnelClient', :path => '../'
-  pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/Subito-it/GCDWebServer.git', :inhibit_warnings => true
+  pod "SBTUITestTunnelClient", :path => "../"
+  pod "SBTUITestTunnelCommon", :path => "../"
+  pod "GCDWebServer", :git => "https://github.com/Subito-it/GCDWebServer.git", :inhibit_warnings => true
 end
 
-target 'SBTUITestTunnel_Example' do
-  pod 'SBTUITestTunnelServer', :path => '../'
-  pod 'SBTUITestTunnelCommon', :path => '../'
-  pod 'GCDWebServer', :git=> 'https://github.com/Subito-it/GCDWebServer.git', :inhibit_warnings => true
+target "SBTUITestTunnel_Example" do
+  pod "SBTUITestTunnelServer", :path => "../"
+  pod "SBTUITestTunnelCommon", :path => "../"
+  pod "GCDWebServer", :git => "https://github.com/Subito-it/GCDWebServer.git", :inhibit_warnings => true
 end
 
-target 'SBTUITestTunnel_Tests' do
+target "SBTUITestTunnel_Tests" do
   test_target
 end
 
-target 'SBTUITestTunnel_TestsNoSwizzling' do
+target "SBTUITestTunnel_TestsNoSwizzling" do
   test_target
 end
