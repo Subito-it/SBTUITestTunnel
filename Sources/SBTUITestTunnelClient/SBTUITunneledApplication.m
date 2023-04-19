@@ -54,12 +54,12 @@
 
 # pragma mark - SBTUITestTunnelClientDelegate
 
-- (void)testTunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender
+- (void)tunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender
 {
     [self launch];
 }
 
-- (void)testTunnelClient:(SBTUITestTunnelClient *)sender didShutdownWithError:(NSError *)error
+- (void)tunnelClient:(SBTUITestTunnelClient *)sender didShutdownWithError:(NSError *)error
 {
     if (error != nil) {
         NSAssert(NO, error.localizedDescription);

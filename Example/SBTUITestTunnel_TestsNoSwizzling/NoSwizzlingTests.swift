@@ -63,12 +63,12 @@ class MyCustomApplication: XCUIApplication {
 }
 
 extension MyCustomApplication: SBTUITestTunnelClientDelegate {
-    func testTunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
+    func tunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
         // Call the XCUIApplication.lanuch() method
         launch()
     }
     
-    func testTunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
+    func tunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
         // optionally handle errors
         print(String(describing: error?.localizedDescription))
         

@@ -97,8 +97,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
     [self resetInternalState];
     
-    if ([self.delegate respondsToSelector:@selector(testTunnelClient:didShutdownWithError:)]) {
-        [self.delegate testTunnelClient:self didShutdownWithError:error];
+    if ([self.delegate respondsToSelector:@selector(tunnelClient:didShutdownWithError:)]) {
+        [self.delegate tunnelClient:self didShutdownWithError:error];
     }
 }
 
@@ -185,7 +185,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         });
     }
     
-    [self.delegate testTunnelClientIsReadyToLaunch:self];
+    [self.delegate tunnelClientIsReadyToLaunch:self];
     
     while (YES) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
