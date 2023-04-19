@@ -10,7 +10,7 @@ jobs:
         include:
           - ios: "15.5"
             os: "macos-12"
-            xcode: "13.4"
+            xcode: "13.4.1"
           - ios: "16.2"
             os: "macos-12"
             xcode: "14.2"
