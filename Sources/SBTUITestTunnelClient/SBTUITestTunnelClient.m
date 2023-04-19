@@ -213,25 +213,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithError:nil];
 }
 
-- (void)serverDidConnect:(id)sender
-{
-    __weak typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        weakSelf.connected = YES;
-
-        NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
-
-        if (weakSelf.startupBlock) {
-            weakSelf.startupBlock();
-            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
-        }
-        
-        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
-
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
-    });
-}
-
 - (void)waitForConnection
 {
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -272,6 +253,26 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     [self shutDownWithErrorMessage:@"Failed waiting for app to be ready" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
 }
 
+// MARK: - SBTIPCTunnel
+
+- (void)serverDidConnect:(id)sender
+{
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        weakSelf.connected = YES;
+
+        NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+
+        if (weakSelf.startupBlock) {
+            weakSelf.startupBlock();
+            NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
+        }
+        
+        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
+
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+    });
+}
 #pragma mark - Timeout
 
 + (void)setConnectionTimeout:(NSTimeInterval)timeout
