@@ -873,9 +873,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
                                 if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
                                     targetContentOffsetX = scrollView.contentOffset.x;
-                                    targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.frame.size.height / 2);
+                                    targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.bounds.size.height / 2);
                                 } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-                                    targetContentOffsetX = MAX(0.0, frameInScrollView.origin.x - view.frame.size.width / 2);
+                                    targetContentOffsetX = MAX(0.0, frameInScrollView.origin.x - view.bounds.size.width / 2);
                                     targetContentOffsetY = scrollView.contentOffset.y;
                                 }
 
@@ -893,8 +893,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             break;
                         } else {
                             if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
-                                if (scrollView.contentOffset.y < scrollView.contentSize.height)  {
-                                    CGFloat targetContentOffsetY = MIN(scrollView.contentSize.height, scrollView.contentOffset.y + scrollView.frame.size.height);
+                                CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.height - scrollView.bounds.size.height / 2.0));
+                                if (scrollView.contentOffset.y < maxOffset)  {
+                                    CGFloat targetContentOffsetY = MIN(maxOffset, ceil(scrollView.contentOffset.y + scrollView.frame.size.height));
 
                                     [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
                                     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
@@ -905,8 +906,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     break;
                                 }
                             } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-                                if (scrollView.contentOffset.x < scrollView.contentSize.width)  {
-                                    CGFloat targetContentOffsetX = MIN(scrollView.contentSize.width, scrollView.contentOffset.x + scrollView.frame.size.width);
+                                CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.width - scrollView.bounds.size.width / 2.0));
+                                if (scrollView.contentOffset.x < maxOffset)  {
+                                    CGFloat targetContentOffsetX = MIN(maxOffset, ceil(scrollView.contentOffset.x + scrollView.frame.size.width));
 
                                     [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
                                     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
