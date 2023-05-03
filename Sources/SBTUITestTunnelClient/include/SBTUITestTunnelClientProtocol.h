@@ -530,6 +530,18 @@
  */
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
 
+
+/**
+ *  Scroll UIScrollView view to the specified normalized offset
+ *
+ *  @param identifier accessibilityIdentifier of the UIScrollView
+ *  @param targetOffset the normalized targetOffset
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
+
 #pragma mark - XCUITest 3D touch extensions
 
 /**

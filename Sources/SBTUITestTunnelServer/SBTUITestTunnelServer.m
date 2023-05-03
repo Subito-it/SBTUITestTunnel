@@ -828,10 +828,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandScrollScrollView:(NSDictionary *)parameters
 {
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
-    NSString *targetElementIdentifier = parameters[SBTUITunnelObjectValueKey];
+    NSString *target = parameters[SBTUITunnelObjectValueKey];
+    NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
     
-    return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetElementIdentifier animated:animated];
+    if ([scrollType isEqualToString:@"identifier"]) {
+        return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:target animated:animated];
+    } else {
+        return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetOffset:[target floatValue] animated:animated];
+    }
 }
 
 - (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetIdentifier:(NSString *)targetElementIdentifier animated:(BOOL)animated
@@ -925,6 +930,61 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
             
             if (result) { break; }
+        }
+    });
+    
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
+    
+    NSString *debugInfo = result ? @"" : @"element not found!";
+    
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
+- (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetOffset:(CGFloat)targetOffset animated:(BOOL)animated
+{
+    __block BOOL result = NO;
+    
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Hacky way to get top-most UIViewController
+        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        while (rootViewController.presentedViewController != nil) {
+            rootViewController = rootViewController.presentedViewController;
+        }
+        
+        NSArray *allViews = [rootViewController.view allSubviews];
+        for (UIView *view in [allViews reverseObjectEnumerator]) {
+            if ([view isKindOfClass:[UIScrollView class]]) {
+                CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+                BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
+                
+                if (!withinVisibleBounds) {
+                    continue;
+                }
+                
+                BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
+                if (expectedIdentifier) {
+                    UIScrollView *scrollView = (UIScrollView *)view;
+                    
+                    if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
+                        CGFloat targetContentOffsetY = (scrollView.contentSize.height - scrollView.bounds.size.height) * targetOffset;
+                        [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
+                    } else {
+                        CGFloat targetContentOffsetX = (scrollView.contentSize.width - scrollView.bounds.size.width) * targetOffset;
+                        [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
+                    }
+                    
+                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
+                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+                    }
+                    
+                    result = YES;
+                    dispatch_semaphore_signal(sem);
+                    break;
+                }
+            }
         }
     });
     

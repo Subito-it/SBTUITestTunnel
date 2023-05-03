@@ -752,6 +752,20 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
                                                      SBTUITunnelObjectValueKey: targetIdentifier,
+                                                     SBTUITunnelXCUIExtensionScrollType: @"identifier",
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
+}
+
+
+- (BOOL)scrollScrollViewWithIdentifier:(NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [@(targetOffset) stringValue],
+                                                     SBTUITunnelXCUIExtensionScrollType: @"offset",
                                                      SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
