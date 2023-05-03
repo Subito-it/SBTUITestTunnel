@@ -12,7 +12,7 @@ jobs:
             os: "macos-12"
             xcode: "13.4.1"
           - ios: "16.2"
-            os: "macos-12"
+            os: "macos-latest"
             xcode: "14.2"
     name: Run UI Test on iOS ${{ matrix.ios }}
     runs-on: ${{ matrix.os }}
