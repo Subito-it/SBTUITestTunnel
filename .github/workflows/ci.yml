@@ -27,6 +27,7 @@ jobs:
           brew install xcodegen
       - name: Select Xcode version ${{ matrix.xcode }}
         run: |
+          sudo xcversion installed
           sudo xcversion select ${{ matrix.xcode }}
       - name: Generate project
         run: |
