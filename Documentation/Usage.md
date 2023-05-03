@@ -225,7 +225,7 @@ let uploadData = app.downloadItems(fromPath: "test_file.txt", relativeTo: .docum
 
 ### Network monitoring
 
-This may come in handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
+This may come in handy when you need to check that specific network requests are made. You first specify one or more network requests you want to monitor by passing `SBTRequestMatch` like for stubbing methods. Once you performed actions in the app that triggered those request you can retrieve them by using `monitoredRequestsPeekAll` or `monitoredRequestsFlushAll`. The former will return all the collected network requests, the latter will additionally clear the list of requests.
 
 ```swift
 app.monitorRequests(matching: SBTRequestMatch.url("apple.com"))
