@@ -366,6 +366,12 @@
     return [self.client scrollScrollViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
 }
 
+- (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    return [self.client scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
+}
+
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

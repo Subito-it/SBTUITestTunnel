@@ -213,7 +213,7 @@ class MiscellaneousTests: XCTestCase {
         XCTAssert(app.staticTexts["40"].isHittable)
     }
     
-    func testScrollViewScrolling() {
+    func testScrollViewScrollToElement() {
         app.launchTunnel()
         
         app.cells["showExtensionScrollView"].tap()
@@ -223,5 +223,21 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
         
         XCTAssert(app.buttons["Button"].isHittable)
+    }
+    
+    func testScrollViewScrollToOffset() {
+        app.launchTunnel()
+        
+        app.cells["showExtensionScrollView"].tap()
+        
+        XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+        
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 1.0, animated: true))
+        
+        XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+        
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.0, animated: true))
+        
+        XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
     }
 }

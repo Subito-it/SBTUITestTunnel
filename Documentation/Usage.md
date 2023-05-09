@@ -225,7 +225,7 @@ let uploadData = app.downloadItems(fromPath: "test_file.txt", relativeTo: .docum
 
 ### Network monitoring
 
-This may come in handy when you need to check that specific network requests are made. You pass an `SBTRequestMatch` like for stubbing methods.
+This may come in handy when you need to check that specific network requests are made. You first specify one or more network requests you want to monitor by passing `SBTRequestMatch` like for stubbing methods. Once you performed actions in the app that triggered those request you can retrieve them by using `monitoredRequestsPeekAll` or `monitoredRequestsFlushAll`. The former will return all the collected network requests, the latter will additionally clear the list of requests.
 
 ```swift
 app.monitorRequests(matching: SBTRequestMatch.url("apple.com"))
@@ -359,7 +359,7 @@ app.scrollTableView(withIdentifier: "identifier", toRow: .max, animated: false)
 
 #### Target identifier
 
-Pass the accessibility label/identifier of the table along with the accessibility label/identifier of the element you want the table to be scrolled to. Currently only vertical scrolling is supported.
+Pass the accessibility label/identifier of the table along with the accessibility label/identifier of the element you want to scroll to. Currently only vertical scrolling is supported.
 
 ```swift
 app.scrollTableView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
@@ -377,18 +377,28 @@ app.scrollCollectionView(withIdentifier: "identifier", toRow: .max, animated: fa
 
 #### Target identifier
 
-Pass the accessibility label/identifier of the collection along with the accessibility label/identifier of the element you want the collection to be scrolled to. Currently only vertical scrolling is supported.
+Pass the accessibility label/identifier of the collection along with the accessibility label/identifier of the element you to scroll to. Currently only vertical scrolling is supported.
 
 ```swift
 app.scrollCollectionView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
 ```
 
-### UIScrollview scrolling
+### UIScrollview
 
-Pass the accessibility label/identifier of the collection along with the accesibility lable/identifier of an element contained in the scrollview you want to scroll to.
+#### Target identifier
+
+Pass the accessibility label/identifier of the scrollView along with the accesibility lable/identifier of an element you want to scroll to.
 
 ```swift
 app.scrollScrollViewWithIdentifier(withIdentifier: "identifier", toElementWitIdentifier: .max, animated: false)
+```
+
+#### Target offset
+
+Pass the normalized offset (0.0 - 1.0) of the scrollView you want to scroll to.
+
+```swift
+app.scrollScrollViewWithIdentifier(withIdentifier: "identifier", toOffset: 0.15, animated: true)
 ```
 
 ## CLLocationManager stubbing
