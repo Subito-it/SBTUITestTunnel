@@ -33,8 +33,10 @@
 
 /**
  *  Start the tunnel server
+ *
+ *  @return `YES` on success
  */
-+ (void)takeOff;
++ (BOOL)takeOff;
 
 /**
  *  Register a custom command. It is your responsibility to unregister the custom command when it is no longer needed

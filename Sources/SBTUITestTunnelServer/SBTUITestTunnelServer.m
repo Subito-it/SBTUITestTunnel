@@ -122,15 +122,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return sharedInstance;
 }
 
-+ (void)takeOff
++ (BOOL)takeOff
 {
+    __block BOOL result = NO;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        [self.sharedInstance takeOffOnce];
+        result = [self.sharedInstance takeOffOnce];
     });
+    
+    return result;
 }
 
-- (void)takeOffOnce
+- (BOOL)takeOffOnce
 {
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
     
@@ -140,19 +143,19 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if (!tunnelPort && !ipcIdentifier) {
         // Required methods missing, presumely app wasn't launched from ui test
         NSLog(@"[SBTUITestTunnel] required environment parameters missing, safely landing");
-        return;
+        return NO;
     }
         
     if (ipcIdentifier) {
         NSLog(@"[SBTUITestTunnel] IPC tunnel taking off");
-        [self takeOffOnceIPCWithServiceIdentifier:ipcIdentifier];
+        return [self takeOffOnceIPCWithServiceIdentifier:ipcIdentifier];
     } else {
         NSLog(@"[SBTUITestTunnel] HTTP tunnel taking off");
-        [self takeOffOnceUsingHTTPPort:tunnelPort];
+        return [self takeOffOnceUsingHTTPPort:tunnelPort];
     }
 }
 
-- (void)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
+- (BOOL)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
 {
     self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
     self.ipcConnection.remoteObjectInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
@@ -171,7 +174,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
-        return;
+        return NO;
     }
     
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
@@ -181,11 +184,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
-            return;
+            return YES;
         }
     }
 
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    
+    return NO;
 }
 
 - (void)performCommandWithParameters:(NSDictionary *)parameters block:(void (^)(NSDictionary *))block
@@ -215,7 +220,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     });
 }
 
-- (void)takeOffOnceUsingHTTPPort:(NSString *)tunnelPort
+- (BOOL)takeOffOnceUsingHTTPPort:(NSString *)tunnelPort
 {
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
     
@@ -258,7 +263,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
-        return;
+        return NO;
     }
     
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
@@ -278,7 +283,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSError *serverError = nil;
     if (![self.server startWithOptions:serverOptions error:&serverError]) {
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server on port %d. %@", [tunnelPort intValue], serverError.description);
-        return;
+        return NO;
     }
     
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
@@ -288,11 +293,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
-            return;
+            return YES;
         }
     }
     
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    
+    return NO;
 }
 
 - (BOOL)processCustomCommandIfNecessary:(NSString *)command parameters:(NSDictionary *)parameters returnObject:(NSObject **)returnObject

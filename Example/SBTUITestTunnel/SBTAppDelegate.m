@@ -75,7 +75,8 @@
         }
         #endif
     
-        [SBTUITestTunnelServer takeOff];
+        BOOL didTakeOff = [SBTUITestTunnelServer takeOff];
+        NSLog(@"Tunnel established: %d", didTakeOff);
     #endif
     
     return YES;
