@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import XCTest;
 
 #import "SBTUITestTunnelClientProtocol.h"
@@ -46,5 +38,3 @@
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
 @end
-
-#endif

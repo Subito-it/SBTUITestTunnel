@@ -15,16 +15,12 @@
 // limitations under the License.
 
 #if DEBUG
-    #ifndef ENABLE_UITUNNEL 
-        #define ENABLE_UITUNNEL 1
-    #endif
-
     #ifndef ENABLE_UITUNNEL_SWIZZLING
         #define ENABLE_UITUNNEL_SWIZZLING 1
     #endif
 #endif
 
-#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
+#if ENABLE_UITUNNEL_SWIZZLING
 
 #import "include/XCTestCase+AppExtension.h"
 #import "include/SBTUITunneledApplication.h"
