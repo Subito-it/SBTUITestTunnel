@@ -25,5 +25,5 @@ Pod::Spec.new do |s|
   s.frameworks = "XCTest"
   s.source_files = "Sources/SBTUITestTunnelClient/**/*.{h,m}"
 
-  s.dependency "SBTUITestTunnelCommon"
+  s.dependency "SBTUITestTunnelCommon", "#{s.version}"
 end
