@@ -6,14 +6,6 @@
 //  Copyright © 2017-2020 Wix. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #ifndef DTXQuickNSExpressions_h
 #define DTXQuickNSExpressions_h
 
@@ -31,5 +23,3 @@ static DTX_ALWAYS_INLINE NSExpression* DTXFunctionExpression(NSString* function,
 }
 
 #endif /* DTXQuickNSExpressions_h */
-
-#endif

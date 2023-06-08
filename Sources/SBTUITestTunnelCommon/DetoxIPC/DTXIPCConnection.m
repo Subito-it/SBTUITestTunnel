@@ -6,14 +6,6 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "DTXIPCConnection-Private.h"
 #import "NSConnection.h"
 #import "NSPortNameServer.h"
@@ -363,5 +355,3 @@ static dispatch_queue_t _connectionQueue;
 }
 
 @end
-
-#endif

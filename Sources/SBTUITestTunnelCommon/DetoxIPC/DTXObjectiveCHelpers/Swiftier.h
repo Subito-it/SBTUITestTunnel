@@ -6,14 +6,6 @@
 //  Copyright © 2017-2020 Wix. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #ifndef Swiftier_h
 #define Swiftier_h
 
@@ -156,5 +148,3 @@ dtx_defer {\
 
 
 #endif /* Swiftier_pch */
-
-#endif

@@ -18,14 +18,6 @@
 * WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
 */
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "_DTXIPCRemoteBlockRegistry.h"
 #import "_DTXIPCDistantObject.h"
 #import "../DTXObjectiveCHelpers/Swiftier.h"
@@ -117,5 +109,3 @@ static NSMutableDictionary* _registry;
 }
 
 @end
-
-#endif

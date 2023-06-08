@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL 
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import Foundation;
 @import ObjectiveC.NSObject;
 
@@ -149,5 +141,3 @@ extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 @property (nullable, nonatomic, strong) NSDictionary *query;
 
 @end
-
-#endif

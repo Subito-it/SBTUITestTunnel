@@ -6,14 +6,6 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "_DTXIPCDistantObject.h"
 #import "DTXIPCConnection.h"
 #import "DTXIPCConnection-Private.h"
@@ -165,5 +157,3 @@
 }
 
 @end
-
-#endif

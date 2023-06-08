@@ -1567,4 +1567,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 @end
 
+#else
+
+#import "include/SBTUITestTunnelServer.h"
+
+@implementation SBTUITestTunnelServer : NSObject
+
++ (BOOL)takeOff { return NO; }
++ (void)registerCustomCommandNamed:(nonnull NSString *)commandName block:(nonnull NSObject *_Nullable(^)(NSObject * _Nullable object))block {}
++ (void)unregisterCommandNamed:(nonnull NSString *)commandName {}
+
+@end
+
 #endif

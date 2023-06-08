@@ -19,10 +19,8 @@ import Foundation
     import SBTUITestTunnelCommon
 #endif
 
-#if DEBUG || ENABLE_UITUNNEL
 public extension SBTStubFailureResponse {
     convenience init(errorCode: Int, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         self.init(_errorCode: errorCode, _responseTime: responseTime ?? NSTimeIntervalSince1970, _activeInterations: activeIterations)
     }
 }
-#endif

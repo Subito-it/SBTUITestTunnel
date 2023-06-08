@@ -6,14 +6,6 @@
 //  Copyright © 2017-2020 Wix. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #ifndef DTXMeasurements_h
 #define DTXMeasurements_h
 
@@ -23,5 +15,3 @@
 dtx_log_info(@"%@ took %f seconds to " action, self.class, ___elapsedTime);
 
 #endif /* DTXMeasurements_h */
-
-#endif

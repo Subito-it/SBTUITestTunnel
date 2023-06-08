@@ -6,14 +6,6 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import <Foundation/Foundation.h>
 
 NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE
@@ -44,5 +36,3 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString * const NSConnectionDidDieNotification;
 
 NS_ASSUME_NONNULL_END
-
-#endif

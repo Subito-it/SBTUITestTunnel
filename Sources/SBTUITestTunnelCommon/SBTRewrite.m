@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "include/SBTRewrite.h"
 #import "include/SBTRewriteReplacement.h"
 
@@ -189,5 +181,3 @@
 }
 
 @end
-
-#endif

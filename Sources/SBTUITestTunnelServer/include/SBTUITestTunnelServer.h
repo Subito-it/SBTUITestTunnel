@@ -14,20 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
 @import Foundation;
 
 // These imports are required for SPM as this file will be the umbrella header
 #import "UIViewController+SBTUITestTunnel.h"
 #import "UIScrollView+SBTUITestTunnel.h"
 #import "SBTAnyViewControllerPreviewing.h"
-
-#if ENABLE_UITUNNEL
 
 @interface SBTUITestTunnelServer : NSObject
 
@@ -54,5 +46,3 @@
 + (void)unregisterCommandNamed:(nonnull NSString *)commandName;
 
 @end
-
-#endif

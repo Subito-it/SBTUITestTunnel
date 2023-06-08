@@ -8,14 +8,6 @@
 
 // Default implementation for NSConnection which is not available on iOS physical devices which allows to properly link the library
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "NSConnection.h"
 
 #if !TARGET_OS_SIMULATOR
@@ -73,7 +65,5 @@ NSString *const  _Nonnull __strong NSConnectionDidDieNotification = @"NSConnecti
 }
 
 @end
-
-#endif
 
 #endif

@@ -19,7 +19,6 @@ import Foundation
     import SBTUITestTunnelCommon
 #endif
 
-#if DEBUG || ENABLE_UITUNNEL
 public extension SBTStubResponse {
     convenience init(response: Any, headers: [String: String]? = nil, contentType: String? = nil, returnCode: Int? = nil, responseTime: TimeInterval? = nil, activeIterations: Int = 0) {
         self.init(_response: response as! NSObject, _headers: headers, _contentType: contentType, _returnCode: returnCode ?? -1, _responseTime: responseTime ?? NSTimeIntervalSince1970, _activeIterations: activeIterations)
@@ -29,4 +28,3 @@ public extension SBTStubResponse {
         self.init(_fileNamed: fileNamed, _headers: headers, _returnCode: returnCode ?? -1, _responseTime: responseTime ?? NSTimeIntervalSince1970, _activeIterations: activeIterations)
     }
 }
-#endif
