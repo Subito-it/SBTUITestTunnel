@@ -92,20 +92,20 @@ class NetworkRequests: NSObject {
             request.httpBody = httpBody.data(using: .utf8)
         }
         
+        let syncQueue = DispatchQueue(label: Self.description())
+        
         done = false
         URLSession.shared.dataTask(with: request) { data, response, _ in
-            DispatchQueue.main.async {
-                guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
-                retResponse = httpResponse
-                retHeaders = (retResponse?.allHeaderFields as! [String: String])
-                retData = data
-                
-                self.done = true
-            }
+            guard let httpResponse = response as? HTTPURLResponse else { fatalError("Response either nil or invalid") }
+            retResponse = httpResponse
+            retHeaders = (retResponse?.allHeaderFields as! [String: String])
+            retData = data
+            
+            syncQueue.sync { self.done = true }
         }.resume()
         
-        while !done {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+        while !syncQueue.sync(execute: { done }) {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
         }
         
         return (retResponse, retHeaders, retData)
