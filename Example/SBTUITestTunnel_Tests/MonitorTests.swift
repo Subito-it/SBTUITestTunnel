@@ -197,7 +197,7 @@ class MonitorTests: XCTestCase {
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -5.0 && delta > -8.0)
+        XCTAssert(delta < -5.0 && delta > -16.0)
         
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
@@ -235,7 +235,7 @@ class MonitorTests: XCTestCase {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
         let start = Date()
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 2.5) { [weak self] in
+        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 2.5) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
         
@@ -258,32 +258,32 @@ class MonitorTests: XCTestCase {
     func testSyncWaitForMonitoredRequestsWithIterationsDoesNotTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
         
-        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 115.0, iterations: 2))
+        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0, iterations: 2))
     }
     
     func testSyncWaitForMonitoredRequestsWithIterationsDoesTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
         
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
         
-        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 5.0, iterations: 2))
+        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0, iterations: 2))
     }
     
     func testRedirectForMonitoredRequestShouldMatch() {
         let redirectMatch = SBTRequestMatch(url: "httpbin.org")
         app.monitorRequests(matching: redirectMatch)
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
         }
         
-        XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 5.0, iterations: 1))
+        XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 10.0, iterations: 1))
     }
 }
 

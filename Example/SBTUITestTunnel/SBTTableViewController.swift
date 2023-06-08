@@ -139,7 +139,7 @@ extension SBTTableViewController {
     }
     
     func dataTaskNetwork(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -176,7 +176,7 @@ extension SBTTableViewController {
     }
     
     func uploadTaskNetwork(urlString: String, data: Data, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -213,7 +213,7 @@ extension SBTTableViewController {
     }
     
     func downloadTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -252,7 +252,7 @@ extension SBTTableViewController {
     }
     
     func backgroundDataTaskNetwork(urlString: String, data: Data, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -280,7 +280,7 @@ extension SBTTableViewController {
     }
     
     func backgroundUploadTaskNetwork(urlString: String, fileUrl: URL, httpMethod: String = "POST", httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -308,7 +308,7 @@ extension SBTTableViewController {
     }
     
     func backgroundDownloadTaskNetwork(urlString: String, httpMethod: String, httpBody: Bool = false, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.sessionSemaphore = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!
@@ -440,7 +440,7 @@ extension SBTTableViewController {
 
 extension SBTTableViewController {
     func dataTaskNetworkWithCookies(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay) { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
             
             let url = URL(string: urlString)!

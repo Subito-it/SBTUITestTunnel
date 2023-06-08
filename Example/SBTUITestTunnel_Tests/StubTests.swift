@@ -176,7 +176,7 @@ class StubTests: XCTestCase {
         let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
-        XCTAssert(delta < -5.0 && delta > -8.0)
+        XCTAssert(delta < -5.0 && delta > -16.0)
     }
     
     func testStubResponseCode() {

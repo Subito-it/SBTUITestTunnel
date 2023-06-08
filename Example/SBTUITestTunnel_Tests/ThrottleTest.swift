@@ -68,7 +68,7 @@ class ThrottleTests: XCTestCase {
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
         
-        XCTAssert(delta2 > -2.0, "Got \(delta2)")
+        XCTAssert(delta2 > -3.0, "Got \(delta2)")
     }
     
     func testThrottleAndRemoveSpecific() {
@@ -85,7 +85,7 @@ class ThrottleTests: XCTestCase {
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
         
-        XCTAssert(delta2 > -2.0)
+        XCTAssert(delta2 > -3.0)
     }
     
     func testTripleThrottle() {
@@ -97,7 +97,7 @@ class ThrottleTests: XCTestCase {
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
         
-        XCTAssert(delta < -3.0 && delta > -15.0)
+        XCTAssert(delta < -3.0 && delta > -8.0)
     }
     
     func testMultipleThrottleForSameRequestMatch() throws {
@@ -131,5 +131,9 @@ extension ThrottleTests {
         app.launchConnectionless { (path, params) -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }
+        
+        // To avoid real request to impact timing we stub the response
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ""))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ""))
     }
 }

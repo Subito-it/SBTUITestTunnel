@@ -105,7 +105,7 @@ class NetworkRequests: NSObject {
         }.resume()
         
         while !syncQueue.sync(execute: { done }) {
-            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         }
         
         return (retResponse, retHeaders, retData)
