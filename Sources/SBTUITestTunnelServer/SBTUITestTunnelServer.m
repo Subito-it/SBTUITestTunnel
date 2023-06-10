@@ -26,7 +26,9 @@
     @import SBTUITestTunnelCommonNoARC;
 #endif
 
-#if defined(__has_include) && __has_include(<GCDWebServer/GCDWebServer.h>)
+#ifdef SPM
+@import GCDWebServer;
+#elif defined(__has_include) && __has_include(<GCDWebServer/GCDWebServer.h>)
 @import GCDWebServer;
 oirutoiret
 #elif defined(__has_include) && __has_include("GCDWebServer.h") && __has_include("GCDWebServerPrivate.h")
