@@ -24,6 +24,6 @@ Pod::Spec.new do |s|
 
   s.source_files = "Sources/SBTUITestTunnelServer/**/*.{h,m}"
 
-  s.dependency "SBTUITestTunnelCommon", "#{s.version}"
+  s.dependency "SBTUITestTunnelCommon", "#{s.version}", :git => 'https://github.com/djs-code/SBTUITestTunnel.git'
   s.dependency "GCDWebServer-SBTUITestTunnel"
 end
