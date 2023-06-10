@@ -26,8 +26,13 @@
     @import SBTUITestTunnelCommonNoARC;
 #endif
 
-@import SBTUITestTunnelCommon;
+#if defined(__has_include) && __has_include(<GCDWebServer/GCDWebServer.h>)
 @import GCDWebServer;
+#elif defined(__has_include) && __has_include("GCDWebServer.h")
+#import "GCDWebServer.h"
+#endif
+
+@import SBTUITestTunnelCommon;
 @import CoreLocation;
 @import UserNotifications;
 
