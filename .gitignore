@@ -68,6 +68,7 @@ fastlane/test_output
 
 Example/SBTUITestTunnel.xcworkspace/xcuserdata
 push_to_trunk.sh
+push_to_trunk_readme.md
 
 # Visual Studio Code files
 .vscode
