@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import UIKit;
 
 typedef enum: NSUInteger {
@@ -37,5 +29,3 @@ typedef enum: NSUInteger {
 @property (nonatomic, readonly) UICollectionViewScrollPosition suggestedScrollPosition;
 
 @end
-
-#endif

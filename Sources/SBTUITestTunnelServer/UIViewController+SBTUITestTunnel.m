@@ -14,14 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 @import SBTUITestTunnelCommon;
 
 #import "UIViewController+SBTUITestTunnel.h"
@@ -75,5 +67,3 @@ static NSMapTable<UIView *, id<UIViewControllerPreviewingDelegate>> *previewingD
 }
 
 @end
-
-#endif

@@ -14,15 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-
-    #ifndef ENABLE_UITUNNEL_SWIZZLING
-        #define ENABLE_UITUNNEL_SWIZZLING 1
-    #endif
-#endif
 
 #if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
 

@@ -6,14 +6,6 @@
 //  Copyright © 2017-2020 Wix. All rights reserved.
 //
 
-#if DEBUG
-    #ifndef ENABLE_UITUNNEL
-        #define ENABLE_UITUNNEL 1
-    #endif
-#endif
-
-#if ENABLE_UITUNNEL
-
 #import "DTXAddressInfo.h"
 #include <dlfcn.h>
 #include <cxxabi.h>
@@ -126,5 +118,3 @@ static char* (*__dtx_swift_demangle)(const char *mangledName,
 }
 
 @end
-
-#endif
