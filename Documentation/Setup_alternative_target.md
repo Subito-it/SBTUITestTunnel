@@ -4,7 +4,7 @@
 
 While no setup is required in your UI Test target to use this library it might be that you need fine grained control of the `XCUIApplication` instance. 
 
-In this case adding `ENABLE_UITUNNEL_SWIZZLING=0` in your application target build settings will prevent this library from instantiating an instance of `XCUIApplication` and it won't add an `app` property on your `TestCase` classes.
+In this case adding `DISABLE_UITUNNEL_SWIZZLING=1` in your application target build settings will prevent this library from instantiating an instance of `XCUIApplication` and it won't add an `app` property on your `TestCase` classes.
 
 This is useful if you have your own sub-class of `XCUIApplication` that you wish to use instead of the automatically provided one.
 

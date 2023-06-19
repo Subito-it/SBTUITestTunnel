@@ -1,5 +1,9 @@
 # Setup
 
+## 🔥 IMPORTANT, PLEASE READ
+
+The testing library contains code that should not be shipped to production. It is your responsibility to ensure that this library and its dependencies (GCDWebServer) are excluded from the build you send to the AppStore.
+
 ## Application target
 
 On the application's target call SBTUITestTunnelServer's `takeOff` method on top of `application(_:didFinishLaunchingWithOptions:)`.
@@ -37,31 +41,3 @@ While no setup is required in your UI Test target to use this library it might b
 ## Tunneling mode
 
 The library allows tunneling via HTTP or via IPC (default). You can force disabling IPC by setting a `SBTUITestTunnelDisableIPC=NO` key in the Info.plist of the UITesting target.
-
-
-## Project
-
-#### 🔥 IMPORTANT, PLEASE READ
-
-To use the framework you're required to define `DEBUG=1` or `ENABLE_UITUNNEL=1` in your _Preprocessor Macros_ and `DEBUG` or `ENABLE_UITUNNEL` in the _Swift Active Compilation Conditions_ (`SWIFT_ACTIVE_COMPILATION_CONDITIONS`) build settings. 
-
-**Without these build settings compilation will fail with a `Undefined symbol: _OBJC_CLASS_$_SBTUITestTunnelServer`.**
-
-## Project advanced usage (CocoaPods)
-
-In some advanced cases the tou may be running tests on a custom build configuration that is missing the `DEBUG` preprocessor macro.
-
-In that case you'll need to add the `ENABLE_UITUNNEL` and `ENABLE_UITUNNEL_SWIZZLING` macros the tunnel targets build setting by modify your Podfile and adding the following `post_install` action:
-
-```ruby
-post_install do |installer|
-    installer.pods_project.targets.each do |target|
-        target.build_configurations.each do |config|
-            if config.name == 'QA' # the name of your build configuration
-              config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ['$(inherited)', 'ENABLE_UITUNNEL=1', 'ENABLE_UITUNNEL_SWIZZLING=1']
-              config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = ['$(inherited)', 'ENABLE_UITUNNEL', 'ENABLE_UITUNNEL_SWIZZLING']
-            end
-        end
-    end
-end
-```
