@@ -53,7 +53,7 @@ targets:
     deploymentTarget: "12.2"
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: ["ENABLE_UITUNNEL_SWIZZLING=0", "$(inherited)"]
+        GCC_PREPROCESSOR_DEFINITIONS: ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
         INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
     sources:
       - SBTUITestTunnel_TestsNoSwizzling

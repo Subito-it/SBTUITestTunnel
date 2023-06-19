@@ -1193,15 +1193,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubbing:(NSDictionary *)parameters
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         BOOL stubSystemLocation = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
         if (stubSystemLocation) {
             [CLLocationManager loadSwizzlesWithInstanceHashTable:self.coreLocationActiveManagers];
         } else {
             [CLLocationManager removeSwizzles];
         }
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1209,13 +1207,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubManagerLocation:(NSDictionary *)parameters
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
         
         [CLLocationManager setStubbedCurrentLocation:[locations firstObject]];
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1223,7 +1219,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubAuthorizationStatus:(NSDictionary *)parameters
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         NSString *authorizationStatus = parameters[SBTUITunnelObjectValueKey];
         
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
@@ -1239,8 +1235,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
             #endif
         }
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1248,7 +1242,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubAccuracyAuthorization:(NSDictionary *)parameters API_AVAILABLE(ios(14))
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
             NSString *accuracyAuthorization = parameters[SBTUITunnelObjectValueKey];
             
@@ -1261,8 +1255,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
             }
         #endif
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1281,7 +1273,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     [self commandCoreLocationStubManagerLocation:parameters];
     
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchiveObjectWithData:locationsData];
         
@@ -1305,8 +1297,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
             #endif
         }
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1314,7 +1304,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationNotifyFailure:(NSDictionary *)parameters
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         NSData *paramData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
         NSError *error = [NSKeyedUnarchiver unarchiveObjectWithData:paramData];
         
@@ -1323,8 +1313,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
             }
         }
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use CLLocation methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1334,15 +1322,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandNotificationCenterStubbing:(NSDictionary *)parameters
 {
-    #ifdef ENABLE_UITUNNEL_SWIZZLING
+    #if !DISABLE_UITUNNEL_SWIZZLING
         BOOL stubNotificationCenter = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
         if (stubNotificationCenter) {
             [UNUserNotificationCenter loadSwizzlesWithAuthorizationStatus:self.notificationCenterStubbedAuthorizationStatus];
         } else {
             [UNUserNotificationCenter removeSwizzles];
         }
-    #else
-        [[NSException exceptionWithName:@"Missing preprocessor macro" reason:@"To use UNUsertNotificationCenter methods define the ENABLE_UITUNNEL_SWIZZLING macro. Refer to documentation" userInfo:nil] raise];
     #endif
     
     return @{ SBTUITunnelResponseResultKey: @"YES" };

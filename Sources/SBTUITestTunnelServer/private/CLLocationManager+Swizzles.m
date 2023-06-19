@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-#if ENABLE_UITUNNEL && ENABLE_UITUNNEL_SWIZZLING
+#if !DISABLE_UITUNNEL_SWIZZLING
 
 @import SBTUITestTunnelCommon;
 @import CoreLocation;
