@@ -114,6 +114,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return sharedInstance;
 }
 
++ (void)initialize {
+    #if !DEBUG
+        fprintf(stderr, "*************************************************************\n* WARNING: SBTUITestTunnel is running in a non DEBUG build  *\n* configuration!!! It is your responsibility to ensure that *\n* no testing code gets shipped in production                *\n*************************************************************");
+    #endif
+}
+
 + (BOOL)takeOff
 {
     __block BOOL result = NO;
