@@ -11,13 +11,11 @@ def test_target
   # You should normally use SBTUITestTunnelClient only instead
   pod "SBTUITestTunnelClient", :path => "../"
   pod "SBTUITestTunnelCommon", :path => "../"
-  pod "GCDWebServer-SBTUITestTunnel", :inhibit_warnings => true
 end
 
 target "SBTUITestTunnel_Example" do
   pod "SBTUITestTunnelServer", :path => "../"
   pod "SBTUITestTunnelCommon", :path => "../"
-  pod "GCDWebServer-SBTUITestTunnel", :inhibit_warnings => true
 end
 
 target "SBTUITestTunnel_Tests" do

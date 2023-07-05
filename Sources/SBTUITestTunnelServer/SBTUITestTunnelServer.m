@@ -23,6 +23,8 @@
 @import CoreLocation;
 @import UserNotifications;
 
+#import "GCDWebServer.h"
+#import "GCDWebServerPrivate.h"
 #import "include/SBTUITestTunnelServer.h"
 #import "include/SBTAnyViewControllerPreviewing.h"
 #import "include/UIViewController+SBTUITestTunnel.h"
@@ -59,12 +61,12 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
     }
 }
 
-@implementation GCDWebServerRequest (Extension)
+@implementation SBTWebServerRequest (Extension)
 
 - (NSDictionary *)parameters
 {
-    if ([self isKindOfClass:[GCDWebServerURLEncodedFormRequest class]]) {
-        return ((GCDWebServerURLEncodedFormRequest *)self).arguments;
+    if ([self isKindOfClass:[SBTWebServerURLEncodedFormRequest class]]) {
+        return ((SBTWebServerURLEncodedFormRequest *)self).arguments;
     } else {
         return self.query;
     }
@@ -74,7 +76,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 
 @interface SBTUITestTunnelServer() <SBTIPCTunnel>
 
-@property (nonatomic, strong) GCDWebServer *server;
+@property (nonatomic, strong) SBTWebServer *server;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 
@@ -99,7 +101,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     static SBTUITestTunnelServer *sharedInstance;
     dispatch_once(&once, ^{
         sharedInstance = [[SBTUITestTunnelServer alloc] init];
-        sharedInstance.server = [[GCDWebServer alloc] init];
+        sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
@@ -220,12 +222,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (BOOL)takeOffOnceUsingHTTPPort:(NSString *)tunnelPort
 {
-    Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [GCDWebServerURLEncodedFormRequest class] : [GCDWebServerRequest class];
+    Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [SBTWebServerURLEncodedFormRequest class] : [SBTWebServerRequest class];
     
     __weak typeof(self) weakSelf = self;
-    [self.server addDefaultHandlerForMethod:SBTUITunnelHTTPMethod requestClass:requestClass processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+    [self.server addDefaultHandlerForMethod:SBTUITunnelHTTPMethod requestClass:requestClass processBlock:^SBTWebServerResponse *(SBTWebServerRequest* request) {
         __strong typeof(weakSelf)strongSelf = weakSelf;
-        __block GCDWebServerDataResponse *ret;
+        __block SBTWebServerDataResponse *ret;
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         dispatch_async(strongSelf.commandDispatchQueue, ^{
@@ -248,7 +250,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 response = func(strongSelf, commandSelector, request.parameters);
             }
             
-            ret = [GCDWebServerDataResponse responseWithJSONObject:response];
+            ret = [SBTWebServerDataResponse responseWithJSONObject:response];
             
             dispatch_semaphore_signal(sem);
         });
@@ -266,17 +268,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
     
-    [serverOptions setValue:@NO forKey:GCDWebServerOption_AutomaticallySuspendInBackground];
-    [serverOptions setValue:@(YES) forKey:GCDWebServerOption_BindToLocalhost];
+    [serverOptions setValue:@NO forKey:SBTWebServerOption_AutomaticallySuspendInBackground];
+    [serverOptions setValue:@(YES) forKey:SBTWebServerOption_BindToLocalhost];
     
     if (tunnelPort) {
-        [serverOptions setValue:@([tunnelPort intValue]) forKey:GCDWebServerOption_Port];
+        [serverOptions setValue:@([tunnelPort intValue]) forKey:SBTWebServerOption_Port];
         NSLog(@"[SBTUITestTunnel] Starting server on port: %@", tunnelPort);
     } else {
         NSAssert(NO, @"No valid discovery method passed");
     }
     
-    [GCDWebServer setLogLevel:3];
+    [SBTWebServer setLogLevel:3];
 
     NSError *serverError = nil;
     if (![self.server startWithOptions:serverOptions error:&serverError]) {

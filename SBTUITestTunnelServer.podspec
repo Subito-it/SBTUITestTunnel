@@ -20,10 +20,10 @@ Pod::Spec.new do |s|
   s.xcconfig = { "OTHER_LDFLAGS" => "-ObjC" }
   s.pod_target_xcconfig = { :prebuild_configuration => "debug" }
   s.library = "z"
+  s.frameworks = "CoreServices", "CFNetwork"
   s.static_framework = true
 
   s.source_files = "Sources/SBTUITestTunnelServer/**/*.{h,m}"
 
   s.dependency "SBTUITestTunnelCommon", "#{s.version}"
-  s.dependency "GCDWebServer-SBTUITestTunnel"
 end

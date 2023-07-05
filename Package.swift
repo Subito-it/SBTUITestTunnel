@@ -13,14 +13,16 @@ let package = Package(
             name: "SBTUITestTunnelClient",
             targets: ["SBTUITestTunnelClient"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/Subito-it/GCDWebServer.git", .revision("5b7f7a7d11f92a983ac5ec6c81d26c6c23376d98")),
-    ],
     targets: [
         .target(
             name: "SBTUITestTunnelServer",
-            dependencies: ["GCDWebServer", "SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
-            cSettings: [.define("SPM", to: "YES")]
+            dependencies: ["SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
+            cSettings: [
+              .define("SPM", to: "YES"),
+              .headerSearchPath("GCDWebServer/Core"),
+              .headerSearchPath("GCDWebServer/Requests"),
+              .headerSearchPath("GCDWebServer/Responses")
+            ]
         ),
         .target(
             name: "SBTUITestTunnelClientObjC",
