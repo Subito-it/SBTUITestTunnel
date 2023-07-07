@@ -19,12 +19,11 @@
 #endif
 
 @import SBTUITestTunnelCommon;
-@import GCDWebServer;
 @import CoreLocation;
 @import UserNotifications;
 
-#import "GCDWebServer.h"
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServer.h"
+#import "SBTWebServerPrivate.h"
 #import "include/SBTUITestTunnelServer.h"
 #import "include/SBTAnyViewControllerPreviewing.h"
 #import "include/UIViewController+SBTUITestTunnel.h"

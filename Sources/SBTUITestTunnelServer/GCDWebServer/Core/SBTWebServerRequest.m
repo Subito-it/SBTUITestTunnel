@@ -31,7 +31,7 @@
 
 #import <zlib.h>
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 NSString* const SBTWebServerRequestAttribute_RegexCaptures = @"SBTWebServerRequestAttribute_RegexCaptures";
 

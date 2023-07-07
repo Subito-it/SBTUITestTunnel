@@ -25,39 +25,30 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "GCDWebServerRequest.h"
+#import "SBTWebServerDataRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The SBTWebServerDataRequest subclass of SBTWebServerRequest stores the body
- *  of the HTTP request in memory.
+ *  The SBTWebServerURLEncodedFormRequest subclass of SBTWebServerRequest
+ *  parses the body of the HTTP request as a URL encoded form using
+ *  SBTWebServerParseURLEncodedForm().
  */
-@interface SBTWebServerDataRequest : SBTWebServerRequest
+@interface SBTWebServerURLEncodedFormRequest : SBTWebServerDataRequest
 
 /**
- *  Returns the data for the request body.
- */
-@property(nonatomic, readonly) NSData* data;
-
-@end
-
-@interface SBTWebServerDataRequest (Extensions)
-
-/**
- *  Returns the data for the request body interpreted as text. If the content
- *  type of the body is not a text one, or if an error occurs, nil is returned.
+ *  Returns the unescaped control names and values for the URL encoded form.
  *
  *  The text encoding used to interpret the data is extracted from the
  *  "Content-Type" header or defaults to UTF-8.
  */
-@property(nonatomic, readonly, nullable) NSString* text;
+@property(nonatomic, readonly) NSDictionary<NSString*, NSString*>* arguments;
 
 /**
- *  Returns the data for the request body interpreted as a JSON object. If the
- *  content type of the body is not JSON, or if an error occurs, nil is returned.
+ *  Returns the MIME type for URL encoded forms
+ *  i.e. "application/x-www-form-urlencoded".
  */
-@property(nonatomic, readonly, nullable) id jsonObject;
++ (NSString*)mimeType;
 
 @end
 

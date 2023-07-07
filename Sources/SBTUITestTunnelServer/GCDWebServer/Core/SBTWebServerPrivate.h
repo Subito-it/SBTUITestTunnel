@@ -32,21 +32,21 @@
  *  All SBTWebServer headers.
  */
 
-#import "GCDWebServerHTTPStatusCodes.h"
-#import "GCDWebServerFunctions.h"
+#import "SBTWebServerHTTPStatusCodes.h"
+#import "SBTWebServerFunctions.h"
 
-#import "GCDWebServer.h"
-#import "GCDWebServerConnection.h"
+#import "SBTWebServer.h"
+#import "SBTWebServerConnection.h"
 
-#import "GCDWebServerDataRequest.h"
-#import "GCDWebServerFileRequest.h"
-#import "GCDWebServerMultiPartFormRequest.h"
-#import "GCDWebServerURLEncodedFormRequest.h"
+#import "SBTWebServerDataRequest.h"
+#import "SBTWebServerFileRequest.h"
+#import "SBTWebServerMultiPartFormRequest.h"
+#import "SBTWebServerURLEncodedFormRequest.h"
 
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerErrorResponse.h"
-#import "GCDWebServerFileResponse.h"
-#import "GCDWebServerStreamedResponse.h"
+#import "SBTWebServerDataResponse.h"
+#import "SBTWebServerErrorResponse.h"
+#import "SBTWebServerFileResponse.h"
+#import "SBTWebServerStreamedResponse.h"
 
 /**
  *  Check if a custom logging facility should be used instead.

@@ -41,7 +41,7 @@
 #import <net/if.h>
 #import <netdb.h>
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 static NSDateFormatter* _dateFormatterRFC822 = nil;
 static NSDateFormatter* _dateFormatterISO8601 = nil;

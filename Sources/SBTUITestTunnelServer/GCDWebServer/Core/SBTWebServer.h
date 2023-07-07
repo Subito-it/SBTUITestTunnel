@@ -27,8 +27,8 @@
 
 #import <TargetConditionals.h>
 
-#import "GCDWebServerRequest.h"
-#import "GCDWebServerResponse.h"
+#import "SBTWebServerRequest.h"
+#import "SBTWebServerResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

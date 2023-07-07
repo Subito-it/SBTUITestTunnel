@@ -90,8 +90,8 @@ These code snippets show how to implement a custom HTTP server that runs on port
 
 **macOS version (command line tool):**
 ```objectivec
-#import "GCDWebServer.h"
-#import "GCDWebServerDataResponse.h"
+#import "SBTWebServer.h"
+#import "SBTWebServerDataResponse.h"
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
@@ -120,8 +120,8 @@ int main(int argc, const char* argv[]) {
 
 **iOS version:**
 ```objectivec
-#import "GCDWebServer.h"
-#import "GCDWebServerDataResponse.h"
+#import "SBTWebServer.h"
+#import "SBTWebServerDataResponse.h"
 
 @interface AppDelegate : NSObject <UIApplicationDelegate> {
   GCDWebServer* _webServer;
@@ -190,7 +190,7 @@ GCDWebUploader is a subclass of ```GCDWebServer``` that provides a ready-to-use 
 Simply instantiate and run a ```GCDWebUploader``` instance then visit ```http://{YOUR-IOS-DEVICE-IP-ADDRESS}/``` from your web browser:
 
 ```objectivec
-#import "GCDWebUploader.h"
+#import "SBTWebUploader.h"
 
 @interface AppDelegate : NSObject <UIApplicationDelegate> {
   GCDWebUploader* _webUploader;
@@ -220,7 +220,7 @@ GCDWebDAVServer should also work with the [macOS Finder](http://support.apple.co
 Simply instantiate and run a ```GCDWebDAVServer``` instance then connect to ```http://{YOUR-IOS-DEVICE-IP-ADDRESS}/``` using a WebDAV client:
 
 ```objectivec
-#import "GCDWebDAVServer.h"
+#import "SBTWebDAVServer.h"
 
 @interface AppDelegate : NSObject <UIApplicationDelegate> {
   GCDWebDAVServer* _davServer;
@@ -247,7 +247,7 @@ GCDWebServer includes a built-in handler that can recursively serve a directory 
 
 **macOS version (command line tool):**
 ```objectivec
-#import "GCDWebServer.h"
+#import "SBTWebServer.h"
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {

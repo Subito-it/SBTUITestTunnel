@@ -25,24 +25,39 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "GCDWebServerRequest.h"
+#import "SBTWebServerRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The SBTWebServerFileRequest subclass of SBTWebServerRequest stores the body
- *  of the HTTP request to a file on disk.
+ *  The SBTWebServerDataRequest subclass of SBTWebServerRequest stores the body
+ *  of the HTTP request in memory.
  */
-@interface SBTWebServerFileRequest : SBTWebServerRequest
+@interface SBTWebServerDataRequest : SBTWebServerRequest
 
 /**
- *  Returns the path to the temporary file containing the request body.
- *
- *  @warning This temporary file will be automatically deleted when the
- *  SBTWebServerFileRequest is deallocated. If you want to preserve this file,
- *  you must move it to a different location beforehand.
+ *  Returns the data for the request body.
  */
-@property(nonatomic, readonly) NSString* temporaryPath;
+@property(nonatomic, readonly) NSData* data;
+
+@end
+
+@interface SBTWebServerDataRequest (Extensions)
+
+/**
+ *  Returns the data for the request body interpreted as text. If the content
+ *  type of the body is not a text one, or if an error occurs, nil is returned.
+ *
+ *  The text encoding used to interpret the data is extracted from the
+ *  "Content-Type" header or defaults to UTF-8.
+ */
+@property(nonatomic, readonly, nullable) NSString* text;
+
+/**
+ *  Returns the data for the request body interpreted as a JSON object. If the
+ *  content type of the body is not JSON, or if an error occurs, nil is returned.
+ */
+@property(nonatomic, readonly, nullable) id jsonObject;
 
 @end
 

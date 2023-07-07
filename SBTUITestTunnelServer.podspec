@@ -24,6 +24,7 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.source_files = "Sources/SBTUITestTunnelServer/**/*.{h,m}"
+  s.private_header_files = "Sources/SBTUITestTunnelServer/GCDWebServer/Core/SBTWebServerPrivate.h"
 
   s.dependency "SBTUITestTunnelCommon", "#{s.version}"
 end

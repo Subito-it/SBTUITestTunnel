@@ -31,7 +31,7 @@
 
 #import <zlib.h>
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 #define kZlibErrorDomain @"ZlibErrorDomain"
 #define kGZipInitialBufferSize (256 * 1024)

@@ -29,7 +29,7 @@
 #error SBTWebServer requires ARC
 #endif
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 @implementation SBTWebServerErrorResponse
 

@@ -35,7 +35,7 @@
 #import <libkern/OSAtomic.h>
 #endif
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 #define kHeadersReadCapacity (1 * 1024)
 #define kBodyReadCapacity (256 * 1024)

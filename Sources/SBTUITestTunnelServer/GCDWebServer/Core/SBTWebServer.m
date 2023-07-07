@@ -40,7 +40,7 @@
 #import <netinet/in.h>
 #import <dns_sd.h>
 
-#import "GCDWebServerPrivate.h"
+#import "SBTWebServerPrivate.h"
 
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
 #define kDefaultPort 80
