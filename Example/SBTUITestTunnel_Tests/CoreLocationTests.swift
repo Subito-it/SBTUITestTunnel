@@ -105,7 +105,7 @@ class CoreLocationTests: XCTestCase {
                 app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
                 Thread.sleep(forTimeInterval: 1.0)
                 XCTAssertEqual(app.staticTexts["location_pos"].label, "-", "Unexpected update with status \(status)")
-                XCTAssertEqual(app.staticTexts["location_pos"].label, "-", "Unexpected update with status \(status)")
+                XCTAssertEqual(app.staticTexts["location_status_thread"].label, "Main", "Unexpected status update on Not main thread")
             }
         }
         
@@ -116,9 +116,11 @@ class CoreLocationTests: XCTestCase {
                 app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1 + statusIndex)])
 
                 wait(withTimeout: 2) {
-                    self.app.staticTexts["location_pos"].label == "44.0 \(11.1 + statusIndex)" &&
-                    self.app.staticTexts["location_thread"].label == "Main"
+                    self.app.staticTexts["location_pos"].label == "44.0 \(11.1 + statusIndex)"
                 }
+
+                XCTAssertEqual(app.staticTexts["location_thread"].label, "Main", "Unexpected location update on Not main thread")
+                XCTAssertEqual(app.staticTexts["location_status_thread"].label, "Main", "Unexpected status update on Not main thread")
 
                 statusIndex += 1.0
             }
