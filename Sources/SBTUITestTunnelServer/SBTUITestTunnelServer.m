@@ -1232,12 +1232,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
-                [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
+                });
             }
             #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
                 if (@available(iOS 14.0, *)) {
                     if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-                        [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
+                        });
                     }
                 }
             #endif
@@ -1317,7 +1321,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didFailWithError:)]) {
-                [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
+                });
             }
         }
     #endif
