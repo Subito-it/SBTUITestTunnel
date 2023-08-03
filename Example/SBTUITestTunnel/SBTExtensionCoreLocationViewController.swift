@@ -24,8 +24,9 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let stopLocationUpdateButton = UIButton()
     private let currentLocationButton = UIButton()
     private let statusLabel = UILabel()
+    private let statusThreadLabel = UILabel()
     private let locationLabel = UILabel()
-    private let threadLabel = UILabel()
+    private let locationThreadLabel = UILabel()
     private let currentLocationLabel = UILabel()
     private let locationManager = CLLocationManager()
 
@@ -38,13 +39,17 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         statusLabel.textColor = .black
         statusLabel.accessibilityIdentifier = "location_status"
 
+        statusThreadLabel.text = "-"
+        statusThreadLabel.textColor = .black
+        statusThreadLabel.accessibilityIdentifier = "location_status_thread"
+
         locationLabel.text = "-"
         locationLabel.textColor = .black
         locationLabel.accessibilityIdentifier = "location_pos"
 
-        threadLabel.text = "-"
-        threadLabel.textColor = .black
-        threadLabel.accessibilityIdentifier = "location_thread"
+        locationThreadLabel.text = "-"
+        locationThreadLabel.textColor = .black
+        locationThreadLabel.accessibilityIdentifier = "location_thread"
         
         currentLocationLabel.text = "-"
         currentLocationLabel.textColor = .black
@@ -65,8 +70,8 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         stopLocationUpdateButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
         currentLocationButton.addTarget(self, action: #selector(currentLocationTapped), for: .touchUpInside)
 
-        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel])
-        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, threadLabel, currentLocationLabel])
+        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel, statusThreadLabel])
+        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, locationThreadLabel, currentLocationLabel])
         let contentStack = UIStackView(arrangedSubviews: [statusStack, locationStack])
 
         [statusStack, locationStack, contentStack].forEach {
@@ -113,17 +118,21 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
 @available(iOS 14.0, *)
 extension SBTExtensionCoreLocationViewController {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let threadName = Thread.isMainThread ? "Main" : "Not main"
         DispatchQueue.main.async { [weak self] in
             self?.statusLabel.text = manager.authorizationStatus.description
+            self?.statusThreadLabel.text = threadName
         }
     }
 }
 
 extension SBTExtensionCoreLocationViewController {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        let threadName = Thread.isMainThread ? "Main" : "Not main"
         if #unavailable(iOS 14.0) {
             DispatchQueue.main.async { [weak self] in
                 self?.statusLabel.text = status.description
+                self?.statusThreadLabel.text = threadName
             }
         }
     }
@@ -134,7 +143,7 @@ extension SBTExtensionCoreLocationViewController {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
         DispatchQueue.main.async { [weak self] in
             self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
-            self?.threadLabel.text = threadName
+            self?.locationThreadLabel.text = threadName
         }
     }
 }
