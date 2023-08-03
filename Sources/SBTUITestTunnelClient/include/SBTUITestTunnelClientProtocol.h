@@ -550,6 +550,10 @@
 /**
  *  Enable CLLocationManager stubbing
  *
+ *  All calls to `CLLocationManagerDelegate` methods will be invoked on the `Main` thread, simplifying the requirements for [`CLLocationManager`](https://developer.apple.com/documentation/corelocation/cllocationmanager) :
+ *
+ *  _Core Location calls the methods of your delegate object using the NSRunLoop of the thread on which you initialized the CLLocationManager object. That thread must itself have an active NSRunLoop, like the one found in your app’s main thread._
+ *
  *  @param flag stubbing status
  *
  *  @return `YES` on success
@@ -559,20 +563,24 @@
 /**
  *  Stub CLLocationManager authorizationStatus
  *
- *  @param status location authorization status. The default value returned by `+[CLLocationManager authorizationStatus]` when enabling core location stubbing is kCLAuthorizationStatusAuthorizedAlways
+ *  @param status location authorization status. The default value returned by `+[CLLocationManager authorizationStatus]` when enabling core location stubbing is `kCLAuthorizationStatusAuthorizedAlways`
+ *
+ *  The `CLLocationManagerDelegate` methods: `locationManager:didChangeAuthorizationStatus:` and `locationManagerDidChangeAuthorization:` will be called on the `Main` thread.
  *
  *  @return `YES` on success
 */
 - (BOOL)coreLocationStubAuthorizationStatus:(CLAuthorizationStatus)status;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 /**
  *  Stub CLLocationManager accuracyAuthorization
  *
- *  @param authorization accuracy authorization. The default value returned by `CLLocationManager.accuracyAuthorization` when enabling core location stubbing is CLAccuracyAuthorizationFullAccuracy
+ *  @param authorization accuracy authorization. The default value returned by `CLLocationManager.accuracyAuthorization` when enabling core location stubbing is `CLAccuracyAuthorizationFullAccuracy`
+ *
+ *  The `CLLocationManagerDelegate` method `locationManagerDidChangeAuthorization:` will be called on the `Main` thread.
  *
  *  @return `YES` on success
 */
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (BOOL)coreLocationStubAccuracyAuthorization:(CLAccuracyAuthorization)authorization API_AVAILABLE(ios(14));
 #endif
 
@@ -587,18 +595,18 @@
 - (BOOL)coreLocationStubLocationServicesEnabled:(BOOL)flag;
 
 /**
- *  Tells all active CLLocationManager's delegates that the location manager
- *  has a new location data available.
+ *  Tells all active CLLocationManager's delegates that the location manager has a new location data available.
  *
  *  @param locations an array of CLLocation objects containing the location data. This array should always contains at least one object representing the current location
+ *
+ *  The `CLLocationManagerDelegate` method `locationManager:didUpdateLocations:` will be called on the `Main` thread.
  *
  *  @return `YES` on success
 */
 - (BOOL)coreLocationNotifyLocationUpdate:(nonnull NSArray<CLLocation *>*)locations;
 
 /**
- *  Updates the current location of all active CLLocationManager's at the
- *  provided location.
+ *  Updates the current location of all active CLLocationManager's at the provided location.
  *
  *  @param location a CLLocation object containing the location data
  *
@@ -607,10 +615,11 @@
 - (BOOL)coreLocationStubManagerLocation:(nullable CLLocation *)location;
 
 /**
- *  Tells all active CLLocationManager's delegates that the location manager
- *  was unable to retrieve a location value.
+ *  Tells all active CLLocationManager's delegates that the location manager was unable to retrieve a location value.
  *
  *  @param error the error object containing the reason the location or heading could not be retrieved.
+ *
+ *  The `CLLocationManagerDelegate` method `locationManager:didFailWithError:` will be called on the `Main` thread.
  *
  *  @return `YES` on success
 */
