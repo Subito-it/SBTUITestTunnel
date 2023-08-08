@@ -344,8 +344,23 @@ let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object
 
 ## Fine grain scrolling
 
-The tunnel adds methods to perform fine grain scrolling for table/collection/scroll views
+The tunnel adds methods to perform fine grain scrolling for table/collection/scroll views.
 
+### SwiftUI considerations
+
+**IMPORTANT:** when using SwiftUI it is crucial to ensure that you interact with the XCUIElement before invoking the scrolling APIs.
+
+For example:
+
+```
+app.button["Go to details"].tap()
+
+// Perform a query on the XCUIElement you will be calling the scroll methods, for
+// example checking for its existence
+XCTAssert(app.collectionViews["details"].exists) // <--
+app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
+
+```
 
 ### UITableView
 
