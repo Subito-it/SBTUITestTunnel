@@ -274,7 +274,9 @@ The library allows to rewrite the following elements of a network call:
 - response headers
 - response status code
 
-To rewrite a network request you pass the appropriate `SBTRequestMatch` and `SBTRewrite` objects
+To rewrite a network request you pass the appropriate `SBTRequestMatch` and `SBTRewrite` objects.
+
+**Note**: rewrite does not work on stubbed requests.
 
 #### SBTRewrite
 
