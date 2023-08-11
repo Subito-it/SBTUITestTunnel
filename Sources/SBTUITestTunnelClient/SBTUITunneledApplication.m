@@ -36,18 +36,32 @@
 
 - (void)launchTunnelWithOptions:(NSArray<NSString *> *)options startupBlock:(void (^)(void))startupBlock
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunguarded-availability-new"
+    [self openTunnelWithURL:nil options:options startupBlock:startupBlock];
+#pragma GCC diagnostic pop
+}
+
+- (void)launchTunnelWithOptions:(NSArray<NSString *> *)options url:(NSURL *)url startupBlock:(void (^)(void))startupBlock
+{
     NSMutableArray *launchArguments = [self.launchArguments mutableCopy];
     [launchArguments addObjectsFromArray:options];
 
     self.launchArguments = launchArguments;
 
-    [self launchTunnelWithStartupBlock: startupBlock];
+    [self openTunnelWithURL:url startupBlock:startupBlock];
 }
 
 # pragma mark - SBTUITestTunnelClientDelegate
 
-- (void)tunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender
+- (void)tunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender url:(NSURL *)url
 {
+    if (@available(iOS 16.4, *)) {
+        if (url) {
+            [self openURL:url];
+            return;
+        }
+    }
     [self launch];
 }
 
@@ -65,9 +79,19 @@
     [self.client launchTunnel];
 }
 
+- (void)openTunnelWithURL:(NSURL *)url API_AVAILABLE(ios(16.4))
+{
+    [self.client openTunnelWithURL:url];
+}
+
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
     [self.client launchTunnelWithStartupBlock:startupBlock];
+}
+
+- (void)openTunnelWithURL:(NSURL *)url startupBlock:(void (^)(void))startupBlock API_AVAILABLE(ios(16.4))
+{
+    [self.client openTunnelWithURL:url startupBlock:startupBlock];
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *,NSString *> *))command

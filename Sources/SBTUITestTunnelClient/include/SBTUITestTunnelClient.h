@@ -43,8 +43,9 @@ typedef enum: NSUInteger {
  It's required that you avoid launching until the delegate is called.
 
  @param sender An instance of the object sending the message.
+ @param url URL the app was launched with.
  */
-- (void)tunnelClientIsReadyToLaunch:(nonnull SBTUITestTunnelClient *)sender;
+- (void)tunnelClientIsReadyToLaunch:(nonnull SBTUITestTunnelClient *)sender url:(nullable NSURL *)url;
 @optional
 
 /**

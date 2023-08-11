@@ -25,16 +25,20 @@
 {
     [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnNil" block:^NSObject *(NSObject *object) {
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
 
         return nil;
     }];
     [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturn123" block:^NSObject *(NSObject *object) {
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:@"custom_command_test"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
 
         return @"123";
     }];
+
+    NSURL *url = [launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
+    if (url != nil) {
+        [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"launch_url_test"];
+    }
+
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
     if (@available(iOS 14.0, *)) {
         [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAccuracyAuth" block:^NSObject *(NSObject *object) {

@@ -34,4 +34,20 @@
  */
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
+/**
+ *  Launches the application synchronously using the provided URL waiting for
+ *  waiting for the tunnel server connection to be established.
+ *
+ *  @param options List of options to be passed on launch.
+ *  Valid options:
+ *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
+ *  SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
+ * 
+ *  @param url URL the app was launched with.
+ *  @param startupBlock Block that is executed before connection is estabilished.
+ *  Useful to inject startup condition (user settings, preferences).
+ *  Note: commands sent in the completionBlock will return nil
+ */
+- (void)openTunnelWithURL:(nullable NSURL *)url options:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock NS_SWIFT_NAME(openTunnel(url:options:startupBlock:)) API_AVAILABLE(ios(16.4));
+
 @end

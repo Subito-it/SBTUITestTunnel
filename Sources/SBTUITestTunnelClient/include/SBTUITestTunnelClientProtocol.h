@@ -30,6 +30,14 @@
 - (void)launchTunnel;
 
 /**
+ *  Launches the application synchronously using the provided URL waiting for
+ *  waiting for the tunnel server connection to be established.
+ *
+ *  @param url URL the app was launched with.
+ */
+- (void)openTunnelWithURL:(nullable NSURL *)url API_AVAILABLE(ios(16.4)) NS_SWIFT_NAME(openTunnel(url:));
+
+/**
  *  Launch application synchronously waiting for the tunnel server connection to be established.
  *
  *  @param startupBlock Block that is executed before connection is estabilished.
@@ -37,6 +45,17 @@
  *  Note: commands sent in the completionBlock will return nil
  */
 - (void)launchTunnelWithStartupBlock:(nullable void (^)(void))startupBlock;
+
+/**
+ *  Launches the application synchronously using the provided URL waiting for
+ *  waiting for the tunnel server connection to be established.
+ *
+ *  @param url URL the app was launched with.
+ *  @param startupBlock Block that is executed before connection is estabilished.
+ *  Useful to inject startup condition (user settings, preferences).
+ *  Note: commands sent in the completionBlock will return nil
+ */
+- (void)openTunnelWithURL:(nullable NSURL *)url startupBlock:(nullable void (^)(void))startupBlock API_AVAILABLE(ios(16.4)) NS_SWIFT_NAME(openTunnel(url:startupBlock:));
 
 /**
  *  Internal, don't use.

@@ -103,10 +103,26 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)launchTunnel
 {
-    [self launchTunnelWithStartupBlock:nil];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunguarded-availability-new"
+    [self openTunnelWithURL:nil startupBlock:nil];
+#pragma GCC diagnostic pop
+}
+
+- (void)openTunnelWithURL:(NSURL *)url API_AVAILABLE(ios(16.4)) NS_SWIFT_NAME(openTunnel(url:));
+{
+    [self openTunnelWithURL:url startupBlock:nil];
 }
 
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunguarded-availability-new"
+    [self openTunnelWithURL:nil startupBlock:startupBlock];
+#pragma GCC diagnostic pop
+}
+
+- (void)openTunnelWithURL:(NSURL *)url startupBlock:(void (^)(void))startupBlock
 {
     NSAssert([NSThread isMainThread], @"This method should be invoked from main thread");
     
@@ -177,7 +193,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         });
     }
     
-    [self.delegate tunnelClientIsReadyToLaunch:self];
+    [self.delegate tunnelClientIsReadyToLaunch:self url:url];
     
     while (YES) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];

@@ -240,4 +240,17 @@ class MiscellaneousTests: XCTestCase {
         
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
     }
+
+    // Skipped due to bug with XCUIApplication.openURL: https://developer.apple.com/forums/thread/25355?answerId=755101022#755101022
+    func skipped_testOpenTunnelWithURL() throws {
+        guard #available(iOS 16.4, *) else {
+            throw XCTSkip("Unsupported iOS version")
+        }
+
+        let url = URL(string: "www.google.com")!
+        app.openTunnel(url: url)
+
+        let actualLaunchURL = app.userDefaultsObject(forKey: "launch_url_test") as! URL
+        XCTAssertEqual(url, actualLaunchURL)
+    }
 }
