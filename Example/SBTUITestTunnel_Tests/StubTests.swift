@@ -778,6 +778,18 @@ class StubTests: XCTestCase {
 
             XCTAssertEqual(app.stubRequestsAll().count, 0)
         }
+        
+        XCTContext.runActivity(named: "Test multiple stubbing are deleted") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 2]))!
+
+            XCTAssertEqual(app.stubRequestsAll().count, 2)
+
+            XCTAssert(app.stubRequestsRemove(requestMatch: match))
+
+            XCTAssertEqual(app.stubRequestsAll().count, 0)
+        }
     }
 }
 
