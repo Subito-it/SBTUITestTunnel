@@ -332,7 +332,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
-- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+- (NSArray<SBTActiveStub *> *)stubRequestsAll
 {
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsAll params:nil];
     if (objectBase64) {

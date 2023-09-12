@@ -117,7 +117,7 @@
  *
  *  @return A dictionary containing all active stubs
  */
-- (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
+- (nonnull NSArray<SBTActiveStub *> *)stubRequestsAll;
 
 #pragma mark - Rewrite Commands
 

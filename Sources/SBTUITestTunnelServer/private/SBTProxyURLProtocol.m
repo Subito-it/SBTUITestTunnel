@@ -242,9 +242,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
 }
 
-+ (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+
++ (NSArray<SBTActiveStub *>*)stubRequestsAll
 {
-    NSMutableDictionary<SBTRequestMatch *, SBTStubResponse *> *activeStubs = [NSMutableDictionary dictionary];
+    NSMutableArray<SBTActiveStub *> *activeStubs = [NSMutableArray array];
     
     @synchronized (self.sharedInstance) {
         NSArray<NSDictionary *> *rules = self.sharedInstance.matchingRules;
@@ -252,7 +253,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
             SBTStubResponse *response = rule[SBTProxyURLProtocolStubResponse];
             
-            activeStubs[match] = response;
+            SBTActiveStub *activeStub = [[SBTActiveStub alloc] initWithMatch:match response:response];
+            [activeStubs addObject:activeStub];
         }
     }
     

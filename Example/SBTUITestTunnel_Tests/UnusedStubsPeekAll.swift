@@ -153,16 +153,17 @@ extension UnusedStubsPeekAllTests {
 }
 
 extension UnusedStubsPeekAllTests {
-    func unusedStubsPeekAll() -> [SBTRequestMatch: SBTStubResponse] {
-        app.stubRequestsAll().filter { $0.value.activeIterations > 0 }
+    func unusedStubsPeekAll() -> [SBTActiveStub] {
+        app.stubRequestsAll().filter { $0.response.activeIterations > 0 }
     }
     
-    func assertUnusedStubs(_ given: [SBTRequestMatch: SBTStubResponse],
+    func assertUnusedStubs(_ given: [SBTActiveStub],
                            expected: [SBTRequestMatch: Int],
                            file: StaticString = #file,
                            line: UInt = #line) {
-        let cleanGiven = given.mapValues { $0.activeIterations }
         
-        XCTAssertEqual(cleanGiven, expected, file: file, line: line)
+        for (expectedMatch, activeIterations) in expected {
+            XCTAssertNotNil(given.first(where: { $0.match == expectedMatch && $0.response.activeIterations == activeIterations }), file: file, line: line)
+        }
     }
 }

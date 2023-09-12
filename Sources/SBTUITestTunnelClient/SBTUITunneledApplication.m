@@ -125,7 +125,7 @@
     return [self.client stubRequestsRemoveAll];
 }
 
-- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+- (NSArray<SBTActiveStub *> *)stubRequestsAll
 {
     return [self.client stubRequestsAll];
 }
