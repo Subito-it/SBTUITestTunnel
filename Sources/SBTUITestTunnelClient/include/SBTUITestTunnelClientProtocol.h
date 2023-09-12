@@ -85,7 +85,7 @@
  *
  *  @return `YES` on success If `NO` the specified identifier wasn't associated to an active stub or request failed
  */
-- (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId;
+- (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId NS_SWIFT_NAME(stubRequestsRemove(id:));
 
 /**
  *  Remove a list of stubs
@@ -94,7 +94,8 @@
  *
  *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active stub or request failed
  */
-- (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds;
+- (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds NS_SWIFT_NAME(stubRequestsRemove(ids:));
+
 
 /**
  *  Remove all active stubs
