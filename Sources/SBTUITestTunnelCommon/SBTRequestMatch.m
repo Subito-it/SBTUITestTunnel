@@ -109,22 +109,22 @@
         return YES;
     } else if ([other isKindOfClass:[SBTRequestMatch class]]) {
         SBTRequestMatch *otherRequest = other;
-        if (self.url && ![self.url isEqualToString:otherRequest.url]) {
+        if ((self.url && ![self.url isEqualToString:otherRequest.url]) || (!self.url && otherRequest.url)) {
             return NO;
         }
-        if (self.query && ![self.query isEqual:otherRequest.query]) {
+        if ((self.query && ![self.query isEqual:otherRequest.query]) || (!self.query && otherRequest.query)) {
             return NO;
         }
-        if (self.method && ![self.method isEqualToString:otherRequest.method]) {
+        if ((self.method && ![self.method isEqualToString:otherRequest.method]) || (!self.method && otherRequest.method)) {
             return NO;
         }
-        if (self.body && ![self.body isEqualToString:otherRequest.body]) {
+        if ((self.body && ![self.body isEqualToString:otherRequest.body]) || (!self.body && otherRequest.body)) {
             return NO;
         }
-        if (self.requestHeaders && ![self.requestHeaders isEqual:otherRequest.requestHeaders]) {
+        if ((self.requestHeaders && ![self.requestHeaders isEqual:otherRequest.requestHeaders]) || (!self.requestHeaders && otherRequest.requestHeaders)) {
             return NO;
         }
-        if (self.responseHeaders && ![self.responseHeaders isEqual:otherRequest.responseHeaders]) {
+        if ((self.responseHeaders && ![self.responseHeaders isEqual:otherRequest.responseHeaders]) || (!self.responseHeaders && otherRequest.responseHeaders)) {
             return NO;
         }
 
