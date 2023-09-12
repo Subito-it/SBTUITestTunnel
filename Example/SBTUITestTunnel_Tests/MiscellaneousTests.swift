@@ -43,7 +43,7 @@ class MiscellaneousTests: XCTestCase {
         // Multiply the first one by two to give some room for variation
         let referenceMetric = try XCTUnwrap(durations.first) * 2
         XCTAssertTrue(
-            durations.allSatisfy({ $0 < referenceMetric }),
+            durations.allSatisfy { $0 < referenceMetric },
             "Stubbing took longer than expected: metrics \(durations) are higher than the reference \(referenceMetric)"
         )
     }
@@ -51,63 +51,63 @@ class MiscellaneousTests: XCTestCase {
     func testStartupCommands() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-        
+
         app.launchTunnel {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
         }
-        
+
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
-    
+
     func testStartupCommandsWaitsAppropriately() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-        
+
         var startupBlockProcessed = false
-        
+
         app.launchTunnel {
             self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
             self.app.setUserInterfaceAnimationsEnabled(false)
             Thread.sleep(forTimeInterval: 8.0)
             startupBlockProcessed = true
         }
-        
+
         XCTAssert(startupBlockProcessed)
     }
-    
+
     func testCustomCommand() {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
+
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         let retObj = app.performCustomCommandNamed("myCustomCommandReturnNil", object: NSString(string: randomString))
         let randomStringRemote = app.userDefaultsObject(forKey: "custom_command_test") as! String
         XCTAssertEqual(randomString, randomStringRemote)
         XCTAssertNil(retObj)
-        
+
         let randomString2 = ProcessInfo.processInfo.globallyUniqueString
         let retObj2 = app.performCustomCommandNamed("myCustomCommandReturn123", object: NSString(string: randomString2))
         let randomStringRemote2 = app.userDefaultsObject(forKey: "custom_command_test") as! String
         XCTAssertEqual(randomString2, randomStringRemote2)
         XCTAssertEqual("123", retObj2 as! String)
-        
+
         XCUIDevice.shared.press(XCUIDevice.Button.home)
         sleep(5)
         app.activate()
-        
+
         let retObj3 = app.performCustomCommandNamed("myCustomCommandReturn123", object: nil)
         XCTAssertNil(app.userDefaultsObject(forKey: "custom_command_test"))
         XCTAssertEqual("123", retObj3 as! String)
     }
-    
+
     func testStubWithFilename() {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
-        
+
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         let response = SBTStubResponse(fileNamed: "test_file.json")
         app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
-        
+
         app.cells["executeDataTaskRequest"].tap()
 
         let textResult = app.textViews["result"]
@@ -115,69 +115,69 @@ class MiscellaneousTests: XCTestCase {
         let result = app.textViews["result"].value as! String
         let resultData = Data(base64Encoded: result)!
         let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
-        
+
         let networkBase64 = resultDict["data"] as! String
         let networkString = String(data: Data(base64Encoded: networkBase64)!, encoding: .utf8)
-        
+
         let monitoredRequests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(monitoredRequests.count, 1)
         let responsetHeaders = monitoredRequests.first?.response?.allHeaderFields
-        
+
         XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
         XCTAssertEqual(responsetHeaders!["Content-Type"] as? String, "application/json")
     }
-    
+
     func testShutdown() {
         app.launchTunnel()
-        
+
         app.terminate()
         XCTAssert(app.wait(for: .notRunning, timeout: 5))
-        
+
         app.launchTunnel()
         XCTAssert(app.wait(for: .runningForeground, timeout: 5))
-        
+
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
         waitForExpectations(timeout: 15.0, handler: nil)
     }
-    
+
     func testLaunchArgumentsResetBetweenLaunches() {
         let userDefaultKey = "test_key"
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
         XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
-        
+
         let randomString = ProcessInfo.processInfo.globallyUniqueString
         app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
-        
+
         app.terminate()
-        
+
         Thread.sleep(forTimeInterval: 3.0)
-        
+
         app.launchTunnel()
         // UserDefaults shouldn't get reset
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as? String)
     }
-    
+
     func testTableViewScrolling() {
         app.launchTunnel()
-        
+
         app.cells["showExtensionTable1"].tap()
-        
+
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
-        
+
         XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRowIndex: 100, animated: false))
-        
+
         XCTAssert(app.staticTexts["Label5"].isHittable)
     }
-    
+
     func testTableViewScrolling2() {
         app.launchTunnel()
-        
+
         app.cells["showExtensionTable2"].tap()
-        
+
         XCTAssertFalse(app.staticTexts["80"].isHittable)
-        
+
         XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true))
-                
+
         XCTAssert(app.staticTexts["80"].isHittable)
     }
 
@@ -212,32 +212,32 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true))
         XCTAssert(app.staticTexts["40"].isHittable)
     }
-    
+
     func testScrollViewScrollToElement() {
         app.launchTunnel()
-        
+
         app.cells["showExtensionScrollView"].tap()
-        
+
         XCTAssertFalse(app.buttons["Button"].isHittable)
-        
+
         XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
-        
+
         XCTAssert(app.buttons["Button"].isHittable)
     }
-    
+
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
-        
+
         app.cells["showExtensionScrollView"].tap()
-        
+
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
-        
+
         XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 1.0, animated: true))
-        
+
         XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
-        
+
         XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.0, animated: true))
-        
+
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
     }
 }

@@ -22,16 +22,16 @@ import XCTest
 class UserDefaultsTest: XCTestCase {
     func testUserDefaults() {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-        
+
         let userDefaultKey = "test_key"
         // add and retrieve random string
         XCTAssertTrue(app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey))
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as! String)
-        
+
         // remove and check for nil
         XCTAssertTrue(app.userDefaultsRemoveObject(forKey: userDefaultKey))
         XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
-        
+
         // add again, remove all keys and check for nil item
         XCTAssertTrue(app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey))
         app.userDefaultsReset()
@@ -42,7 +42,7 @@ class UserDefaultsTest: XCTestCase {
 extension UserDefaultsTest {
     override func setUp() {
         SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
-        app.launchConnectionless { (path, params) -> String in
+        app.launchConnectionless { path, params -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }

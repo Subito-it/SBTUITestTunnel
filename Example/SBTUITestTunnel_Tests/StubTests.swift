@@ -544,14 +544,14 @@ class StubTests: XCTestCase {
         let stubId2 = app.stubRequests(matching: match2, response: SBTStubResponse(response: ["stubbed": 1]))!
 
         let stubs1 = app.stubRequestsAll()
-        
+
         XCTAssertEqual(stubs1.first(where: { $0.match == match1 })?.response.activeIterations, 2)
         XCTAssertEqual(stubs1.first(where: { $0.match == match2 })?.response.activeIterations, 0)
 
         app.stubRequestsRemove(id: stubId1)
 
         let stubs2 = app.stubRequestsAll()
-        
+
         XCTAssertNil(stubs2.first(where: { $0.match == match1 }))
         XCTAssertEqual(stubs2.first(where: { $0.match == match2 })?.response.activeIterations, 0)
 
@@ -573,7 +573,7 @@ class StubTests: XCTestCase {
 
         XCTAssertEqual(stubs1.first(where: { $0.match == match1 })?.response.activeIterations, 2)
         XCTAssertEqual(stubs1.first(where: { $0.match == match2 })?.response.activeIterations, 0)
-        
+
         app.stubRequestsRemoveAll()
 
         let stubs2 = app.stubRequestsAll()
@@ -778,7 +778,7 @@ class StubTests: XCTestCase {
 
             XCTAssertEqual(app.stubRequestsAll().count, 0)
         }
-        
+
         XCTContext.runActivity(named: "Test multiple stubbing are deleted") { _ in
             let match = SBTRequestMatch(url: "httpbin.org")
             _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
@@ -796,7 +796,7 @@ class StubTests: XCTestCase {
 extension StubTests {
     override func setUp() {
         SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
-        app.launchConnectionless { (path, params) -> String in
+        app.launchConnectionless { path, params -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)
         }
     }
