@@ -367,9 +367,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandStubRequestsRemove:(NSDictionary *)parameters
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0];
-    NSString *stubId = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
     
-    NSString *ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:stubId] ? @"YES" : @"NO";
+    id object = [NSKeyedUnarchiver unarchiveObjectWithData:responseData];
+    
+    NSString *ret = @"NO";
+    if ([object isKindOfClass:[NSString class]]) {
+        ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:(NSString *)object] ? @"YES" : @"NO";
+    } else if ([object isKindOfClass:[SBTRequestMatch class]]) {
+        ret = [SBTProxyURLProtocol stubRequestsRemoveWithRequestMatch:(SBTRequestMatch *)object] ? @"YES" : @"NO";
+    }
     
     return @{ SBTUITunnelResponseResultKey: ret };
 }

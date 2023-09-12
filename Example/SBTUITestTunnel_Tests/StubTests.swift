@@ -734,6 +734,51 @@ class StubTests: XCTestCase {
             XCTAssert(request.isNotConnectedError(result))
         }
     }
+    
+    func testStubRemoveByRequestMatch() {
+        XCTContext.runActivity(named: "Test stubbing is deleted successfully") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+
+            XCTAssertEqual(app.stubRequestsAll().count, 1)
+
+            XCTAssert(app.stubRequestsRemove(requestMatch: match))
+
+            XCTAssertEqual(app.stubRequestsAll().count, 0)
+        }
+
+        XCTContext.runActivity(named: "Test stubbing is not deleted on non stubbed request match") { _ in
+            let match1 = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
+            let match2 = SBTRequestMatch(url: "httpbin.org", method: "POST", body: "is a test")
+            _ = app.stubRequests(matching: match1, response: SBTStubResponse(response: ["stubbed": 1]))!
+
+            XCTAssertEqual(app.stubRequestsAll().count, 1)
+
+            XCTAssertFalse(app.stubRequestsRemove(requestMatch: match2))
+
+            XCTAssertEqual(app.stubRequestsAll().count, 1)
+
+            XCTAssert(app.stubRequestsRemoveAll())
+
+            XCTAssertEqual(app.stubRequestsAll().count, 0)
+        }
+        
+        XCTContext.runActivity(named: "Test stubbing is not deleted on non stubbed request match") { _ in
+            let match = SBTRequestMatch(url: "httpbin.org", method: "GET", body: "is a test")
+            _ = app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
+            match.query = ["aa"]
+            
+            XCTAssertEqual(app.stubRequestsAll().count, 1)
+            
+            XCTAssertFalse(app.stubRequestsRemove(requestMatch: match))
+            
+            XCTAssertEqual(app.stubRequestsAll().count, 1)
+            
+            XCTAssert(app.stubRequestsRemoveAll())
+         
+            XCTAssertEqual(app.stubRequestsAll().count, 0)
+        }
+    }
 }
 
 extension StubTests {

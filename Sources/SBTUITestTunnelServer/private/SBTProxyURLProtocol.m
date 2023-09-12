@@ -210,6 +210,23 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return itemsToDelete.count > 0;
 }
 
++ (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([matchingRule[SBTProxyURLProtocolMatchingRuleKey] isEqual:match] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+    
+    return itemsToDelete.count > 0;
+}
+
 + (void)stubRequestsRemoveAll
 {
     @synchronized (self.sharedInstance) {

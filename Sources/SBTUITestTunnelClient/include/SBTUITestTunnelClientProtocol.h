@@ -96,6 +96,14 @@
  */
 - (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds NS_SWIFT_NAME(stubRequestsRemove(ids:));
 
+/**
+ *  Remove stubs matching a specified request match
+ *
+ *  @param match The match object associated to the stub to be removed
+ *
+ *  @return `YES` on success If `NO` the specified matching rule was not associated to any active stubs or request failed
+ */
+- (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match NS_SWIFT_NAME(stubRequestsRemove(requestMatch:));
 
 /**
  *  Remove all active stubs
