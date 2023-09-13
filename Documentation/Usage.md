@@ -142,21 +142,24 @@ let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
 To stub a network request you pass the appropriate `SBTRequestMatch` and `SBTStubResponse` objects
 
 ```swift
-let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: SBTStubResponse(response: ["key": "value"])
+let match = SBTRequestMatch.url("google.com")
+let stubId = app.stubRequests(matching: match, response: SBTStubResponse(response: ["key": "value"])
 
 // from here on network requests containing 'google.com' will return a JSON {"key" : "value" }
 ...
 
-app.stubRequestsRemoveWithId(stubId) // To remove the stub either use the identifier
+app.stubRequestsRemove(id: stubId) // To remove the stub either use the identifier
+app.stubRequestsRemove(requestMatch: match) // or the SBTRequestMetch
 
-app.stubRequestsRemoveAll() // or remove all active stubs
+app.stubRequestsRemoveAll() // You can also choose to remove all active stubs
 ``` 
 
 You can get a list of the current active stubs
 
 ```swift
-let stubs: [SBTRequestMatch: SBTStubResponse] = app.stubRequestsAll()
+let stubs: [SBTActiveStub] = app.stubRequestsAll()
 ```
+
 
 #### SBTStubResponse
 
