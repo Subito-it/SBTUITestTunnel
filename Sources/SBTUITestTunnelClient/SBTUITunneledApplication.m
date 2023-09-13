@@ -115,12 +115,17 @@
     return [self.client stubRequestsRemoveWithIds:stubIds];
 }
 
+- (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
+{
+    return [self.client stubRequestsRemoveWithRequestMatch:match];
+}
+
 - (BOOL)stubRequestsRemoveAll
 {
     return [self.client stubRequestsRemoveAll];
 }
 
-- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+- (NSArray<SBTActiveStub *> *)stubRequestsAll
 {
     return [self.client stubRequestsAll];
 }

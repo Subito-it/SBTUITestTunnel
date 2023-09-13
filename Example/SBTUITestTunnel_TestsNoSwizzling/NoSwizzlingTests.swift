@@ -20,25 +20,25 @@ import XCTest
 
 class NoSwizzlingTests: XCTestCase {
     let app = MyCustomApplication()
-    
+
     override func setUp() {
         super.setUp()
-        
+
         app.launchTunnel()
-        
+
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
         waitForExpectations(timeout: 15.0, handler: nil)
-        
+
         Thread.sleep(forTimeInterval: 1.0)
     }
-    
+
     func testShutdown() {
         app.terminate()
         XCTAssert(app.wait(for: .notRunning, timeout: 5))
-        
+
         app.launchTunnel()
         XCTAssert(app.wait(for: .runningForeground, timeout: 5))
-        
+
         expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
         waitForExpectations(timeout: 15.0, handler: nil)
     }
@@ -50,12 +50,12 @@ class MyCustomApplication: XCUIApplication {
         client.delegate = self
         return client
     }()
-    
+
     func launchTunnel() {
         // Do any custom launch things
         client.launchTunnel()
     }
-    
+
     override func terminate() {
         // Do any custom tidy up things
         client.terminate()
@@ -63,15 +63,15 @@ class MyCustomApplication: XCUIApplication {
 }
 
 extension MyCustomApplication: SBTUITestTunnelClientDelegate {
-    func tunnelClientIsReady(toLaunch sender: SBTUITestTunnelClient) {
+    func tunnelClientIsReady(toLaunch _: SBTUITestTunnelClient) {
         // Call the XCUIApplication.lanuch() method
         launch()
     }
-    
-    func tunnelClient(_ sender: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
+
+    func tunnelClient(_: SBTUITestTunnelClient, didShutdownWithError error: Error?) {
         // optionally handle errors
         print(String(describing: error?.localizedDescription))
-        
+
         // Call the XCUIApplication.terminate() method
         super.terminate()
     }

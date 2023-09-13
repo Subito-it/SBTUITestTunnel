@@ -20,6 +20,7 @@
 @class SBTRequestMatch;
 @class SBTStubResponse;
 @class SBTMonitoredNetworkRequest;
+@class SBTActiveStub;
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 
@@ -43,8 +44,9 @@
 
 + (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match;
 + (void)stubRequestsRemoveAll;
-+ (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
++ (nonnull NSArray<SBTActiveStub *> *)stubRequestsAll;
 
 #pragma mark - Rewrite Requests
 

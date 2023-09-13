@@ -11,7 +11,6 @@ import SBTUITestTunnelClient
 import XCTest
 
 class NotificationCenterTests: XCTestCase {
-
     func testNotificationCenterStubAuthorizationRequestDefaultStatus() {
         app.launchTunnel()
         app.notificationCenterStubEnabled(true)

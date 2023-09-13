@@ -320,12 +320,19 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return ret;
 }
 
+- (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey: [self base64SerializeObject:match]};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemove params:params] isEqualToString:@"YES"];
+}
+
 - (BOOL)stubRequestsRemoveAll
 {
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemoveAll params:nil] boolValue];
 }
 
-- (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+- (NSArray<SBTActiveStub *> *)stubRequestsAll
 {
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsAll params:nil];
     if (objectBase64) {

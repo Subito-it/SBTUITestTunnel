@@ -19,10 +19,10 @@ import UIKit
 class SBTNetworkTestViewController: UIViewController {
     @IBOutlet var networkResult: UITextView!
     var networkResultString: String = ""
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         networkResult.text = networkResultString
     }
 }

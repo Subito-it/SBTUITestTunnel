@@ -8,9 +8,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ios: "15.5"
-            os: "macos-12"
-            xcode: "13.4.1"
           - ios: "16.2"
             os: "macos-latest"
             xcode: "14.2"

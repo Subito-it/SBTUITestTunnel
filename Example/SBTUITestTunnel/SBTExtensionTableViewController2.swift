@@ -15,27 +15,27 @@ import UIKit
 class SBTExtensionTableViewController2: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableView.accessibilityIdentifier = "table"
-        
+
         tableView.rowHeight = 150
     }
-    
+
     // MARK: - Table view data source
-    
-    override func numberOfSections(in tableView: UITableView) -> Int {
+
+    override func numberOfSections(in _: UITableView) -> Int {
         return 1
     }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return 100
     }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+    override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: "reuseIdentifier")
-        
+
         cell.textLabel?.text = "\(indexPath.row)"
-        
+
         return cell
     }
 }

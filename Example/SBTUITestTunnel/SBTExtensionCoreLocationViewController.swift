@@ -14,11 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import CoreLocation
+import UIKit
 
 class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManagerDelegate {
-
     private let authorizationButton = UIButton()
     private let updateLocationButton = UIButton()
     private let stopLocationUpdateButton = UIButton()
@@ -50,7 +49,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         locationThreadLabel.text = "-"
         locationThreadLabel.textColor = .black
         locationThreadLabel.accessibilityIdentifier = "location_thread"
-        
+
         currentLocationLabel.text = "-"
         currentLocationLabel.textColor = .black
         currentLocationLabel.accessibilityIdentifier = "manager_location"
@@ -84,29 +83,29 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         NSLayoutConstraint.activate([
             contentStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             contentStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+            contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
 
         locationManager.delegate = self
     }
 
-    @objc func updateTapped(_ sender: Any) {
+    @objc func updateTapped(_: Any) {
         locationManager.startUpdatingLocation()
     }
 
-    @objc func stopTapped(_ sender: Any) {
+    @objc func stopTapped(_: Any) {
         locationManager.stopUpdatingLocation()
     }
 
-    @objc func authorizationStatusTapped(_ sender: Any) {
+    @objc func authorizationStatusTapped(_: Any) {
         if #available(iOS 14.0, *) {
             statusLabel.text = "\(locationManager.authorizationStatus.description)"
         } else {
             statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
         }
     }
-    
-    @objc func currentLocationTapped(_ sender: Any) {
+
+    @objc func currentLocationTapped(_: Any) {
         if let location = locationManager.location {
             currentLocationLabel.text = "\(location.coordinate.latitude) \(location.coordinate.longitude)"
         } else {
@@ -127,7 +126,7 @@ extension SBTExtensionCoreLocationViewController {
 }
 
 extension SBTExtensionCoreLocationViewController {
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
         if #unavailable(iOS 14.0) {
             DispatchQueue.main.async { [weak self] in
@@ -139,7 +138,7 @@ extension SBTExtensionCoreLocationViewController {
 }
 
 extension SBTExtensionCoreLocationViewController {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
         DispatchQueue.main.async { [weak self] in
             self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")

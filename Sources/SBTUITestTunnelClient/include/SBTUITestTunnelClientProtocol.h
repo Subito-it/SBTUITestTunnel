@@ -85,7 +85,7 @@
  *
  *  @return `YES` on success If `NO` the specified identifier wasn't associated to an active stub or request failed
  */
-- (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId;
+- (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)stubId NS_SWIFT_NAME(stubRequestsRemove(id:));
 
 /**
  *  Remove a list of stubs
@@ -94,7 +94,16 @@
  *
  *  @return `YES` on success If `NO` one of the specified identifier were not associated to an active stub or request failed
  */
-- (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds;
+- (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)stubIds NS_SWIFT_NAME(stubRequestsRemove(ids:));
+
+/**
+ *  Remove stubs matching a specified request match
+ *
+ *  @param match The match object associated to the stub to be removed
+ *
+ *  @return `YES` on success If `NO` the specified matching rule was not associated to any active stubs or request failed
+ */
+- (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match NS_SWIFT_NAME(stubRequestsRemove(requestMatch:));
 
 /**
  *  Remove all active stubs
@@ -108,7 +117,7 @@
  *
  *  @return A dictionary containing all active stubs
  */
-- (nonnull NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll;
+- (nonnull NSArray<SBTActiveStub *> *)stubRequestsAll;
 
 #pragma mark - Rewrite Commands
 

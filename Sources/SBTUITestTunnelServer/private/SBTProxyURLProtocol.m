@@ -210,6 +210,23 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     return itemsToDelete.count > 0;
 }
 
++ (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
+{
+    NSMutableArray *itemsToDelete = [NSMutableArray array];
+    
+    @synchronized (self.sharedInstance) {
+        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
+            if ([matchingRule[SBTProxyURLProtocolMatchingRuleKey] isEqual:match] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
+                [itemsToDelete addObject:matchingRule];
+            }
+        }
+        
+        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
+    }
+    
+    return itemsToDelete.count > 0;
+}
+
 + (void)stubRequestsRemoveAll
 {
     @synchronized (self.sharedInstance) {
@@ -225,9 +242,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
 }
 
-+ (NSDictionary<SBTRequestMatch *, SBTStubResponse *> *)stubRequestsAll
+
++ (NSArray<SBTActiveStub *>*)stubRequestsAll
 {
-    NSMutableDictionary<SBTRequestMatch *, SBTStubResponse *> *activeStubs = [NSMutableDictionary dictionary];
+    NSMutableArray<SBTActiveStub *> *activeStubs = [NSMutableArray array];
     
     @synchronized (self.sharedInstance) {
         NSArray<NSDictionary *> *rules = self.sharedInstance.matchingRules;
@@ -235,7 +253,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
             SBTStubResponse *response = rule[SBTProxyURLProtocolStubResponse];
             
-            activeStubs[match] = response;
+            SBTActiveStub *activeStub = [[SBTActiveStub alloc] initWithMatch:match response:response];
+            [activeStubs addObject:activeStub];
         }
     }
     

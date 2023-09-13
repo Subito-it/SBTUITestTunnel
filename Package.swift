@@ -8,20 +8,22 @@ let package = Package(
     products: [
         .library(
             name: "SBTUITestTunnelServer",
-            targets: ["SBTUITestTunnelServer"]),
+            targets: ["SBTUITestTunnelServer"]
+        ),
         .library(
             name: "SBTUITestTunnelClient",
-            targets: ["SBTUITestTunnelClient"])
+            targets: ["SBTUITestTunnelClient"]
+        ),
     ],
     targets: [
         .target(
             name: "SBTUITestTunnelServer",
             dependencies: ["SBTUITestTunnelCommon", "SBTUITestTunnelCommonSwift"],
             cSettings: [
-              .define("SPM", to: "YES"),
-              .headerSearchPath("GCDWebServer/Core"),
-              .headerSearchPath("GCDWebServer/Requests"),
-              .headerSearchPath("GCDWebServer/Responses")
+                .define("SPM", to: "YES"),
+                .headerSearchPath("GCDWebServer/Core"),
+                .headerSearchPath("GCDWebServer/Requests"),
+                .headerSearchPath("GCDWebServer/Responses"),
             ]
         ),
         .target(
@@ -56,12 +58,12 @@ let package = Package(
                 .define("SPM", to: "YES"),
                 .headerSearchPath(".."),
                 .headerSearchPath("../Apple"),
-                .unsafeFlags(["-fno-objc-arc"])
+                .unsafeFlags(["-fno-objc-arc"]),
             ]
         ),
         .target(
             name: "SBTUITestTunnelCommonSwift",
-            dependencies: ["SBTUITestTunnelCommon"]            
-        )
+            dependencies: ["SBTUITestTunnelCommon"]
+        ),
     ]
 )
