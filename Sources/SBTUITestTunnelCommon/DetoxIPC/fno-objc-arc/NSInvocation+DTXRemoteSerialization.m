@@ -104,11 +104,7 @@ static id _encodeObject(id object, _DTXIPCDistantObject* distantObject)
 		
 		encodedObj[@"type"] = @"object";
 		encodedObj[@"className"] = NSStringFromClass(cls);
-        if (@available(iOS 11.0, *)) {
-            encodedObj[@"data"] = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:NO error:NULL];
-        } else {
-            encodedObj[@"data"] = [NSKeyedArchiver archivedDataWithRootObject:object error:NULL];
-        }
+        encodedObj[@"data"] = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:NO error:NULL];
 	}
 	
 	return encodedObj;
