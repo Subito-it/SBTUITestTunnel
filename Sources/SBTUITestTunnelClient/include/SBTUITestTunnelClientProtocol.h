@@ -115,7 +115,7 @@
 /**
  *  Returns all active stubs
  *
- *  @return A dictionary containing all active stubs
+ *  @return An array containing all active stubs
  */
 - (nonnull NSArray<SBTActiveStub *> *)stubRequestsAll;
 

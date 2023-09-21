@@ -338,12 +338,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
-        NSDictionary *result = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:objectData error:nil];
-        
-        return result ?: @{};
+        NSArray *result = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:objectData error:nil];
+
+        return result ?: @[];
     }
     
-    return @{};
+    return @[];
 }
 
 #pragma mark - Rewrite Commands
