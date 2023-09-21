@@ -299,7 +299,7 @@ static id _decodeObject(NSDictionary* encodedObj, DTXIPCConnection* connection)
 	}
 	else
 	{
-		NSKeyedUnarchiver* unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedObj[@"data"]];
+		NSKeyedUnarchiver* unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedObj[@"data"] error:NULL];
 		unarchiver.requiresSecureCoding = NO;
 		rv = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
 		[unarchiver release];
