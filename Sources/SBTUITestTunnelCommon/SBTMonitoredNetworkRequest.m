@@ -20,15 +20,19 @@
 
 @implementation SBTMonitoredNetworkRequest : NSObject
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
         self.timestamp = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(timestamp))];
         self.requestTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(requestTime))];
-        self.request = [decoder decodeObjectForKey:NSStringFromSelector(@selector(request))];
-        self.originalRequest = [decoder decodeObjectForKey:NSStringFromSelector(@selector(originalRequest))];
-        self.response = [decoder decodeObjectForKey:NSStringFromSelector(@selector(response))];
-        self.responseData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseData))];
+        self.request = [decoder decodeObjectOfClass:[NSURLRequest class] forKey:NSStringFromSelector(@selector(request))];
+        self.originalRequest = [decoder decodeObjectOfClass:[NSURLRequest class] forKey:NSStringFromSelector(@selector(originalRequest))];
+        self.response = [decoder decodeObjectOfClasses:[NSSet setWithObjects:[NSHTTPURLResponse class], [NSString class], [NSURLResponse class], nil] forKey:NSStringFromSelector(@selector(response))];
+        self.responseData = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(responseData))];
         self.isStubbed = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isStubbed))];
         self.isRewritten = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isRewritten))];
     }

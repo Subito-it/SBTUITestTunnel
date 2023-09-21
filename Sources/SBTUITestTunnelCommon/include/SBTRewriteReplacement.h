@@ -16,7 +16,7 @@
 
 @import Foundation;
 
-@interface SBTRewriteReplacement: NSObject<NSCoding, NSCopying>
+@interface SBTRewriteReplacement: NSObject<NSSecureCoding, NSCopying>
 
 /**
  *  Initializer

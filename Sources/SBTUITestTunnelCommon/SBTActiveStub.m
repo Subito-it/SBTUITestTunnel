@@ -20,6 +20,10 @@
 
 @implementation SBTActiveStub : NSObject
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithMatch:(SBTRequestMatch *)match response:(SBTStubResponse *)response
 {
     if (self = [super init]) {
@@ -33,8 +37,8 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.match = [decoder decodeObjectForKey:NSStringFromSelector(@selector(match))];
-        self.response = [decoder decodeObjectForKey:NSStringFromSelector(@selector(response))];
+        self.match = [decoder decodeObjectOfClass:[SBTRequestMatch class] forKey:NSStringFromSelector(@selector(match))];
+        self.response = [decoder decodeObjectOfClass:[SBTStubResponse class] forKey:NSStringFromSelector(@selector(response))];
     }
     
     return self;

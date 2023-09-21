@@ -18,7 +18,7 @@
 
 @class SBTRequestMatch;
 
-@interface SBTMonitoredNetworkRequest : NSObject<NSCoding>
+@interface SBTMonitoredNetworkRequest : NSObject<NSSecureCoding>
 
 - (nullable NSString *)responseString;
 - (nullable id)responseJSON;

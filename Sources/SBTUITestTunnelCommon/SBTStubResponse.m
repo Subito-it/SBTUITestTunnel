@@ -58,6 +58,10 @@ NSString * const SBTResponseContentTypePdf = @"application/pdf";
 
 static SBTResponseDefaults *_defaults;
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithResponse:(NSObject *)response
                          headers:(NSDictionary<NSString *, NSString *> *)headers
                      contentType:(NSString *)contentType
@@ -166,9 +170,12 @@ static SBTResponseDefaults *_defaults;
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.data = [decoder decodeObjectForKey:NSStringFromSelector(@selector(data))];
-        self.contentType = [decoder decodeObjectForKey:NSStringFromSelector(@selector(contentType))];
-        self.headers = [decoder decodeObjectForKey:NSStringFromSelector(@selector(headers))];
+        self.data = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(data))];
+        self.contentType = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(contentType))];
+
+        NSSet *dictClasses = [NSSet setWithObjects:[NSDictionary class], [NSString class], nil];
+        self.headers = [decoder decodeObjectOfClasses:dictClasses forKey:NSStringFromSelector(@selector(headers))];
+
         self.returnCode = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(returnCode))];
         self.responseTime = [decoder decodeDoubleForKey:NSStringFromSelector(@selector(responseTime))];
         self.activeIterations = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(activeIterations))];

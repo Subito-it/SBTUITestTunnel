@@ -25,6 +25,10 @@
 
 @implementation SBTRewriteReplacement : NSObject
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithFind:(NSString *)find replace:(NSString *)replace
 {
     if (self = [super init]) {
@@ -38,8 +42,8 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.findData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(findData))];
-        self.replaceData = [decoder decodeObjectForKey:NSStringFromSelector(@selector(replaceData))];
+        self.findData = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(findData))];
+        self.replaceData = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(replaceData))];
     }
     
     return self;
