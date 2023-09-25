@@ -393,7 +393,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *ret = nil;
     
-    NSDictionary *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
+    NSArray *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
     
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs requiringSecureCoding:NO error:nil];
     if (data) {
