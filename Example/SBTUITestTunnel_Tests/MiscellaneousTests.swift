@@ -121,10 +121,10 @@ class MiscellaneousTests: XCTestCase {
 
         let monitoredRequests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(monitoredRequests.count, 1)
-        let responsetHeaders = monitoredRequests.first?.response?.allHeaderFields
+        let responseHeaders = monitoredRequests.first?.response?.allHeaderFields
 
         XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
-        XCTAssertEqual(responsetHeaders!["Content-Type"] as? String, "application/json")
+        XCTAssertEqual(responseHeaders?["Content-Type"] as? String, "application/json")
     }
 
     func testShutdown() {

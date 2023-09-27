@@ -18,7 +18,7 @@
 
 @class SBTRewriteReplacement;
 
-@interface SBTRewrite: NSObject<NSCoding>
+@interface SBTRewrite: NSObject<NSSecureCoding>
 
 @property (nonnull, nonatomic, strong) NSArray<SBTRewriteReplacement *> *urlReplacement;
 @property (nonnull, nonatomic, strong) NSArray<SBTRewriteReplacement *> *requestReplacement;

@@ -19,6 +19,10 @@
 
 @implementation SBTRewrite : NSObject
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithUrlReplacement:(NSArray<SBTRewriteReplacement *> *)urlReplacement
                     requestReplacement:(NSArray<SBTRewriteReplacement *> *)requestReplacement
                    responseReplacement:(NSArray<SBTRewriteReplacement *> *)responseReplacement
@@ -43,11 +47,15 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.urlReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(urlReplacement))];
-        self.requestReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestReplacement))];
-        self.responseReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseReplacement))];
-        self.requestHeadersReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeadersReplacement))];
-        self.responseHeadersReplacement = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeadersReplacement))];
+        NSSet *replacementClasses = [NSSet setWithObjects:[NSArray class], [SBTRewriteReplacement class], nil];
+        self.urlReplacement = [decoder decodeObjectOfClasses:replacementClasses forKey:NSStringFromSelector(@selector(urlReplacement))];
+        self.requestReplacement = [decoder decodeObjectOfClasses:replacementClasses forKey:NSStringFromSelector(@selector(requestReplacement))];
+        self.responseReplacement = [decoder decodeObjectOfClasses:replacementClasses forKey:NSStringFromSelector(@selector(responseReplacement))];
+
+        NSSet *dictClasses = [NSSet setWithObjects:[NSDictionary class], [NSString class], nil];
+        self.requestHeadersReplacement = [decoder decodeObjectOfClasses:dictClasses forKey:NSStringFromSelector(@selector(requestHeadersReplacement))];
+        self.responseHeadersReplacement = [decoder decodeObjectOfClasses:dictClasses forKey:NSStringFromSelector(@selector(responseHeadersReplacement))];
+        
         self.responseStatusCode = [decoder decodeIntForKey:NSStringFromSelector(@selector(responseStatusCode))];
         self.activeIterations = [decoder decodeIntForKey:NSStringFromSelector(@selector(activeIterations))];
     }

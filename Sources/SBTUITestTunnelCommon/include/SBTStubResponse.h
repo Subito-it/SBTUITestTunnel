@@ -16,7 +16,7 @@
 
 @import Foundation;
 
-@interface SBTStubResponse: NSObject<NSCoding, NSCopying>
+@interface SBTStubResponse: NSObject<NSSecureCoding, NSCopying>
 
 /// Set the default response time for all SBTStubResponses when not specified in intializer. If positive, the amount of time used to send the entire response. If negative, the rate in KB/s at which to send the response data. Use SBTUITunnelStubsDownloadSpeed* constants
 @property (class, nonatomic, assign) NSTimeInterval defaultResponseTime;

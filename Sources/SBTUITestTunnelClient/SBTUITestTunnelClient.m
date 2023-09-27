@@ -337,8 +337,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSString *objectBase64 = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsAll params:nil];
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
-        
-        NSArray *result = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:objectData error:nil];
+
+        NSError *unarchiveError;
+        NSSet *classes = [NSSet setWithObjects:[NSArray class], [SBTActiveStub class], nil];
+        NSArray *result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:objectData error:&unarchiveError];
+        NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of SBTActiveStub");
 
         return result ?: @[];
     }
@@ -396,7 +399,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
-        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
+        NSError *unarchiveError;
+        NSSet *classes = [NSSet setWithObjects:[NSArray class], [SBTMonitoredNetworkRequest class], nil];
+        NSArray *result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:objectData error:&unarchiveError];
+        NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of SBTMonitoredNetworkRequest");
+
+        return result ?: @[];
     }
     
     return @[];
@@ -408,7 +416,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
-        return [NSKeyedUnarchiver unarchiveObjectWithData:objectData] ?: @[];
+        NSError *unarchiveError;
+        NSSet *classes = [NSSet setWithObjects:[NSArray class], [SBTMonitoredNetworkRequest class], nil];
+        NSArray *result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:objectData error:&unarchiveError];
+        NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of SBTMonitoredNetworkRequest");
+
+        return result ?: @[];
     }
     
     return @[];
@@ -585,8 +598,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
-        
+
+        // this can't switch to the non-deprecated NSSecureCoding method because the types aren't known ahead of time
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+        #pragma clang diagnostic pop
     }
     
     return nil;
@@ -608,7 +625,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
         
+        // this can't switch to the non-deprecated NSSecureCoding method because the types aren't known ahead of time
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+        #pragma clang diagnostic pop
     }
     
     return nil;
@@ -642,8 +663,13 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     if (itemsBase64) {
         NSData *itemsData = [[NSData alloc] initWithBase64EncodedString:itemsBase64 options:0];
-        
-        return [NSKeyedUnarchiver unarchiveObjectWithData:itemsData];
+
+        NSError *unarchiveError;
+        NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSData class], nil];
+        NSArray *result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:itemsData error:&unarchiveError];
+        NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of NSData");
+
+        return result;
     }
     
     return nil;
@@ -660,8 +686,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     if (objectBase64) {
         NSData *objectData = [[NSData alloc] initWithBase64EncodedString:objectBase64 options:0];
-        
+
+        // this can't switch to the non-deprecated NSSecureCoding method because the types aren't known ahead of time
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         return [NSKeyedUnarchiver unarchiveObjectWithData:objectData];
+        #pragma clang diagnostic pop
     }
     
     return nil;

@@ -16,7 +16,7 @@
 
 @import Foundation;
 
-@interface SBTRequestMatch: NSObject<NSCoding, NSCopying>
+@interface SBTRequestMatch: NSObject<NSSecureCoding, NSCopying>
 
 /// A regex that is matched against the request url
 @property (nullable, nonatomic, strong) NSString *url;

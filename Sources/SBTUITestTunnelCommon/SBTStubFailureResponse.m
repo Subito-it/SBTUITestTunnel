@@ -18,6 +18,10 @@
 
 @implementation SBTStubFailureResponse
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (nonnull instancetype)initWithFailureCode:(NSInteger)failureCode
                                responseTime:(NSTimeInterval)responseTime
                            activeIterations:(NSInteger)activeIterations;

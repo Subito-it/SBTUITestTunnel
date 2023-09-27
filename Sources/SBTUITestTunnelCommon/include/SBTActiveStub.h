@@ -18,7 +18,7 @@
 
 @class SBTRequestMatch, SBTStubResponse;
 
-@interface SBTActiveStub: NSObject<NSCoding, NSCopying>
+@interface SBTActiveStub: NSObject<NSSecureCoding, NSCopying>
 
 /// The request match
 @property (nonnull, nonatomic, strong) SBTRequestMatch *match;

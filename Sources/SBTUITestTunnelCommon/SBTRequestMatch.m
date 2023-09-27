@@ -44,6 +44,10 @@
 
 @implementation SBTRequestMatch : NSObject
 
++ (BOOL)supportsSecureCoding {
+    return YES;
+}
+
 - (instancetype)initWithURL:(NSString *)url query:(NSArray<NSString *> *)query method:(NSString *)method body:(NSString *)body requestHeaders:(NSDictionary<NSString *,NSString *> *)requestHeaders responseHeaders:(NSDictionary<NSString *,NSString *> *)responseHeaders
 {
     if (self = [super init]) {
@@ -61,12 +65,14 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init]) {
-        self.url = [decoder decodeObjectForKey:NSStringFromSelector(@selector(url))];
-        self.query = [decoder decodeObjectForKey:NSStringFromSelector(@selector(query))];
-        self.method = [decoder decodeObjectForKey:NSStringFromSelector(@selector(method))];
-        self.body = [decoder decodeObjectForKey:NSStringFromSelector(@selector(body))];
-        self.requestHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(requestHeaders))];
-        self.responseHeaders = [decoder decodeObjectForKey:NSStringFromSelector(@selector(responseHeaders))];
+        self.url = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(url))];
+        self.query = [decoder decodeObjectOfClasses:[NSSet setWithObjects:[NSArray class], [NSString class], nil] forKey:NSStringFromSelector(@selector(query))];
+        self.method = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(method))];
+        self.body = [decoder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(body))];
+
+        NSSet *dictClasses = [NSSet setWithObjects:[NSDictionary class], [NSString class], nil];
+        self.requestHeaders = [decoder decodeObjectOfClasses:dictClasses forKey:NSStringFromSelector(@selector(requestHeaders))];
+        self.responseHeaders = [decoder decodeObjectOfClasses:dictClasses forKey:NSStringFromSelector(@selector(responseHeaders))];
     }
     
     return self;
