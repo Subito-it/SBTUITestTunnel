@@ -23,6 +23,7 @@
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
 #import "SBTIPCTunnel.h"
+#import "SBTActiveStub.h"
 
 #ifdef SPM
     #import "../DetoxIPC/DTXIPCConnection.h"
