@@ -451,7 +451,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
                     if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
                         // don't handle double (or more) redirects
-                        [NSURLProtocol setProperty:request forKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest];
+                        [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
                     }
                     
                     [client URLProtocol:strongSelf wasRedirectedToRequest:redirectionRequest redirectResponse:strongSelf.response];
@@ -586,7 +586,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
     }
     
-    NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+    NSURLRequest *originalRequest = [[self class] originalRequestFor:request];
     
     if ([self monitorRuleFromMatchingRules:matchingRules] != nil) {
         SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
@@ -630,7 +630,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:mRequest];
     if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:mRequest]) {
         // don't handle double (or more) redirects
-        [NSURLProtocol setProperty:self.request forKey:SBTProxyURLOriginalRequestKey inRequest:mRequest];
+        [[self class] associateOriginalRequest:self.request withRequest:mRequest];
     }
     
     [self.client URLProtocol:self wasRedirectedToRequest:mRequest redirectResponse:response];
@@ -711,7 +711,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
             if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
-                NSURLRequest *originalRequest = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+                NSURLRequest *originalRequest = [self originalRequestFor:request];
                 
                 SBTRequestMatch *match = matchingRule[SBTProxyURLProtocolMatchingRuleKey];
                 if ([match matchesURLRequest:originalRequest ?: request]) {
@@ -805,6 +805,41 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     return nil;
+}
+
+// NSURLProtocol emits a runtime warning when a non-plist type is given to `setProperty`:
+//
+//    API MISUSE: properties set by +[NSURLProtocol setProperty:forKey:inRequest:] should only include property
+//    list types (NSArray, NSDictionary, NSString, NSData, NSDate, NSNumber).
+//
+// The methods below perform serialization for NSURLRequest types before/after they are sent through NSURLProtocol.
+
+/// Finds the original request in NSURLProtocol and deserializes it
++ (NSURLRequest *)originalRequestFor:(NSURLRequest*)request {
+    NSData *serializedOriginal = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+    NSURLRequest *originalRequest = nil;
+
+    if (serializedOriginal) {
+        // needs to be deserialized after retrieving from NSURLProtocol
+        NSError *unarchiveError;
+        NSSet *classes = [NSSet setWithObjects:[NSURLRequest class], [NSMutableURLRequest class], nil];
+        originalRequest = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:serializedOriginal error:&unarchiveError];
+        NSAssert(unarchiveError == nil, @"Error unarchiving NSURLRequest from NSURLProtocol");
+    }
+
+    return originalRequest;
+}
+
+/// Associates the original request to the current request by serializing and storing it
++ (void)associateOriginalRequest:(NSURLRequest *)original withRequest:(NSMutableURLRequest*)request {
+    // serialize the request since only plist values should be given to `setProperty:`
+    NSError *archiveError;
+    NSData *serializedOriginal = [NSKeyedArchiver archivedDataWithRootObject:original
+                                                       requiringSecureCoding:YES
+                                                                       error:&archiveError];
+    NSAssert(archiveError == nil, @"Error archiving NSURLRequest for NSURLProtocol");
+
+    [NSURLProtocol setProperty:serializedOriginal forKey:SBTProxyURLOriginalRequestKey inRequest:request];
 }
 
 @end
