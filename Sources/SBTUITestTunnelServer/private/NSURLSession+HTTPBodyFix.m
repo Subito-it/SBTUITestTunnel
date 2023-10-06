@@ -22,32 +22,50 @@
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData
 {
-    if ([request isKindOfClass:[NSMutableURLRequest class]] && bodyData) {
-        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
+    // remove the body to avoid a CFNetwork warning
+    NSURLRequest *requestWithoutBody = [request sbt_copyWithoutBody];
+
+    if ([requestWithoutBody isKindOfClass:[NSMutableURLRequest class]] && bodyData) {
+        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)requestWithoutBody];
+
+        // mark this as an upload request so future code knows to find the body via NSURLProtocol instead
+        [requestWithoutBody sbt_markUploadTaskRequest];
     }
     
-    return [self swz_uploadTaskWithRequest:request fromData:bodyData];
+    return [self swz_uploadTaskWithRequest:requestWithoutBody fromData:bodyData];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL
 {
-    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
+    // remove the body to avoid a CFNetwork warning
+    NSURLRequest *requestWithoutBody = [request sbt_copyWithoutBody];
+
+    if ([requestWithoutBody isKindOfClass:[NSMutableURLRequest class]]) {
         NSData *bodyData = [NSData dataWithContentsOfURL:fileURL];
         if (bodyData) {
-            [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
+            [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)requestWithoutBody];
+
+            // mark this as an upload request so future code knows to find the body via NSURLProtocol instead
+            [requestWithoutBody sbt_markUploadTaskRequest];
         }
     }
     
-    return [self swz_uploadTaskWithRequest:request fromFile:fileURL];
+    return [self swz_uploadTaskWithRequest:requestWithoutBody fromFile:fileURL];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 {
-    if ([request isKindOfClass:[NSMutableURLRequest class]] && bodyData) {
-        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
+    // remove the body to avoid a CFNetwork warning
+    NSURLRequest *requestWithoutBody = [request sbt_copyWithoutBody];
+
+    if ([requestWithoutBody isKindOfClass:[NSMutableURLRequest class]] && bodyData) {
+        [NSURLProtocol setProperty:bodyData forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)requestWithoutBody];
+
+        // mark this as an upload request so future code knows to find the body via NSURLProtocol instead
+        [requestWithoutBody sbt_markUploadTaskRequest];
     }
-    
-    return [self swz_uploadTaskWithRequest:request fromData:bodyData completionHandler:completionHandler];
+
+    return [self swz_uploadTaskWithRequest:requestWithoutBody fromData:bodyData completionHandler:completionHandler];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
