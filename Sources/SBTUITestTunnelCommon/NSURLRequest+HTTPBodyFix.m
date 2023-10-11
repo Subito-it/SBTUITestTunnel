@@ -20,8 +20,65 @@
 
 @implementation NSURLRequest (HTTPBodyFix)
 
+// In Xcode 15+ CFNetwork emits a runtime warning when an upload task contains a body:
+//
+//     The request of a upload task should not contain a body or a body stream, use `upload(for:fromFile:)`,
+//     `upload(for:from:)`, or supply the body stream through the `urlSession(_:needNewBodyStreamForTask:)`
+//     delegate method.
+//
+// To work around this, we keep track of requests originating from upload tasks by swizzling in
+// `NSURLSession+HTTPBodyFix`.  For those tasks, we save the original body via NSURLProtocol and remove it
+// from the request to avoid the warning.
+//
+// When using a request body (e.g., when matching stubs), previously marked upload requests _must_ exclusively
+// reference the copy from NSURLProtocol because the request's `HTTPBody` was cleared.
+
+NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSURLProtocolIsUploadTaskKey";
+
+- (NSData *)sbt_uploadHTTPBody
+{
+    return [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+}
+
+- (BOOL)sbt_isUploadTaskRequest
+{
+    return ([NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:self] != nil);
+}
+
+- (void)sbt_markUploadTaskRequest
+{
+    NSAssert([self isKindOfClass:[NSMutableURLRequest class]], @"Attempted to mark an immutable request as an upload");
+
+    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+        [NSURLProtocol setProperty:@YES forKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:(NSMutableURLRequest *)self];
+    }
+}
+
+- (NSURLRequest *)sbt_copyWithoutBody
+{
+    NSMutableURLRequest *modifiedRequest = [self mutableCopy];
+
+    // clear the body and assume callers are providing that data elsewhere
+    modifiedRequest.HTTPBody = nil;
+    modifiedRequest.HTTPBodyStream = nil;
+
+    // retain the original mutability
+    if ([self isKindOfClass:[NSMutableURLRequest class]]) {
+        return modifiedRequest;
+    } else {
+        return [modifiedRequest copy];
+    }
+}
+
+// MARK: -
+
 - (NSData *)swz_HTTPBody
 {
+    // upload tasks will trigger a runtime warning if their body is non-nil, see note above
+    if ([self sbt_isUploadTaskRequest]) {
+        return nil;
+    }
+
     NSData *ret = [self swz_HTTPBody];
         
     return ret ?: [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];

@@ -20,4 +20,18 @@
 
 @interface NSURLRequest (HTTPBodyFix)
 
+/// Determines if this request was originally associated with an upload task
+///
+/// When true, callers should use `sbt_uploadHTTPBody` to get the original body since `HTTPBody` will always be nil.
+- (BOOL)sbt_isUploadTaskRequest;
+
+/// Marks this request as associated with an upload task
+- (void)sbt_markUploadTaskRequest;
+
+/// Fetches an upload task's body from NSURLProtocol
+- (NSData*)sbt_uploadHTTPBody;
+
+/// Returns a copy of the request without the HTTP body
+- (NSURLRequest*)sbt_copyWithoutBody;
+
 @end
