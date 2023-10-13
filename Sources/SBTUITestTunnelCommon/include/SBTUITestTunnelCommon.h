@@ -24,6 +24,7 @@
 #import "SBTUITestTunnel.h"
 #import "SBTIPCTunnel.h"
 #import "SBTActiveStub.h"
+#import "NSURLRequest+HTTPBodyFix.h"
 
 #ifdef SPM
     #import "../DetoxIPC/DTXIPCConnection.h"
