@@ -76,8 +76,10 @@ push_to_trunk_readme.md
 # XcodeGen
 Example/Pods/
 Example/Podfile.lock
-Example/SBTUITestTunnel.xcodeproj/
-Example/SBTUITestTunnel.xcworkspace/
+*.xcodeproj/
+*.xcworkspace/
+*.xcresult/
 
 # SwiftPM resolved files
 *.resolved
+.swiftpm

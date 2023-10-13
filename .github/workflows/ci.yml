@@ -26,16 +26,16 @@ jobs:
         run: |
           sudo xcversion installed
           sudo xcversion select ${{ matrix.xcode }}
-      - name: Generate project
+      - name: Generate projects;
         run: |
-          cd Example
-          xcodegen
+          cd Example; xcodegen
+          cd SPM; xcodegen
       - name: Build App
         run: |
-          Scripts/run_build.rb
+          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
       - name: Run UI Tests
         run: |
-          Scripts/run_uitests.rb
+          Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect UI Tests artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -44,10 +44,16 @@ jobs:
         if: success() || failure()
       - name: Run no swizzling UI Tests
         run: |
-          Scripts/run_uitests_no_swizzling.rb
+          Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v3
         with:
           name: SBTUITestTunnel_TestsNoSwizzling_iOS_${{ matrix.ios }}.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
         if: success() || failure()
+      - name: Build SPM App
+        run: |
+          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      - name: Run SPM UI Tests
+        run: |
+          Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
