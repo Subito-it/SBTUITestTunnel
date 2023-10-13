@@ -44,7 +44,7 @@ jobs:
         if: success() || failure()
       - name: Run no swizzling UI Tests
         run: |
-          Scripts/run_uitests_no_swizzling.rb
+          Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v3
         with:
