@@ -1,0 +1,37 @@
+name: SBTUITestTunnel
+options:
+  bundleIdPrefix: com.tunnel.spm
+  deploymentTarget:
+    iOS: '15.0'
+packages:
+  SBTUITestTunnelServer:
+    path: ../..
+  SBTUITestTunnelClient:
+    path: ../..
+targets:
+  App:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: SBTUITestTunnelServer
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - package: SBTUITestTunnelClient
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SBTUITestTunnel_Example:
+    build:
+      targets:
+        App: [all]
+        UITests: [test]
+    run:
+      executable: App
+      buildConfiguration: Debug
+    test:
+      targets:
+        - UITests
