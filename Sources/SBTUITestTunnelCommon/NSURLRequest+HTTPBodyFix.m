@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "private/NSURLRequest+HTTPBodyFix.h"
+#import "include/NSURLRequest+HTTPBodyFix.h"
 #import "include/SBTUITestTunnel.h"
 #import "include/SBTSwizzleHelpers.h"
 

@@ -15,8 +15,8 @@
 // limitations under the License.
 
 #import "include/SBTRequestMatch.h"
+#import "include/NSURLRequest+HTTPBodyFix.h"
 #import "private/SBTRegularExpressionMatcher.h"
-#import "private/NSURLRequest+HTTPBodyFix.h"
 
 @implementation NSDictionary (Matcher)
 
