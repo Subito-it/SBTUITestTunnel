@@ -78,6 +78,7 @@ Example/Pods/
 Example/Podfile.lock
 *.xcodeproj/
 *.xcworkspace/
+*.xcresult/
 
 # SwiftPM resolved files
 *.resolved
