@@ -4,28 +4,23 @@ on: [pull_request]
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ios: "16.2"
-            os: "macos-latest"
-            xcode: "14.2"
-    name: Run UI Test on iOS ${{ matrix.ios }}
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-13 # macos-latest does not ship with Xcode 15
+
+    name: Run UI Test on iOS
     env:
-      platform: ${{ 'iOS Simulator' }}
+      xcode_version: "15.2"
     steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install required tools
         run: |
           brew update
           brew install xcodegen
-      - name: Select Xcode version ${{ matrix.xcode }}
-        run: |
-          sudo xcversion installed
-          sudo xcversion select ${{ matrix.xcode }}
       - name: Generate projects;
         run: |
           cd Example; xcodegen
@@ -39,7 +34,7 @@ jobs:
       - name: Collect UI Tests artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: SBTUITestTunnel_Tests_iOS_${{ matrix.ios }}.xcresult
+          name: SBTUITestTunnel_Tests_iOS.xcresult
           path: SBTUITestTunnel_Tests.xcresult
         if: success() || failure()
       - name: Run no swizzling UI Tests
@@ -48,7 +43,7 @@ jobs:
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: SBTUITestTunnel_TestsNoSwizzling_iOS_${{ matrix.ios }}.xcresult
+          name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
         if: success() || failure()
       - name: Build SPM App
