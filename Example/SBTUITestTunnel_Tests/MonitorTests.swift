@@ -205,11 +205,13 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-
+    
     func testMonitorPostRequestWithHTTPBody() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        
+        let smallBody = String(repeating: "a", count: 100)
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: "&param5=val5&param6=val6")
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: smallBody)
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         print(requests.map(\.debugDescription))
@@ -220,7 +222,35 @@ class MonitorTests: XCTestCase {
                 continue
             }
 
-            XCTAssertEqual(String(data: httpBody, encoding: .utf8), "&param5=val5&param6=val6")
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), smallBody)
+
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
+    }
+
+
+    func testMonitorPostRequestWithHTTPLargeBody() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        
+        let largeBody = String(repeating: "a", count: 20000)
+
+        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        print(requests.map(\.debugDescription))
+
+        for request in requests {
+            guard let httpBody = request.request?.httpBody else {
+                XCTFail("Missing http body")
+                continue
+            }
+
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
             XCTAssert((request.responseString()!).contains("httpbin.org"))
             XCTAssert(request.timestamp > 0.0)
