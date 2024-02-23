@@ -40,4 +40,4 @@ While no setup is required in your UI Test target to use this library it might b
 
 ## Tunneling mode
 
-The library allows tunneling via HTTP or via IPC (default). You can force disabling IPC by setting a `SBTUITestTunnelDisableIPC=NO` key in the Info.plist of the UITesting target.
+The library allows tunneling via HTTP or via IPC (default). You can force disabling IPC by setting a `SBTUITestTunnelDisableIPC=YES` key in the Info.plist of the UITesting target.
