@@ -21,7 +21,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: "../SBTUITestTunnel/SBTUITestTunnel-Info.plist"
-        CODE_SIGN_ENTITLEMENTS: "../SBTUITestTunnel_Example.entitlements"      
+        CODE_SIGN_ENTITLEMENTS: "../SBTUITestTunnel_Example.entitlements"
   UITests:
     type: bundle.ui-testing
     platform: iOS
@@ -33,7 +33,7 @@ targets:
         INFOPLIST_FILE: "../SBTUITestTunnel_Tests/Info.plist"
 
 schemes:
-  SBTUITestTunnel_Example:
+  SBTUITestTunnel:
     build:
       targets:
         App: [all]
@@ -51,7 +51,9 @@ schemes:
         UITests: [all]
     run:
       executable: App
+      debugEnabled: false
       buildConfiguration: Debug
     test:
       targets:
         - UITests
+      debugEnabled: false
