@@ -83,6 +83,7 @@ schemes:
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true
+      debugEnabled: false
       language: en
       region: EN
     management:
@@ -103,6 +104,7 @@ schemes:
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true
+      debugEnabled: false
       language: en
       region: EN
     management:
