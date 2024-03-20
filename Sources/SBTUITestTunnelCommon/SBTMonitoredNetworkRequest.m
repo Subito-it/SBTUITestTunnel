@@ -16,6 +16,8 @@
 
 #import "include/SBTMonitoredNetworkRequest.h"
 #import "include/SBTRequestMatch.h"
+#import "include/SBTRequestPropertyStorage.h"
+#import "include/SBTUITestTunnel.h"
 #import "private/NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
