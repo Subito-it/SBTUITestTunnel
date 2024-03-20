@@ -44,8 +44,15 @@
 {
     [encoder encodeDouble:self.timestamp forKey:NSStringFromSelector(@selector(timestamp))];
     [encoder encodeDouble:self.requestTime forKey:NSStringFromSelector(@selector(requestTime))];
-    [encoder encodeObject:self.request forKey:NSStringFromSelector(@selector(request))];
-    [encoder encodeObject:self.originalRequest forKey:NSStringFromSelector(@selector(originalRequest))];
+    
+    NSMutableURLRequest *fixedRequest = [self.request mutableCopy];
+    fixedRequest.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self.request];
+    [encoder encodeObject:fixedRequest forKey:NSStringFromSelector(@selector(request))];
+    
+    NSMutableURLRequest *fixedOriginalRequest = [self.originalRequest mutableCopy];
+    fixedOriginalRequest.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self.originalRequest];
+    [encoder encodeObject:fixedOriginalRequest forKey:NSStringFromSelector(@selector(originalRequest))];
+    
     [encoder encodeObject:self.response forKey:NSStringFromSelector(@selector(response))];
     [encoder encodeObject:self.responseData forKey:NSStringFromSelector(@selector(responseData))];
     [encoder encodeBool:self.isStubbed forKey:NSStringFromSelector(@selector(isStubbed))];
