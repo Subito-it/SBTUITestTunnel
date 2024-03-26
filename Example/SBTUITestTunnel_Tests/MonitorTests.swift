@@ -265,7 +265,7 @@ class MonitorTests: XCTestCase {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 
         let start = Date()
-        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 2.5) { [weak self] in
+        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 1.0) { [weak self] in
             _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
 
