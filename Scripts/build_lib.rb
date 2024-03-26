@@ -2,9 +2,9 @@
 require "fileutils"
 
 module Build
-  EXAMPLE_APP_SCHEME = "SBTUITestTunnel_Example"
+  EXAMPLE_APP_SCHEME = "SBTUITestTunnel"
   UITESTS_SCHEME = "SBTUITestTunnel_Tests"
-  UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_TestsNoSwizzling"
+  UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
 
   def self.run_build(project_path)
     puts "⏳ Building app..."

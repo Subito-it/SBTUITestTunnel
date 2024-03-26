@@ -17,6 +17,7 @@
 #import "include/NSURLRequest+HTTPBodyFix.h"
 #import "include/SBTUITestTunnel.h"
 #import "include/SBTSwizzleHelpers.h"
+#import "include/SBTRequestPropertyStorage.h"
 
 @implementation NSURLRequest (HTTPBodyFix)
 
@@ -37,12 +38,12 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
 
 - (NSData *)sbt_uploadHTTPBody
 {
-    return [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    return [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
 }
 
 - (BOOL)sbt_isUploadTaskRequest
 {
-    return ([NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:self] != nil);
+    return ([SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:self] != nil);
 }
 
 - (void)sbt_markUploadTaskRequest
@@ -50,7 +51,7 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     NSAssert([self isKindOfClass:[NSMutableURLRequest class]], @"Attempted to mark an immutable request as an upload");
 
     if ([self isKindOfClass:[NSMutableURLRequest class]]) {
-        [NSURLProtocol setProperty:@YES forKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:(NSMutableURLRequest *)self];
+        [SBTRequestPropertyStorage setProperty:@YES forKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:(NSMutableURLRequest *)self];
     }
 }
 
@@ -81,7 +82,7 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
 
     NSData *ret = [self swz_HTTPBody];
         
-    return ret ?: [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    return ret ?: [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
 }
 
 - (id)swz_copyWithZone:(NSZone *)zone
@@ -89,9 +90,9 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     NSURLRequest *ret = [self swz_copyWithZone:zone];
     
     if ([ret isKindOfClass:[NSMutableURLRequest class]]) {
-        NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+        NSData *body = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
         if (body) {
-            [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];            
+            [SBTRequestPropertyStorage setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];
         }
     }
     
@@ -103,9 +104,9 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     NSMutableURLRequest *ret = [self swz_mutableCopyWithZone:zone];
     
     if ([ret isKindOfClass:[NSMutableURLRequest class]]) {
-        NSData *body = [NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+        NSData *body = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
         if (body) {
-            [NSURLProtocol setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];
+            [SBTRequestPropertyStorage setProperty:body forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)ret];
         }
     }
     

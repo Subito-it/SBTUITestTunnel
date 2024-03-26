@@ -46,6 +46,7 @@ class SBTTableViewController: UITableViewController {
     private let testList: [BaseTest] = [NetworkTest(testSelector: #selector(executeDataTaskRequest)),
                                         NetworkTest(testSelector: #selector(executeDataTaskRequest2)),
                                         NetworkTest(testSelector: #selector(executeDataTaskRequest3)),
+                                        NetworkTest(testSelector: #selector(executePostDataTaskRequestWithLargeHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeUploadDataTaskRequest)),
                                         NetworkTest(testSelector: #selector(executeUploadDataTaskRequest2)),
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequest)),
@@ -347,6 +348,11 @@ extension SBTTableViewController {
 
     @objc func executeDataTaskRequest3() {
         dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
+    }
+    
+    @objc func executePostDataTaskRequestWithLargeHTTPBody() {
+        let largeBody = String(repeating: "a", count: 20000)
+        dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
     }
 
     @objc func executeUploadDataTaskRequest() {

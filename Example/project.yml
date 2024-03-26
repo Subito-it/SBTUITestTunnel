@@ -9,7 +9,6 @@ fileGroups:
   - SBTUITestTunnel_Example.entitlements
 
 targets:
-
   SBTUITestTunnel_Example:
     type: application
     platform: iOS
@@ -25,12 +24,6 @@ targets:
       - sdk: UIKit.framework
       - sdk: Foundation.framework
       - sdk: CoreGraphics.framework
-    scheme:
-      gatherCoverageData: true
-      testTargets:
-        - SBTUITestTunnel_Tests
-      coverageTargets:
-        - SBTUITestTunnel_Example
 
   SBTUITestTunnel_Tests:
     type: bundle.ui-testing
@@ -43,9 +36,6 @@ targets:
       - SBTUITestTunnel_Tests
     dependencies:
       - target: SBTUITestTunnel_Example
-    scheme:
-      testTargets:
-        - SBTUITestTunnel_Tests
 
   SBTUITestTunnel_TestsNoSwizzling:
     type: bundle.ui-testing
@@ -53,12 +43,69 @@ targets:
     deploymentTarget: "12.2"
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
+        GCC_PREPROCESSOR_DEFINITIONS:
+          ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
         INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
     sources:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
       - target: SBTUITestTunnel_Example
-    scheme:
-      testTargets:
+
+schemes:
+  SBTUITestTunnel:
+    build:
+      targets:
+        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - SBTUITestTunnel_Tests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      language: en
+      region: EN
+
+  SBTUITestTunnel_Tests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - SBTUITestTunnel_Tests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false
+
+  SBTUITestTunnel_NoSwizzlingTests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
         - SBTUITestTunnel_TestsNoSwizzling
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false

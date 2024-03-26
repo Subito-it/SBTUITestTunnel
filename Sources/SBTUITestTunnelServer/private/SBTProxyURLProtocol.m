@@ -362,7 +362,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     // values for the allHTTPHeaderFields property in one of these callse. For this reason
     // we postpone matching the request headers after startLoading is called.
         
-    if ([NSURLProtocol propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
+    if ([SBTRequestPropertyStorage propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
     }
     
@@ -449,7 +449,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                     NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
                     
                     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
-                    if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
+                    if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
                         // don't handle double (or more) redirects
                         [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
                     }
@@ -481,7 +481,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSLog(@"[SBTUITestTunnel] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
         
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
-        [NSURLProtocol setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
+        [SBTRequestPropertyStorage setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         
         NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
         
@@ -628,7 +628,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:mRequest];
-    if (![NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:mRequest]) {
+    if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:mRequest]) {
         // don't handle double (or more) redirects
         [[self class] associateOriginalRequest:self.request withRequest:mRequest];
     }
@@ -814,7 +814,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 /// Finds the original request in NSURLProtocol and deserializes it
 + (NSURLRequest *)originalRequestFor:(NSURLRequest*)request {
-    NSData *serializedOriginal = [NSURLProtocol propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
+    NSData *serializedOriginal = [SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:request];
     NSURLRequest *originalRequest = nil;
 
     if (serializedOriginal) {
@@ -837,7 +837,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                                                                        error:&archiveError];
     NSAssert(archiveError == nil, @"Error archiving NSURLRequest for NSURLProtocol");
 
-    [NSURLProtocol setProperty:serializedOriginal forKey:SBTProxyURLOriginalRequestKey inRequest:request];
+    [SBTRequestPropertyStorage setProperty:serializedOriginal forKey:SBTProxyURLOriginalRequestKey inRequest:request];
 }
 
 @end

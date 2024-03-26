@@ -24,6 +24,7 @@
 #import "SBTUITestTunnel.h"
 #import "SBTIPCTunnel.h"
 #import "SBTActiveStub.h"
+#import "SBTRequestPropertyStorage.h"
 #import "NSURLRequest+HTTPBodyFix.h"
 
 #ifdef SPM
