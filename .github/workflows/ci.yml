@@ -4,7 +4,7 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-13 # macos-latest does not ship with Xcode 15
+    runs-on: macos-14
 
     name: Run UI Test on iOS
     env:
