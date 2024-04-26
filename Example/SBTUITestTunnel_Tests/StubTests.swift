@@ -53,6 +53,16 @@ class StubTests: XCTestCase {
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
+    
+    func testStubPKPassContentType() {
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+
+        let expectedHeaders = ["Content-Type": "application/vnd.apple.pkpass"]
+
+        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        let headers = result["responseHeaders"] as! [String: String]
+        XCTAssert(request.headers(headers, isEqual: expectedHeaders))
+    }
 
     func testStubTextContentType() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: "stubbed text"))
