@@ -55,7 +55,7 @@ class StubTests: XCTestCase {
     }
     
     func testStubPKPassContentType() {
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(fileNamed: "test_file.pkpass"))
 
         let expectedHeaders = ["Content-Type": "application/vnd.apple.pkpass"]
 
