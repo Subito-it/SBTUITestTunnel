@@ -22,6 +22,7 @@ NSString * const SBTResponseContentTypeText = @"text/plain";
 NSString * const SBTResponseContentTypeData = @"application/octet-stream";
 NSString * const SBTResponseContentTypeHtml = @"text/html";
 NSString * const SBTResponseContentTypePdf = @"application/pdf";
+NSString * const SBTResponseContentPKPass = @"application/vnd.apple.pkpass";
 
 @interface SBTResponseDefaults: NSObject
     @property (nonatomic, assign) NSTimeInterval responseTime;
@@ -160,8 +161,10 @@ static SBTResponseDefaults *_defaults;
         contentType = SBTResponseContentTypeHtml;
     } else if ([loweredStubExtension isEqualToString:@"pdf"]) {
         contentType = SBTResponseContentTypePdf;
+    } else if ([loweredStubExtension isEqualToString:@"pkpass"]){
+        contentType = SBTResponseContentPKPass;
     } else {
-        NSAssert(NO, @"Unsupported file extension. Expecting json, xml, txt, htm, html, pdf");
+        NSAssert(NO, @"Unsupported file extension. Expecting json, xml, txt, htm, html, pdf, pkpass");
     }
     
     return [self initWithResponse:stubData headers:headers contentType:contentType returnCode:returnCode responseTime:responseTime activeIterations:activeIterations];
