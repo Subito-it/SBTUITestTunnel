@@ -255,15 +255,26 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
         NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
 
-        if (weakSelf.startupBlock) {
-            weakSelf.startupBlock();
+        [weakSelf checkConnectionAndProceed];
+    });
+}
+
+- (void)checkConnectionAndProceed
+{
+    if (self.ipcConnection.isValid) {
+        if (_startupBlock) {
+            _startupBlock();
             NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
         }
         
-        weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
+        _startupCompleted = [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
 
-        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
-    });
+        NSLog(@"[SBTUITestTunnel] Tunnel ready after %fs", CFAbsoluteTimeGetCurrent() - _launchStart);
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self checkConnectionAndProceed];
+        });
+    }
 }
 
 - (void)performCommandWithParameters:(NSDictionary *)parameters block:(void (^)(NSDictionary *))block {}

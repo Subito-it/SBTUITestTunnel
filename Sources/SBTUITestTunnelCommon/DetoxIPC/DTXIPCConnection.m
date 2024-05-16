@@ -323,8 +323,16 @@ static dispatch_queue_t _connectionQueue;
 
 - (oneway void)_slaveDidConnectWithName:(NSString*)slaveServiceName
 {
-	_otherConnection = [NSConnection connectionWithRegisteredName:slaveServiceName host:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_otherConnectionDidDie:) name:NSConnectionDidDieNotification object:_otherConnection];
+    dispatch_block_t block = ^{
+        self->_otherConnection = [NSConnection connectionWithRegisteredName:slaveServiceName host:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_otherConnectionDidDie:) name:NSConnectionDidDieNotification object:self->_otherConnection];
+    };
+
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
 }
 
 - (oneway void)_invokeFromRemote:(NSDictionary*)serializedInvocation
