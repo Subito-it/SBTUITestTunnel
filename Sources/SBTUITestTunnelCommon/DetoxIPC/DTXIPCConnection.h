@@ -76,6 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Invalidate the connection. All outstanding error handling blocks will be called on the message handling queue. The connection must be invalidated before it is deallocated. After a connection is invalidated, no more messages may be sent or received.
 - (void)invalidate;
 
+- (BOOL)isValid;
+
 @end
 
 NS_ASSUME_NONNULL_END
