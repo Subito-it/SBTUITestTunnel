@@ -184,6 +184,8 @@ static dispatch_queue_t _connectionQueue;
 @implementation DTXIPCConnection
 {
 	dispatch_queue_t _dispatchQueue;
+    dispatch_queue_t _otherConnectionQueue;
+    
 	NSRunLoop* _runLoop;
 	NSString* _actualServiceName;
 	
@@ -224,7 +226,8 @@ static dispatch_queue_t _connectionQueue;
 		_slave = NO;
 		
 		_dispatchQueue = dispatch_queue_create([NSString stringWithFormat:@"com.wix.DTXIPCConnection:%@", _serviceName].UTF8String, dispatch_queue_attr_make_with_autorelease_frequency(NULL, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM));
-		
+        _otherConnectionQueue = dispatch_queue_create([NSString stringWithFormat:@"com.wix.DTXIPCOtherConnection:%@", _serviceName].UTF8String, NULL);
+        
 		//Attempt becoming a master
 		if([self _commonInit] == NO)
 		{
@@ -294,7 +297,12 @@ static dispatch_queue_t _connectionQueue;
 
 - (BOOL)isValid
 {
-	return _connection.isValid && _otherConnection.isValid;
+    __block BOOL ret = NO;
+    dispatch_sync(_otherConnectionQueue, ^{
+        ret = _connection.isValid && _otherConnection.isValid;
+    });
+    
+    return ret;
 }
 
 - (id)remoteObjectProxy
@@ -323,8 +331,10 @@ static dispatch_queue_t _connectionQueue;
 
 - (oneway void)_slaveDidConnectWithName:(NSString*)slaveServiceName
 {
-	_otherConnection = [NSConnection connectionWithRegisteredName:slaveServiceName host:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_otherConnectionDidDie:) name:NSConnectionDidDieNotification object:_otherConnection];
+    dispatch_sync(_otherConnectionQueue, ^{
+        _otherConnection = [NSConnection connectionWithRegisteredName:slaveServiceName host:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_otherConnectionDidDie:) name:NSConnectionDidDieNotification object:_otherConnection];
+    });
 }
 
 - (oneway void)_invokeFromRemote:(NSDictionary*)serializedInvocation
