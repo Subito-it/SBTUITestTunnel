@@ -432,6 +432,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 monitoredRequest.isStubbed = YES;
                 monitoredRequest.isRewritten = NO;
                 
+                NSData *bodyData = ([monitoredRequest.originalRequest sbt_isUploadTaskRequest]) ? [monitoredRequest.originalRequest sbt_uploadHTTPBody] : monitoredRequest.originalRequest.HTTPBody;
+                
+                monitoredRequest.requestData = bodyData;
+                
                 dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
                     [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
                 });
@@ -602,6 +606,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         monitoredRequest.isStubbed = NO;
         monitoredRequest.isRewritten = isRequestRewritten;
+        
+        NSData *bodyData = ([monitoredRequest.originalRequest sbt_isUploadTaskRequest]) ? [monitoredRequest.originalRequest sbt_uploadHTTPBody] : monitoredRequest.originalRequest.HTTPBody;
+        
+        monitoredRequest.requestData = bodyData;
         
         dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
             [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];

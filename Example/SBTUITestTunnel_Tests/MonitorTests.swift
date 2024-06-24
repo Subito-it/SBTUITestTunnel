@@ -261,6 +261,62 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.monitorRequestRemoveAll())
     }
 
+    func testMonitorUploadRequestWithHTTPBodyShouldHaveRequestData() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        
+        let largeBody = String(repeating: "a", count: 200)
+
+        _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
+        
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        print(requests.map(\.debugDescription))
+
+        for request in requests {
+            guard let httpBody = request.requestData else {
+                XCTFail("Missing http body")
+                continue
+            }
+
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
+
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
+    }
+    
+    func testMonitorUploadRequestWithLargeHTTPBodyShouldHaveRequestData() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        
+        let largeBody = String(repeating: "a", count: 20000)
+
+        _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
+        
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
+        print(requests.map(\.debugDescription))
+
+        for request in requests {
+            guard let httpBody = request.requestData else {
+                XCTFail("Missing http body")
+                continue
+            }
+
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
+
+            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
+
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
+    }
+
     func testSyncWaitForMonitoredRequestsDoesNotTimeout() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
 
