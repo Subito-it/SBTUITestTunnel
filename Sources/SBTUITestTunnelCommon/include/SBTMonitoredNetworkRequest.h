@@ -36,6 +36,7 @@
 @property (nullable, nonatomic, strong) NSHTTPURLResponse *response;
 
 @property (nullable, nonatomic, strong) NSData *responseData;
+@property (nullable, nonatomic, strong) NSData *requestData;
 
 @property (nonatomic, assign) BOOL isStubbed;
 @property (nonatomic, assign) BOOL isRewritten;
