@@ -1062,26 +1062,60 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         addr.sin_family = AF_INET;
         addr.sin_port = 0;
         inet_aton("0.0.0.0", &addr.sin_addr);
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock < 0) {
+        int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_sock < 0) {
             return -1;
         }
-        if (bind(sock, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
+        if (bind(server_sock, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
+            close(server_sock);
             return -2;
         }
-        if (getsockname(sock, (struct sockaddr*) &addr, &len) != 0) {
+        if (getsockname(server_sock, (struct sockaddr*) &addr, &len) != 0) {
+            close(server_sock);
             return -3;
         }
-        
-        if (addr.sin_port > 1023) {
-            return addr.sin_port;
-        } else {
+
+        in_port_t port = addr.sin_port;
+
+        if (port <= 1023) {
+            close(server_sock);
             NSLog(@"[SBTUITestTunnel] Invalid port assigned, trying again");
-            close(sock);
+            continue;
         }
+
+        // Put the port in the TIME_WAIT state, to temporarily reserve it
+        if (listen(server_sock, 1)) {
+            close(server_sock);
+            return -4;
+        }
+
+        int client_sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (client_sock < 0) {
+            close(server_sock);
+            return -5;
+        }
+
+        if (connect(client_sock, (struct sockaddr*) &addr, sizeof(addr))) {
+            close(server_sock);
+            close(client_sock);
+            return -6;
+        }
+
+        int accept_sock = accept(server_sock, nil, nil);
+        if (accept_sock < 0) {
+            close(server_sock);
+            close(client_sock);
+            return -7;
+        }
+
+        close(server_sock);
+        close(client_sock);
+        close(accept_sock);
+
+        return port;
     }
 
-    return -4;
+    return -8;
 }
 
 #pragma mark - Error Helpers
