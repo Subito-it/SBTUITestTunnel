@@ -1083,7 +1083,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             continue;
         }
 
-        // Put the port in the TIME_WAIT state, to temporarily reserve it
+        // Attempt to reserve the port by putting it in TIME_WAIT state. During this time,
+        // the system prevents other applications from binding to the same port,
+        // to prevent packets meant for the recently closed connection from being
+        // misdirected to the new application. Since SBTWebServer is utilizing SO_REUSEADDR on the
+        // server socket, we can bind to the port even though it's in TIME_WAIT state,
+        // effectively reserving it for our own use until we close the server socket.
         if (listen(server_sock, 1)) {
             close(server_sock);
             return -4;
