@@ -25,6 +25,9 @@ let package = Package(
                 .headerSearchPath("GCDWebServer/Core"),
                 .headerSearchPath("GCDWebServer/Requests"),
                 .headerSearchPath("GCDWebServer/Responses"),
+            ],
+            linkerSettings: [
+                .linkedLibrary("z")
             ]
         ),
         .target(
