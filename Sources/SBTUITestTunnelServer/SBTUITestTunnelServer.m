@@ -168,9 +168,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         BlockAssert(NO, @"[UITestTunnelServer] Failed getting IPC proxy");
     }];
     
-    [self.ipcProxy serverDidConnect:nil];
-
     [self processLaunchOptionsIfNeeded];
+    
+    [self.ipcProxy serverDidConnect:nil];
 
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
