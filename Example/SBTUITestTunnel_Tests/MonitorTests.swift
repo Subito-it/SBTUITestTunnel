@@ -205,10 +205,10 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-    
+
     func testMonitorPostRequestWithHTTPBody() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
-        
+
         let smallBody = String(repeating: "a", count: 100)
 
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: smallBody)
@@ -233,10 +233,9 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.monitorRequestRemoveAll())
     }
 
-
     func testMonitorPostRequestWithHTTPLargeBody() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
-        
+
         let largeBody = String(repeating: "a", count: 20000)
 
         _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
@@ -263,11 +262,11 @@ class MonitorTests: XCTestCase {
 
     func testMonitorUploadRequestWithHTTPBodyShouldHaveRequestData() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
-        
+
         let largeBody = String(repeating: "a", count: 200)
 
         _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
-        
+
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         print(requests.map(\.debugDescription))
@@ -288,14 +287,14 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.stubRequestsRemoveAll())
         XCTAssert(app.monitorRequestRemoveAll())
     }
-    
+
     func testMonitorUploadRequestWithLargeHTTPBodyShouldHaveRequestData() {
         app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
-        
+
         let largeBody = String(repeating: "a", count: 20000)
 
         _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
-        
+
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         print(requests.map(\.debugDescription))

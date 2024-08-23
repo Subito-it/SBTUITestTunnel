@@ -53,7 +53,7 @@ class StubTests: XCTestCase {
         let headers = result["responseHeaders"] as! [String: String]
         XCTAssert(request.headers(headers, isEqual: expectedHeaders))
     }
-    
+
     func testStubPKPassContentType() {
         app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(fileNamed: "test_file.pkpass"))
 

@@ -1,4 +1,4 @@
-// SBTNetworkTestViewController.swift
+// SBTExtensionCoreLocationViewController.swift
 //
 // Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
@@ -59,9 +59,9 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         stopLocationUpdateButton.setTitle("Stop location updates", for: .normal)
         currentLocationButton.setTitle("Get manager current location", for: .normal)
 
-        [authorizationButton, updateLocationButton, stopLocationUpdateButton, currentLocationButton].forEach {
-            $0.setTitleColor(.systemBlue, for: .normal)
-            $0.setTitleColor(.systemRed, for: .highlighted)
+        for item in [authorizationButton, updateLocationButton, stopLocationUpdateButton, currentLocationButton] {
+            item.setTitleColor(.systemBlue, for: .normal)
+            item.setTitleColor(.systemRed, for: .highlighted)
         }
 
         authorizationButton.addTarget(self, action: #selector(authorizationStatusTapped), for: .touchUpInside)
@@ -73,9 +73,9 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, locationThreadLabel, currentLocationLabel])
         let contentStack = UIStackView(arrangedSubviews: [statusStack, locationStack])
 
-        [statusStack, locationStack, contentStack].forEach {
-            $0.axis = .vertical
-            $0.spacing = 16
+        for item in [statusStack, locationStack, contentStack] {
+            item.axis = .vertical
+            item.spacing = 16
         }
         contentStack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(contentStack)

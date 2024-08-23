@@ -1,5 +1,5 @@
 //
-//  SBTExtensionTableViewController2.swift
+//  SBTExtensionCollectionViewController.swift
 
 //  SBTUITestTunnel_Example
 //

@@ -349,7 +349,7 @@ extension SBTTableViewController {
     @objc func executeDataTaskRequest3() {
         dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0, shouldPushResult: false)
     }
-    
+
     @objc func executePostDataTaskRequestWithLargeHTTPBody() {
         let largeBody = String(repeating: "a", count: 20000)
         dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
