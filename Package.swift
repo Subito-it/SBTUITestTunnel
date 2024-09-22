@@ -52,6 +52,9 @@ let package = Package(
                 .headerSearchPath("DetoxIPC/Apple"),
                 .headerSearchPath("DetoxIPC/DTXObjectiveCHelpers"),
                 .headerSearchPath("DetoxIPC/fno-objc-arc"),
+            ],
+            linkerSettings: [
+                .linkedLibrary("z"),
             ]
         ),
         .target(
