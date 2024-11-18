@@ -235,7 +235,8 @@ static dispatch_queue_t _connectionQueue;
 			_slave = YES;
 			
 			//Attempt becoming the slave
-			NSAssert([self _commonInit] == YES, @"The service “%@” already has two endpoints connected.", _serviceName);
+			BOOL initResult = [self _commonInit];
+			NSAssert(initResult == YES, @"The service “%@” already has two endpoints connected.", _serviceName);
 			
 			_otherConnection = [NSConnection connectionWithRegisteredName:_serviceName host:nil];
 			[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_otherConnectionDidDie:) name:NSConnectionDidDieNotification object:_otherConnection];
