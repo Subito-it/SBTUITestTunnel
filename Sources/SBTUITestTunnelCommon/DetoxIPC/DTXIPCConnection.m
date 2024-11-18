@@ -235,7 +235,7 @@ static dispatch_queue_t _connectionQueue;
 			_slave = YES;
 			
 			//Attempt becoming the slave
-            BOOL initResult = [self _commonInit];
+			BOOL initResult = [self _commonInit];
 			NSAssert(initResult == YES, @"The service “%@” already has two endpoints connected.", _serviceName);
 			
 			_otherConnection = [NSConnection connectionWithRegisteredName:_serviceName host:nil];
