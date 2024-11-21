@@ -116,7 +116,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
-    [self launchTunnelWithRetries: 0 retryInterval:0 startupBlock: startupBlock];
+    [self launchTunnelWithRetries:5 retryInterval:1.0 startupBlock: startupBlock];
 }
 
 - (void)launchTunnelWithRetries:(NSInteger)retryThreshold retryInterval:(NSTimeInterval)retryInterval startupBlock:(void (^)(void))startupBlock
