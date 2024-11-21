@@ -69,6 +69,8 @@
 	return [_connection.remoteObjectInterface protocolMethodSignatureForSelector:aSelector];
 }
 
+static int count = 0;
+
 - (void)forwardInvocation:(NSInvocation *)invocation
 {
 	if(_synchronous)
@@ -90,24 +92,30 @@
 		
 		do {
 			didEndWaiting = dispatch_group_wait(_pendingDispatchGroup, dispatch_walltime(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC))) == 0;
-			
-			if(didEndWaiting == NO)
-			{
-				@try {
-					//Send a ping to check if the connection is still alive while waiting.
-					[_connection.otherConnection.rootProxy _ping];
-				} @catch (NSException *exception) {
-					if(_errorBlock)
-					{
-						_errorBlock([NSError errorWithDomain:DTXIPCErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: exception.reason}]);
-					}
-					else
-					{
-						[exception raise];
-					}
-					somethingWentWrong = YES;
-				}
-			}
+            
+            if (count++ == 0) {
+                _errorBlock([NSError errorWithDomain:DTXIPCErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: @"reason"}]);
+                somethingWentWrong = YES;
+            } else {
+                if(didEndWaiting == NO)
+                {
+                    @try {
+                        //Send a ping to check if the connection is still alive while waiting.
+                        [_connection.otherConnection.rootProxy _ping];
+                    } @catch (NSException *exception) {
+                        if(_errorBlock)
+                        {
+                            _errorBlock([NSError errorWithDomain:DTXIPCErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: exception.reason}]);
+                        }
+                        else
+                        {
+                            [exception raise];
+                        }
+                        somethingWentWrong = YES;
+                    }
+                }
+
+            }
 		} while(somethingWentWrong == NO && didEndWaiting == NO);
 
 		if(didEndWaiting)
