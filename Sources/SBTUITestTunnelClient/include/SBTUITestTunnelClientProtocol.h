@@ -39,6 +39,19 @@
 - (void)launchTunnelWithStartupBlock:(nullable void (^)(void))startupBlock;
 
 /**
+ *  Launch application synchronously waiting for the tunnel server connection to be established.
+ *
+ *  @param retryThreshold Number of additional launch attempts if initial attempt fails (0 means no retries)
+ *
+ *  @param retryInterval Time interval in seconds to wait between retry attempts
+ *
+ *  @param startupBlock Block that is executed before connection is estabilished.
+ *  Useful to inject startup condition (user settings, preferences).
+ *  Note: commands sent in the completionBlock will return nil
+ */
+- (void)launchTunnelWithRetries:(NSInteger)retryThreshold retryInterval:(NSTimeInterval)retryInterval startupBlock:(nullable void (^)(void))startupBlock;
+
+/**
  *  Internal, don't use.
  */
 - (void)launchConnectionless:(nonnull NSString * _Nonnull (^)(NSString * _Nonnull, NSDictionary<NSString *, NSString *> * _Nonnull))command;
