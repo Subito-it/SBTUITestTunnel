@@ -487,7 +487,15 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         [SBTRequestPropertyStorage setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        #if TARGET_OS_SIMULATOR
+        if (@available(iOS 13.0, *)) {
+            // This is a workaround as per https://developer.apple.com/forums/thread/777999
+            configuration.TLSMaximumSupportedProtocolVersion = tls_protocol_version_TLSv12;
+        }
+        #endif
+        
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
         
         if (cookieBlockRule != nil) {
             [newRequest addValue:@"" forHTTPHeaderField:@"Cookie"];
