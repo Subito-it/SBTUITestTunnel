@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install required tools
         run: |
           brew update
@@ -32,7 +32,7 @@ jobs:
         run: |
           Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect UI Tests artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SBTUITestTunnel_Tests_iOS.xcresult
           path: SBTUITestTunnel_Tests.xcresult
@@ -41,7 +41,7 @@ jobs:
         run: |
           Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect no swizzling UI Tests artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
