@@ -16,6 +16,7 @@
 
 #import "SBTAppDelegate.h"
 
+@import SBTUITestTunnelCommon;
 @import SBTUITestTunnelServer;
 @import CoreLocation;
 
@@ -35,6 +36,15 @@
 
         return @"123";
     }];
+    [SBTUITestTunnelServer registerCustomCommandNamed:@"isSBTProxyURLProtocolRegistered" block:^NSObject *(NSObject *object) {
+        [SBTProxyURLProtocol stubRequestsMatching:[[SBTRequestMatch alloc] initWithURL:@".*" query:nil method:nil body:nil requestHeaders:nil responseHeaders:nil] stubResponse:[[SBTStubResponse alloc] initWithResponse:@"" headers:nil contentType:nil returnCode:0 responseTime:0 activeIterations:0]];
+        
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.subito.it"]];
+        Class klass = [NSURLProtocol performSelector:NSSelectorFromString(@"_protocolClassForRequest:") withObject:request];
+        
+        return @([NSStringFromClass(klass) isEqualToString:@"SBTProxyURLProtocol"]);
+    }];
+    
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
     if (@available(iOS 14.0, *)) {
         [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAccuracyAuth" block:^NSObject *(NSObject *object) {

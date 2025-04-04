@@ -1595,6 +1595,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 + (void)_connectionlessReset
 {
+    [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     [self.sharedInstance reset];
 }
 
