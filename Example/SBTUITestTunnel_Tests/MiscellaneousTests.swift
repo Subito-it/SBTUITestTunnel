@@ -16,6 +16,7 @@
 
 import Foundation
 import SBTUITestTunnelClient
+import SBTUITestTunnelServer
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
@@ -239,5 +240,29 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.0, animated: true))
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+    }
+
+    func testUrlProtocolIsRegisteredWhenRunningUITests() {
+        app.launchTunnel()
+
+        guard let isRegistered = app.performCustomCommandNamed("isSBTProxyURLProtocolRegistered", object: nil) as? NSNumber else {
+            return XCTFail("Unexpected object returned")
+        }
+
+        XCTAssert(isRegistered.boolValue)
+    }
+
+    func testUrlProtocolIsNotRegisteredWhenDebuggingApplication() {
+        XCTAssertFalse(SBTUITestTunnelServer.takeOff())
+
+        SBTProxyURLProtocol.stubRequests(matching: SBTRequestMatch(url: ".*"), stubResponse: SBTStubResponse(response: ""))
+
+        let request = URLRequest(url: URL(string: "https://www.subito.it")!)
+        let selector = NSSelectorFromString("_protocolClassForRequest:")
+        guard let klass = URLProtocol.perform(selector, with: request)?.takeUnretainedValue() as? AnyClass else {
+            return XCTFail("Unexpected object returned")
+        }
+
+        XCTAssertEqual(NSStringFromClass(klass), "_NSURLHTTPProtocol")
     }
 }
