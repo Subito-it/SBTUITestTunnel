@@ -108,8 +108,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
 
         [sharedInstance reset];
-        
-        [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     });
     
     return sharedInstance;
@@ -140,10 +138,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *tunnelPort = environment[SBTUITunneledApplicationLaunchEnvironmentPortKey];
     
     if (!tunnelPort && !ipcIdentifier) {
+        [NSURLProtocol unregisterClass:[SBTProxyURLProtocol class]];
+        
         // Required methods missing, presumely app wasn't launched from ui test
         NSLog(@"[SBTUITestTunnel] required environment parameters missing, safely landing");
         return NO;
     }
+    
+    [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
         
     if (ipcIdentifier) {
         NSLog(@"[SBTUITestTunnel] IPC tunnel taking off");
