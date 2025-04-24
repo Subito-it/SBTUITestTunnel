@@ -943,7 +943,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
                             
                             if (expectedTargetIdentifier) {
-                                CGRect frameInScrollView = [scrollViewView convertRect:scrollView.bounds toView:nil];
+                                CGRect frameInScrollView = [scrollViewView convertRect:scrollViewView.bounds toView:scrollView];
                                 CGFloat targetContentOffsetX = 0.0;
                                 CGFloat targetContentOffsetY = 0.0;
 
