@@ -15,7 +15,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
     private let request = NetworkRequests()
 
     func testForOneMatchAndRemoveAfterTwoIterationsNotUsed() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let removeAfterIterations = 2
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
 
@@ -27,13 +27,13 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndRemoveAfterTwoIterationsUsedOnce() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let removeAfterIterations = 2
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
 
         app.stubRequests(matching: match, response: response)
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let given = unusedStubsPeekAll()
@@ -42,14 +42,14 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndRemoveAfterTwoIterationsUsedTwice() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let removeAfterIterations = 2
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
 
         app.stubRequests(matching: match, response: response)
 
         for _ in 0 ... 1 {
-            let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
+            let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get")
             XCTAssert(request.isStubbed(result, expectedStubValue: 1))
         }
 
@@ -59,7 +59,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndWithoutDefiningRemoveAfterTwoIterationsNotUsed() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let response = SBTStubResponse(response: ["stubbed": 1])
 
         app.stubRequests(matching: match, response: response)
@@ -70,12 +70,12 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndWithoutDefiningRemoveAfterTwoIterationsUsedOnce() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let response = SBTStubResponse(response: ["stubbed": 1])
 
         app.stubRequests(matching: match, response: response)
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let given = unusedStubsPeekAll()
@@ -84,7 +84,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndWithoutDefiningZeroRemoveAfterTwoIterationsNotUsed() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let removeAfterIterations = 0
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
 
@@ -96,13 +96,13 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForOneMatchAndWithoutDefiningZeroRemoveAfterTwoIterationsUsedOnce() {
-        let match = SBTRequestMatch(url: "httpbin.org")
+        let match = SBTRequestMatch(url: "postman-echo.com")
         let removeAfterIterations = 0
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
 
         app.stubRequests(matching: match, response: response)
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let given = unusedStubsPeekAll()
@@ -111,7 +111,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForTwoMatchesAndRemoveAfterTwoIterationsForOneNotUsed() {
-        let firstMatch = SBTRequestMatch(url: "httpbin.org")
+        let firstMatch = SBTRequestMatch(url: "postman-echo.com")
         let secondMatch = SBTRequestMatch(url: "go.gl")
         let removeAfterIterations = 2
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
@@ -126,7 +126,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
     }
 
     func testForTwoMatchesAndRemoveAfterTwoIterationsForOneUsedOnce() {
-        let firstMatch = SBTRequestMatch(url: "httpbin.org")
+        let firstMatch = SBTRequestMatch(url: "postman-echo.com")
         let secondMatch = SBTRequestMatch(url: "go.gl")
         let removeAfterIterations = 2
         let response = SBTStubResponse(response: ["stubbed": 1], activeIterations: removeAfterIterations)
@@ -134,7 +134,7 @@ class UnusedStubsPeekAllTests: XCTestCase {
         app.stubRequests(matching: firstMatch, response: response)
         app.stubRequests(matching: secondMatch, response: response)
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let given = unusedStubsPeekAll()

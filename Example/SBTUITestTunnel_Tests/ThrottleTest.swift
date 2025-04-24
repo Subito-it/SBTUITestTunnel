@@ -23,85 +23,85 @@ class ThrottleTests: XCTestCase {
     private let request = NetworkRequests()
 
     func testThrottle() {
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0)
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
 
     func testThrottleOverridesStubResponseTime() {
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0)
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
 
     func testThrottleOverridesStubResponseTime2() {
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0)
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1]))
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -8.0)
     }
 
     func testThrottleAndRemoveAll() {
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0)
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -8.0)
 
         XCTAssert(app.throttleRequestRemoveAll())
         let start2 = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
 
         XCTAssert(delta2 > -3.0, "Got \(delta2)")
     }
 
     func testThrottleAndRemoveSpecific() {
-        let requestId = app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0) ?? ""
+        let requestId = app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0) ?? ""
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -8.0)
 
         XCTAssert(app.throttleRequestRemove(withId: requestId))
         let start2 = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta2 = start2.timeIntervalSinceNow
 
         XCTAssert(delta2 > -3.0)
     }
 
     func testTripleThrottle() {
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 1.0)
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org/g"), responseTime: 2.0)
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org/ge"), responseTime: 3.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 1.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com/g"), responseTime: 2.0)
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com/ge"), responseTime: 3.0)
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -3.0 && delta > -8.0)
     }
 
     func testMultipleThrottleForSameRequestMatch() throws {
-        let requestMatch = SBTRequestMatch(url: "httpbin.org")
+        let requestMatch = SBTRequestMatch(url: "postman-echo.com")
 
         let delay1 = 7.0
         let delay2 = 1.0
@@ -110,7 +110,7 @@ class ThrottleTests: XCTestCase {
 
         XCTContext.runActivity(named: "When adding two throttles for the same requests the last one is used.") { _ in
             let start = Date()
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
             let delta = start.timeIntervalSinceNow
             XCTAssert(delta < -delay2 && delta > -(delay2 + 5.0))
         }
@@ -118,7 +118,7 @@ class ThrottleTests: XCTestCase {
         XCTContext.runActivity(named: "After removing the second throttle rule, the first one is used.") { _ in
             app.throttleRequestRemove(withId: throttle2Id)
             let start = Date()
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
             let delta = start.timeIntervalSinceNow
             XCTAssert(delta < -delay1 && delta > -(delay1 + 5.0))
         }
@@ -133,7 +133,7 @@ extension ThrottleTests {
         }
 
         // To avoid real request to impact timing we stub the response
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ""))
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ""))
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ""))
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ""))
     }
 }

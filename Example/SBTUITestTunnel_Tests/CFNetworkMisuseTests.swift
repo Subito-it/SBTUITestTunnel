@@ -8,7 +8,7 @@ import Foundation
 import XCTest
 
 final class CFNetworkMisuseTests: XCTestCase {
-    private let testURL = URL(string: "https://httpbin.org/post")!
+    private let testURL = URL(string: "https://postman-echo.com/post")!
     private let testData = "this is a test".data(using: .utf8)
 
     func testUploadTaskBodyHandling() throws {

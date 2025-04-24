@@ -23,29 +23,29 @@ class MonitorTests: XCTestCase {
     private let request = NetworkRequests()
 
     func testMonitorRemoveSpecific() {
-        let requestId = app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org")) ?? ""
+        let requestId = app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com")) ?? ""
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 1)
 
         XCTAssert(app.monitorRequestRemove(withId: requestId))
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
     }
 
     func testMonitorFlush() {
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
 
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
         _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
 
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
@@ -53,14 +53,14 @@ class MonitorTests: XCTestCase {
         XCTAssertEqual(requests.count, 3)
 
         for request in requests {
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
 
         XCTAssert(app.monitorRequestRemoveAll())
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
         XCTAssertEqual(app.monitoredRequestsFlushAll().count, 0)
     }
@@ -68,16 +68,16 @@ class MonitorTests: XCTestCase {
     func testMonitorPeek() {
         XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
 
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
         _ = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")
 
         XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
         let requests = app.monitoredRequestsPeekAll()
         XCTAssertEqual(requests.count, 3)
@@ -85,7 +85,7 @@ class MonitorTests: XCTestCase {
         XCTAssertEqual(requests2.count, 3)
 
         for request in requests {
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -93,17 +93,17 @@ class MonitorTests: XCTestCase {
         XCTAssert(app.monitorRequestRemoveAll())
         app.monitoredRequestsFlushAll()
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
         XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
     }
 
     func testMonitorAndStub() {
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1]))
 
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let requests = app.monitoredRequestsFlushAll()
@@ -117,9 +117,9 @@ class MonitorTests: XCTestCase {
         XCTContext.runActivity(named: "When adding multiple monitor for the same request match") { _ in
             XCTAssert(app.monitoredRequestsPeekAll().count == 0)
 
-            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-            app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+            app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
+            app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
+            app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
         }
 
         XCTContext.runActivity(named: "They should behave as only one of them has been added") { _ in
@@ -128,9 +128,9 @@ class MonitorTests: XCTestCase {
 
             XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
 
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
             let requests = app.monitoredRequestsPeekAll()
             XCTAssertEqual(requests.count, 3)
@@ -138,7 +138,7 @@ class MonitorTests: XCTestCase {
             XCTAssertEqual(requests2.count, 3)
 
             for request in requests {
-                XCTAssert((request.responseString()!).contains("httpbin.org"))
+                XCTAssert((request.responseString()!).contains("postman-echo.com"))
                 XCTAssert(request.timestamp > 0.0)
                 XCTAssert(request.requestTime > 0.0)
             }
@@ -146,17 +146,17 @@ class MonitorTests: XCTestCase {
             XCTAssert(app.monitorRequestRemoveAll())
             app.monitoredRequestsFlushAll()
 
-            _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+            _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
 
             XCTAssertEqual(app.monitoredRequestsPeekAll().count, 0)
         }
     }
 
     func testMonitorAndStubDescription() {
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1]))
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1]))
         app.monitorRequests(matching: SBTRequestMatch(url: ".*"))
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
         let result2 = request.dataTaskNetwork(urlString: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?param1=val1&param2=val2")
@@ -173,13 +173,13 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorAndStubWithRemoveAfterTwoIterations() {
-        app.stubRequests(matching: SBTRequestMatch(url: "httpbin.org"), response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1], activeIterations: 2))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result, expectedStubValue: 1))
 
-        let result2 = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        let result2 = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         XCTAssert(request.isStubbed(result2, expectedStubValue: 1))
 
         let requests2 = app.monitoredRequestsFlushAll()
@@ -190,11 +190,11 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorAndThrottle() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
-        app.throttleRequests(matching: SBTRequestMatch(url: "httpbin.org"), responseTime: 5.0)
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
+        app.throttleRequests(matching: SBTRequestMatch(url: "postman-echo.com"), responseTime: 5.0)
 
         let start = Date()
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2")
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -5.0 && delta > -16.0)
@@ -207,11 +207,11 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorPostRequestWithHTTPBody() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com", method: "POST"))
 
         let smallBody = String(repeating: "a", count: 100)
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: smallBody)
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/post", httpMethod: "POST", httpBody: smallBody)
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         print(requests.map(\.debugDescription))
@@ -224,7 +224,7 @@ class MonitorTests: XCTestCase {
 
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), smallBody)
 
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -234,11 +234,11 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorPostRequestWithHTTPLargeBody() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com", method: "POST"))
 
         let largeBody = String(repeating: "a", count: 20000)
 
-        _ = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/post", httpMethod: "POST", httpBody: largeBody)
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
         print(requests.map(\.debugDescription))
@@ -251,7 +251,7 @@ class MonitorTests: XCTestCase {
 
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -261,11 +261,11 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorUploadRequestWithHTTPBodyShouldHaveRequestData() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com", method: "POST"))
 
         let largeBody = String(repeating: "a", count: 200)
 
-        _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
+        _ = request.uploadTaskNetwork(urlString: "https://postman-echo.com/post", data: largeBody.data(using: .utf8))
 
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
@@ -279,7 +279,7 @@ class MonitorTests: XCTestCase {
 
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -289,11 +289,11 @@ class MonitorTests: XCTestCase {
     }
 
     func testMonitorUploadRequestWithLargeHTTPBodyShouldHaveRequestData() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org", method: "POST"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com", method: "POST"))
 
         let largeBody = String(repeating: "a", count: 20000)
 
-        _ = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: largeBody.data(using: .utf8))
+        _ = request.uploadTaskNetwork(urlString: "https://postman-echo.com/post", data: largeBody.data(using: .utf8))
 
         let requests = app.monitoredRequestsFlushAll()
         XCTAssertEqual(requests.count, 1)
@@ -307,7 +307,7 @@ class MonitorTests: XCTestCase {
 
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
@@ -317,55 +317,55 @@ class MonitorTests: XCTestCase {
     }
 
     func testSyncWaitForMonitoredRequestsDoesNotTimeout() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         let start = Date()
         DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
+            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
 
-        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0))
+        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "postman-echo.com"), timeout: 10.0))
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta < -1.0, "Failed with delta: \(delta)")
     }
 
     func testSyncWaitForMonitoredRequestsDoesTimeout() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         let start = Date()
-        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 1.0))
+        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "postman-echo.com"), timeout: 1.0))
         let delta = start.timeIntervalSinceNow
 
         XCTAssert(delta > -5.0)
     }
 
     func testSyncWaitForMonitoredRequestsWithIterationsDoesNotTimeout() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
-            _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
+            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
+            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
 
-        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0, iterations: 2))
+        XCTAssert(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "postman-echo.com"), timeout: 10.0, iterations: 2))
     }
 
     func testSyncWaitForMonitoredRequestsWithIterationsDoesTimeout() {
-        app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org"))
+        app.monitorRequests(matching: SBTRequestMatch(url: "postman-echo.com"))
 
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
+            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2", httpMethod: "GET", httpBody: nil, delay: 0.0)
         }
 
-        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "httpbin.org"), timeout: 10.0, iterations: 2))
+        XCTAssertFalse(app.waitForMonitoredRequests(matching: SBTRequestMatch(url: "postman-echo.com"), timeout: 10.0, iterations: 2))
     }
 
     func testRedirectForMonitoredRequestShouldMatch() {
-        let redirectMatch = SBTRequestMatch(url: "httpbin.org")
+        let redirectMatch = SBTRequestMatch(url: "postman-echo.com")
         app.monitorRequests(matching: redirectMatch)
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            _ = self?.request.dataTaskNetwork(urlString: "https://httpbin.org/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
+            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
         }
 
         XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 10.0, iterations: 1))
