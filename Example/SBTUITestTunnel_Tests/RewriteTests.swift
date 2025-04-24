@@ -182,10 +182,10 @@ class RewriteTests: XCTestCase {
         let dict = ((try? JSONSerialization.jsonObject(with: networkData, options: [])) as? [String: Any]) ?? [:]
         let headers = dict["headers"] as! [String: Any]
 
-        XCTAssertEqual(headers["Param1"] as? String, "val1a")
-        XCTAssertEqual(headers["Param2"] as? String, "val2a")
-        XCTAssertEqual(headers["Param3"] as? String, "newVal")
-        XCTAssertEqual(headers["Accept-Language"] as? String, "it-it")
+        XCTAssertEqual(headers["param1"] as? String, "val1a")
+        XCTAssertEqual(headers["param2"] as? String, "val2a")
+        XCTAssertEqual(headers["param3"] as? String, "newVal")
+        XCTAssertEqual(headers["accept-language"] as? String, "it-it")
         XCTAssertFalse(headers.keys.contains("remove_param"))
     }
 
@@ -206,7 +206,7 @@ class RewriteTests: XCTestCase {
         let rewrittenBody = dict["headers"] as! [String: String]
 
         XCTAssert(rewrittenBody.keys.contains("Accept-Language222"))
-        XCTAssertEqual(rewrittenBody["Host"], "myserver.com")
+        XCTAssertEqual(rewrittenBody["host"], "myserver.com")
     }
 
     func testResponseBodyRewriteAll() {
