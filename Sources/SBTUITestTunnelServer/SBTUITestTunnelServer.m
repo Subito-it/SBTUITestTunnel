@@ -949,9 +949,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
                                 if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
                                     targetContentOffsetX = scrollView.contentOffset.x;
-                                    targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y - view.bounds.size.height / 2);
+                                    targetContentOffsetY = MAX(0.0, frameInScrollView.origin.y);
                                 } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-                                    targetContentOffsetX = MAX(0.0, frameInScrollView.origin.x - view.bounds.size.width / 2);
+                                    targetContentOffsetX = MAX(0.0, frameInScrollView.origin.x);
                                     targetContentOffsetY = scrollView.contentOffset.y;
                                 }
 
