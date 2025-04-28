@@ -82,7 +82,7 @@ class DownloadUploadTests: XCTestCase {
 
     func testMonitorPostRequestWithHTTPLargeBodyInAppProcess() {
         let largeBody = String(repeating: "a", count: 20000)
-        let matchingRequest = SBTRequestMatch(url: "httpbin.org", method: "POST")
+        let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
         XCTAssertTrue(app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
@@ -100,7 +100,7 @@ class DownloadUploadTests: XCTestCase {
 
             XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
-            XCTAssert((request.responseString()!).contains("httpbin.org"))
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
             XCTAssert(request.timestamp > 0.0)
             XCTAssert(request.requestTime > 0.0)
         }
