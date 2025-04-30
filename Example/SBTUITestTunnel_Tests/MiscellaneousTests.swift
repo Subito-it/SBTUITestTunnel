@@ -233,7 +233,7 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
-        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 1.0, animated: true))
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.65, animated: true))
 
         XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
