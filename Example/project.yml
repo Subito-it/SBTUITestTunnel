@@ -12,7 +12,7 @@ targets:
   SBTUITestTunnel_Example:
     type: application
     platform: iOS
-    deploymentTarget: "12.0"
+    deploymentTarget: "15.0"
     settings:
       base:
         INFOPLIST_FILE: "SBTUITestTunnel/SBTUITestTunnel-Info.plist"
@@ -28,7 +28,7 @@ targets:
   SBTUITestTunnel_Tests:
     type: bundle.ui-testing
     platform: iOS
-    deploymentTarget: "12.0"
+    deploymentTarget: "15.0"
     settings:
       base:
         INFOPLIST_FILE: "SBTUITestTunnel_Tests/Info.plist"
@@ -40,7 +40,7 @@ targets:
   SBTUITestTunnel_TestsNoSwizzling:
     type: bundle.ui-testing
     platform: iOS
-    deploymentTarget: "12.2"
+    deploymentTarget: "15.0"
     settings:
       base:
         GCC_PREPROCESSOR_DEFINITIONS:
