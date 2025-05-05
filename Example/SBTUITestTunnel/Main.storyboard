@@ -52,8 +52,28 @@
                                     <segue destination="t4E-ve-o6A" kind="show" identifier="networkSegue" id="dUn-zI-hdz"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="autocompleteCell" id="Yft-kk-LiD">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="webSocketConnectionCell" id="Nym-Nu-i2h">
                                 <rect key="frame" x="0.0" y="94" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Nym-Nu-i2h" id="8lB-T2-JP8">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="WebSocket connection test" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mLm-8h-Gfo">
+                                            <rect key="frame" x="8" y="11" width="210" height="21"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="2mz-Wl-8w5" kind="show" identifier="webSocketSegue" id="PgP-Mv-Pms"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="autocompleteCell" id="Yft-kk-LiD">
+                                <rect key="frame" x="0.0" y="138" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Yft-kk-LiD" id="Gam-F6-Q2S">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -73,7 +93,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cookieCell" id="D0n-xn-xID">
-                                <rect key="frame" x="0.0" y="138" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="182" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="D0n-xn-xID" id="Zkr-EI-SiL">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -90,7 +110,7 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension1Cell" id="U8R-l1-Grr">
-                                <rect key="frame" x="0.0" y="182" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="226" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="U8R-l1-Grr" id="rMG-cd-7lT">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -110,7 +130,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension2Cell" id="uyT-87-JXV">
-                                <rect key="frame" x="0.0" y="226" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="270" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="uyT-87-JXV" id="imE-2h-9Sb">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -130,7 +150,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension3Cell" id="VSf-I0-Efv">
-                                <rect key="frame" x="0.0" y="270" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="314" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="VSf-I0-Efv" id="Euy-r0-5Pa">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -150,7 +170,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension4Cell" id="Kq9-zj-PXU">
-                                <rect key="frame" x="0.0" y="314" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="358" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Kq9-zj-PXU" id="Xyz-Q0-Zl2">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -167,7 +187,7 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension5Cell" id="PyA-Yi-VBf" userLabel="extension5Cell">
-                                <rect key="frame" x="0.0" y="358" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="402" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="PyA-Yi-VBf" id="CBL-2z-rMU">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -184,7 +204,7 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="extension6Cell" id="SGs-a4-3pu" userLabel="extension6Cell">
-                                <rect key="frame" x="0.0" y="402" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="446" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="SGs-a4-3pu" id="wKI-LP-8rd">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -420,6 +440,92 @@
             </objects>
             <point key="canvasLocation" x="390" y="1111"/>
         </scene>
+        <!--Web Socket Test View Controller-->
+        <scene sceneID="7kR-5t-Ej0">
+            <objects>
+                <viewController id="2mz-Wl-8w5" customClass="SBTWebSocketTestViewController" customModule="SBTUITestTunnel_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="e8Q-km-PY1"/>
+                        <viewControllerLayoutGuide type="bottom" id="NtC-tq-vdx"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="uf2-5Y-Ugg">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4GT-VD-THt">
+                                <rect key="frame" x="16" y="200" width="343" height="467"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <accessibility key="accessibilityConfiguration" identifier="result"/>
+                                <mutableString key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S8e-9J-Kln">
+                                <rect key="frame" x="16" y="64" width="64" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Send"/>
+                                <connections>
+                                    <action selector="sendButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="wPM-qb-7yr"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="05a-Tj-qpa">
+                                <rect key="frame" x="120" y="64" width="84" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Receive"/>
+                                <connections>
+                                    <action selector="receiveButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="z4H-4J-4XN"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Connection status:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aQG-gA-niS">
+                                <rect key="frame" x="16" y="149" width="155" height="21"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mo3-yg-A7t">
+                                <rect key="frame" x="179" y="149" width="8" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fNp-6i-Tn5">
+                                <rect key="frame" x="244" y="64" width="58" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Ping"/>
+                                <connections>
+                                    <action selector="pingButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="pEL-ai-cNL"/>
+                                    <action selector="receiveButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="VEI-bJ-XKI"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="fNp-6i-Tn5" firstAttribute="centerY" secondItem="05a-Tj-qpa" secondAttribute="centerY" id="0XC-qv-XAR"/>
+                            <constraint firstItem="S8e-9J-Kln" firstAttribute="top" secondItem="e8Q-km-PY1" secondAttribute="bottom" id="1UB-E2-mVY"/>
+                            <constraint firstItem="Mo3-yg-A7t" firstAttribute="centerY" secondItem="aQG-gA-niS" secondAttribute="centerY" id="5bF-6q-ssC"/>
+                            <constraint firstItem="NtC-tq-vdx" firstAttribute="top" secondItem="4GT-VD-THt" secondAttribute="bottom" id="6OP-ic-mor"/>
+                            <constraint firstItem="05a-Tj-qpa" firstAttribute="leading" secondItem="S8e-9J-Kln" secondAttribute="trailing" constant="40" id="7qT-YP-RmD"/>
+                            <constraint firstItem="S8e-9J-Kln" firstAttribute="centerY" secondItem="05a-Tj-qpa" secondAttribute="centerY" id="8U1-ed-B0W"/>
+                            <constraint firstItem="aQG-gA-niS" firstAttribute="top" secondItem="S8e-9J-Kln" secondAttribute="bottom" constant="50" id="Bi0-GA-X4A"/>
+                            <constraint firstItem="S8e-9J-Kln" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="D30-mE-TJi"/>
+                            <constraint firstItem="4GT-VD-THt" firstAttribute="top" secondItem="aQG-gA-niS" secondAttribute="bottom" constant="30" id="UBt-GG-nB1"/>
+                            <constraint firstAttribute="trailing" secondItem="4GT-VD-THt" secondAttribute="trailing" constant="16" id="dMq-VM-LSw"/>
+                            <constraint firstItem="aQG-gA-niS" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="i3I-j2-q2z"/>
+                            <constraint firstItem="Mo3-yg-A7t" firstAttribute="leading" secondItem="aQG-gA-niS" secondAttribute="trailing" constant="8" symbolic="YES" id="jIY-DT-BHE"/>
+                            <constraint firstItem="4GT-VD-THt" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="oPn-6Z-VWb"/>
+                            <constraint firstItem="fNp-6i-Tn5" firstAttribute="leading" secondItem="05a-Tj-qpa" secondAttribute="trailing" constant="40" id="rpO-kZ-eUC"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="ieR-X2-5Ce"/>
+                    <connections>
+                        <outlet property="connectionStatusLabel" destination="Mo3-yg-A7t" id="4BU-if-x2n"/>
+                        <outlet property="networkResult" destination="4GT-VD-THt" id="Psi-sn-nKg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Kqh-ga-7BE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="389.60000000000002" y="-1174.3628185907048"/>
+        </scene>
         <!--Network Test View Controller-->
         <scene sceneID="t3n-7D-bgQ">
             <objects>
@@ -443,7 +549,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="gag-gs-DWM" firstAttribute="top" secondItem="YRD-XT-ide" secondAttribute="bottom" id="049-Uc-A3I"/>
+                            <constraint firstItem="gag-gs-DWM" firstAttribute="top" secondItem="YRD-XT-ide" secondAttribute="bottom" id="Cvv-fE-n8r"/>
                             <constraint firstItem="YRD-XT-ide" firstAttribute="top" secondItem="SXF-cx-cai" secondAttribute="top" id="Wsd-UM-UQ6"/>
                             <constraint firstAttribute="trailing" secondItem="YRD-XT-ide" secondAttribute="trailing" id="mYu-VR-9dg"/>
                             <constraint firstItem="YRD-XT-ide" firstAttribute="leading" secondItem="SXF-cx-cai" secondAttribute="leading" id="sNz-sF-hhm"/>
@@ -455,7 +561,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WFJ-9e-1Mw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="390" y="-514"/>
+            <point key="canvasLocation" x="390" y="-501"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="HSz-ZN-m7w">
