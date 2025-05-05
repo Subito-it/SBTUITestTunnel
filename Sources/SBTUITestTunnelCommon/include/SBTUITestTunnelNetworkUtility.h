@@ -1,6 +1,6 @@
-// SBTUITestTunnelCommon.h
+// SBTUITestTunnelNetworkUtility.h
 //
-// Copyright (C) 2018 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "NSURLRequest+HTTPBodyFix.h"
-#import "SBTActiveStub.h"
-#import "SBTIPCTunnel.h"
-#import "SBTMonitoredNetworkRequest.h"
-#import "SBTRequestMatch.h"
-#import "SBTRequestPropertyStorage.h"
-#import "SBTRewrite.h"
-#import "SBTRewriteReplacement.h"
-#import "SBTStubFailureResponse.h"
-#import "SBTStubResponse.h"
-#import "SBTSwizzleHelpers.h"
-#import "SBTUITestTunnel.h"
-#import "SBTUITestTunnelNetworkUtility.h"
+#import <Foundation/Foundation.h>
 
-#ifdef SPM
-#import "../DetoxIPC/DTXIPCConnection.h"
-#endif
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ *  Network utilities for SBTUITestTunnel
+ */
+@interface SBTUITestTunnelNetworkUtility : NSObject
+
+/**
+ *  Reserve an available port for socket communication
+ *
+ *  @return The reserved port number if successful, negative number if error
+ */
++ (NSInteger)reserveSocketPort;
+
+@end
+
+NS_ASSUME_NONNULL_END
