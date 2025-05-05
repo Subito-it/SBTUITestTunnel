@@ -129,6 +129,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCent
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandWKWebViewStubbing;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubWebSocket;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandLaunchWebSocket;
 

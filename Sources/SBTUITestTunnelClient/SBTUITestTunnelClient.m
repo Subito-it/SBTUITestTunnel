@@ -913,6 +913,21 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [portString integerValue];
 }
 
+- (BOOL)stubWebSocketWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    NSAssert(responseData != nil, @"Response data cannot be nil!");
+    
+
+    NSString *responseDataBase64 = [self base64SerializeData:responseData];
+    NSDictionary<NSString *, NSString *> *params = @{
+        SBTUITunnelObjectKey: identifier,
+        SBTUITunnelStubResponseKey: responseDataBase64
+    };
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubWebSocket params:params] boolValue];
+}
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj

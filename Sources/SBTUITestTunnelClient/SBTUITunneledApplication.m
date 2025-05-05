@@ -441,4 +441,9 @@
     return [self.client launchWebSocketWithIdentifier:identifier];
 }
 
+- (BOOL)stubWebSocketWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+{
+    return [self.client stubWebSocketWithIdentifier:identifier responseData:responseData];
+}
+
 @end

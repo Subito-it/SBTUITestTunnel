@@ -90,4 +90,13 @@ typedef enum: NSUInteger {
  */
 - (NSInteger)launchWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(launchWebSocket(identifier:));
 
+/**
+ *  Stub responses for a WebSocket connection.
+ *
+ *  @param identifier The identifier of the WebSocket connection.
+ *  @param responseData The data to be returned when the client receives a message.
+ *  @return `YES` on success.
+ */
+- (BOOL)stubWebSocketWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocket(identifier:responseData:));
+
 @end

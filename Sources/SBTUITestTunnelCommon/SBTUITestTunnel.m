@@ -125,9 +125,11 @@ NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate = @"com
 NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyFailure = @"commandCoreLocationNotifyFailure";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubbing = @"commandNotificationCenterStubbing";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus = @"commandNotificationCenterStubAuthorizationStatus";
-NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing"; 
+
+NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing";
 
 NSString * const SBTUITunneledApplicationCommandLaunchWebSocket = @"commandLaunchWebSocket";
+NSString * const SBTUITunneledApplicationCommandStubWebSocket = @"commandStubWebSocket";
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 
