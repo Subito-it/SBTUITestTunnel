@@ -900,6 +900,19 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandWKWebViewStubbing params:params] boolValue];
 }
 
+#pragma mark - WebSocket
+
+- (NSInteger)launchWebSocketWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    NSString *portString = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandLaunchWebSocket params:params];
+    
+    return [portString integerValue];
+}
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj

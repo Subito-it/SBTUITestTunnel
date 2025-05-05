@@ -667,4 +667,14 @@
 */
 - (BOOL)wkWebViewStubEnabled:(BOOL)flag;
 
+#pragma mark - WebSocket
+
+/**
+ *  Launch a WebSocket connection to the specified URL
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return The port number of the web socket connection
+ */
+- (NSInteger)launchWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(launchWebSocket(identifier:));
+
 @end

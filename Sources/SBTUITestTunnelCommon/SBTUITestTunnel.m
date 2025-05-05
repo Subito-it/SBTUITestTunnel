@@ -127,6 +127,8 @@ NSString * const SBTUITunneledApplicationCommandNotificationCenterStubbing = @"c
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus = @"commandNotificationCenterStubAuthorizationStatus";
 NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing"; 
 
+NSString * const SBTUITunneledApplicationCommandLaunchWebSocket = @"commandLaunchWebSocket";
+
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 
 @implementation SBTUITunnelStartupCommand

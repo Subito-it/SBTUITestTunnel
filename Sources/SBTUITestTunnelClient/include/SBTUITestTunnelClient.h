@@ -82,4 +82,12 @@ typedef enum: NSUInteger {
  */
 - (nonnull instancetype)initWithApplication:(nonnull XCUIApplication *)application;
 
+/**
+ *  Launch a WebSocket server in the application with the specified identifier.
+ *
+ *  @param identifier A unique identifier for the WebSocket server.
+ *  @return The port number that the WebSocket server is running on.
+ */
+- (NSInteger)launchWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(launchWebSocket(identifier:));
+
 @end

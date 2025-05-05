@@ -434,4 +434,11 @@
     return [self.client wkWebViewStubEnabled:flag];
 }
 
+#pragma mark - WebSocket
+
+- (NSInteger)launchWebSocketWithIdentifier:(NSString *)identifier
+{
+    return [self.client launchWebSocketWithIdentifier:identifier];
+}
+
 @end

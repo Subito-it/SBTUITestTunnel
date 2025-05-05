@@ -32,6 +32,7 @@
 #import "private/UITextField+DisableAutocomplete.h"
 #import "private/SBTProxyURLProtocol.h"
 #import "private/UIView+Extensions.h"
+#import "WebSocket/SBTWebSocketServer.h"
 
 #if !defined(NS_BLOCK_ASSERTIONS)
 
@@ -78,6 +79,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) SBTWebServer *server;
 @property (nonatomic, strong) dispatch_queue_t commandDispatchQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SBTWebSocketServer *> *webSocketServers;
 
 @property (nonatomic, assign) BOOL startupCompleted;
 
@@ -106,6 +108,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
+        sharedInstance.webSocketServers = [NSMutableDictionary dictionary];
 
         [sharedInstance reset];
     });
@@ -1576,7 +1579,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
         
     NSDictionary *response = nil;
-    
+
     if (![self.sharedInstance processCustomCommandIfNecessary:commandName parameters:unescapedParams returnObject:&response]) {
         if (![self.sharedInstance respondsToSelector:commandSelector]) {
             NSAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", commandName);
@@ -1602,6 +1605,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (void)reset
 {
     [SBTProxyURLProtocol reset];
+    
+    [self.webSocketServers removeAllObjects];
+    
     [[self customCommands] removeAllObjects];
 }
 
@@ -1633,4 +1639,44 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (void)serverDidConnect:(id)sender {}
 
+#pragma mark - WebSocket Commands
+
+- (NSDictionary *)commandLaunchWebSocket:(NSDictionary *)parameters
+{
+    NSString *identifier = parameters[SBTUITunnelObjectKey];
+    
+    if ([identifier length] == 0) {
+        NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
+        return @{ SBTUITunnelResponseResultKey: @"0" };
+    }
+    
+    if (self.webSocketServers[identifier]) {
+        NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' already exists", identifier);
+        
+        SBTWebSocketServer *existingServer = self.webSocketServers[identifier];
+        NSInteger port = existingServer.port;
+        
+        return @{ SBTUITunnelResponseResultKey: [NSString stringWithFormat:@"%ld", port] };
+    }
+    
+    NSInteger port = [SBTUITestTunnelNetworkUtility reserveSocketPort];
+    if (port < 0) {
+        NSLog(@"[SBTUITestTunnel] Failed to find available port for WebSocket server");
+        return @{ SBTUITunnelResponseResultKey: @"0" };
+    }
+    
+    SBTWebSocketServer *webSocketServer = [[SBTWebSocketServer alloc] initWithPort:port];
+    NSError *error = nil;
+    [webSocketServer startWithError:&error];
+    if (error) {
+        NSLog(@"[SBTUITestTunnel] Failed to start WebSocket server: %@", error.description);
+        return @{ SBTUITunnelResponseResultKey: @"0" };
+    }
+    
+    self.webSocketServers[identifier] = webSocketServer;
+    
+    NSLog(@"[SBTUITestTunnel] Started WebSocket server with identifier '%@' on port %ld", identifier, port);
+    
+    return @{ SBTUITunnelResponseResultKey: [NSString stringWithFormat:@"%ld", port] };
+}
 @end

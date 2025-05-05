@@ -130,6 +130,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCent
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandWKWebViewStubbing;
 
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandLaunchWebSocket;
+
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 
 #pragma mark - Classes
