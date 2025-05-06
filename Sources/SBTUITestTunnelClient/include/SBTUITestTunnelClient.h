@@ -107,4 +107,11 @@ typedef enum: NSUInteger {
  */
 - (nonnull NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(flushWebSocketMessages(identifier:));
 
+/**
+ *  Synchronously send the currently stubbed message to the WebSocket server.
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)sendWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(identifier:));
+
 @end

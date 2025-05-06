@@ -1754,4 +1754,29 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     return @{ SBTUITunnelResponseResultKey: base64String };
 }
+
+- (NSDictionary *)commandSendWebSocketMessage:(NSDictionary *)parameters
+{
+    NSString *identifier = parameters[SBTUITunnelObjectKey];
+    
+    if ([identifier length] == 0) {
+        NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
+        return @{ SBTUITunnelResponseResultKey: @"NO" };
+    }
+        
+    SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
+    if (!webSocketServer) {
+        NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' not found", identifier);
+        return @{ SBTUITunnelResponseResultKey: @"NO" };
+    }
+    
+    BOOL success = [webSocketServer sendStubbedMessage];
+    
+    NSLog(@"[SBTUITestTunnel] %@ message to WebSocket clients with identifier '%@'", 
+          success ? @"Sent" : @"Failed to send", 
+          identifier);
+    
+    return @{ SBTUITunnelResponseResultKey: success ? @"YES" : @"NO" };
+}
+
 @end

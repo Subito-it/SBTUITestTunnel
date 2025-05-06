@@ -136,6 +136,8 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandLaunchWebSocket;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandFlushWebSocketMessages;
 
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandSendWebSocketMessage;
+
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 
 #pragma mark - Classes

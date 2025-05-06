@@ -456,4 +456,9 @@
     return [self.client flushWebSocketMessagesWithIdentifier:identifier];
 }
 
+- (BOOL)sendWebSocketWithIdentifier:(NSString *)identifier
+{
+    return [self.client sendWebSocketWithIdentifier:identifier];
+}
+
 @end

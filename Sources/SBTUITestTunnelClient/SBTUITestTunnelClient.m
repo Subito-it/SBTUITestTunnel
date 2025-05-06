@@ -967,6 +967,16 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return @[];
 }
 
+- (BOOL)sendWebSocketWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSendWebSocketMessage params:params] boolValue];
+}
+
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj
