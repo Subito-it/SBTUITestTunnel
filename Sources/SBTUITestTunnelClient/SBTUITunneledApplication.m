@@ -446,4 +446,9 @@
     return [self.client stubWebSocketWithIdentifier:identifier responseData:responseData];
 }
 
+- (NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(NSString *)identifier
+{
+    return [self.client flushWebSocketMessagesWithIdentifier:identifier];
+}
+
 @end

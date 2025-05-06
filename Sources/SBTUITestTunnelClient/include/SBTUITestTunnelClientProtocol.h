@@ -687,4 +687,12 @@
  */
 - (BOOL)stubWebSocketWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocket(identifier:responseData:));
 
+/**
+ *  Flush received messages from a WebSocket connection
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return An array of NSData containing the received messages, or nil on failure
+ */
+- (nonnull NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(flushWebSocketMessages(identifier:));
+
 @end

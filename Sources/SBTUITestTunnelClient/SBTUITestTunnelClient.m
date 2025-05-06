@@ -928,6 +928,32 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubWebSocket params:params] boolValue];
 }
 
+- (NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    NSString *base64String = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFlushWebSocketMessages params:params];
+    
+    if (base64String.length > 0) {
+        NSData *archivedData = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
+        if (archivedData) {
+            NSError *unarchiveError = nil;
+            NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSData class], nil];
+            NSArray<NSData *> *messages = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:archivedData error:&unarchiveError];
+            
+            if (!unarchiveError && messages) {
+                return messages;
+            } else {
+                NSLog(@"[SBTUITestTunnel] Error unarchiving WebSocket messages: %@", unarchiveError);
+            }
+        }
+    }
+    
+    return @[];
+}
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj
