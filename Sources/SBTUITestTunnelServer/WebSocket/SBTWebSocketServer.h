@@ -47,10 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  Sends the current stubbed response to all connected clients.
  *
  */
-- (void)sendStubbedResponse;
+- (void)sendStubbedMessage;
 
 @property (nonatomic, assign, readonly) NSInteger port;
-@property (nonatomic, strong) NSData *stubResponseData;
+@property (nonatomic, strong) NSData *stubbedMessage;
 @property (nullable, nonatomic, weak) id<SBTWebSocketServerDelegate> delegate;
 
 @end

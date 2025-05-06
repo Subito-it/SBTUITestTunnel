@@ -1696,8 +1696,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
     
-    // Set the stub response data on the WebSocket server
-    [webSocketServer setStubResponseData:responseData];
+    webSocketServer.stubbedMessage = responseData;
     
     NSLog(@"[SBTUITestTunnel] Set stub response for WebSocket server with identifier '%@'", identifier);
     
