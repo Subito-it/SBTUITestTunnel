@@ -22,8 +22,8 @@ import XCTest
 class UserDefaultsTest: XCTestCase {
     func testUserDefaults() {
         let randomString = ProcessInfo.processInfo.globallyUniqueString
-
-        let userDefaultKey = "test_key"
+        var userDefaultKey = "test_key"
+        
         // add and retrieve random string
         XCTAssertTrue(app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey))
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as! String)
@@ -36,6 +36,10 @@ class UserDefaultsTest: XCTestCase {
         XCTAssertTrue(app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey))
         app.userDefaultsReset()
         XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
+        
+        userDefaultKey = "some_key"
+        app.userDefaultsRegisterDefaults([userDefaultKey: randomString])
+        XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as! String)
     }
 }
 

@@ -99,6 +99,7 @@ NSString * const SBTUITunneledApplicationCommandNSUserDefaultsSetObject = @"comm
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject = @"commandNSUserDefaultsRemoveObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsObject = @"commandNSUserDefaultsObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsReset = @"commandNSUserDefaultsReset";
+NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults = @"commandNSUserDefaultsRegisterDefaults";
 
 NSString * const SBTUITunneledApplicationCommandMainBundleInfoDictionary = @"commandMainBundleInfoDictionary";
 

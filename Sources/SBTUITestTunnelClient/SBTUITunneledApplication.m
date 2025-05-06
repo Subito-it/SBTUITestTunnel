@@ -269,6 +269,11 @@
     return [self.client userDefaultsReset];
 }
 
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary
+{
+    return [self.client userDefaultsRegisterDefaults:dictionary];
+}
+
 - (BOOL)userDefaultsSetObject:(id<NSCoding>)object forKey:(NSString *)key suiteName:(NSString *)suiteName
 {
     return [self.client  userDefaultsSetObject:object forKey:key suiteName:suiteName];

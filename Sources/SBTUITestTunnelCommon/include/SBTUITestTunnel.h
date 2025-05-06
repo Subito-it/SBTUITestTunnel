@@ -101,6 +101,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsSe
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsReset;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMainBundleInfoDictionary;
 

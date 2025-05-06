@@ -398,6 +398,13 @@
  */
 - (BOOL)userDefaultsResetSuiteName:(nonnull NSString *)suiteName;
 
+/**
+ *  Register defaults for NSUserDefaults
+ *
+ *  @param dictionary Dictionary containing the defaults
+ */
+- (BOOL)userDefaultsRegisterDefaults:(nonnull NSDictionary *)dictionary;
+
 #pragma mark - NSBundle
 
 - (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;

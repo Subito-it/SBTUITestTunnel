@@ -265,4 +265,16 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertEqual(NSStringFromClass(klass), "_NSURLHTTPProtocol")
     }
+    
+    func testUserDefaultDefaultsRegistration() {
+        app.launchTunnel()
+        
+        app.userDefaultsRegisterDefaults(["key": "value"])
+        XCTAssertEqual(app.userDefaultsObject(forKey: "key") as? String, "value")
+        
+        app.terminate()
+        app.launchTunnel()
+        
+        XCTAssertNil(app.userDefaultsObject(forKey: "key"))
+    }
 }

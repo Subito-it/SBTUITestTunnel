@@ -699,6 +699,33 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
 }
 
+- (NSDictionary *)commandNSUserDefaultsRegisterDefaults:(NSDictionary *)parameters
+{
+    NSData *objData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
+    NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];
+    
+    // this can't switch to the non-deprecated NSSecureCoding method because the types aren't known ahead of time
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSDictionary *defaults = [NSKeyedUnarchiver unarchiveObjectWithData:objData];
+    #pragma clang diagnostic pop
+
+    NSString *ret = @"NO";
+    if (defaults) {
+        NSUserDefaults *userDefault;
+        if ([suiteName length] > 0) {
+            userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+        } else {
+            userDefault = [NSUserDefaults standardUserDefaults];
+        }
+        
+        [userDefault registerDefaults:defaults];
+        ret = [userDefault synchronize] ? @"YES" : @"NO";
+    }
+    
+    return @{ SBTUITunnelResponseResultKey: ret };
+}
+
 - (NSDictionary *)commandNSUserDefaultsReset:(NSDictionary *)parameters
 {
     NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];

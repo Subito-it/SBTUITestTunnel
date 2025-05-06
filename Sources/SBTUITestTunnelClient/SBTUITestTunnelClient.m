@@ -581,6 +581,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [self userDefaultsResetSuiteName:@""];
 }
 
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary
+{
+    return [self userDefaultsRegisterDefaults:dictionary suiteName:@""];
+}
+
 - (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key suiteName:(NSString *)suiteName;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
@@ -623,6 +628,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelUserDefaultSuiteNameKey: suiteName};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsReset params:params] boolValue];
+}
+
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary suiteName:(NSString *)suiteName
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [self base64SerializeObject:dictionary],
+                                                     SBTUITunnelUserDefaultSuiteNameKey: suiteName};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults params:params] boolValue];
 }
 
 #pragma mark - NSBundle
