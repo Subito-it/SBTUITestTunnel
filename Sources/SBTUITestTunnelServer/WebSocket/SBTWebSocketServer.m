@@ -21,6 +21,7 @@
 @property (nonatomic) nw_listener_t listener;
 @property (nonatomic, strong) NSMutableArray<NSValue *> *clients;
 @property (nonatomic, assign, readwrite) NSInteger port;
+@property (nonatomic, strong) NSMutableArray<NSData *> *receivedMessages;
 
 @end
 
@@ -32,6 +33,7 @@
     if (self) {
         _port = port;
         _clients = [NSMutableArray array];
+        _receivedMessages = [NSMutableArray array];
     }
     
     return self;
@@ -131,6 +133,8 @@
                 } else {
                     NSLog(@"[SBTUITestTunnel] SBTWebSocketServer got binary: %zu bytes", (size_t)collected.length);
                 }
+                
+                [weakSelf.receivedMessages addObject:collected];
                                 
                 [weakSelf sendStubbedMessage];
             }
@@ -173,6 +177,13 @@
             }
         });
     }
+}
+
+- (NSArray<NSData *> *)flushReceivedMessages
+{
+    NSArray<NSData *> *messages = [self.receivedMessages copy];
+    [self.receivedMessages removeAllObjects];
+    return messages;
 }
 
 @end

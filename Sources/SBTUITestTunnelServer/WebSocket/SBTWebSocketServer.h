@@ -49,6 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)sendStubbedMessage;
 
+/**
+ *  Flush list of received messages.
+ *
+ *  @return The list of received messages.
+ */
+- (NSArray<NSData *> *)flushReceivedMessages;
+
 @property (nonatomic, assign, readonly) NSInteger port;
 @property (nonatomic, strong) NSData *stubbedMessage;
 @property (nullable, nonatomic, weak) id<SBTWebSocketServerDelegate> delegate;
