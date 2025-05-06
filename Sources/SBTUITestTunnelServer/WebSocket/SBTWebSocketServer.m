@@ -146,12 +146,12 @@
     });
 }
 
-- (void)sendStubbedMessage
+- (BOOL)sendStubbedMessage
 {
     if (!self.stubbedMessage) {
-        return;
+        return NO;
     }
-    
+        
     dispatch_data_t content = dispatch_data_create(self.stubbedMessage.bytes,
                                                    self.stubbedMessage.length,
                                                    dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
@@ -160,13 +160,11 @@
     for (NSValue *val in self.clients) {
         nw_connection_t connection = (__bridge nw_connection_t)val.pointerValue;
 
-        // Create a WebSocket text‐frame metadata (final fragment)
         nw_protocol_metadata_t metadata = nw_ws_create_metadata(nw_ws_opcode_text);
 
         nw_content_context_t context = nw_content_context_create("send-message");
         nw_content_context_set_metadata_for_protocol(context, metadata);
         
-        // Send the data
         nw_connection_send(connection,
                            content,
                            context,
@@ -177,6 +175,8 @@
             }
         });
     }
+    
+    return YES;
 }
 
 - (NSArray<NSData *> *)flushReceivedMessages

@@ -44,10 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startWithError:(NSError **)error;
 
 /**
- *  Sends the current stubbed response to all connected clients.
+ *  Asynchronously sends the current stubbed response to all connected clients.
  *
+ *  @return YES if the message was sent successfully, NO otherwise
  */
-- (void)sendStubbedMessage;
+- (BOOL)sendStubbedMessage;
 
 /**
  *  Flush list of received messages.
