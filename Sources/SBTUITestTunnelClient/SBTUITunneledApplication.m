@@ -44,6 +44,16 @@
     [self launchTunnelWithStartupBlock: startupBlock];
 }
 
+- (void)launchTunnelWithOptions:(NSArray<NSString *> *)options retries:(NSInteger)retryThreshold retryInterval:(NSTimeInterval) retryInterval startupBlock:(void (^)(void))startupBlock;
+{
+    NSMutableArray *launchArguments = [self.launchArguments mutableCopy];
+    [launchArguments addObjectsFromArray:options];
+
+    self.launchArguments = launchArguments;
+
+    [self launchTunnelWithRetries:retryThreshold retryInterval:retryInterval startupBlock:startupBlock];
+}
+
 # pragma mark - SBTUITestTunnelClientDelegate
 
 - (void)tunnelClientIsReadyToLaunch:(SBTUITestTunnelClient *)sender
@@ -68,6 +78,11 @@
 - (void)launchTunnelWithStartupBlock:(void (^)(void))startupBlock
 {
     [self.client launchTunnelWithStartupBlock:startupBlock];
+}
+
+- (void)launchTunnelWithRetries:(NSInteger)retryThreshold retryInterval:(NSTimeInterval)retryInterval startupBlock:(void (^)(void))startupBlock
+{
+    [self.client launchTunnelWithRetries:retryThreshold retryInterval:retryInterval startupBlock: startupBlock];
 }
 
 - (void)launchConnectionless:(NSString * (^)(NSString *, NSDictionary<NSString *,NSString *> *))command
