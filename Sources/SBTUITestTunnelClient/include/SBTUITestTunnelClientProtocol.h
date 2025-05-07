@@ -398,6 +398,13 @@
  */
 - (BOOL)userDefaultsResetSuiteName:(nonnull NSString *)suiteName;
 
+/**
+ *  Register defaults for NSUserDefaults
+ *
+ *  @param dictionary Dictionary containing the defaults
+ */
+- (BOOL)userDefaultsRegisterDefaults:(nonnull NSDictionary *)dictionary;
+
 #pragma mark - NSBundle
 
 - (nullable NSDictionary<NSString *, id> *)mainBundleInfoDictionary;
@@ -666,5 +673,41 @@
  *  @return `YES` on success
 */
 - (BOOL)wkWebViewStubEnabled:(BOOL)flag;
+
+#pragma mark - WebSocket
+
+/**
+ *  Launch a WebSocket connection to the specified URL
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return The port number of the web socket connection
+ */
+- (NSInteger)launchWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(launchWebSocket(identifier:));
+
+/**
+ *  Stub responses for a WebSocket connection
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @param responseData The data to be returned when the client receives a message
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)stubWebSocketWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocket(identifier:responseData:));
+
+/**
+ *  Flush received messages from a WebSocket connection
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return An array of NSData containing the received messages, or nil on failure
+ */
+- (nonnull NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(flushWebSocketMessages(identifier:));
+
+/**
+ *  Synchronously send the currently stubbed message to the WebSocket server
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return `YES` on success
+ */
+- (BOOL)sendWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(identifier:));
 
 @end

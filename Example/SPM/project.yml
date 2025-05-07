@@ -3,7 +3,7 @@ name: SBTUITestTunnel
 options:
   bundleIdPrefix: com.tunnel.spm
   platform: iOS
-  deploymentTarget: "12.0"
+  deploymentTarget: "15.0"
 
 packages:
   SBTUITestTunnelServer:

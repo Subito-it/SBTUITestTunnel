@@ -269,6 +269,11 @@
     return [self.client userDefaultsReset];
 }
 
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary
+{
+    return [self.client userDefaultsRegisterDefaults:dictionary];
+}
+
 - (BOOL)userDefaultsSetObject:(id<NSCoding>)object forKey:(NSString *)key suiteName:(NSString *)suiteName
 {
     return [self.client  userDefaultsSetObject:object forKey:key suiteName:suiteName];
@@ -432,6 +437,28 @@
 - (BOOL)wkWebViewStubEnabled:(BOOL)flag
 {
     return [self.client wkWebViewStubEnabled:flag];
+}
+
+#pragma mark - WebSocket
+
+- (NSInteger)launchWebSocketWithIdentifier:(NSString *)identifier
+{
+    return [self.client launchWebSocketWithIdentifier:identifier];
+}
+
+- (BOOL)stubWebSocketWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+{
+    return [self.client stubWebSocketWithIdentifier:identifier responseData:responseData];
+}
+
+- (NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(NSString *)identifier
+{
+    return [self.client flushWebSocketMessagesWithIdentifier:identifier];
+}
+
+- (BOOL)sendWebSocketWithIdentifier:(NSString *)identifier
+{
+    return [self.client sendWebSocketWithIdentifier:identifier];
 }
 
 @end

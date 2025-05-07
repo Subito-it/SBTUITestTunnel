@@ -101,6 +101,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsSe
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsObject;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsReset;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandMainBundleInfoDictionary;
 
@@ -129,6 +130,13 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCent
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandWKWebViewStubbing;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandStubWebSocket;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandLaunchWebSocket;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandFlushWebSocketMessages;
+
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandSendWebSocketMessage;
 
 extern NSString * _Nonnull const SBTUITunneledNSURLProtocolHTTPBodyKey;
 

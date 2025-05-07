@@ -28,6 +28,7 @@ class BaseTest {
 }
 
 class NetworkTest: BaseTest {}
+class WebSocketTest: BaseTest {}
 class AutocompleteTest: BaseTest {}
 class CookiesTest: BaseTest {}
 class Extension1Test: BaseTest {}
@@ -54,6 +55,7 @@ class SBTTableViewController: UITableViewController {
                                         NetworkTest(testSelector: #selector(executeUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeBackgroundUploadDataTaskRequestWithHTTPBody)),
                                         NetworkTest(testSelector: #selector(executeRequestWithRedirect)),
+                                        WebSocketTest(testSelector: #selector(executeWebSocket)),
                                         AutocompleteTest(testSelector: #selector(showAutocompleteForm)),
                                         CookiesTest(testSelector: #selector(executeRequestWithCookies)),
                                         Extension1Test(testSelector: #selector(showExtensionTable1)),
@@ -68,27 +70,28 @@ class SBTTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell
-        if testList[indexPath.row] is NetworkTest {
-            cell = tableView.dequeueReusableCell(withIdentifier: "networkConnectionCell", for: indexPath)
+        let cell: UITableViewCell = if testList[indexPath.row] is NetworkTest {
+            tableView.dequeueReusableCell(withIdentifier: "networkConnectionCell", for: indexPath)
+        } else if testList[indexPath.row] is WebSocketTest {
+            tableView.dequeueReusableCell(withIdentifier: "webSocketConnectionCell", for: indexPath)
         } else if testList[indexPath.row] is AutocompleteTest {
-            cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
         } else if testList[indexPath.row] is CookiesTest {
-            cell = tableView.dequeueReusableCell(withIdentifier: "cookieCell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "cookieCell", for: indexPath)
         } else if testList[indexPath.row] is Extension1Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension2Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension2Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension2Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension3Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension3Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension3Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension4Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension4Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension4Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension5Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension5Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension5Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension6Test {
-            cell = tableView.dequeueReusableCell(withIdentifier: "extension6Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension6Cell", for: indexPath)
         } else {
-            cell = tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
         cell.textLabel?.text = testList[indexPath.row].testSelector.description
         cell.accessibilityIdentifier = testList[indexPath.row].testSelector.description
@@ -351,7 +354,7 @@ extension SBTTableViewController {
     }
 
     @objc func executePostDataTaskRequestWithLargeHTTPBody() {
-        let largeBody = String(repeating: "a", count: 20000)
+        let largeBody = String(repeating: "a", count: 20_000)
         dataTaskNetwork(urlString: "https://postman-echo.com/post", httpMethod: "POST", httpBody: largeBody)
     }
 
@@ -398,6 +401,10 @@ extension SBTTableViewController {
 
     @objc func executeRequestWithRedirect() {
         dataTaskNetwork(urlString: "https://postman-echo.com/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
+    }
+
+    @objc func executeWebSocket() {
+        performSegue(withIdentifier: "webSocketSegue", sender: nil)
     }
 }
 

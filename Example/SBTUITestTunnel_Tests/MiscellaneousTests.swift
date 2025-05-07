@@ -233,7 +233,7 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
-        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 1.0, animated: true))
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.65, animated: true))
 
         XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
@@ -264,5 +264,17 @@ class MiscellaneousTests: XCTestCase {
         }
 
         XCTAssertEqual(NSStringFromClass(klass), "_NSURLHTTPProtocol")
+    }
+    
+    func testUserDefaultDefaultsRegistration() {
+        app.launchTunnel()
+        
+        app.userDefaultsRegisterDefaults(["key": "value"])
+        XCTAssertEqual(app.userDefaultsObject(forKey: "key") as? String, "value")
+        
+        app.terminate()
+        app.launchTunnel()
+        
+        XCTAssertNil(app.userDefaultsObject(forKey: "key"))
     }
 }

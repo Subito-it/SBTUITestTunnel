@@ -82,4 +82,36 @@ typedef enum: NSUInteger {
  */
 - (nonnull instancetype)initWithApplication:(nonnull XCUIApplication *)application;
 
+/**
+ *  Launch a WebSocket server in the application with the specified identifier.
+ *
+ *  @param identifier A unique identifier for the WebSocket server.
+ *  @return The port number that the WebSocket server is running on.
+ */
+- (NSInteger)launchWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(launchWebSocket(identifier:));
+
+/**
+ *  Stub responses for a WebSocket connection.
+ *
+ *  @param identifier The identifier of the WebSocket connection.
+ *  @param responseData The data to be returned when the client receives a message.
+ *  @return `YES` on success.
+ */
+- (BOOL)stubWebSocketWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocket(identifier:responseData:));
+
+/**
+ *  Flush received messages from a WebSocket connection.
+ *
+ *  @param identifier The identifier of the WebSocket connection.
+ *  @return An array of NSData containing the received messages, or nil on failure.
+ */
+- (nonnull NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(flushWebSocketMessages(identifier:));
+
+/**
+ *  Synchronously send the currently stubbed message to the WebSocket server.
+ *
+ *  @return `YES` on success.
+ */
+- (BOOL)sendWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(identifier:));
+
 @end

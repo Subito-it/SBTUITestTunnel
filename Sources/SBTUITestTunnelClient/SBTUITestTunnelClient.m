@@ -148,7 +148,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentIPCKey] = serviceIdentifier;
         self.application.launchEnvironment = launchEnvironment;
     } else {
-        self.connectionPort = [self findOpenPort];
+        self.connectionPort = [SBTUITestTunnelNetworkUtility reserveSocketPort];
         NSLog(@"[SBTUITestTunnel] Resolving connection on port %ld", self.connectionPort);
         
         if (self.connectionPort < 0) {
@@ -581,6 +581,11 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [self userDefaultsResetSuiteName:@""];
 }
 
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary
+{
+    return [self userDefaultsRegisterDefaults:dictionary suiteName:@""];
+}
+
 - (BOOL)userDefaultsSetObject:(id)object forKey:(NSString *)key suiteName:(NSString *)suiteName;
 {
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKeyKey: key,
@@ -623,6 +628,14 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelUserDefaultSuiteNameKey: suiteName};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsReset params:params] boolValue];
+}
+
+- (BOOL)userDefaultsRegisterDefaults:(NSDictionary *)dictionary suiteName:(NSString *)suiteName
+{
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: [self base64SerializeObject:dictionary],
+                                                     SBTUITunnelUserDefaultSuiteNameKey: suiteName};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults params:params] boolValue];
 }
 
 #pragma mark - NSBundle
@@ -900,6 +913,70 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandWKWebViewStubbing params:params] boolValue];
 }
 
+#pragma mark - WebSocket
+
+- (NSInteger)launchWebSocketWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    NSString *portString = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandLaunchWebSocket params:params];
+    
+    return [portString integerValue];
+}
+
+- (BOOL)stubWebSocketWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    NSAssert(responseData != nil, @"Response data cannot be nil!");
+    
+
+    NSString *responseDataBase64 = [self base64SerializeData:responseData];
+    NSDictionary<NSString *, NSString *> *params = @{
+        SBTUITunnelObjectKey: identifier,
+        SBTUITunnelStubResponseKey: responseDataBase64
+    };
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubWebSocket params:params] boolValue];
+}
+
+- (NSArray<NSData *> *)flushWebSocketMessagesWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    NSString *base64String = [self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandFlushWebSocketMessages params:params];
+    
+    if (base64String.length > 0) {
+        NSData *archivedData = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
+        if (archivedData) {
+            NSError *unarchiveError = nil;
+            NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSData class], nil];
+            NSArray<NSData *> *messages = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:archivedData error:&unarchiveError];
+            
+            if (!unarchiveError && messages) {
+                return messages;
+            } else {
+                NSLog(@"[SBTUITestTunnel] Error unarchiving WebSocket messages: %@", unarchiveError);
+            }
+        }
+    }
+    
+    return @[];
+}
+
+- (BOOL)sendWebSocketWithIdentifier:(NSString *)identifier
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSendWebSocketMessage params:params] boolValue];
+}
+
+
 #pragma mark - Helper Methods
 
 - (NSString *)base64SerializeObject:(id)obj
@@ -1048,79 +1125,6 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 - (NSString *)sendSynchronousRequestWithPath:(NSString *)path params:(NSDictionary<NSString *, NSString *> *)params
 {
     return [self sendSynchronousRequestWithPath:path params:params assertOnError:YES];
-}
-
-#pragma mark - Networking
-
-- (int)findOpenPort
-{
-    // Unexpectedly this is binding on ports out of the IPPORT_RESERVED < port < IPPORT_USERRESERVED
-    // A lame workaround is to simply try again
-    for (int retry = 0; retry < 50; retry++) {
-        struct sockaddr_in addr;
-        socklen_t len = sizeof(addr);
-        addr.sin_family = AF_INET;
-        addr.sin_port = 0;
-        inet_aton("0.0.0.0", &addr.sin_addr);
-        int server_sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_sock < 0) {
-            return -1;
-        }
-        if (bind(server_sock, (struct sockaddr*) &addr, sizeof(addr)) != 0) {
-            close(server_sock);
-            return -2;
-        }
-        if (getsockname(server_sock, (struct sockaddr*) &addr, &len) != 0) {
-            close(server_sock);
-            return -3;
-        }
-
-        in_port_t port = addr.sin_port;
-
-        if (port <= 1023) {
-            close(server_sock);
-            NSLog(@"[SBTUITestTunnel] Invalid port assigned, trying again");
-            continue;
-        }
-
-        // Attempt to reserve the port by putting it in TIME_WAIT state. During this time,
-        // the system prevents other applications from binding to the same port,
-        // to prevent packets meant for the recently closed connection from being
-        // misdirected to the new application. Since SBTWebServer is utilizing SO_REUSEADDR on the
-        // server socket, we can bind to the port even though it's in TIME_WAIT state,
-        // effectively reserving it for our own use until we close the server socket.
-        if (listen(server_sock, 1)) {
-            close(server_sock);
-            return -4;
-        }
-
-        int client_sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (client_sock < 0) {
-            close(server_sock);
-            return -5;
-        }
-
-        if (connect(client_sock, (struct sockaddr*) &addr, sizeof(addr))) {
-            close(server_sock);
-            close(client_sock);
-            return -6;
-        }
-
-        int accept_sock = accept(server_sock, nil, nil);
-        if (accept_sock < 0) {
-            close(server_sock);
-            close(client_sock);
-            return -7;
-        }
-
-        close(server_sock);
-        close(client_sock);
-        close(accept_sock);
-
-        return port;
-    }
-
-    return -8;
 }
 
 #pragma mark - Error Helpers

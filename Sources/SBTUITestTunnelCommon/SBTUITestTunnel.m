@@ -99,6 +99,7 @@ NSString * const SBTUITunneledApplicationCommandNSUserDefaultsSetObject = @"comm
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRemoveObject = @"commandNSUserDefaultsRemoveObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsObject = @"commandNSUserDefaultsObject";
 NSString * const SBTUITunneledApplicationCommandNSUserDefaultsReset = @"commandNSUserDefaultsReset";
+NSString * const SBTUITunneledApplicationCommandNSUserDefaultsRegisterDefaults = @"commandNSUserDefaultsRegisterDefaults";
 
 NSString * const SBTUITunneledApplicationCommandMainBundleInfoDictionary = @"commandMainBundleInfoDictionary";
 
@@ -125,7 +126,13 @@ NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyUpdate = @"com
 NSString * const SBTUITunneledApplicationCommandCoreLocationNotifyFailure = @"commandCoreLocationNotifyFailure";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubbing = @"commandNotificationCenterStubbing";
 NSString * const SBTUITunneledApplicationCommandNotificationCenterStubAuthorizationStatus = @"commandNotificationCenterStubAuthorizationStatus";
-NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing"; 
+
+NSString * const SBTUITunneledApplicationCommandWKWebViewStubbing = @"commandWkWebViewStubbing";
+
+NSString * const SBTUITunneledApplicationCommandLaunchWebSocket = @"commandLaunchWebSocket";
+NSString * const SBTUITunneledApplicationCommandStubWebSocket = @"commandStubWebSocket";
+NSString * const SBTUITunneledApplicationCommandFlushWebSocketMessages = @"commandFlushWebSocketMessages";
+NSString * const SBTUITunneledApplicationCommandSendWebSocketMessage = @"commandSendWebSocketMessage";
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 
