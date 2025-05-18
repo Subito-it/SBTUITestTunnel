@@ -27,6 +27,7 @@
 #import "SBTSwizzleHelpers.h"
 #import "SBTUITestTunnel.h"
 #import "SBTUITestTunnelNetworkUtility.h"
+#import "SBTAsyncRequestHandler.h"
 
 #ifdef SPM
 #import "../DetoxIPC/DTXIPCConnection.h"
