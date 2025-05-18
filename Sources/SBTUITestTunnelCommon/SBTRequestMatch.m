@@ -16,6 +16,7 @@
 
 #import "include/SBTRequestMatch.h"
 #import "include/NSURLRequest+HTTPBodyFix.h"
+#import "include/SBTAsyncRequestHandler.h"
 #import "private/SBTRegularExpressionMatcher.h"
 
 @implementation NSDictionary (Matcher)
@@ -194,7 +195,7 @@
         SBTRegularExpressionMatcher *matcher = [[SBTRegularExpressionMatcher alloc] initWithRegularExpression:self.body];
 
         // an upload task previously stored its body contents in NSURLProtocol to avoid a CFNetwork runtime warning
-        NSData *body = ([request sbt_isUploadTaskRequest]) ? [request sbt_uploadHTTPBody] : request.HTTPBody;
+        NSData *body = [SBTAsyncRequestHandler extractBodyDataFromRequest:request];
 
     	NSString *bodyDecoded = [[NSString alloc] initWithData:body ?: [NSData data] encoding:NSUTF8StringEncoding];;
 

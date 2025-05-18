@@ -21,6 +21,7 @@
 @class SBTStubResponse;
 @class SBTMonitoredNetworkRequest;
 @class SBTActiveStub;
+@class SBTAsyncRequestHandler;
 
 @interface SBTProxyURLProtocol : NSURLProtocol
 

@@ -36,9 +36,53 @@
 
 NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSURLProtocolIsUploadTaskKey";
 
++ (NSData *)sbt_readFromBodyStream:(NSInputStream *)stream
+{
+    if (!stream) {
+        return nil;
+    }
+
+    NSMutableData *data = [NSMutableData data];
+    uint8_t buffer[4096];
+
+    BOOL shouldClose = (stream.streamStatus == NSStreamStatusNotOpen);
+    if (shouldClose) {
+        [stream open];
+    }
+
+    @try {
+        NSInteger bytesRead;
+        while ((bytesRead = [stream read:buffer maxLength:sizeof(buffer)]) > 0) {
+            [data appendBytes:buffer length:bytesRead];
+        }
+        if (bytesRead < 0) {
+            return nil;
+        }
+    } @finally {
+        if (shouldClose) {
+            [stream close];
+        }
+    }
+
+    return data.length > 0 ? data : nil;
+}
+
 - (NSData *)sbt_uploadHTTPBody
 {
-    return [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    // First try getting from property storage (existing behavior)
+    NSData *bodyData = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    
+    // If no stored data, try direct HTTPBody
+    if (!bodyData) {
+        bodyData = [self HTTPBody];
+    }
+    
+    // If still no data, try reading from stream
+    if (!bodyData && [self HTTPBodyStream]) {
+        bodyData = [NSURLRequest sbt_readFromBodyStream:[self HTTPBodyStream]];
+    }
+    
+    return bodyData;
 }
 
 - (BOOL)sbt_isUploadTaskRequest
