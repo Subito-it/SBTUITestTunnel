@@ -65,9 +65,13 @@ NSString* const SBTWebServerOption_ConnectionClass = @"ConnectionClass";
 NSString* const SBTWebServerOption_AutomaticallyMapHEADToGET = @"AutomaticallyMapHEADToGET";
 NSString* const SBTWebServerOption_ConnectedStateCoalescingInterval = @"ConnectedStateCoalescingInterval";
 NSString* const SBTWebServerOption_DispatchQueuePriority = @"DispatchQueuePriority";
+NSString* const SBTWebServerOption_EnableKeepAlive = @"EnableKeepAlive";
+NSString* const SBTWebServerOption_KeepAliveTimeout = @"KeepAliveTimeout";
 #if TARGET_OS_IPHONE
 NSString* const SBTWebServerOption_AutomaticallySuspendInBackground = @"AutomaticallySuspendInBackground";
 #endif
+
+const NSUInteger kSBTWebServerDefaultKeepAliveTimeout = 15;
 
 NSString* const SBTWebServerAuthenticationMethod_Basic = @"Basic";
 NSString* const SBTWebServerAuthenticationMethod_DigestAccess = @"DigestAccess";
@@ -575,6 +579,17 @@ static inline NSString* _EncodeBase64(NSString* string) {
   _shouldAutomaticallyMapHEADToGET = [(NSNumber*)_GetOption(_options, SBTWebServerOption_AutomaticallyMapHEADToGET, @YES) boolValue];
   _disconnectDelay = [(NSNumber*)_GetOption(_options, SBTWebServerOption_ConnectedStateCoalescingInterval, @1.0) doubleValue];
   _dispatchQueuePriority = [(NSNumber*)_GetOption(_options, SBTWebServerOption_DispatchQueuePriority, @(DISPATCH_QUEUE_PRIORITY_DEFAULT)) longValue];
+  
+  NSMutableDictionary* mutableOptions = [_options mutableCopy];
+  if (mutableOptions[SBTWebServerOption_EnableKeepAlive] == nil) {
+    mutableOptions[SBTWebServerOption_EnableKeepAlive] = @NO;
+  }
+  
+  if ([mutableOptions[SBTWebServerOption_EnableKeepAlive] boolValue] && 
+      mutableOptions[SBTWebServerOption_KeepAliveTimeout] == nil) {
+    mutableOptions[SBTWebServerOption_KeepAliveTimeout] = @(kSBTWebServerDefaultKeepAliveTimeout);
+  }
+  _options = [mutableOptions copy];
 
   _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];

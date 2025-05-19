@@ -275,6 +275,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     
     [serverOptions setValue:@NO forKey:SBTWebServerOption_AutomaticallySuspendInBackground];
     [serverOptions setValue:@(YES) forKey:SBTWebServerOption_BindToLocalhost];
+    if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableKeepAlive]) {
+        [serverOptions setValue:@(YES) forKey:SBTWebServerOption_EnableKeepAlive];
+    }
     
     if (tunnelPort) {
         [serverOptions setValue:@([tunnelPort intValue]) forKey:SBTWebServerOption_Port];

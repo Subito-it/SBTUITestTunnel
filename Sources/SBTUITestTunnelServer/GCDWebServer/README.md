@@ -32,13 +32,13 @@ Extra built-in features:
 * Automatically handle transitions between foreground, background and suspended modes in iOS apps
 * Full support for both IPv4 and IPv6
 * NAT port mapping (IPv4 only)
+* HTTP Keep-Alive connections for improved performance
 
 Included extensions:
 * [GCDWebUploader](GCDWebUploader/GCDWebUploader.h): subclass of ```GCDWebServer``` that implements an interface for uploading and downloading files using a web browser
 * [GCDWebDAVServer](GCDWebDAVServer/GCDWebDAVServer.h): subclass of ```GCDWebServer``` that implements a class 1 [WebDAV](https://en.wikipedia.org/wiki/WebDAV) server (with partial class 2 support for macOS Finder)
 
 What's not supported (but not really required from an embedded HTTP server):
-* Keep-alive connections
 * HTTPS
 
 Requirements:
