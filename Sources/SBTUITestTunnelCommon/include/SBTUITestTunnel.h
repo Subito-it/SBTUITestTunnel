@@ -30,6 +30,7 @@ SBTUITunnelStubsDownloadSpeedWifi;
 
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchSignal;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionResetFilesystem;
+extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionDisableKeepAlive;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete;
 extern NSString * _Nonnull const SBTUITunneledApplicationLaunchOptionHasStartupCommands;
 

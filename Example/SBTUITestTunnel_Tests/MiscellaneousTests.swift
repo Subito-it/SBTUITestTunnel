@@ -265,16 +265,40 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssertEqual(NSStringFromClass(klass), "_NSURLHTTPProtocol")
     }
-    
+
     func testUserDefaultDefaultsRegistration() {
         app.launchTunnel()
-        
+
         app.userDefaultsRegisterDefaults(["key": "value"])
         XCTAssertEqual(app.userDefaultsObject(forKey: "key") as? String, "value")
-        
+
         app.terminate()
         app.launchTunnel()
-        
+
         XCTAssertNil(app.userDefaultsObject(forKey: "key"))
+    }
+
+    func testLaunchTimeWithUserDefaults() throws {
+        func writeToDefaultsAndGetDuration(amount: Int) -> CFAbsoluteTime {
+            let randomString = ProcessInfo.processInfo.globallyUniqueString
+            let start: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+            for i in 1 ... amount {
+                self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: "\(i)")
+            }
+            return CFAbsoluteTimeGetCurrent() - start
+        }
+
+        var durations: [CFAbsoluteTime] = []
+        app.launchTunnel {
+            for _ in 1 ... 10 {
+                durations.append(writeToDefaultsAndGetDuration(amount: 50))
+            }
+        }
+
+        let last5avg = durations.suffix(5).reduce(0, +) / 5
+
+        for duration in durations.dropFirst() {
+            XCTAssertTrue(duration < last5avg * 2.0, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
+        }
     }
 }

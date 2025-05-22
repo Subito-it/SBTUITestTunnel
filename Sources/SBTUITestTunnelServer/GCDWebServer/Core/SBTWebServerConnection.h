@@ -56,6 +56,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
 
 /**
+ *  Returns YES if this connection supports keep-alive.
+ */
+@property(nonatomic, readonly, getter=isKeepAliveEnabled) BOOL keepAliveEnabled;
+
+/**
+ *  Returns the keep-alive timeout for this connection in seconds.
+ */
+@property(nonatomic, readonly) NSUInteger keepAliveTimeout;
+
+/**
+ *  Returns the number of requests processed on this connection.
+ */
+@property(nonatomic, readonly) NSUInteger requestCount;
+
+/**
  *  Returns the address of the local peer (i.e. server) of the connection
  *  as a raw "struct sockaddr".
  */

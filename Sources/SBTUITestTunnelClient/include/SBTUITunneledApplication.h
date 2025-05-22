@@ -27,6 +27,8 @@
  *  Valid options:
  *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
  *  SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
+ *  SBTUITunneledApplicationLaunchOptionDisableKeepAlive: disables the keep alive functionality
+ *  for the application.
  *
  *  @param startupBlock Block that is executed before connection is estabilished.
  *  Useful to inject startup condition (user settings, preferences).

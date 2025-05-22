@@ -84,6 +84,11 @@ NS_ASSUME_NONNULL_END
   CFHTTPMessageRef _responseMessage;
   SBTWebServerResponse* _response;
   NSInteger _statusCode;
+  
+  BOOL _keepAliveEnabled;
+  NSUInteger _keepAliveTimeout;
+  NSUInteger _requestCount;
+  dispatch_source_t _keepAliveTimer;
 
   BOOL _opened;
 #ifdef __GCDWEBSERVER_ENABLE_TESTING__
@@ -128,7 +133,27 @@ NS_ASSUME_NONNULL_END
 - (void)_initializeResponseHeadersWithStatusCode:(NSInteger)statusCode {
   _statusCode = statusCode;
   _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
-  CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+  
+    if (_keepAliveEnabled) {
+    // Check if the client requested keep-alive and if we want to maintain the connection
+    CFStringRef connectionHeader = CFHTTPMessageCopyHeaderFieldValue(_requestMessage, CFSTR("Connection"));
+    BOOL clientWantsKeepAlive = connectionHeader && (CFStringCompare(connectionHeader, CFSTR("keep-alive"), kCFCompareCaseInsensitive) == kCFCompareEqualTo);
+    if (connectionHeader) {
+      CFRelease(connectionHeader);
+    }
+    
+    if (clientWantsKeepAlive) {
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("keep-alive"));
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Keep-Alive"), 
+                                      (__bridge CFStringRef)[NSString stringWithFormat:@"timeout=%lu, max=100", (unsigned long)_keepAliveTimeout]);
+    } else {
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+    }
+  } else {
+    // Default to close for the first request or if keep-alive is disabled
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+  }
+  
   CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
   CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)SBTWebServerFormatRFC822([NSDate date]));
 }
@@ -200,7 +225,11 @@ NS_ASSUME_NONNULL_END
         if (hasBody) {
           [self writeBodyWithCompletionBlock:^(BOOL successInner) {
             [self->_response performClose];  // TODO: There's nothing we can do on failure as headers have already been sent
+            [self _prepareForNextRequest];
           }];
+        } else {
+          // No body to write, prepare for next request immediately
+          [self _prepareForNextRequest];
         }
       } else if (hasBody) {
         [self->_response performClose];
@@ -362,6 +391,14 @@ NS_ASSUME_NONNULL_END
     _localAddressData = localAddress;
     _remoteAddressData = remoteAddress;
     _socket = socket;
+    _keepAliveEnabled = [server.options[SBTWebServerOption_EnableKeepAlive] boolValue];
+    _keepAliveTimeout = [server.options[SBTWebServerOption_KeepAliveTimeout] unsignedIntegerValue];
+    if (!_keepAliveTimeout) {
+      _keepAliveTimeout = kSBTWebServerDefaultKeepAliveTimeout;
+    }
+    _requestCount = 0;
+    _keepAliveTimer = NULL;
+    
     GWS_LOG_DEBUG(@"Did open connection on socket %i", _socket);
 
     [_server willStartConnection:self];
@@ -386,6 +423,9 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)dealloc {
+  // Cancel any keep-alive timer
+  [self _cancelKeepAliveTimer];
+  
   int result = close(_socket);
   if (result != 0) {
     GWS_LOG_ERROR(@"Failed closing socket %i for connection: %s (%i)", _socket, strerror(errno), errno);
@@ -783,7 +823,7 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
 
 - (SBTWebServerResponse*)overrideResponse:(SBTWebServerResponse*)response forRequest:(SBTWebServerRequest*)request {
   if ((response.statusCode >= 200) && (response.statusCode < 300) && _CompareResources(response.eTag, request.ifNoneMatch, response.lastModifiedDate, request.ifModifiedSince)) {
-    NSInteger code = [request.method isEqualToString:@"HEAD"] || [request.method isEqualToString:@"GET"] ? kSBTWebServerHTTPStatusCode_NotModified : kSBTWebServerHTTPStatusCode_PreconditionFailed;
+    NSInteger code = [request.method isEqualToString:@"HEAD"] || [request.method isEqualToString:@"GET"] ? (NSInteger)kSBTWebServerHTTPStatusCode_NotModified : (NSInteger)kSBTWebServerHTTPStatusCode_PreconditionFailed;
     SBTWebServerResponse* newResponse = [SBTWebServerResponse responseWithStatusCode:code];
     newResponse.cacheControlMaxAge = response.cacheControlMaxAge;
     newResponse.lastModifiedDate = response.lastModifiedDate;
@@ -799,7 +839,8 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
   GWS_DCHECK((statusCode >= 400) && (statusCode < 600));
   [self _initializeResponseHeadersWithStatusCode:statusCode];
   [self writeHeadersWithCompletionBlock:^(BOOL success){
-      // Nothing more to do
+      // After aborting, we should close the connection since error handling is unpredictable
+      [self _closeConnection];
   }];
   GWS_LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
 }
@@ -842,6 +883,96 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
   } else {
     GWS_LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_totalBytesRead, (unsigned long)_totalBytesWritten);
   }
+}
+
+@end
+
+@implementation SBTWebServerConnection (Private)
+
+- (void)_setupKeepAliveTimer {
+  [self _cancelKeepAliveTimer];
+  
+  _keepAliveTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(_server.dispatchQueuePriority, 0));
+  if (_keepAliveTimer) {
+    dispatch_source_set_timer(_keepAliveTimer,
+                              dispatch_time(DISPATCH_TIME_NOW, _keepAliveTimeout * NSEC_PER_SEC),
+                              DISPATCH_TIME_FOREVER, 0);
+    
+    __weak SBTWebServerConnection* weakSelf = self;
+    dispatch_source_set_event_handler(_keepAliveTimer, ^{
+      SBTWebServerConnection* strongSelf = weakSelf;
+      if (strongSelf) {
+        GWS_LOG_DEBUG(@"Keep-alive timeout for socket %i", strongSelf->_socket);
+        [strongSelf _closeConnection];
+      }
+    });
+    
+    dispatch_resume(_keepAliveTimer);
+  }
+}
+
+- (void)_cancelKeepAliveTimer {
+  if (_keepAliveTimer) {
+    dispatch_source_cancel(_keepAliveTimer);
+    dispatch_source_set_event_handler(_keepAliveTimer, NULL);
+    _keepAliveTimer = NULL;
+  }
+}
+
+- (void)_closeConnection {
+  // Cancel any keep-alive timer
+  [self _cancelKeepAliveTimer];
+  
+  if (_opened) {
+    [self close];
+  }
+}
+
+- (void)_prepareForNextRequest {
+  if (_keepAliveEnabled) {
+    // Check if the client requested keep-alive
+    CFStringRef connectionHeader = CFHTTPMessageCopyHeaderFieldValue(_requestMessage, CFSTR("Connection"));
+    BOOL clientWantsKeepAlive = connectionHeader && (CFStringCompare(connectionHeader, CFSTR("keep-alive"), kCFCompareCaseInsensitive) == kCFCompareEqualTo);
+    if (connectionHeader) {
+      CFRelease(connectionHeader);
+    }
+    
+    // Check if the server response indicates keep-alive
+    connectionHeader = CFHTTPMessageCopyHeaderFieldValue(_responseMessage, CFSTR("Connection"));
+    BOOL serverAllowsKeepAlive = connectionHeader && (CFStringCompare(connectionHeader, CFSTR("keep-alive"), kCFCompareCaseInsensitive) == kCFCompareEqualTo);
+    if (connectionHeader) {
+      CFRelease(connectionHeader);
+    }
+    
+    if (clientWantsKeepAlive && serverAllowsKeepAlive) {
+      GWS_LOG_DEBUG(@"Reusing connection on socket %i for Keep-Alive (request count: %lu)", _socket, (unsigned long)_requestCount);
+      
+      if (_requestMessage) {
+        CFRelease(_requestMessage);
+        _requestMessage = NULL;
+      }
+      
+      if (_responseMessage) {
+        CFRelease(_responseMessage);
+        _responseMessage = NULL;
+      }
+      
+      _request = nil;
+      _response = nil;
+      _handler = nil;
+      _virtualHEAD = NO;
+      
+      _requestCount++;
+      
+      [self _setupKeepAliveTimer];
+      
+      [self _readRequestHeaders];
+      return;
+    }
+  }
+  
+  // If we reach here, we don't reuse the connection
+  [self _closeConnection];
 }
 
 @end

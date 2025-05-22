@@ -49,6 +49,16 @@
 #import "SBTWebServerStreamedResponse.h"
 
 /**
+ * Private interface for SBTWebServerConnection
+ */
+@interface SBTWebServerConnection (Private)
+- (void)_setupKeepAliveTimer;
+- (void)_cancelKeepAliveTimer;
+- (void)_closeConnection;
+- (void)_prepareForNextRequest;
+@end
+
+/**
  *  Check if a custom logging facility should be used instead.
  */
 
@@ -186,6 +196,7 @@ extern NSString* SBTWebServerStringFromSockAddr(const struct sockaddr* addr, BOO
 
 @interface SBTWebServer ()
 @property(nonatomic, readonly) NSMutableArray<SBTWebServerHandler*>* handlers;
+@property(nonatomic, readonly, nullable) NSDictionary<NSString*, id>* options;
 @property(nonatomic, readonly, nullable) NSString* serverName;
 @property(nonatomic, readonly, nullable) NSString* authenticationRealm;
 @property(nonatomic, readonly, nullable) NSMutableDictionary<NSString*, NSString*>* authenticationBasicAccounts;

@@ -28,6 +28,7 @@ const double SBTUITunnelStubsDownloadSpeedWifi   =- 12000 / 8; // kbps -> KB/s
 
 NSString * const SBTUITunneledApplicationLaunchSignal = @"SBTUITunneledApplicationLaunchSignal";
 NSString * const SBTUITunneledApplicationLaunchOptionResetFilesystem = @"SBTUITunneledApplicationLaunchOptionResetFilesystem";
+NSString * const SBTUITunneledApplicationLaunchOptionDisableKeepAlive = @"SBTUITunneledApplicationLaunchOptionDisableKeepAlive";
 NSString * const SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete = @"SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete";
 NSString * const SBTUITunneledApplicationLaunchOptionHasStartupCommands = @"SBTUITunneledApplicationLaunchOptionHasStartupCommands";
 

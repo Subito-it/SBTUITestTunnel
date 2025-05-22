@@ -130,6 +130,27 @@ extern NSString* const SBTWebServerOption_RequestNATPortMapping;
 extern NSString* const SBTWebServerOption_BindToLocalhost;
 
 /**
+ *  Enable HTTP Keep-Alive connections to improve performance
+ *  by allowing connections to be reused for multiple HTTP requests (NSNumber / BOOL).
+ *
+ *  The default value is NO.
+ */
+extern NSString* const SBTWebServerOption_EnableKeepAlive;
+
+/**
+ *  The timeout in seconds for HTTP Keep-Alive connections (NSNumber / NSUInteger).
+ *  After this period of inactivity, the connection will be closed.
+ *
+ *  The default value is 15 seconds.
+ */
+extern NSString* const SBTWebServerOption_KeepAliveTimeout;
+
+/**
+ * Default keep-alive timeout value in seconds
+ */
+extern const NSUInteger kSBTWebServerDefaultKeepAliveTimeout;
+
+/**
  *  The maximum number of incoming HTTP requests that can be queued waiting to
  *  be handled before new ones are dropped (NSNumber / NSUInteger).
  *
