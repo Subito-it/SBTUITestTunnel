@@ -36,4 +36,22 @@
  */
 - (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options startupBlock:(nullable void (^)(void))startupBlock;
 
+/**
+ *  Launch application synchronously waiting for the tunnel server connection to be established.
+ *
+ *  @param options List of options to be passed on launch.
+ *  Valid options:
+ *  SBTUITunneledApplicationLaunchOptionResetFilesystem: delete app's filesystem sandbox
+ *  SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
+ *
+ *  @param retryThreshold Number of additional launch attempts if initial attempt fails (0 means no retries)
+ *
+ *  @param retryInterval Time interval in seconds to wait between retry attempts
+ *
+ *  @param startupBlock Block that is executed before connection is estabilished.
+ *  Useful to inject startup condition (user settings, preferences).
+ *  Note: commands sent in the completionBlock will return nil
+ */
+- (void)launchTunnelWithOptions:(nonnull NSArray<NSString *> *)options retries:(NSInteger)retryThreshold retryInterval:(NSTimeInterval)retryInterval startupBlock:(nullable void (^)(void))startupBlock;
+
 @end
