@@ -370,6 +370,33 @@ class MonitorTests: XCTestCase {
 
         XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 10.0, iterations: 1))
     }
+    
+    func testMonitorCapturesRequestAndResponseBodyFromAsyncRequests() async throws {
+        let requestMatch = SBTRequestMatch(url: "postman-echo.com", method: "POST")
+        app.monitorRequests(matching: requestMatch)
+
+        let testBody = "This is the body of an async request"
+        let urlString = "https://postman-echo.com/post"
+        _ = try await request.asyncDataTaskNetworkWithResponse(
+            urlString: urlString,
+            httpMethod: "POST",
+            httpBody: testBody,
+            requestHeaders: ["Content-Type": "text/plain"]
+        )
+
+        let monitored = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(monitored.count, 1)
+        let monitoredRequest = monitored.first!
+
+        // Check request body
+        let capturedBody: Data? = monitoredRequest.request?.httpBody ?? monitoredRequest.requestData
+        XCTAssertNotNil(capturedBody, "No request body captured")
+        XCTAssertEqual(String(data: capturedBody!, encoding: .utf8), testBody)
+
+        // Check response body
+        let responseString = monitoredRequest.responseString() ?? ""
+        XCTAssert(responseString.contains(testBody), "Response body does not contain expected body")
+    }
 }
 
 extension MonitorTests {
