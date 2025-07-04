@@ -393,7 +393,7 @@ class StubTests: XCTestCase {
         }()
 
         _ = {
-            let match = SBTRequestMatch(url: "postman-echo.com", responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let match = SBTRequestMatch(url: "postman-echo.com", responseHeaders: ["Content-Type": "application.*", "Server": "istio-envoy"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
 
             let result = self.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
@@ -440,7 +440,7 @@ class StubTests: XCTestCase {
         }()
 
         _ = {
-            let match = SBTRequestMatch(url: "postman-echo.com", requestHeaders: ["Accept": "gzip.*", "Accept-Encoding": "gzip"], responseHeaders: ["Content-Type": "application.*", "Server": "nginx"])
+            let match = SBTRequestMatch(url: "postman-echo.com", requestHeaders: ["Accept": "gzip.*"], responseHeaders: ["Content-Type": "application.*", "Server": "istio-envoy"])
             let stubId = self.app.stubRequests(matching: match, response: SBTStubResponse(response: ["stubbed": 1]))!
 
             let result = self.request.dataTaskNetwork(urlString: "https://postman-echo.com/get?param1=val1&param2=val2")
