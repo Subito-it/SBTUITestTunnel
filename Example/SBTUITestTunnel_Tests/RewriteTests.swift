@@ -171,7 +171,7 @@ class RewriteTests: XCTestCase {
     func testRequestHeaderRewrite() {
         let requestMatch = SBTRequestMatch(url: "postman-echo.com")
 
-        let rewrite = SBTRewrite(requestHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "newVal", "Accept-Language": "it-it", "remove_param": ""])
+        let rewrite = SBTRewrite(requestHeadersReplacement: ["param1": "val1a", "param2": "val2a", "param3": "newVal", "Accept-Language": "it-ti", "remove_param": ""])
 
         app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
 
@@ -185,7 +185,7 @@ class RewriteTests: XCTestCase {
         XCTAssertEqual(headers["param1"] as? String, "val1a")
         XCTAssertEqual(headers["param2"] as? String, "val2a")
         XCTAssertEqual(headers["param3"] as? String, "newVal")
-        XCTAssertEqual(headers["accept-language"] as? String, "it-it")
+        XCTAssertEqual(headers["accept-language"] as? String, "it-ti")
         XCTAssertFalse(headers.keys.contains("remove_param"))
     }
 

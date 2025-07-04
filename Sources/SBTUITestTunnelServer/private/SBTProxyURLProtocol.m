@@ -361,6 +361,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     // Note #2: it is not guaranteed that request that is being passed contains the expected
     // values for the allHTTPHeaderFields property in one of these callse. For this reason
     // we postpone matching the request headers after startLoading is called.
+    
+    if (![request.URL.scheme hasPrefix:@"http"]) {
+        // SBTURLProtocol only supports HTTP requests (not WebSocket, for example)
+        return NO;
+    }
         
     if ([SBTRequestPropertyStorage propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
@@ -513,7 +518,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         SBTRewrite *rewrite = [self rewriteRuleFromMatchingRules:matchingRules][SBTProxyURLProtocolRewriteResponse];
         if (rewrite != nil) {
             newRequest.URL = [rewrite rewriteUrl:newRequest.URL];
-            newRequest.allHTTPHeaderFields = [rewrite rewriteRequestHeaders:newRequest.allHTTPHeaderFields];
+            // Starting from iOS 18.x, NSURLRequest.allHTTPHeaderFields appears to be a computed property.
+            // It is no longer possible to replace its content in place: setting newRequest.allHTTPHeaderFields = @{} does not clear the headers,
+            // and assigning a new dictionary (e.g., newRequest.allHTTPHeaderFields = @{ @"new_key": @"new_value" }) simply adds or updates keys
+            // instead of replacing all headers. To fully reset and replace headers, you need to separately remove headers using
+            // [newRequest setValue:nil forHTTPHeaderField:] for each key, and then set the new headers.
+            for (NSString *key in rewrite.requestHeadersReplacement) {
+                NSString *value = rewrite.requestHeadersReplacement[key];
+                if (value.length == 0) {
+                    [newRequest setValue:nil forHTTPHeaderField:key];
+                }
+            }
+            newRequest.allHTTPHeaderFields = [rewrite rewriteRequestHeaders:newRequest.allHTTPHeaderFields];;
             newRequest.HTTPBody = [rewrite rewriteRequestBody:newRequest.HTTPBody];
         }
         
