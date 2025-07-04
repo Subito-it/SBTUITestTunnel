@@ -39,6 +39,22 @@
     return self;
 }
 
+- (void)dealloc
+{
+    if (self.listener) {
+        nw_listener_cancel(self.listener);
+    }
+    
+    for (NSValue *val in self.clients) {
+        nw_connection_t connection = (__bridge nw_connection_t)val.pointerValue;
+        if (connection) {
+            nw_connection_cancel(connection);
+        }
+    }
+    
+    [self.clients removeAllObjects];
+}
+
 - (void)startWithError:(NSError **)error
 {
     nw_parameters_t parameters = nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
