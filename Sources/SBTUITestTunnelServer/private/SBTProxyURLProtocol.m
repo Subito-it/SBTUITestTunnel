@@ -361,6 +361,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     // Note #2: it is not guaranteed that request that is being passed contains the expected
     // values for the allHTTPHeaderFields property in one of these callse. For this reason
     // we postpone matching the request headers after startLoading is called.
+    
+    if (![request.URL.scheme hasPrefix:@"http"]) {
+        // SBTURLProtocol only supports HTTP requests (not WebSocket, for example)
+        return NO;
+    }
         
     if ([SBTRequestPropertyStorage propertyForKey:SBTProxyURLProtocolHandledKey inRequest:request]) {
         return NO;
