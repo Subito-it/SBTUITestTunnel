@@ -1,43 +1,120 @@
-# Setup
+# ⚙️ Setup Guide
 
-## 🔥 IMPORTANT, PLEASE READ
+This guide walks you through configuring SBTUITestTunnel in your project. Proper setup ensures the library works effectively while keeping your production builds secure.
 
-The testing library contains code that should not be shipped to production. It is your responsibility to ensure that this library and its dependencies (GCDWebServer) are excluded from the build you send to the AppStore.
+## 🚨 Critical Security Notice
 
-## Application target
+**SBTUITestTunnel contains testing code that must NOT be shipped to production.** 
 
-On the application's target call SBTUITestTunnelServer's `takeOff` method on top of `application(_:didFinishLaunchingWithOptions:)`.
+It's your responsibility to ensure this library and its dependencies (like GCDWebServer) are excluded from App Store builds. The setup instructions below show how to use `#if DEBUG` conditionals to achieve this safely.
 
-**All references to SBTUITestTunnel are wrapped around `#if DEBUG` conditionals**
+---
+
+## 📱 Application Target Setup
+
+Initialize the SBTUITestTunnel server in your app's `AppDelegate` when launching in debug mode.
 
 ```swift
 import UIKit
 
-#if DEBUG 
-    import SBTUITestTunnelServer
+#if DEBUG
+import SBTUITestTunnelServer
 #endif
 
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
     var window: UIWindow?
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         #if DEBUG
-            SBTUITestTunnelServer.takeOff()
+        SBTUITestTunnelServer.takeOff()
         #endif
-
+        
+        // Your app initialization code here...
         return true
     }
 }
 ```
 
-## UI Testing target
+### For Objective-C Projects
 
-On the testing target no setup is required. Note how you even don't need to instantiate an `XCUIApplication`, as SBTUITestTunnel automatically adds a convenience `app` property (`SBTUITunneledApplication`) ready for use.
+```objc
+#if DEBUG
+#import "SBTUITestTunnelServer.h"
+#endif
 
-While no setup is required in your UI Test target to use this library it might be that you need fine grained control of the `XCUIApplication` instance. Please refer to the [alternative target setup](Setup_alternative_target) documentation for further details.
+@implementation AppDelegate
 
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+#if DEBUG
+    [SBTUITestTunnelServer takeOff];
+#endif
+    
+    // Your app initialization code here...
+    return YES;
+}
 
-## Tunneling mode
+@end
+```
 
-The library allows tunneling via HTTP or via IPC (default). You can force disabling IPC by setting a `SBTUITestTunnelDisableIPC=YES` key in the Info.plist of the UITesting target.
+---
+
+## 🧪 UI Test Target Setup
+
+**No additional setup required!** SBTUITestTunnel automatically provides a convenient `app` property (of type `SBTUITunneledApplication`) that's ready to use in your test cases.
+
+```swift
+import XCTest
+import SBTUITestTunnelClient
+
+class YourUITests: XCTestCase {
+    
+    override func setUp() {
+        super.setUp()
+        // The 'app' property is automatically available
+        app.launchTunnel()
+    }
+    
+    func testExample() {
+        // Your test code using the 'app' property
+    }
+}
+```
+
+### Need More Control?
+
+If you require fine-grained control over the `XCUIApplication` instance, check out our [Advanced Setup Guide](./Advanced_Setup.md) for custom configuration options.
+
+---
+
+## 🔧 Communication Modes
+
+SBTUITestTunnel supports two communication methods between your tests and the app:
+
+### IPC Mode (Default)
+- **Faster** and more reliable
+- Uses Inter-Process Communication
+- **Recommended** for most use cases
+
+### HTTP Mode
+- Uses network communication
+- Useful for specific testing scenarios
+- Enable by adding `SBTUITestTunnelDisableIPC` = `YES` to your UI test target's `Info.plist`
+
+---
+
+## ✅ Verification
+
+After setup, verify everything works by running a simple test:
+
+```swift
+func testSetupVerification() {
+    app.launchTunnel()
+    XCTAssertTrue(app.isRunning)
+}
+```
+
+If the test passes, you're ready to explore SBTUITestTunnel's powerful features! 🎉

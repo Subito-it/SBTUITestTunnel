@@ -1,38 +1,91 @@
-# Installation (Swift Package Manager)
+# 📦 Installation Guide
 
-From the _File_ menu select _Add Packages..._. Enter `https://github.com/Subito-it/SBTUITestTunnel` in the Package URL. Select the package and **select the `master` _branch_** as _Dependency Rule_.
+SBTUITestTunnel supports multiple installation methods to fit your project's needs. Choose the option that works best for your setup.
 
-Now add the `SBTUITestTunnelServer` package to your main app target and `SBTUITestTunnelClient` to your UI test target.
+## 🎯 Swift Package Manager (Recommended)
 
-# Installation (CocoaPods)
+The easiest and most modern way to integrate SBTUITestTunnel into your project.
 
-Your Podfile should include the sub project `SBTUITestTunnelServer` for the app target and `SBTUITestTunnelClient` for the UI test target.
+1. In Xcode, navigate to **File → Add Package Dependencies...**
+2. Enter the repository URL: 
+   ```
+   https://github.com/Subito-it/SBTUITestTunnel
+   ```
+3. For **Dependency Rule**, select the `master` branch
+4. Add the packages to your targets:
+   - **`SBTUITestTunnelServer`** → Your main app target
+   - **`SBTUITestTunnelClient`** → Your UI test target
+
+## 🍫 CocoaPods
+
+Perfect for projects already using CocoaPods dependency management.
+
+Add the following to your `Podfile`:
 
 ```ruby
 use_frameworks!
 
-target 'APP_TARGET' do
+target 'YourAppTarget' do
   pod 'SBTUITestTunnelServer'
 end
 
-target 'UITESTS_TARGET' do
+target 'YourUITestTarget' do
   pod 'SBTUITestTunnelClient'
 end
 ```
 
-# Installation (Manual)
+Then run:
+```bash
+pod install
+```
 
-1. Add the `Server` folder to the app target
-2. Add the `Client` folder to the ui test target
-3. Add the `Common` folder to both targets
-4. Download the latest release of [GCDWebServer](https://github.com/swisspol/GCDWebServer) then add the all the files under GCDWebServer/Core, GCDWebServer/Requests and GCDWebServer/Responses to a single `GCDWebServer` subfolder to your Xcode project.
-5. Add $(SDKROOT)/<path to the GCDWebserver folder in 4.> to your header search paths (via Target > Build Settings > HEADER_SEARCH_PATHS)
-5. Link to libz (via Target > Build Phases > Link Binary With Libraries)
+## 🔧 Manual Installation
 
-If you're on an Objective-C project
-1. In your AppDelegate #import "SBTUITestTunnelServer.h" and call [SBTUITestTunnelServer takeOff] as the first line in appDidFinishLaunching. **You need to wrap the import statement around an #if DEBUG conditional**, see [Setup](Setup.md) section for additional details.
-2. Add #import "SBTUITunneledApplication.h" and #import "XCTestCase+AppExtension.h" on top of all your UI Test Cases files
+For projects that require manual dependency management.
 
-If you're on a Swift project:
-1. Add "SBTUITestTunnelServer.h" to the Application's bridging header file and call SBTUITestTunnelServer.takeOff() as the first line in appDidFinishLaunching. **You need to wrap the import statement around an #if DEBUG conditional**, see [Setup](Setup.md) section for additional details.
-2. Add #import "SBTUITunneledApplication.h" and #import "XCTestCase+AppExtension.h" to your UITesting's bridging headers files
+### Step 1: Add Source Files
+
+1. **Server Components**: Add the `Sources/SBTUITestTunnelServer` folder to your app target
+2. **Client Components**: Add the `Sources/SBTUITestTunnelClient` folder to your UI test target  
+3. **Common Components**: Add the `Sources/SBTUITestTunnelCommon` folder to **both** targets
+
+### Step 2: Add GCDWebServer Dependency
+
+1. Download the latest [GCDWebServer](https://github.com/swisspol/GCDWebServer) release
+2. Create a `GCDWebServer` subfolder in your Xcode project
+3. Add all files from these GCDWebServer directories:
+   - `GCDWebServer/Core`
+   - `GCDWebServer/Requests` 
+   - `GCDWebServer/Responses`
+
+### Step 3: Configure Build Settings
+
+1. **Header Search Paths**: Add `$(SDKROOT)/<path_to_gcdwebserver>` to your target's **Build Settings → Header Search Paths**
+2. **Link Libraries**: Add `libz.tbd` in **Build Phases → Link Binary With Libraries**
+
+### Step 4: Project-Specific Configuration
+
+#### For Swift Projects
+
+1. **App Target**: Add `#import "SBTUITestTunnelServer.h"` to your bridging header
+2. **UI Test Target**: Add these imports to your test bridging header:
+   ```objc
+   #import "SBTUITunneledApplication.h"
+   #import "XCTestCase+AppExtension.h"
+   ```
+
+#### For Objective-C Projects
+
+1. **App Target**: Import in your `AppDelegate.m`:
+   ```objc
+   #import "SBTUITestTunnelServer.h"
+   ```
+2. **UI Test Target**: Import in your test files:
+   ```objc
+   #import "SBTUITunneledApplication.h"
+   #import "XCTestCase+AppExtension.h"
+   ```
+
+---
+
+⚠️ **Important**: Always wrap SBTUITestTunnel imports in `#if DEBUG` conditionals to prevent inclusion in production builds. See the [Setup Guide](./Setup.md) for details.

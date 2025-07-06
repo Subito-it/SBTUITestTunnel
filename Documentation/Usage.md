@@ -1,525 +1,438 @@
-# Usage
+# 🔧 Usage Guide
 
-- [Launching tests](#launching-tests)
-- [Networking features](#networking-features)
-    - [Stubbing](#stubbing)
-    - [Monitoring](#network-monitoring)
-    - [Throttling](#throttling)
-    - [Block cookies](#block-cookies)
-    - [Rewrite](#rewrite)
-    
-- [User defaults access](#user-defaults-access)
-- [Custom code blocks](#custom-code-blocks)
-- [Fine grain scrolling](#fine-grain-scrolling)
-- [CLLocationManager stubbing](#cllocationmanager-stubbing)
-- [UNUserNotificationCenter stubbing](#unusernotficationcenter-stubbing)
-- [WKWebViews stubbing](#wkwebview-stubbing)
+SBTUITestTunnel provides powerful capabilities to enhance your iOS UI testing. This comprehensive guide covers all the features and shows you how to use them effectively.
 
-`SBTUITunneledApplication`'s headers are well commented making the library's functionality self explanatory. You can also checkout the UI test target in the example project which show basic usage of the library.
+## 📋 Table of Contents
 
-## Launching tests
+- [🚀 Launching Tests](#-launching-tests)
+- [🌐 Network Features](#-network-features)
+  - [🎯 Request Matching](#-request-matching)
+  - [🔄 Stubbing Requests](#-stubbing-requests)
+  - [📊 Network Monitoring](#-network-monitoring)
+  - [⏱️ Throttling](#-throttling)
+  - [🍪 Block Cookies](#-block-cookies)
+  - [✏️ Request Rewriting](#-request-rewriting)
+- [🔌 WebSockets](#-websockets)
+- [⚙️ User Defaults Access](#-user-defaults-access)
+- [📝 Custom Code Execution](#-custom-code-execution)
+- [📱 Advanced Scrolling](#-advanced-scrolling)
+- [📍 Core Location Stubbing](#-core-location-stubbing)
+- [🔔 User Notifications Stubbing](#-user-notifications-stubbing)
+- [🌐 WKWebView Stubbing](#-wkwebview-stubbing)
 
-Instead of calling the `launch()` method on `XCUIApplication` as you're used to use `launchTunnel()` or `launchTunnel(options:startupBlock:)`. These methods will launch the test and establish the tunnel connection.
+---
 
-### Launch with no options
+## 🚀 Launching Tests
+
+Replace the standard `launch()` method with SBTUITestTunnel's enhanced launch methods to establish the testing tunnel.
+
+### Basic Launch
 
 ```swift
 import SBTUITestTunnelClient
 
-class MyTestClass: XCTestCase {
+class YourTestClass: XCTestCase {
     override func setUp() {
         super.setUp()
-        
         app.launchTunnel()
     }
     
-    func testStuff() {
-        // ... 
+    func testSomething() {
+        // Your test code here
     }
 }
-```    
+```
 
-_Note how we don't need to instantiate the `app` property_ 
+> 💡 **Note**: The `app` property is automatically provided - no need to instantiate `XCUIApplication`!
 
-### Launch with options and startupBlock
+### Launch with Options
+
+Customize the launch behavior with these options:
+
+| Option | Description |
+|--------|-------------|
+| `SBTUITunneledApplicationLaunchOptionResetFilesystem` | 🗑️ Clears the entire app sandbox |
+| `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` | ⌨️ Disables autocomplete to prevent unpredictable text input |
 
 ```swift
 app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
-    // do additional setup before the app launches
-    // i.e. prepare stub request, start monitoring requests
+    // 🔧 Pre-launch setup: configure stubs, start monitoring, etc.
+    app.stubRequests(matching: SBTRequestMatch.url("api.example.com"), 
+                    response: SBTStubResponse(response: ["status": "success"]))
 }
-```    
-
-#### Options
-
-- `SBTUITunneledApplicationLaunchOptionResetFilesystem` will delete the entire app's sandbox filesystem
-- `SBTUITunneledApplicationLaunchOptionDisableUITextFieldAutocomplete` disables UITextField's autocomplete functionality which can lead to unexpected results when typing text.
-
-#### StartupBlock
-
-The startup block contains code that will be executed before the app enters the `applicationDidFinishLaunching(_:)`. This is the right place to setup the application before it gets launched
-
-## Networking features
-
-### SBTRequestMatch
-
-The stubbing/monitoring/throttling/cookie blocking and rewrite functionalities of the library require a `SBTRequestMatch` object in order to determine whether they should respond to a certain network request.
-
-You can specify a regex on the URL, multiple regex on the query, body and HTTP method using one of the several available class methods.
-
-#### Query parameter
-
-The `query` parameter in `SBTRequestMatch`'s initializer is an array of regex strings that are checked with the request [query](https://tools.ietf.org/html/rfc3986#section-3.4). If all regex in array match the request is handled by the library.
-
-In a kind of unconventional syntax you can prefix the regex with an exclamation mark `!` to specify that the request must not match that specific regex, see the following examples.
-
-#### Body parameter
-
-The `body` parameter allows to match the request against its HTTP Body. As for the `query` parameter, the passed value is used as a regex which is evaluated on the request HTTP Body and the exlamation mark `!` can be used to specify an "inverted match" (i.e. that the HTTP Body should NOT match the provided `body` pattern).
-
-#### Headers parameters
-
-The `requestHeader` and `responseHeader` parameters allows to match the request against the HTTP request and response headers respectively. There parameters are [String: String] dictionaries with the key and value being regexes witch are evaluated on the key/value of the request/response headers. The regex follows the same rules that apply to the `query` parameter.
-
-
-#### Examples
-
-The regex in `GET` and `DELETE` requests will match the entire URL including query parameters.
-
-Below some matches for a sample request like http://wwww.myhost.com/v1/user/281218/info?param1=val1&param2=val2 :
-
-```swift
-// this will match the request independently of the query parameters
-let sr = SBTRequestMatch.url("myhost.com/v1/user/281218/info")
-// this will match the request independently of the query parameters for any user id
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info")
-// this will match the request containing query parameters
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info\?param1=val1&param2=val2")
-// this will match the request containing only param1 = val1 query
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info\?.*param1=val1")
 ```
 
-**Given that parameter order isn't guaranteed** it is recommended to specify the `query` parameter in the `SBTRequestMatch`'s initializer. This is an array of regex that need to fulfill all for the request to match.
+---
 
-Considering the previous example the following `SBTRequestMatch` will match if the request contains `param1=val1` AND `param2=val2`.
+## 🌐 Network Features
+
+### 🎯 Request Matching
+
+The `SBTRequestMatch` class is the foundation for all network operations. It determines which requests to target using **regular expressions** for URL patterns, query parameters, headers, and body content.
+
+> ⚠️ **Important**: All matching parameters in `SBTRequestMatch` use **regular expressions**, not literal string matching. A **partial match** is sufficient - the regex doesn't need to match the entire string.
+
+#### URL Matching Examples
+
+For a request to `http://api.example.com/v1/user/12345/profile?lang=en&theme=dark`:
 
 ```swift
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"])
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param2=val2", "&param1=val1"])
-```    
-    
-You can additionally specify that the query should not contain something by prefixing the regex with an exclamantion mark `!`:
+// ✅ Match the base path (ignoring query parameters)
+let match1 = SBTRequestMatch.url("api.example.com/v1/user/12345/profile")
 
-```swift
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2", "!param3=val3"])
-```    
+// ✅ Match any user ID with wildcards
+let match2 = SBTRequestMatch.url("api.example.com/v1/user/.*/profile")
 
-This will match if the query contains `param1=val1` AND `param2=val2` AND NOT `param3=val3`
-
-The `body` parameter can be used to match HTTP Body and also supports `!` to specify "inverted matches":
-
-```swift	
-let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "SomeBodyContent")
-let sr = SBTRequestMatch(url: "myhost.com", query: [], method: "POST", body: "!UnwantedBodyContent")
+// ✅ Match with specific query parameters
+let match3 = SBTRequestMatch.url("api.example.com/v1/user/.*/profile\\?.*lang=en")
 ```
 
-This will match if the request headers contain both a header with key `Accept-Enc*=gzip*` and another header `Accept-Language=en`. The request MUST contain at least both these headers for the SBTRequestMatch to match.
+#### Advanced Query Matching
 
-```swift	
-let sr = SBTRequestMatch(url: "myhost.com", requestHeaders: ["Accept-Enc.*": "gzip.*", "Accept-Language": "en"])
+```swift
+// ✅ Match requests with specific query parameters (order-independent)
+let match = SBTRequestMatch.url("api.example.com/v1/user/.*/profile", 
+                                query: ["&lang=en", "&theme=dark"])
+
+// ✅ Use negation with ! prefix
+let match = SBTRequestMatch.url("api.example.com/v1/user/.*/profile", 
+                                query: ["&lang=en", "!debug=true"])
 ```
 
-Finally you can limit a specific HTTP method by specifying it in the `method` parameter.
+#### Body and Header Matching
 
 ```swift
-// will match GET request only
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", query: ["&param1=val1", "&param2=val2"], method: "GET")
-let sr = SBTRequestMatch.url("myhost.com/v1/user/.*/info", method: "GET")
-```    
+// 📝 Match POST requests with specific body content
+let postMatch = SBTRequestMatch(url: "api.example.com", 
+                                query: [], 
+                                method: "POST", 
+                                body: "userId.*12345")
 
-### Stubbing
-
-To stub a network request you pass the appropriate `SBTRequestMatch` and `SBTStubResponse` objects
-
-```swift
-let match = SBTRequestMatch.url("google.com")
-let stubId = app.stubRequests(matching: match, response: SBTStubResponse(response: ["key": "value"])
-
-// from here on network requests containing 'google.com' will return a JSON {"key" : "value" }
-...
-
-app.stubRequestsRemove(id: stubId) // To remove the stub either use the identifier
-app.stubRequestsRemove(requestMatch: match) // or the SBTRequestMetch
-
-app.stubRequestsRemoveAll() // You can also choose to remove all active stubs
-``` 
-
-You can get a list of the current active stubs
-
-```swift
-let stubs: [SBTActiveStub] = app.stubRequestsAll()
+// 📋 Match based on request headers
+let headerMatch = SBTRequestMatch(url: "api.example.com", 
+                                  requestHeaders: ["Accept": "application/json", 
+                                                 "Authorization": "Bearer.*"])
 ```
 
+### 🔄 Stubbing Requests
 
-#### SBTStubResponse
+Create custom responses for network requests to test different scenarios without relying on external services.
 
-The stubbing methods of the library require a `SBTStubResponse` object in order to determine what to return for network requests that have to be stubbed.
-
-The class has a wide set of initializers that allow to specify data, HTTP headers, contentType, HTTP return code and response time of the stubbed request. For convenience some initializers omit some parameters which default to predefined values.
-
-You can also specify how many times the stubbed response should be used by specifying the `activeIterations` parameter in the initializer. The default value is 0  which means stubbing will be performed indefinitely. 
+#### Basic Stubbing
 
 ```swift
-let stubId = app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: SBTStubResponse(response: ["key": "value"], activeIterations: 2))
+let match = SBTRequestMatch.url("api.example.com/user/profile")
+let response = SBTStubResponse(response: ["name": "John Doe", "email": "john@example.com"])
 
-// from here on the first two network requests containing 'google.com' will return a JSON {"key" : "value" }
-// subsequent network requests won't be stubbed
-...
+let stubId = app.stubRequests(matching: match, response: response)
+
+// 🗑️ Remove stub when done
+app.stubRequestsRemove(id: stubId)
 ```
 
-#### SBTStubFailureResponse
-
-To stub specific [url errors](https://developer.apple.com/documentation/foundation/urlerror), like for example _not connected to internet_ you can use an instance of SBTStubFailureResponse
+#### Advanced Response Configuration
 
 ```swift
-let response = SBTStubFailureResponse(errorCode: URLError.notConnectedToInternet.rawValue)
-app.stubRequests(matching: SBTRequestMatch.url("google.com"), response: response)
+let response = SBTStubResponse(
+    response: ["error": "User not found"],
+    headers: ["Content-Type": "application/json"],
+    contentType: "application/json",
+    returnCode: 404,
+    responseTime: 2.0,        // 2-second delay
+    activeIterations: 3       // Only handle first 3 requests
+)
 ```
 
-The URLSession will fail with an `Error` according to the specified `errorCode`.
-
-#### Multiple stubs for same request match 
-
-It's possible to specify multiple stubs for the same request match: stubs are evaluated in LIFO order (the latest added stub will be used). Adding multiple stubs for the same request match can be very powerful when combined with `activeIterations`; we can specify in advance a "series" of stubs we want to use which will be applied in order and removed when their `activeIterations` value reaches zero. This allows to test some cases where multple network calls are peformed subsequently and is not possibile to "manually" substitute a stub for the same network call. 
-
-For example we can test that, when receiving an authentication error, a client performs a credentials refresh and retries the original network request.
+#### Error Simulation
 
 ```swift
-app.stubRequests(matching: requestMatchForAuthenticatedCall,
-                 response: successfulResponse)
-
-// Note that we remove authentication error response after one iteration
-app.stubRequests(matching: requestMatchForAuthenticatedCall,
-                 response: authenticationErrorResponse(activeIterations: 1))
- 
-app.monitorRequests(matching: credentialsRefreshCall, during: {
-   // action to perform authenticated call
-})
-    
-verifyAuthenticatedCallSuccess()
-
+// 🚫 Simulate network failures
+let errorResponse = SBTStubFailureResponse(errorCode: URLError.notConnectedToInternet.rawValue)
+app.stubRequests(matching: match, response: errorResponse)
 ```
 
-
-### Upload / Download items
-
-#### Upload
+#### Multiple Stubs (LIFO Order)
 
 ```swift
-let pathToFile = ... // path to file
-app.uploadItem(atPath: pathToFile, toPath: "test_file.txt", relativeTo: .documentDirectory)
-```    
+// 🔄 Test authentication flow: fail first, succeed after retry
+app.stubRequests(matching: authMatch, response: successResponse)
+app.stubRequests(matching: authMatch, response: authErrorResponse(activeIterations: 1))
 
-#### Download
+// First request will get auth error, subsequent requests will succeed
+```
 
-```swift
-let uploadData = app.downloadItems(fromPath: "test_file.txt", relativeTo: .documentDirectory)
-```    
+### 📊 Network Monitoring
 
-### Network monitoring
-
-This may come in handy when you need to check that specific network requests are made. You first specify one or more network requests you want to monitor by passing `SBTRequestMatch` like for stubbing methods. Once you performed actions in the app that triggered those request you can retrieve them by using `monitoredRequestsPeekAll` or `monitoredRequestsFlushAll`. The former will return all the collected network requests, the latter will additionally clear the list of requests.
+Track network requests to verify your app's behavior.
 
 ```swift
-app.monitorRequests(matching: SBTRequestMatch.url("apple.com"))
-    
-// Interact with UI. Once ready flush calls and get the list of requests
-    
+// 👀 Start monitoring
+app.monitorRequests(matching: SBTRequestMatch.url("api.example.com"))
+
+// 🎭 Perform UI actions that trigger network requests
+app.buttons["Load Data"].tap()
+
+// 📊 Analyze captured requests
 let requests: [SBTMonitoredNetworkRequest] = app.monitoredRequestsFlushAll()
-    
+
 for request in requests {
-    let requestBody  = request.request!.HTTPBody // HTTP Body in POST request?
+    let requestBody = request.request?.httpBody
     let responseJSON = request.responseJSON
-    let requestTime  = request.requestTime // How long did the request take?
-}
+    let requestTime = request.requestTime    // Performance analysis
     
+    print("Request took \(requestTime) seconds")
+}
+
+// 🧹 Clean up
 app.monitorRequestRemoveAll()
-```    
+```
 
-### Throttling
+### ⏱️ Throttling
 
-The library allows to throttle network calls by specifying a response time, which can be a positive number of seconds or one of the predefined `SBTUITunnelStubsDownloadSpeed*`constants. You pass an `SBTRequestMatch` like for stubbing methods.
+Simulate different network conditions to test your app's performance under various scenarios.
 
 ```swift
-let throttleId = app.throttleRequests(matching: SBTRequestMatch.url("apple.com"), responseTime:SBTUITunnelStubsDownloadSpeed3G) ?? ""
-    
+// 🐌 Simulate 3G speed
+let throttleId = app.throttleRequests(
+    matching: SBTRequestMatch.url("api.example.com"), 
+    responseTime: SBTUITunnelStubsDownloadSpeed3G
+)
+
+// 🏃‍♂️ Available speed constants:
+// - SBTUITunnelStubsDownloadSpeedGPRS
+// - SBTUITunnelStubsDownloadSpeedEDGE  
+// - SBTUITunnelStubsDownloadSpeed3G
+// - SBTUITunnelStubsDownloadSpeedWifi
+
+// 🗑️ Remove throttling
 app.throttleRequestRemove(withId: throttleId)
-```    
+```
 
-### Block cookies
+### 🍪 Block Cookies
 
-The library allows to block outgoing cookies in network calls. You pass an `SBTRequestMatch` like for stubbing methods.
+Prevent cookies from being sent with specific requests.
 
 ```swift
-let cookieBlockId = app.blockCookiesInRequests(matching: SBTRequestMatch.url("apple.com")) ?? ""
-    
+let cookieBlockId = app.blockCookiesInRequests(matching: SBTRequestMatch.url("analytics.example.com"))
+
+// 🧹 Remove cookie blocking
 app.blockCookiesRequestsRemove(withId: cookieBlockId)
-```    
-
-### Rewrite
-
-The library allows to rewrite the following elements of a network call:
-
-- url
-- request body
-- request headers
-- response body
-- response headers
-- response status code
-
-To rewrite a network request you pass the appropriate `SBTRequestMatch` and `SBTRewrite` objects.
-
-**Note**: rewrite does not work on stubbed requests.
-
-#### SBTRewrite
-
-The rewrite methods of the library require a `SBTRewrite` object in order to determine what to rewrite in the network requests that have to be rewritten.
-
-The class has a wide set of initializers that allow to specify request and response body/headers, return status codes and URL.
-
-The header rewrite is specified by passing a dictionary where the key will replace (if key already exist) or add new values to the headers. To remove a specific key just pass an empty value.
-
-The other rewrite are specified by an array of `SBTRewriteReplacement`.
-
-As for `SBTStubResponse` you can instantiate passing the `activeIterations` parameter to rewrite a specific number of network requests
-
-#### SBTRewriteReplacement
-
-The `SBTRewriteReplacement` has a simple initializer where you pass 2 parameters: a regular expression that will be matched and a replacement string.
-
-
-## User defaults access
-
-You can interact with the app's NSUserDefaults as follows
-
-#### Set object
-
-```swift
-app.userDefaultsSetObject("test_value" as NSCoding, forKey: "test_key")
-```    
-
-#### Get object
-
-```swift
-let obj = app.userDefaultsObject(forKey: "test_key")
-```    
-    
-#### Remove object
-
-```swift
-app.userDefaultsRemoveObject(forKey: "test_key")
 ```
 
-## Custom code blocks
+### ✏️ Request Rewriting
 
-You can easily add a custom block of code in the application target that can be conveniently invoked from the test target. An NSString identifies the block of code when registering and invoking it.
-
-#### Application target
-
-You register a block of code that will be invoked from the test target as follows:
+Modify requests and responses on-the-fly to test edge cases.
 
 ```swift
-SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandKey") {
-    injectedObject in
-    // this block will be invoked from app.performCustomCommandNamed()
+// 🔄 Replace API endpoints for testing
+let rewrite = SBTRewrite(
+    urlReplacement: [SBTRewriteReplacement(find: "prod-api", replace: "staging-api")],
+    requestBodyReplacement: [SBTRewriteReplacement(find: "version=1.0", replace: "version=2.0")]
+)
 
-    return "Any object conforming to NSCoding that you want to pass back to test target"
+app.rewriteRequests(matching: SBTRequestMatch.url("api.example.com"), with: rewrite)
+```
+
+---
+
+## 🔌 WebSockets
+
+Test real-time features by interacting with WebSocket connections.
+
+```swift
+// 📤 Send messages
+app.webSocketSend(message: "Hello from test!")
+
+// 📥 Receive messages  
+let message = app.webSocketReceiveMessage()
+
+// 🔍 Get connected sockets
+let sockets = app.webSocketConnectedSockets()
+
+// 🎯 Target specific WebSocket by UUID
+app.webSocketSend(message: "Targeted message", toWebSocketWithUUID: socketUUID)
+```
+
+---
+
+## ⚙️ User Defaults Access
+
+Directly manipulate app preferences during testing.
+
+```swift
+// 💾 Set values
+app.userDefaultsSetObject("premium_user" as NSCoding, forKey: "user_type")
+app.userDefaultsSetObject(true as NSCoding, forKey: "onboarding_completed")
+
+// 📖 Read values
+let userType = app.userDefaultsObject(forKey: "user_type") as? String
+XCTAssertEqual(userType, "premium_user")
+
+// 🗑️ Remove values
+app.userDefaultsRemoveObject(forKey: "temporary_data")
+```
+
+---
+
+## 📝 Custom Code Execution
+
+Execute arbitrary code within your app's context for advanced testing scenarios.
+
+### App Target Registration
+
+```swift
+// 📱 In your app target
+SBTUITestTunnelServer.registerCustomCommandNamed("fetchUserData") { injectedObject in
+    // 🔧 Custom logic here
+    let userId = injectedObject as? String ?? "defaultUser"
+    let userData = UserService.fetchUserData(for: userId)
+    return userData
 }
-````
 
-**Note** It is your responsibility to unregister the custom command when it is no longer needed. Failing to do so may end up with unexpected behaviours.
+// ⚠️ Remember to unregister when done
+SBTUITestTunnelServer.unregisterCommandNamed("fetchUserData")
+```
 
-#### Test target
-
-You invoke the custom command by using the same identifier used on registration, optionally passing an NSObject:
+### Test Target Execution
 
 ```swift
-let objReturnedByBlock = app.performCustomCommandNamed("myCustomCommand", object: someObjectToInject)
+// 🧪 In your test target  
+let userData = app.performCustomCommandNamed("fetchUserData", object: "user123")
+XCTAssertNotNil(userData)
 ```
 
-## Fine grain scrolling
+---
 
-The tunnel adds methods to perform fine grain scrolling for table/collection/scroll views.
+## 📱 Advanced Scrolling
 
-### SwiftUI considerations
+Perform precise scrolling operations on collection views, table views, and scroll views.
 
-**IMPORTANT:** when using SwiftUI it is crucial to ensure that you interact with the XCUIElement before invoking the scrolling APIs.
+> ⚠️ **SwiftUI Important**: Always interact with the XCUIElement before using scroll APIs:
+> ```swift
+> XCTAssert(app.collectionViews["details"].exists) // ← Required!
+> app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
+> ```
 
-For example:
-
-```
-app.button["Go to details"].tap()
-
-// Perform a query on the XCUIElement you will be calling the scroll methods, for
-// example checking for its existence
-XCTAssert(app.collectionViews["details"].exists) // <--
-app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
-
-```
-
-### UITableView
-
-#### Target row
-
-Pass the accessibility label/identifier of the table along with the row you want to scroll to. The row is an int which is section-wise flattened, if you want to scroll to last cell you can pass Int.max or any integer greater than the number of items in datasource
+### 📋 Table Views
 
 ```swift
-app.scrollTableView(withIdentifier: "identifier", toRow: .max, animated: false)
+// 📍 Scroll to specific row
+app.scrollTableView(withIdentifier: "userList", toRow: 10, animated: true)
+
+// 🎯 Scroll to element by identifier
+app.scrollTableView(withIdentifier: "userList", 
+                   toElementWithIdentifier: "user_john_doe", 
+                   animated: true)
+
+// 📜 Scroll to bottom
+app.scrollTableView(withIdentifier: "userList", toRow: .max, animated: false)
 ```
 
-#### Target identifier
-
-Pass the accessibility label/identifier of the table along with the accessibility label/identifier of the element you want to scroll to. Currently only vertical scrolling is supported.
+### 🔲 Collection Views
 
 ```swift
-app.scrollTableView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
+// 📍 Scroll to specific item
+app.scrollCollectionView(withIdentifier: "photoGrid", toRow: 25, animated: true)
+
+// 🎯 Scroll to element by identifier  
+app.scrollCollectionView(withIdentifier: "photoGrid",
+                        toElementWithIdentifier: "photo_sunset",
+                        animated: true)
 ```
 
-### UICollectionView
-
-#### Target row
-
-Pass the accessibility label/identifier of the collection along with the row you want to scroll to. The row is an int which is section-wise flattened, if you want to scroll to last cell you can pass Int.max or any integer greater than the number of items in datasource
+### 📜 Scroll Views
 
 ```swift
-app.scrollCollectionView(withIdentifier: "identifier", toRow: .max, animated: false)
+// 🎯 Scroll to specific element
+app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
+                                  toElementWitIdentifier: "section_footer",
+                                  animated: true)
+
+// 📏 Scroll to normalized offset (0.0 - 1.0)
+app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
+                                  toOffset: 0.75,  // 75% down
+                                  animated: true)
 ```
 
-#### Target identifier
+---
 
-Pass the accessibility label/identifier of the collection along with the accessibility label/identifier of the element you to scroll to. Currently only vertical scrolling is supported.
+## 📍 Core Location Stubbing
 
-```swift
-app.scrollCollectionView(withIdentifier: "identifier", toElementWithIdentifier: "elementIdentifier", animated: false)
-```
-
-### UIScrollview
-
-#### Target identifier
-
-Pass the accessibility label/identifier of the scrollView along with the accesibility lable/identifier of an element you want to scroll to.
+Test location-based features without requiring actual GPS data.
 
 ```swift
-app.scrollScrollViewWithIdentifier(withIdentifier: "identifier", toElementWitIdentifier: .max, animated: false)
-```
-
-#### Target offset
-
-Pass the normalized offset (0.0 - 1.0) of the scrollView you want to scroll to.
-
-```swift
-app.scrollScrollViewWithIdentifier(withIdentifier: "identifier", toOffset: 0.15, animated: true)
-```
-
-## CLLocationManager stubbing
-
-It is possible to enable CLLocationManager stubbing in order to test that your app properly responds to the various authorization statuses and location change event.
-
-Disable the system location engine and enable stubbing (startMonitoring, stopMonitoring and other similar methods will become nops)
-
-```swift
+// 🔧 Enable location stubbing
 app.coreLocationStubEnabled(true)
-```
 
-Once enabled the default value for `+[CLLocationManager authorizationStatus]` will be `kCLAuthorizationStatusAuthorizedAlways` and `+[CLLocationManager locationServicesEnabled]` will be `YES`.
-
-### authorizationStatus
-
-When stubbing is enable you can change the value that will be returned by `+[CLLocationManager authorizationStatus]` using
-
-```swift
-app.coreLocationStubAuthorizationStatus(.denied)
-```
-
-### accuracyAuthorization
-
-When stubbing is enable you can change the value that will be returned by `CLLocationManager.accuracyAuthorization` using
-
-```swift
-app.coreLocationStubAuthorizationStatus(.denied)
-```
-
-### locationServicesEnabled
-
-When stubbing is enable you can change the value that will be returned by `+[CLLocationManager locationServicesEnabled]` using
-
-```swift
-app.coreLocationStubLocationServicesEnabled(false)
-```
-
-### Update manager current location
-
-When stubbing is enabled you can change the value that will be returned by `-[CLLocationManager location]` using
-
-```swift
-let location: CLLocation = ...
+// 📍 Set custom location
+let location = CLLocation(latitude: 37.7749, longitude: -122.4194) // San Francisco
 app.coreLocationStubManagerLocation(location)
-```
 
-### Trigger location updates
+// 🔐 Test different authorization states
+app.coreLocationStubAuthorizationStatus(.denied)
+app.coreLocationStubAuthorizationStatus(.authorizedWhenInUse)
 
-When stubbing is enable ([see](#CLLocationManager-stubbing)) you can trigger a location change by using
+// 📡 Control location services availability
+app.coreLocationStubLocationServicesEnabled(false)
 
-```swift
-app.coreLocationStubEnabled(true)
-
-...
-
-let locations: [CLLocation] = ...
+// 📢 Trigger location updates
+let locations = [location]
 app.coreLocationNotifyLocationUpdate(locations)
+
+// ❌ Simulate location errors
+app.coreLocationNotifyLocationError(locationError)
 ```
 
-### Trigger location update failure
+---
 
-When stubbing is enable ([see](#CLLocationManager-stubbing)) you can trigger a location change by using
+## 🔔 User Notifications Stubbing
 
-```swift
-app.coreLocationStubEnabled(true)
-
-...
-
-let errror: Error = ...
-app.coreLocationNotifyLocationError(errror)
-```
-
-## UNUserNotificationCenter stubbing
-
-It is possible to enable UNUserNotificationCenter stubbing in order to test that your app properly responds to the various authorization statuses.
-
-Disable the system notification engine and enable stubbing
+Test notification permissions and handling without user interaction.
 
 ```swift
+// 🔧 Enable notification stubbing
 app.notificationCenterStubEnabled(true)
-```
 
-Once enabled the default value for `-[UNNotificationSettings authorizationStatus]` will be `UNAuthorizationStatusAuthorized`.
-
-### authorizationStatus
-
-When stubbing is enable you can change the value that will be returned by `-[UNNotificationSettings authorizationStatus]` using
-
-```swift
+// 🔐 Test different authorization states
 app.notificationCenterStubAuthorizationStatus(.denied)
+app.notificationCenterStubAuthorizationStatus(.authorized)
+app.notificationCenterStubAuthorizationStatus(.provisional)
 ```
 
-## WKWebview stubbing
+---
 
-WKWebViews do not natively support NSURLProtocol which is used by SBTUITestTunnel to intercepect network requests allowing for stubbing/throttling/monitoring. To interact with network requests generated inside WKWebViews you'll neet to explicitly opt-in by invoking:
+## 🌐 WKWebView Stubbing
+
+Enable network interception for WKWebView content.
 
 ```swift
+// ⚠️ Enable WKWebView stubbing (affects POST request bodies)
 app.wkWebViewStubEnabled(true)
+
+// 🔄 Now you can stub requests from web views
+let webMatch = SBTRequestMatch.url("api.website.com")
+let webResponse = SBTStubResponse(response: ["web_data": "mocked"])
+app.stubRequests(matching: webMatch, response: webResponse)
 ```
 
-**IMPORTANT NOTICE**
+> ⚠️ **Important**: Enabling WKWebView stubbing strips POST request bodies due to internal API usage.
 
-Beware that to support NSURLProtocol inside WKWebViews we're calling internal APIs that have a side effect that body of POST requests generated inside the WKWebView are stripped away.
+---
+
+## 🎯 Pro Tips
+
+- **🔍 Use descriptive identifiers** for stubs and monitoring to make debugging easier
+- **🧹 Always clean up** stubs and monitors after tests to avoid interference
+- **📊 Combine features** - use monitoring with stubbing to verify request counts
+- **⏱️ Test performance** with throttling to ensure good user experience on slower networks
+- **🔄 Test error scenarios** extensively using stub failures and custom responses
+
+---
+
+## 🔗 Additional Resources
+
+- **[📱 Example Project](./Example.md)** - See all features in action
+- **[⚙️ Setup Guide](./Setup.md)** - Configuration and troubleshooting
+- **[🎛️ Advanced Setup](./Setup_alternative_target.md)** - Custom XCUIApplication usage
+
+> 💡 The library's headers are well-documented, making exploration straightforward. Check out the UI test target in the example project for practical usage examples.
