@@ -692,7 +692,7 @@
  *
  *  @return `YES` on success
  */
-- (BOOL)stubWebSocketWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocket(identifier:responseData:));
+- (BOOL)stubWebSocketReceiveMessageWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocketReceiveMessage(identifier:responseData:));
 
 /**
  *  Flush received messages from a WebSocket connection

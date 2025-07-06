@@ -44,11 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startWithError:(NSError **)error;
 
 /**
- *  Asynchronously sends the current stubbed response to all connected clients.
+ *  Synchronously send the currently stubbed message to the WebSocket server.
  *
- *  @return YES if the message was sent successfully, NO otherwise
+ *  @return `YES` on success.
  */
-- (BOOL)sendStubbedMessage;
+- (BOOL)sendStubbedReceiveMessage;
 
 /**
  *  Flush list of received messages.
@@ -58,8 +58,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSData *> *)flushReceivedMessages;
 
 @property (nonatomic, assign, readonly) NSInteger port;
-@property (nonatomic, strong) NSData *stubbedMessage;
 @property (nullable, nonatomic, weak) id<SBTWebSocketServerDelegate> delegate;
+
+/**
+ *  The data to be returned when the client receives a message.
+ */
+@property (nonatomic, strong) NSData *stubbedReceiveMessage;
 
 @end
 

@@ -23,7 +23,7 @@ class WebSocketTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) { [unowned self] in
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
-            app.stubWebSocket(identifier: "some-id", responseData: Data("Hello, world!".utf8))
+            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world!".utf8))
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
@@ -55,7 +55,7 @@ class WebSocketTests: XCTestCase {
         }
         
         XCTContext.runActivity(named: "Test stubbing overwrite and message sending") { _ in
-            app.stubWebSocket(identifier: "some-id", responseData: Data("Hello, world2!".utf8))
+            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world2!".utf8))
             
             app.sendWebSocket(identifier: "some-id")
             
@@ -69,7 +69,7 @@ class WebSocketTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) { [unowned self] in
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
-            app.stubWebSocket(identifier: "some-id", responseData: Data("Hello, world!".utf8))
+            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world!".utf8))
         }
      
         XCTContext.runActivity(named: "Test connection") { _ in

@@ -926,7 +926,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [portString integerValue];
 }
 
-- (BOOL)stubWebSocketWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+- (BOOL)stubWebSocketReceiveMessageWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     NSAssert(responseData != nil, @"Response data cannot be nil!");

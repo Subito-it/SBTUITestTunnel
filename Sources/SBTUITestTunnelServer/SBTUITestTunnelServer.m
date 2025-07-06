@@ -1726,7 +1726,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
     
-    webSocketServer.stubbedMessage = responseData;
+    webSocketServer.stubbedReceiveMessage = responseData;
     
     NSLog(@"[SBTUITestTunnel] Set stub response for WebSocket server with identifier '%@'", identifier);
     
@@ -1773,7 +1773,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
     
-    BOOL success = [webSocketServer sendStubbedMessage];
+    BOOL success = [webSocketServer sendStubbedReceiveMessage];
     
     NSLog(@"[SBTUITestTunnel] %@ message to WebSocket clients with identifier '%@'", 
           success ? @"Sent" : @"Failed to send", 
