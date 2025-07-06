@@ -967,11 +967,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return @[];
 }
 
-- (BOOL)sendWebSocketWithIdentifier:(NSString *)identifier
+- (BOOL)sendWebSocketMessage:(nonnull NSData *)message withIdentifier:(nonnull NSString *)identifier
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier};
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [self base64SerializeData:message]};
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSendWebSocketMessage params:params] boolValue];
 }

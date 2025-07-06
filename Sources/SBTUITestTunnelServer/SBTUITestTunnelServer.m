@@ -1761,11 +1761,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandSendWebSocketMessage:(NSDictionary *)parameters
 {
     NSString *identifier = parameters[SBTUITunnelObjectKey];
-    
     if ([identifier length] == 0) {
         NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
+    
+    NSData *message = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectValueKey] options:0];
         
     SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
     if (!webSocketServer) {
@@ -1773,7 +1774,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
     
-    BOOL success = [webSocketServer sendStubbedReceiveMessage];
+    BOOL success = [webSocketServer sendMessage:message];
     
     NSLog(@"[SBTUITestTunnel] %@ message to WebSocket clients with identifier '%@'", 
           success ? @"Sent" : @"Failed to send", 

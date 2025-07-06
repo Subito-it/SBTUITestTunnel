@@ -112,6 +112,6 @@ typedef enum: NSUInteger {
  *
  *  @return `YES` on success.
  */
-- (BOOL)sendWebSocketWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(identifier:));
+- (BOOL)sendWebSocketMessage:(nonnull NSData *)message withIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(message:identifier:));
 
 @end

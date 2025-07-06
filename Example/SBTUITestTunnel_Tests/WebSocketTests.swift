@@ -54,14 +54,14 @@ class WebSocketTests: XCTestCase {
             XCTAssertEqual(messagesAfterFlush.count, 0)
         }
         
-        XCTContext.runActivity(named: "Test stubbing overwrite and message sending") { _ in
-            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world2!".utf8))
+        XCTContext.runActivity(named: "Test sendWebSocket message is received instead of receive message") { _ in
+            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Receive should not be sent!".utf8))
             
-            app.sendWebSocket(identifier: "some-id")
+            app.sendWebSocket(message: Data("Hello world2!".utf8), identifier: "some-id")
             
             app.buttons["Receive"].tap()
             
-            wait { self.app.staticTexts["Received text: Hello, world2!"].exists }
+            wait { self.app.staticTexts["Received text: Hello world2!"].exists }
         }
     }
     
