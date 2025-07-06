@@ -46,9 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  Synchronously send the currently stubbed message to the WebSocket server.
  *
+ *  @param message The message to be sent
  *  @return `YES` on success.
  */
-- (BOOL)sendStubbedReceiveMessage;
+- (BOOL)sendMessage:(nonnull NSData *)message;
+
 
 /**
  *  Flush list of received messages.
@@ -63,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  The data to be returned when the client receives a message.
  */
-@property (nonatomic, strong) NSData *stubbedReceiveMessage;
+@property (nonatomic, strong, nullable) NSData *stubbedReceiveMessage;
 
 @end
 

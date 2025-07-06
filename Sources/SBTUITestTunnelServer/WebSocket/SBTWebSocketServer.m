@@ -102,7 +102,9 @@
         if (state == nw_connection_state_ready) {
             NSLog(@"[SBTUITestTunnel] SBTWebSocketServer client ready");
             
-            [weakSelf sendStubbedReceiveMessage];
+            if (self.stubbedReceiveMessage) {
+                [weakSelf sendMessage:self.stubbedReceiveMessage];
+            }
         } else if (state == nw_connection_state_failed) {
             NSLog(@"[SBTUITestTunnel] SBTWebSocketServer client failed: %@", err);
         } else if (state == nw_connection_state_cancelled) {
@@ -152,7 +154,9 @@
                 
                 [weakSelf.receivedMessages addObject:collected];
                                 
-                [weakSelf sendStubbedReceiveMessage];
+                if (weakSelf.stubbedReceiveMessage) {
+                    [weakSelf sendMessage:weakSelf.stubbedReceiveMessage];
+                }
             }
         }
         
@@ -162,14 +166,14 @@
     });
 }
 
-- (BOOL)sendStubbedReceiveMessage
+- (BOOL)sendMessage:(nonnull NSData *)message
 {
-    if (!self.stubbedReceiveMessage) {
+    if (!message) {
         return NO;
     }
         
-    dispatch_data_t content = dispatch_data_create(self.stubbedReceiveMessage.bytes,
-                                                   self.stubbedReceiveMessage.length,
+    dispatch_data_t content = dispatch_data_create(message.bytes,
+                                                   message.length,
                                                    dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
                                                    DISPATCH_DATA_DESTRUCTOR_DEFAULT);
 
