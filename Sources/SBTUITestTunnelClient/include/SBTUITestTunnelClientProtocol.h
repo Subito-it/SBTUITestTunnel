@@ -687,12 +687,12 @@
 /**
  *  Stub responses for a WebSocket connection
  *
- *  @param identifier The identifier of the WebSocket connection
  *  @param responseData The data to be returned when the client receives a message
+ *  @param identifier The identifier of the WebSocket connection
  *
  *  @return `YES` on success
  */
-- (BOOL)stubWebSocketReceiveMessageWithIdentifier:(nonnull NSString *)identifier responseData:(nonnull NSData *)responseData NS_SWIFT_NAME(stubWebSocketReceiveMessage(identifier:responseData:));
+- (BOOL)stubWebSocketReceiveMessage:(nonnull NSData *)responseData withIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(stubWebSocketReceiveMessage(_:identifier:));
 
 /**
  *  Flush received messages from a WebSocket connection
@@ -705,6 +705,7 @@
 /**
  *  Synchronously send the currently stubbed message to the WebSocket server
  *
+ *  @param message The message data to send to the WebSocket server
  *  @param identifier The identifier of the WebSocket connection
  *  @return `YES` on success
  */

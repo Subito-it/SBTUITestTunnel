@@ -926,7 +926,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [portString integerValue];
 }
 
-- (BOOL)stubWebSocketReceiveMessageWithIdentifier:(NSString *)identifier responseData:(NSData *)responseData
+- (BOOL)stubWebSocketReceiveMessage:(NSData *)responseData withIdentifier:(NSString *)identifier
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
     NSAssert(responseData != nil, @"Response data cannot be nil!");
@@ -967,12 +967,16 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return @[];
 }
 
-- (BOOL)sendWebSocketMessage:(nonnull NSData *)message withIdentifier:(nonnull NSString *)identifier
+- (BOOL)sendWebSocketMessage:(NSData *)message withIdentifier:(NSString *)identifier
 {
     NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    NSAssert(message != nil, @"Message data cannot be nil!");
     
-    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
-                                                     SBTUITunnelObjectValueKey: [self base64SerializeData:message]};
+    NSString *messageBase64 = [self base64SerializeData:message];
+    NSDictionary<NSString *, NSString *> *params = @{
+        SBTUITunnelObjectKey: identifier,
+        SBTUITunnelObjectValueKey: messageBase64
+    };
     
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandSendWebSocketMessage params:params] boolValue];
 }

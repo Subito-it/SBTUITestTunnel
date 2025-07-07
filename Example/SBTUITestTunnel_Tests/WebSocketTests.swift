@@ -20,67 +20,74 @@ import XCTest
 
 class WebSocketTests: XCTestCase {
     func testWebSocket() {
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) { [unowned self] in
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
+            [unowned self] in
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
-            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world!".utf8))
+            app.stubWebSocketReceiveMessage(Data("Hello, world!".utf8), identifier: "some-id")
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
             app.cells["executeWebSocket"].tap()
-            
+
             wait { self.app.staticTexts["connected"].exists }
         }
-        
+
         XCTContext.runActivity(named: "Test launch block stubbing") { _ in
             app.buttons["Receive"].tap()
-            
+
             wait { self.app.staticTexts["Received text: Hello, world!"].exists }
         }
-                
+
         XCTContext.runActivity(named: "Test message flushing") { _ in
             app.buttons["Send"].tap()
             wait { self.app.staticTexts["Sent: Hello, world!"].exists }
             app.buttons["Receive"].tap()
-            
-            let messagesForUnknownIdentifier = app.flushWebSocketMessages(identifier: "not-exist-id")
+
+            let messagesForUnknownIdentifier = app.flushWebSocketMessages(
+                identifier: "not-exist-id")
             XCTAssertEqual(messagesForUnknownIdentifier.count, 0)
-            
+
             let messages = app.flushWebSocketMessages(identifier: "some-id")
             XCTAssertEqual(messages.count, 1)
             XCTAssertEqual(messages[0], Data("Hello, world!".utf8))
-            
+
             let messagesAfterFlush = app.flushWebSocketMessages(identifier: "some-id")
             XCTAssertEqual(messagesAfterFlush.count, 0)
         }
-        
-        XCTContext.runActivity(named: "Test sendWebSocket message is received instead of receive message") { _ in
-            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Receive should not be sent!".utf8))
-            
+
+        XCTContext.runActivity(
+            named: "Test sendWebSocket message is received instead of receive message"
+        ) { _ in
+            app.stubWebSocketReceiveMessage(
+                Data("Receive should not be sent!".utf8), identifier: "some-id"
+            )
+
             app.sendWebSocket(message: Data("Hello world2!".utf8), identifier: "some-id")
-            
+
             app.buttons["Receive"].tap()
-            
+
             wait { self.app.staticTexts["Received text: Hello world2!"].exists }
         }
     }
-    
+
     func testWebSocketPingPong() {
-        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) { [unowned self] in
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
+            [unowned self] in
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
-            app.stubWebSocketReceiveMessage(identifier: "some-id", responseData: Data("Hello, world!".utf8))
+            app.stubWebSocketReceiveMessage(Data("Hello, world!".utf8), identifier: "some-id")
         }
-     
+
         XCTContext.runActivity(named: "Test connection") { _ in
             app.cells["executeWebSocket"].tap()
-            
+
             wait { self.app.staticTexts["connected"].exists }
         }
-        
+
         XCTContext.runActivity(named: "Test launch block stubbing") { _ in
             app.buttons["Ping"].tap()
-            
+
             wait { self.app.staticTexts["Pong received"].exists }
         }
     }
