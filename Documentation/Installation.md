@@ -49,21 +49,11 @@ For projects that require manual dependency management.
 2. **Client Components**: Add the `Sources/SBTUITestTunnelClient` folder to your UI test target  
 3. **Common Components**: Add the `Sources/SBTUITestTunnelCommon` folder to **both** targets
 
-### Step 2: Add GCDWebServer Dependency
+### Step 2: Configure Build Settings
 
-1. Download the latest [GCDWebServer](https://github.com/swisspol/GCDWebServer) release
-2. Create a `GCDWebServer` subfolder in your Xcode project
-3. Add all files from these GCDWebServer directories:
-   - `GCDWebServer/Core`
-   - `GCDWebServer/Requests` 
-   - `GCDWebServer/Responses`
+1. **Link Libraries**: Add `libz.tbd` in **Build Phases → Link Binary With Libraries**
 
-### Step 3: Configure Build Settings
-
-1. **Header Search Paths**: Add `$(SDKROOT)/<path_to_gcdwebserver>` to your target's **Build Settings → Header Search Paths**
-2. **Link Libraries**: Add `libz.tbd` in **Build Phases → Link Binary With Libraries**
-
-### Step 4: Project-Specific Configuration
+### Step 3: Project-Specific Configuration
 
 #### For Swift Projects
 

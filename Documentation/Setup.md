@@ -6,7 +6,7 @@ This guide walks you through configuring SBTUITestTunnel in your project. Proper
 
 **SBTUITestTunnel contains testing code that must NOT be shipped to production.** 
 
-It's your responsibility to ensure this library and its dependencies (like GCDWebServer) are excluded from App Store builds. The setup instructions below show how to use `#if DEBUG` conditionals to achieve this safely.
+It's your responsibility to ensure this library are excluded from App Store builds. The setup instructions below show how to use `#if DEBUG` conditionals to achieve this safely.
 
 ---
 
