@@ -110,6 +110,23 @@ class NetworkRequests: NSObject {
 
         return (retResponse, retHeaders, retData)
     }
+    
+    func asyncDataTaskNetworkWithResponse(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, requestHeaders: [String: String] = [:]) async throws -> (response: HTTPURLResponse, headers: [String: String], data: Data) {
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+        if let httpBody {
+            request.httpBody = httpBody.data(using: .utf8)
+        }
+        requestHeaders.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            fatalError("Response either nil or invalid")
+        }
+        let headers = httpResponse.allHeaderFields as? [String: String] ?? [:]
+        return (httpResponse, headers, data)
+    }
 
     func uploadTaskNetwork(urlString: String, data: Data?, httpMethod: String = "POST", delay _: TimeInterval = 0.0) -> [String: Any] {
         var retData: Data!
