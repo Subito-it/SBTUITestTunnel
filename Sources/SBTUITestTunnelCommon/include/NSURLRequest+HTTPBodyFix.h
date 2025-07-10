@@ -20,18 +20,29 @@
 
 @interface NSURLRequest (HTTPBodyFix)
 
+/// Reads data from an NSInputStream
++ (NSData *)sbt_readFromBodyStream:(NSInputStream *)stream;
+
+/// Extracts HTTP body data from a request using multiple fallback strategies:
+/// 1. Direct HTTPBody property
+/// 2. Reading from HTTPBodyStream
+/// 3. Upload task body via sbt_uploadHTTPBody (for upload tasks)
+/// @return The body data, or nil if no body data is available
+- (nullable NSData *)sbt_extractHTTPBody;
+
 /// Determines if this request was originally associated with an upload task
 ///
-/// When true, callers should use `sbt_uploadHTTPBody` to get the original body since `HTTPBody` will always be nil.
+/// When true, callers should use `sbt_uploadHTTPBody` to get the original body
+/// since `HTTPBody` will always be nil.
 - (BOOL)sbt_isUploadTaskRequest;
 
 /// Marks this request as associated with an upload task
 - (void)sbt_markUploadTaskRequest;
 
 /// Fetches an upload task's body from NSURLProtocol
-- (NSData*)sbt_uploadHTTPBody;
+- (NSData *)sbt_uploadHTTPBody;
 
 /// Returns a copy of the request without the HTTP body
-- (NSURLRequest*)sbt_copyWithoutBody;
+- (NSURLRequest *)sbt_copyWithoutBody;
 
 @end

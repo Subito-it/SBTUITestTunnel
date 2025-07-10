@@ -436,10 +436,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 
                 monitoredRequest.isStubbed = YES;
                 monitoredRequest.isRewritten = NO;
+            
                 
-                NSData *bodyData = ([monitoredRequest.originalRequest sbt_isUploadTaskRequest]) ? [monitoredRequest.originalRequest sbt_uploadHTTPBody] : monitoredRequest.originalRequest.HTTPBody;
-                
-                monitoredRequest.requestData = bodyData;
+                monitoredRequest.requestData = [monitoredRequest.originalRequest sbt_extractHTTPBody];
                 
                 dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
                     [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
@@ -488,8 +487,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         __unused SBTRequestMatch *requestMatch4 = stubRule[SBTProxyURLProtocolMatchingRuleKey];
         __unused SBTRequestMatch *requestMatch5 = monitorRule[SBTProxyURLProtocolMatchingRuleKey];
         NSLog(@"[SBTUITestTunnel] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
-        
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
+        NSData *bodyData = [self.request sbt_extractHTTPBody];
+        if (bodyData) {
+            [newRequest setHTTPBody:bodyData];
+            [newRequest setValue:[NSString stringWithFormat:@"%lu", (unsigned long)bodyData.length]
+                 forHTTPHeaderField:@"Content-Length"];
+        }
+        
         [SBTRequestPropertyStorage setProperty:@YES forKey:SBTProxyURLProtocolHandledKey inRequest:newRequest];
         
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -631,9 +636,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         monitoredRequest.isStubbed = NO;
         monitoredRequest.isRewritten = isRequestRewritten;
         
-        NSData *bodyData = ([monitoredRequest.originalRequest sbt_isUploadTaskRequest]) ? [monitoredRequest.originalRequest sbt_uploadHTTPBody] : monitoredRequest.originalRequest.HTTPBody;
-        
-        monitoredRequest.requestData = bodyData;
+        monitoredRequest.requestData = [monitoredRequest.originalRequest sbt_extractHTTPBody];
         
         dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
             [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
