@@ -1104,7 +1104,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             NSAssert(NO, @"Check that ATS security policy is properly setup, refer to documentation");
         }
         
-        if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+        if (![response isKindOfClass:[NSHTTPURLResponse class]] || data == nil) {
             if (assertOnError) {
                 NSLog(@"[SBTUITestTunnel] Failed to get http response: %@", request);
             }
