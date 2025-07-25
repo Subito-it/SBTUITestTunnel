@@ -301,4 +301,17 @@ class MiscellaneousTests: XCTestCase {
             XCTAssertTrue(duration < last5avg * 2.0, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
         }
     }
+
+    func testCrashingAppDoesNotCrashUITest() {
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+
+        XCTAssert(app.monitorRequestRemoveAll())
+        app.cells["crashApp"].tap()
+
+        Thread.sleep(forTimeInterval: 2.0)
+
+        XCTAssertFalse(app.monitorRequestRemoveAll())
+        XCTAssertFalse(app.cells["crashApp"].exists)
+        XCTAssertFalse(app.wait(for: .runningForeground, timeout: 0.1))
+    }
 }
