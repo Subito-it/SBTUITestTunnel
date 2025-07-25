@@ -142,7 +142,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         [self.ipcConnection resume];
         
         self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-            [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
+            NSLog(@"Failed getting IPC proxy, %@", error.description);
         }];
             
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentIPCKey] = serviceIdentifier;
