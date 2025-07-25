@@ -4,11 +4,11 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     name: Run UI Test on iOS
     env:
-      xcode_version: "15.2"
+      xcode_version: "16.4"
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
