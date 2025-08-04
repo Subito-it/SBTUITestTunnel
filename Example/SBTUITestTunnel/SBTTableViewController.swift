@@ -37,6 +37,7 @@ class Extension3Test: BaseTest {}
 class Extension4Test: BaseTest {}
 class Extension5Test: BaseTest {}
 class Extension6Test: BaseTest {}
+class CrashTest: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
     fileprivate var sessionTask: URLSessionTask!
@@ -63,7 +64,8 @@ class SBTTableViewController: UITableViewController {
                                         Extension3Test(testSelector: #selector(showExtensionScrollView)),
                                         Extension4Test(testSelector: #selector(showCoreLocationViewController)),
                                         Extension5Test(testSelector: #selector(showExtensionCollectionViewVertical)),
-                                        Extension6Test(testSelector: #selector(showExtensionCollectionViewHorizontal))]
+                                        Extension6Test(testSelector: #selector(showExtensionCollectionViewHorizontal)),
+                                        CrashTest(testSelector: #selector(crashApp))]
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return testList.count
@@ -90,6 +92,8 @@ class SBTTableViewController: UITableViewController {
             tableView.dequeueReusableCell(withIdentifier: "extension5Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension6Test {
             tableView.dequeueReusableCell(withIdentifier: "extension6Cell", for: indexPath)
+        } else if testList[indexPath.row] is CrashTest {
+            tableView.dequeueReusableCell(withIdentifier: "crashCell", for: indexPath)
         } else {
             tableView.dequeueReusableCell(withIdentifier: "baseCell", for: indexPath)
         }
@@ -159,7 +163,6 @@ extension SBTTableViewController {
 
             URLSession.shared.dataTask(with: request) {
                 data, response, _ in
-
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
@@ -196,7 +199,6 @@ extension SBTTableViewController {
 
             URLSession.shared.uploadTask(with: request, from: data) {
                 data, response, _ in
-
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data
@@ -233,7 +235,6 @@ extension SBTTableViewController {
 
             URLSession.shared.downloadTask(with: request) {
                 dataUrl, response, _ in
-
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 if let dataUrl {
@@ -452,6 +453,12 @@ extension SBTTableViewController {
 }
 
 extension SBTTableViewController {
+    @objc func crashApp() {
+        abort()
+    }
+}
+
+extension SBTTableViewController {
     func dataTaskNetworkWithCookies(urlString: String, httpMethod: String = "GET", httpBody: String? = nil, delay: TimeInterval = 0.0, shouldPushResult: Bool = true) {
         DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) { [weak self] in
             let sem = DispatchSemaphore(value: 0)
@@ -474,7 +481,6 @@ extension SBTTableViewController {
 
             URLSession.shared.dataTask(with: request) {
                 data, response, _ in
-
                 retResponse = response as? HTTPURLResponse
                 retHeaders = retResponse?.allHeaderFields as? [String: String]
                 retData = data

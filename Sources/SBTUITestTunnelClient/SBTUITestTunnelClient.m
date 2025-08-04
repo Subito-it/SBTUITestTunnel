@@ -142,7 +142,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         [self.ipcConnection resume];
         
         self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-            [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnelClient] Failed getting IPC proxy, %@", error.description] code:SBTUITestTunnelErrorLaunchFailed];
+            NSLog(@"Failed getting IPC proxy, %@", error.description);
         }];
             
         launchEnvironment[SBTUITunneledApplicationLaunchEnvironmentIPCKey] = serviceIdentifier;
@@ -1104,7 +1104,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
             NSAssert(NO, @"Check that ATS security policy is properly setup, refer to documentation");
         }
         
-        if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+        if (![response isKindOfClass:[NSHTTPURLResponse class]] || data == nil) {
             if (assertOnError) {
                 NSLog(@"[SBTUITestTunnel] Failed to get http response: %@", request);
             }
