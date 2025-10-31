@@ -1765,22 +1765,46 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
-    
+
     NSData *message = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectValueKey] options:0];
-        
+
     SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
     if (!webSocketServer) {
         NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' not found", identifier);
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
-    
+
     BOOL success = [webSocketServer sendMessage:message];
-    
-    NSLog(@"[SBTUITestTunnel] %@ message to WebSocket clients with identifier '%@'", 
-          success ? @"Sent" : @"Failed to send", 
+
+    NSLog(@"[SBTUITestTunnel] %@ message to WebSocket clients with identifier '%@'",
+          success ? @"Sent" : @"Failed to send",
           identifier);
-    
+
     return @{ SBTUITunnelResponseResultKey: success ? @"YES" : @"NO" };
+}
+
+- (NSDictionary *)commandWebSocketConnectionState:(NSDictionary *)parameters
+{
+    NSString *identifier = parameters[SBTUITunnelObjectKey];
+
+    if ([identifier length] == 0) {
+        NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
+        return @{ SBTUITunnelResponseResultKey: @"NO" };
+    }
+
+    SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
+    if (!webSocketServer) {
+        NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' not found", identifier);
+        return @{ SBTUITunnelResponseResultKey: @"NO" };
+    }
+
+    BOOL connected = webSocketServer.connected;
+
+    NSLog(@"[SBTUITestTunnel] WebSocket with identifier '%@' is %@",
+          identifier,
+          connected ? @"connected" : @"not connected");
+
+    return @{ SBTUITunnelResponseResultKey: connected ? @"YES" : @"NO" };
 }
 
 @end

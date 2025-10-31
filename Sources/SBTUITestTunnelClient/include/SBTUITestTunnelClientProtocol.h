@@ -711,5 +711,12 @@
  */
 - (BOOL)sendWebSocketMessage:(nonnull NSData *)message withIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(sendWebSocket(message:identifier:));
 
+/**
+ *  Get the current WebSocket connection state
+ *
+ *  @param identifier The identifier of the WebSocket connection
+ *  @return `YES` if connected, `NO` otherwise
+ */
+- (BOOL)webSocketConnectionStateWithIdentifier:(nonnull NSString *)identifier NS_SWIFT_NAME(webSocketConnectionState(identifier:));
 
 @end
