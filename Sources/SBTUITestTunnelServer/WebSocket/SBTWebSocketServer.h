@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSData *> *)flushReceivedMessages;
 
 @property (nonatomic, assign, readonly) NSInteger port;
+@property (nonatomic, assign, readonly) BOOL connected;
 @property (nullable, nonatomic, weak) id<SBTWebSocketServerDelegate> delegate;
 
 /**
