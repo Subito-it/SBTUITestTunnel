@@ -25,12 +25,18 @@ class WebSocketTests: XCTestCase {
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
             app.stubWebSocketReceiveMessage(Data("Hello, world!".utf8), identifier: "some-id")
+
+            // Assert connection status is false before client connects
+            XCTAssertFalse(app.webSocketConnectionState(identifier: "some-id"))
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
             app.cells["executeWebSocket"].tap()
 
             wait { self.app.staticTexts["connected"].exists }
+
+            // Assert connection status is true after client connects
+            XCTAssertTrue(app.webSocketConnectionState(identifier: "some-id"))
         }
 
         XCTContext.runActivity(named: "Test launch block stubbing") { _ in
@@ -77,18 +83,56 @@ class WebSocketTests: XCTestCase {
             let port = app.launchWebSocket(identifier: "some-id")
             app.userDefaultsRegisterDefaults(["websocketport": port])
             app.stubWebSocketReceiveMessage(Data("Hello, world!".utf8), identifier: "some-id")
+
+            // Assert connection status is false before client connects
+            XCTAssertFalse(app.webSocketConnectionState(identifier: "some-id"))
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
             app.cells["executeWebSocket"].tap()
 
             wait { self.app.staticTexts["connected"].exists }
+
+            // Assert connection status is true after client connects
+            XCTAssertTrue(app.webSocketConnectionState(identifier: "some-id"))
         }
 
         XCTContext.runActivity(named: "Test launch block stubbing") { _ in
             app.buttons["Ping"].tap()
 
             wait { self.app.staticTexts["Pong received"].exists }
+        }
+    }
+
+    func testWebSocketDisconnection() {
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
+            [unowned self] in
+            let port = app.launchWebSocket(identifier: "some-id")
+            app.userDefaultsRegisterDefaults(["websocketport": port])
+
+            // Assert connection status is false before client connects
+            XCTAssertFalse(app.webSocketConnectionState(identifier: "some-id"))
+        }
+
+        XCTContext.runActivity(named: "Test connection") { _ in
+            app.cells["executeWebSocket"].tap()
+
+            wait { self.app.staticTexts["connected"].exists }
+
+            // Assert connection status is true after client connects
+            XCTAssertTrue(app.webSocketConnectionState(identifier: "some-id"))
+        }
+
+        XCTContext.runActivity(named: "Test disconnection") { _ in
+            app.buttons["Disconnect"].tap()
+
+            wait { self.app.staticTexts["Disconnected"].exists }
+
+            // Wait a bit for the disconnection to be processed on the server
+            Thread.sleep(forTimeInterval: 0.5)
+
+            // Assert connection status is false after client disconnects
+            XCTAssertFalse(app.webSocketConnectionState(identifier: "some-id"))
         }
     }
 }

@@ -514,6 +514,14 @@
                                     <action selector="receiveButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="VEI-bJ-XKI"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dis-co-nnc">
+                                <rect key="frame" x="16" y="117" width="103" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Disconnect"/>
+                                <connections>
+                                    <action selector="disconnectButtonTapped:" destination="2mz-Wl-8w5" eventType="touchUpInside" id="Dis-co-act"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -523,8 +531,10 @@
                             <constraint firstItem="NtC-tq-vdx" firstAttribute="top" secondItem="4GT-VD-THt" secondAttribute="bottom" id="6OP-ic-mor"/>
                             <constraint firstItem="05a-Tj-qpa" firstAttribute="leading" secondItem="S8e-9J-Kln" secondAttribute="trailing" constant="40" id="7qT-YP-RmD"/>
                             <constraint firstItem="S8e-9J-Kln" firstAttribute="centerY" secondItem="05a-Tj-qpa" secondAttribute="centerY" id="8U1-ed-B0W"/>
-                            <constraint firstItem="aQG-gA-niS" firstAttribute="top" secondItem="S8e-9J-Kln" secondAttribute="bottom" constant="50" id="Bi0-GA-X4A"/>
+                            <constraint firstItem="aQG-gA-niS" firstAttribute="top" secondItem="Dis-co-nnc" secondAttribute="bottom" constant="7" id="Bi0-GA-X4A"/>
                             <constraint firstItem="S8e-9J-Kln" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="D30-mE-TJi"/>
+                            <constraint firstItem="Dis-co-nnc" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="Dis-lead"/>
+                            <constraint firstItem="Dis-co-nnc" firstAttribute="top" secondItem="S8e-9J-Kln" secondAttribute="bottom" constant="8" id="Dis-top"/>
                             <constraint firstItem="4GT-VD-THt" firstAttribute="top" secondItem="aQG-gA-niS" secondAttribute="bottom" constant="30" id="UBt-GG-nB1"/>
                             <constraint firstAttribute="trailing" secondItem="4GT-VD-THt" secondAttribute="trailing" constant="16" id="dMq-VM-LSw"/>
                             <constraint firstItem="aQG-gA-niS" firstAttribute="leading" secondItem="uf2-5Y-Ugg" secondAttribute="leading" constant="16" id="i3I-j2-q2z"/>
