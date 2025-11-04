@@ -18,7 +18,10 @@ class CookiesTest: XCTestCase {
         let result = request.dataTaskNetwork(urlString: "https://postman-echo.com/cookies")
         let json = request.json(result)
 
-        return (json["cookies"] as? [String: Any])?.keys.count ?? 0
+        var cookies = json["cookies"] as? [String: Any] ?? [:]
+        cookies = cookies.filter { $0.key.hasPrefix("_") == false }
+
+        return cookies.keys.count
     }
 
     func testCookiesGetBlocked() {

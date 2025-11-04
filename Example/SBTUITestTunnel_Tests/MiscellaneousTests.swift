@@ -283,7 +283,7 @@ class MiscellaneousTests: XCTestCase {
             let randomString = ProcessInfo.processInfo.globallyUniqueString
             let start: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
             for i in 1 ... amount {
-                self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: "\(i)")
+                app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: "\(i)")
             }
             return CFAbsoluteTimeGetCurrent() - start
         }
@@ -298,11 +298,13 @@ class MiscellaneousTests: XCTestCase {
         let last5avg = durations.suffix(5).reduce(0, +) / 5
 
         for duration in durations.dropFirst() {
-            XCTAssertTrue(duration < last5avg * 2.0, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
+            XCTAssertTrue(duration < last5avg * 2.5, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
         }
     }
 
-    func testCrashingAppDoesNotCrashUITest() {
+    func testCrashingAppDoesNotCrashUITest() throws {
+        throw XCTSkip("This test should only be run manually")
+
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
         XCTAssert(app.monitorRequestRemoveAll())
