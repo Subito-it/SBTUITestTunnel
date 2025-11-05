@@ -21,6 +21,7 @@
 @property (nonatomic) nw_listener_t listener;
 @property (nonatomic, strong) NSMutableArray<NSValue *> *clients;
 @property (nonatomic, assign, readwrite) NSInteger port;
+@property (nonatomic, assign) NSInteger connectedClientsCount;
 @property (nonatomic, strong) NSMutableArray<NSData *> *receivedMessages;
 
 @end
@@ -101,16 +102,20 @@
     nw_connection_set_state_changed_handler(connection, ^(nw_connection_state_t state, nw_error_t  _Nullable err) {
         if (state == nw_connection_state_ready) {
             NSLog(@"[SBTUITestTunnel] SBTWebSocketServer client ready");
-            
+
+            weakSelf.connectedClientsCount++;
+
             if (self.stubbedReceiveMessage) {
                 [weakSelf sendMessage:self.stubbedReceiveMessage];
             }
         } else if (state == nw_connection_state_failed) {
             NSLog(@"[SBTUITestTunnel] SBTWebSocketServer client failed: %@", err);
+            weakSelf.connectedClientsCount = MAX(0, weakSelf.connectedClientsCount - 1);
         } else if (state == nw_connection_state_cancelled) {
             NSLog(@"[SBTUITestTunnel] SBTWebSocketServer client cancelled");
+            weakSelf.connectedClientsCount = MAX(0, weakSelf.connectedClientsCount - 1);
         }
-        
+
         if ([self.delegate respondsToSelector:@selector(webSocketServer:didChangeState:)]) {
             [self.delegate webSocketServer:self didChangeState:state];
         }
@@ -204,6 +209,11 @@
     NSArray<NSData *> *messages = [self.receivedMessages copy];
     [self.receivedMessages removeAllObjects];
     return messages;
+}
+
+- (BOOL)connected
+{
+    return self.connectedClientsCount > 0;
 }
 
 @end

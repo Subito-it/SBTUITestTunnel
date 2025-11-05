@@ -134,6 +134,7 @@ NSString * const SBTUITunneledApplicationCommandLaunchWebSocket = @"commandLaunc
 NSString * const SBTUITunneledApplicationCommandStubWebSocket = @"commandStubWebSocket";
 NSString * const SBTUITunneledApplicationCommandFlushWebSocketMessages = @"commandFlushWebSocketMessages";
 NSString * const SBTUITunneledApplicationCommandSendWebSocketMessage = @"commandSendWebSocketMessage";
+NSString * const SBTUITunneledApplicationCommandWebSocketConnectionState = @"commandWebSocketConnectionState";
 
 NSString * const SBTUITunneledNSURLProtocolHTTPBodyKey = @"SBTUITunneledNSURLProtocolHTTPBodyKey";
 

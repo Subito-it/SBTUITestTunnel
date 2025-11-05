@@ -461,4 +461,9 @@
     return [self.client sendWebSocketMessage:message withIdentifier:identifier];
 }
 
+- (BOOL)webSocketConnectionStateWithIdentifier:(NSString *)identifier
+{
+    return [self.client webSocketConnectionStateWithIdentifier:identifier];
+}
+
 @end

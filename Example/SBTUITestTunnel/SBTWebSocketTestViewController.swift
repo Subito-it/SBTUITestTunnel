@@ -79,16 +79,22 @@ class SBTWebSocketTestViewController: UIViewController {
         socket?.sendPing { error in
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                
+
                 if let error {
-                    networkResult.text = "⚠️ WebSocket couldn’t send ping: \(error)"
+                    networkResult.text = "⚠️ WebSocket couldn't send ping: \(error)"
                 } else {
                     networkResult.text = "Pong received"
                 }
             }
         }
     }
-    
+
+    @IBAction func disconnectButtonTapped(_ sender: Any) {
+        socket?.cancel(with: .goingAway, reason: nil)
+        socket = nil
+        networkResult.text = "Disconnected"
+    }
+
     @objc func handleTimer() {
         guard let state = socket?.state else { return }
 
