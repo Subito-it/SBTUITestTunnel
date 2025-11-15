@@ -1,0 +1,28 @@
+source "https://cdn.cocoapods.org/"
+platform :ios, "15.0"
+use_frameworks!
+
+target "App" do
+  pod "SBTUITestTunnelServer", :path => "../.."
+  pod "SBTUITestTunnelCommon", :path => "../.."
+end
+
+target "UITests" do
+  pod "SBTUITestTunnelServer", :path => "../.."
+  pod "SBTUITestTunnelClient", :path => "../.."
+  pod "SBTUITestTunnelCommon", :path => "../.."
+end
+
+target "UITestsNoSwizzling" do
+  pod "SBTUITestTunnelServer", :path => "../.."
+  pod "SBTUITestTunnelClient", :path => "../.."
+  pod "SBTUITestTunnelCommon", :path => "../.."
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings["DEPLOYMENT_TARGET"] = "15.0"
+    end
+  end
+end

@@ -1,0 +1,72 @@
+name: SBTUITestTunnel_UIKit
+
+options:
+  bundleIdPrefix: com.subito.uitest.uikit
+  postGenCommand: "pod install"
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: [App]
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: Foundation.framework
+      - sdk: CoreGraphics.framework
+    settings:
+      base:
+        INFOPLIST_FILE: "App/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "App/SBTUITestTunnel_UIKit.entitlements"
+
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: [UITests]
+    dependencies:
+      - target: App
+    settings:
+      base:
+        INFOPLIST_FILE: "UITests/Info.plist"
+
+  UITestsNoSwizzling:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: [UITests]
+    dependencies:
+      - target: App
+    settings:
+      base:
+        INFOPLIST_FILE: "UITests/Info.plist"
+        GCC_PREPROCESSOR_DEFINITIONS: ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
+
+schemes:
+  UIKit:
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+    run:
+      config: Debug
+    test:
+      targets: [UITests]
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+
+  UIKit_NoSwizzling_Tests:
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+    run:
+      config: Debug
+      debugEnabled: false
+    test:
+      targets: [UITestsNoSwizzling]
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+    management:
+      isShown: false

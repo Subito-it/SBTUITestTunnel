@@ -45,7 +45,9 @@ playground.xcworkspace
 # you should judge for yourself, the pros and cons are mentioned at:
 # https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
 #
-# Pods/
+# For examples, we exclude Pods since they can be regenerated
+Examples/*/Pods/
+Examples/*/Podfile.lock
 
 # Carthage
 #
@@ -66,20 +68,21 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 
-Example/SBTUITestTunnel.xcworkspace/xcuserdata
 push_to_trunk.sh
 push_to_trunk_readme.md
 
 # Visual Studio Code files
 .vscode
 
-# XcodeGen
-Example/Pods/
-Example/Podfile.lock
-*.xcodeproj/
-*.xcworkspace/
-*.xcresult/
+# XcodeGen Generated Files (Examples)
+Examples/*/*.xcodeproj/
+Examples/*/*.xcworkspace/
+Examples/*/*.xcresult/
 
 # SwiftPM resolved files
 *.resolved
 .swiftpm
+
+# Examples-specific ignores
+Examples/*/.build/
+Examples/*/DerivedData/
