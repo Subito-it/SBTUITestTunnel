@@ -160,8 +160,7 @@ extension UnusedStubsPeekAllTests {
     func assertUnusedStubs(_ given: [SBTActiveStub],
                            expected: [SBTRequestMatch: Int],
                            file: StaticString = #file,
-                           line: UInt = #line)
-    {
+                           line: UInt = #line) {
         for (expectedMatch, activeIterations) in expected {
             XCTAssertNotNil(given.first(where: { $0.match == expectedMatch && $0.response.activeIterations == activeIterations }), file: file, line: line)
         }

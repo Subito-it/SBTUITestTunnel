@@ -17,7 +17,7 @@
 import UIKit
 
 class SBTNetworkTestViewController: UIViewController {
-    @IBOutlet weak var networkResult: UILabel!
+    @IBOutlet var networkResult: UILabel!
     var networkResultString: String = ""
 
     override func viewDidLoad() {
