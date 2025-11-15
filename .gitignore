@@ -86,3 +86,4 @@ Examples/*/*.xcresult/
 # Examples-specific ignores
 Examples/*/.build/
 Examples/*/DerivedData/
+*.xcresult
