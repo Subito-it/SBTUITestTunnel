@@ -91,7 +91,7 @@ jobs:
           brew install xcodegen
       - name: Generate SPM project
         run: |
-          cd SPM; xcodegen
+          cd Example/SPM; xcodegen
       - name: Build SPM App
         run: |
           Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel
