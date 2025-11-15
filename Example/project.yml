@@ -40,7 +40,7 @@ targets:
   SBTUITestTunnel_Example_SwiftUI:
     type: application
     platform: iOS
-    deploymentTarget: "14.0"
+    deploymentTarget: "15.0"
     settings:
       base:
         INFOPLIST_FILE: "SBTUITestTunnel_Example_SwiftUI/Info.plist"
@@ -65,6 +65,19 @@ targets:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
       - target: SBTUITestTunnel_Example_UIKit
+
+  SBTUITestTunnel_SwiftUI_Tests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel_SwiftUI_Tests/Info.plist"
+    sources:
+      - SBTUITestTunnel_SwiftUI_Tests
+    dependencies:
+      - target: SBTUITestTunnel_Example_SwiftUI
+
 
 schemes:
   SBTUITestTunnel_UIKit:
@@ -132,3 +145,25 @@ schemes:
       config: Debug
     profile:
       config: Debug
+
+  SBTUITestTunnel_SwiftUI_Tests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        SBTUITestTunnel_Example_SwiftUI: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - SBTUITestTunnel_SwiftUI_Tests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false
+
