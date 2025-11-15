@@ -17,10 +17,9 @@
 import SwiftUI
 
 struct ContentView: View {
-
     let testManager = TestManager()
 
-    @State private var readyToNavigate : Bool = false
+    @State private var readyToNavigate: Bool = false
 
     var body: some View {
         NavigationView {
@@ -30,6 +29,26 @@ struct ContentView: View {
                     NavigationLink(destination: NetworkResultView(test: networkTest)) {
                         Text(networkTest.name)
                     }.accessibilityIdentifier(networkTest.name)
+                case let webSocketTest as WebSocketTest:
+                    NavigationLink(destination: GenericResultView(test: webSocketTest)) {
+                        Text(webSocketTest.name)
+                    }.accessibilityIdentifier(webSocketTest.name)
+                case let autocompleteTest as AutocompleteTest:
+                    NavigationLink(destination: GenericResultView(test: autocompleteTest)) {
+                        Text(autocompleteTest.name)
+                    }.accessibilityIdentifier(autocompleteTest.name)
+                case let cookiesTest as CookiesTest:
+                    NavigationLink(destination: GenericResultView(test: cookiesTest)) {
+                        Text(cookiesTest.name)
+                    }.accessibilityIdentifier(cookiesTest.name)
+                case let extensionTest as ExtensionTest:
+                    NavigationLink(destination: GenericResultView(test: extensionTest)) {
+                        Text(extensionTest.name)
+                    }.accessibilityIdentifier(extensionTest.name)
+                case let crashTest as CrashTest:
+                    NavigationLink(destination: GenericResultView(test: crashTest)) {
+                        Text(crashTest.name)
+                    }.accessibilityIdentifier(crashTest.name)
                 default:
                     EmptyView()
                 }
@@ -44,8 +63,8 @@ struct ContentView: View {
 struct NetworkResultView: View {
     let test: NetworkTest
 
-    @State private var isLoading : Bool = true
-    @State private var result : String = ""
+    @State private var isLoading: Bool = true
+    @State private var result: String = ""
 
     var body: some View {
         Group {
@@ -61,7 +80,55 @@ struct NetworkResultView: View {
             }
         }.onAppear {
             Task {
-                result = try await test.execute()
+                do {
+                    result = try await test.execute()
+                } catch {
+                    result = "Error: \(error.localizedDescription)"
+                }
+                isLoading = false
+            }
+        }
+    }
+}
+
+struct GenericResultView: View {
+    let test: any Test
+
+    @State private var isLoading: Bool = true
+    @State private var result: String = ""
+
+    var body: some View {
+        Group {
+            if isLoading {
+                ProgressView().accessibilityIdentifier("progress")
+            } else {
+                ScrollView {
+                    Text(result)
+                        .accessibilityIdentifier("result")
+                        .padding(8)
+                        .font(.footnote)
+                }
+            }
+        }.onAppear {
+            Task {
+                do {
+                    switch test {
+                    case let webSocketTest as WebSocketTest:
+                        result = try await webSocketTest.execute()
+                    case let autocompleteTest as AutocompleteTest:
+                        result = try await autocompleteTest.execute()
+                    case let cookiesTest as CookiesTest:
+                        result = try await cookiesTest.execute()
+                    case let extensionTest as ExtensionTest:
+                        result = try await extensionTest.execute()
+                    case let crashTest as CrashTest:
+                        result = try await crashTest.execute()
+                    default:
+                        result = "Unknown test type"
+                    }
+                } catch {
+                    result = "Error: \(error.localizedDescription)"
+                }
                 isLoading = false
             }
         }
