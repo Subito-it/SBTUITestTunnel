@@ -69,11 +69,14 @@ jobs:
       - name: Build SwiftUI App
         run: |
           Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
-      - name: Collect SwiftUI build artifacts
+      - name: Run SwiftUI UI Tests
+        run: |
+          Scripts/run_swiftui_uitests.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Collect SwiftUI UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SBTUITestTunnel_SwiftUI_Build.xcresult
-          path: SBTUITestTunnel_SwiftUI.xcresult
+          name: SBTUITestTunnel_SwiftUI_Tests.xcresult
+          path: SBTUITestTunnel_SwiftUI_Tests.xcresult
         if: success() || failure()
 
   spm-tests:

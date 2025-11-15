@@ -4,6 +4,7 @@ require "fileutils"
 module Build
   UITESTS_SCHEME = "SBTUITestTunnel_Tests"
   UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
+  SWIFTUI_UITESTS_SCHEME = "SBTUITestTunnel_SwiftUI_Tests"
 
   # Configurable UI Test Retry Settings
   # Can be overridden by environment variables:
@@ -31,6 +32,11 @@ module Build
   def self.run_ui_tests_no_swizzling(project_path)
     puts "⏳ Run UITests with no swizzling..."
     return run_xcodebuild("test", project_path, UITESTS_NOSWIZZ_SCHEME)
+  end
+
+  def self.run_swiftui_ui_tests(project_path)
+    puts "⏳ Run SwiftUI UITests..."
+    return run_xcodebuild("test", project_path, SWIFTUI_UITESTS_SCHEME)
   end
 
   def self.run_xcodebuild(action, path, scheme_name)
@@ -71,14 +77,22 @@ module Build
   def self.make_destination()
     platform = "iOS Simulator"
     device = available_simulators()
-    destination = "platform=#{platform},name=#{device}"
+    destination = "platform=#{platform},#{device}"
     puts "🎯 Selected destination: '#{destination}'"
     return destination
   end
 
   def self.available_simulators()
-    device = `xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`.strip
-    puts "📱 Selected simulator: '#{device}'"
-    return device
+    # Try to get a specific iPhone simulator with ID for more reliable targeting
+    device_id = `xcrun simctl list devices available | grep "iPhone 12" | head -1 | grep -oE '\\([A-F0-9-]+\\)' | tr -d '()'`.strip
+    if !device_id.empty?
+      puts "📱 Selected simulator ID: '#{device_id}'"
+      return "id=#{device_id}"
+    else
+      # Fallback to name-based selection
+      device = `xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`.strip
+      puts "📱 Selected simulator: '#{device}'"
+      return "name=#{device}"
+    end
   end
 end
