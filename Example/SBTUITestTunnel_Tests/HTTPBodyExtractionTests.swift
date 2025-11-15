@@ -151,7 +151,7 @@ class HTTPBodyExtractionTests: XCTestCase {
 
     func testExtractHTTPBodyFromLargeStream() {
         let url = URL(string: "https://example.com")!
-        let largeString = String(repeating: "A", count: 10000) // 10KB
+        let largeString = String(repeating: "A", count: 10_000) // 10KB
         let largeData = largeString.data(using: .utf8)!
 
         let request = NSMutableURLRequest(url: url)

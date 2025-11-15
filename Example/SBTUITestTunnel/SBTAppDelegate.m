@@ -16,8 +16,8 @@
 
 #import "SBTAppDelegate.h"
 
-@import SBTUITestTunnelCommon;
 @import SBTUITestTunnelServer;
+@import SBTUITestTunnelCommon;
 @import CoreLocation;
 
 @implementation SBTAppDelegate

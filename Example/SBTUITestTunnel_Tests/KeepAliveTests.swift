@@ -109,7 +109,7 @@ class TestHTTPServer {
         defer { self.server = server }
         
         server.addDefaultHandler(forMethod: "GET", request: SBTWebServerRequest.self, processBlock: { [weak self] request in
-            guard let self = self else {
+            guard let self else {
                 return SBTWebServerDataResponse(text: "Server error")
             }
             
@@ -119,7 +119,7 @@ class TestHTTPServer {
             var connectionId = 0
             var requestCount = 1
             
-            self.requestInfoQueue.sync {
+            requestInfoQueue.sync {
                 // If we have seen this remote address before and keep-alive is enabled,
                 // it might be the same connection
                 if enableKeepAlive, let existingConnectionId = self.lastRemoteAddressMap[remoteAddressKey] {

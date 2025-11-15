@@ -20,10 +20,10 @@ class SBTExtensionCollectionViewController: UIViewController {
     init(scrollDirection: UICollectionView.ScrollDirection) {
         self.scrollDirection = scrollDirection
 
-        flowLayout = UICollectionViewFlowLayout()
+        self.flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = scrollDirection
 
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.backgroundColor = .green
 
         collectionView.contentInsetAdjustmentBehavior = .always
@@ -50,7 +50,7 @@ class SBTExtensionCollectionViewController: UIViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
 
         collectionView.dataSource = self
@@ -110,7 +110,7 @@ private final class Cell: UICollectionViewCell {
             label.topAnchor.constraint(equalTo: contentView.topAnchor),
             label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
 

@@ -13,7 +13,12 @@ def test_target
   pod "SBTUITestTunnelCommon", :path => "../"
 end
 
-target "SBTUITestTunnel_Example" do
+target "SBTUITestTunnel_Example_UIKit" do
+  pod "SBTUITestTunnelServer", :path => "../"
+  pod "SBTUITestTunnelCommon", :path => "../"
+end
+
+target "SBTUITestTunnel_Example_SwiftUI" do
   pod "SBTUITestTunnelServer", :path => "../"
   pod "SBTUITestTunnelCommon", :path => "../"
 end
@@ -25,6 +30,11 @@ end
 target "SBTUITestTunnel_TestsNoSwizzling" do
   test_target
 end
+
+target "SBTUITestTunnel_SwiftUI_Tests" do
+  test_target
+end
+
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|

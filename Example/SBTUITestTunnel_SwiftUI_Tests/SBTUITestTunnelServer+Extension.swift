@@ -1,6 +1,6 @@
-// SBTNetworkTestViewController.swift
+// SBTUITestTunnelServer+Extension.swift
 //
-// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2019 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
+import SBTUITestTunnelServer
 
-class SBTNetworkTestViewController: UIViewController {
-    @IBOutlet var networkResult: UILabel!
-    var networkResultString: String = ""
+extension SBTUITestTunnelServer {
+    static func performCommand(_ commandName: String, params: [String: String]) -> String {
+        guard let result = SBTUITestTunnelServer.perform(NSSelectorFromString("performCommand:params:"), with: commandName, with: params)?.takeUnretainedValue() as? String else {
+            fatalError("Failed to cast to String")
+        }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        networkResult.text = networkResultString
+        return result
     }
 }

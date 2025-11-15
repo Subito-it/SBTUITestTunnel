@@ -9,7 +9,7 @@ fileGroups:
   - SBTUITestTunnel_Example.entitlements
 
 targets:
-  SBTUITestTunnel_Example:
+  SBTUITestTunnel_Example_UIKit:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
@@ -19,7 +19,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
     sources:
       - path: SBTUITestTunnel
-        name: "SBTUITestTunnel_Example"
+        name: "SBTUITestTunnel_Example_UIKit"
     dependencies:
       - sdk: UIKit.framework
       - sdk: Foundation.framework
@@ -35,7 +35,22 @@ targets:
     sources:
       - SBTUITestTunnel_Tests
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: SBTUITestTunnel_Example_UIKit
+
+  SBTUITestTunnel_Example_SwiftUI:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel_Example_SwiftUI/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
+    sources:
+      - path: SBTUITestTunnel_Example_SwiftUI
+        name: "SBTUITestTunnel_Example_SwiftUI"
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: Foundation.framework
 
   SBTUITestTunnel_TestsNoSwizzling:
     type: bundle.ui-testing
@@ -49,13 +64,26 @@ targets:
     sources:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: SBTUITestTunnel_Example_UIKit
+
+  SBTUITestTunnel_SwiftUI_Tests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel_SwiftUI_Tests/Info.plist"
+    sources:
+      - SBTUITestTunnel_SwiftUI_Tests
+    dependencies:
+      - target: SBTUITestTunnel_Example_SwiftUI
+
 
 schemes:
-  SBTUITestTunnel:
+  SBTUITestTunnel_UIKit:
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
@@ -73,7 +101,7 @@ schemes:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
@@ -94,7 +122,7 @@ schemes:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
@@ -109,3 +137,33 @@ schemes:
       region: EN
     management:
       isShown: false
+
+  SBTUITestTunnel_SwiftUI:
+    build:
+      targets:
+        SBTUITestTunnel_Example_SwiftUI: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+
+  SBTUITestTunnel_SwiftUI_Tests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        SBTUITestTunnel_Example_SwiftUI: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - SBTUITestTunnel_SwiftUI_Tests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false
+

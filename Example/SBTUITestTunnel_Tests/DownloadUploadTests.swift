@@ -81,7 +81,7 @@ class DownloadUploadTests: XCTestCase {
     }
 
     func testMonitorPostRequestWithHTTPLargeBodyInAppProcess() {
-        let largeBody = String(repeating: "a", count: 20000)
+        let largeBody = String(repeating: "a", count: 20_000)
         let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
