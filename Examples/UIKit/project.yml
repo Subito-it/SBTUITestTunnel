@@ -23,7 +23,9 @@ targets:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "15.0"
-    sources: [UITests]
+    sources:
+      - path: UITests
+        excludes: ["NoSwizzlingTests"]
     dependencies:
       - target: App
     settings:
@@ -34,7 +36,7 @@ targets:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "15.0"
-    sources: [UITests]
+    sources: [UITests/NoSwizzlingTests]
     dependencies:
       - target: App
     settings:
