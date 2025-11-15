@@ -23,11 +23,11 @@ struct ContentView: View {
     @State private var readyToNavigate : Bool = false
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             List(testManager.testList, id: \.name) { test in
                 switch test {
                 case let networkTest as NetworkTest:
-                    NavigationLink(value: networkTest) {
+                    NavigationLink(destination: NetworkResultView(test: networkTest)) {
                         Text(networkTest.name)
                     }.accessibilityIdentifier(networkTest.name)
                 default:
@@ -36,9 +36,6 @@ struct ContentView: View {
             }
             .accessibilityIdentifier("example_list")
             .navigationTitle("SBTUITestTunnel Example")
-            .navigationDestination(for: NetworkTest.self) { networkTest in
-                NetworkResultView(test: networkTest)
-            }
             .navigationBarTitleDisplayMode(.inline)
         }
     }

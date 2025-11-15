@@ -37,6 +37,21 @@ targets:
     dependencies:
       - target: SBTUITestTunnel_Example
 
+  SBTUITestTunnel_Example_SwiftUI:
+    type: application
+    platform: iOS
+    deploymentTarget: "14.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SBTUITestTunnel_Example_SwiftUI/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
+    sources:
+      - path: SBTUITestTunnel_Example_SwiftUI
+        name: "SBTUITestTunnel_Example_SwiftUI"
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: Foundation.framework
+
   SBTUITestTunnel_TestsNoSwizzling:
     type: bundle.ui-testing
     platform: iOS
@@ -109,3 +124,11 @@ schemes:
       region: EN
     management:
       isShown: false
+
+  SBTUITestTunnel_SwiftUI:
+    build:
+      targets:
+        SBTUITestTunnel_Example_SwiftUI: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug

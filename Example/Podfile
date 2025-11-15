@@ -18,6 +18,11 @@ target "SBTUITestTunnel_Example" do
   pod "SBTUITestTunnelCommon", :path => "../"
 end
 
+target "SBTUITestTunnel_Example_SwiftUI" do
+  pod "SBTUITestTunnelServer", :path => "../"
+  pod "SBTUITestTunnelCommon", :path => "../"
+end
+
 target "SBTUITestTunnel_Tests" do
   test_target
 end
