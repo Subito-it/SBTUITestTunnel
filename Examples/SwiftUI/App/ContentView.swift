@@ -1,6 +1,6 @@
 // ContentView.swift
 //
-// Copyright (C) 2023 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
