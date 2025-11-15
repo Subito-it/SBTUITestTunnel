@@ -19,8 +19,7 @@ module Build
       return false
     end
 
-    app_type = scheme == SWIFTUI_APP_SCHEME ? "SwiftUI" : "UIKit"
-    puts "⏳ Building #{app_type} app with scheme: #{scheme}"
+    puts "⏳ Building scheme: #{scheme}"
     return run_xcodebuild("clean build", project_path, scheme)
   end
 
