@@ -2,13 +2,13 @@ name: CI
 
 on: [pull_request, workflow_dispatch]
 
-jobs:
-  build:
-    runs-on: macos-15
+env:
+  xcode_version: "16.4"
 
-    name: Run UI Test on iOS
-    env:
-      xcode_version: "16.4"
+jobs:
+  uikit-tests:
+    runs-on: macos-15
+    name: UIKit Tests
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -21,23 +21,19 @@ jobs:
         run: |
           brew update
           brew install xcodegen
-      - name: Generate projects;
+      - name: Generate projects
         run: |
           cd Example; xcodegen
-          cd SPM; xcodegen
       - name: Build UIKit App
         run: |
-          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Build SwiftUI App
-        run: |
-          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
+          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_UIKit
       - name: Run UI Tests
         run: |
           Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SBTUITestTunnel_Tests_iOS.xcresult
+          name: SBTUITestTunnel_UIKit_Tests.xcresult
           path: SBTUITestTunnel_Tests.xcresult
         if: success() || failure()
       - name: Run no swizzling UI Tests
@@ -46,12 +42,65 @@ jobs:
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
+          name: SBTUITestTunnel_UIKit_NoSwizzling.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
         if: success() || failure()
+
+  swiftui-tests:
+    runs-on: macos-15
+    name: SwiftUI Tests
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate projects
+        run: |
+          cd Example; xcodegen
+      - name: Build SwiftUI App
+        run: |
+          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
+      - name: Collect SwiftUI build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_SwiftUI_Build.xcresult
+          path: SBTUITestTunnel_SwiftUI.xcresult
+        if: success() || failure()
+
+  spm-tests:
+    runs-on: macos-15
+    name: SPM Tests
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate SPM project
+        run: |
+          cd SPM; xcodegen
       - name: Build SPM App
         run: |
-          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
+          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel
       - name: Run SPM UI Tests
         run: |
           Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      - name: Collect SPM UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_SPM_Tests.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: success() || failure()
