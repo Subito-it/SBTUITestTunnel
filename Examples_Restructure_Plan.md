@@ -482,6 +482,11 @@ Both UIKit and SwiftUI example project structures created successfully.
   - CocoaPods: `Pods/` directories and `Podfile.lock`
   - XcodeGen: `*.xcodeproj/` and `*.xcworkspace/`
   - Build artifacts: `*.xcresult/`, `.build/`, `DerivedData/`
+- ✅ CI/CD configuration updated for new structure:
+  - GitHub Actions workflows updated for Examples/UIKit and Examples/SwiftUI
+  - Build scripts updated with new scheme names (UIKit, SwiftUI, UIKit_NoSwizzling_Tests)
+  - Removed deprecated SPM-only job (functionality now in SwiftUI example)
+  - Proper artifact collection paths for new scheme names
 - ✅ Ready for production use
 
 ### 🔄 Ready for: Commit and integration

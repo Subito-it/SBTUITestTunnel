@@ -2,9 +2,9 @@
 require "fileutils"
 
 module Build
-  UITESTS_SCHEME = "SBTUITestTunnel_Tests"
-  UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
-  SWIFTUI_UITESTS_SCHEME = "SBTUITestTunnel_SwiftUI_Tests"
+  UITESTS_SCHEME = "UIKit"
+  UITESTS_NOSWIZZ_SCHEME = "UIKit_NoSwizzling_Tests"
+  SWIFTUI_UITESTS_SCHEME = "SwiftUI"
 
   # Configurable UI Test Retry Settings
   # Can be overridden by environment variables:
