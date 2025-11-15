@@ -2,7 +2,7 @@
 require "fileutils"
 
 module Build
-  EXAMPLE_APP_SCHEME = "SBTUITestTunnel"
+  EXAMPLE_APP_SCHEME = "SBTUITestTunnel_UIKit"
   UITESTS_SCHEME = "SBTUITestTunnel_Tests"
   UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
 
