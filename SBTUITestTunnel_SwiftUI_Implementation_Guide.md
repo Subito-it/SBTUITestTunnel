@@ -494,14 +494,16 @@ Potential improvements for the SwiftUI target:
 
 The project now provides clear distinction between UIKit and SwiftUI implementations while maintaining full SBTUITestTunnel functionality and ensuring seamless CI/CD integration.
 
-## Phase 4: SwiftUI Feature Parity & Comprehensive Testing ⏳ IN PLANNING
+## Phase 4: SwiftUI UITests Suite Implementation 🎯 NEXT GOAL
 
 ### Overview
 
-The next major goal is to achieve complete feature parity between the UIKit and SwiftUI targets, including both application functionality and comprehensive UI test coverage. This phase involves two main activities:
+The next major goal is to **replace the UITests suite available for the UIKit target also for the SwiftUI target**. This critical phase establishes comprehensive testing capabilities for the SwiftUI implementation, ensuring both targets have equivalent testing coverage.
 
-1. **Replicate App Business Logic & UI**: Implement all UIKit features in SwiftUI
-2. **Replicate UITests**: Create comprehensive SwiftUI UI test suite
+This phase involves two main activities:
+
+1. **Replicate App Business Logic & UI**: Complete implementation of all UIKit features in SwiftUI
+2. **Replicate UITests Suite**: Create comprehensive SwiftUI UI test suite with complete feature parity
 
 ### Activity 1: SwiftUI App Business Logic & UI Replication
 
@@ -565,11 +567,13 @@ The UIKit target (`SBTTableViewController.swift`) implements **24+ test categori
 - Handle SwiftUI navigation patterns correctly
 - Ensure proper view state management
 
-### Activity 2: SwiftUI UITests Suite Implementation
+### Activity 2: SwiftUI UITests Suite Implementation 🔄 REPLACING UITESTS
+
+This activity focuses on **completely replacing the UITests suite** available for the UIKit target with an equivalent SwiftUI-targeted test suite. The goal is to create a comprehensive SwiftUI UI test bundle that validates all SBTUITestTunnel API functionality within a SwiftUI application context.
 
 #### Current UIKit UITests Coverage Analysis
 
-The UIKit target has **24 comprehensive UI test files**:
+The UIKit target has **19 comprehensive UI test files** that need to be replicated for SwiftUI:
 
 **Core Test Files:**
 ```
@@ -600,20 +604,28 @@ SBTUITestTunnel_Tests/
 
 #### SwiftUI UITests Implementation Plan
 
-**Target Structure:**
+**New UITests Target Structure:**
 ```
-SBTUITestTunnel_SwiftUI_Tests/               # New SwiftUI UI Test Bundle
-├── SBTUITestTunnel_SwiftUI_ConnectionTests.swift
-├── SBTUITestTunnel_SwiftUI_CustomCommandTests.swift
-├── SBTUITestTunnel_SwiftUI_NetworkStubTests.swift
-├── SBTUITestTunnel_SwiftUI_NetworkMonitorTests.swift
-├── SBTUITestTunnel_SwiftUI_PushNotificationTests.swift
-├── SBTUITestTunnel_SwiftUI_LocationTests.swift
-├── SBTUITestTunnel_SwiftUI_ThrottleTests.swift
-├── SBTUITestTunnel_SwiftUI_CookieTests.swift
-├── SBTUITestTunnel_SwiftUI_UserDefaultsTests.swift
-├── SBTUITestTunnel_SwiftUI_KeychainTests.swift
-└── ... (matching all 24+ UIKit test files)
+SBTUITestTunnel_SwiftUI_Tests/               # 🆕 New SwiftUI UI Test Bundle
+├── CFNetworkMisuseTests.swift               # SwiftUI version of CFNetwork testing
+├── CookiesTest.swift                        # SwiftUI cookie management tests
+├── CoreLocationTests.swift                  # SwiftUI location services tests
+├── DownloadUploadTests.swift                # SwiftUI file transfer tests
+├── HTTPBodyExtractionTests.swift            # SwiftUI request body parsing
+├── KeepAliveTests.swift                     # SwiftUI connection persistence
+├── MatchRequestTests.swift                  # SwiftUI request pattern matching
+├── MiscellaneousTests.swift                 # SwiftUI edge cases and misc functionality
+├── MonitorTests.swift                       # SwiftUI network monitoring
+├── NetworkRequests.swift                    # SwiftUI basic network functionality
+├── NotificationCenterTests.swift            # SwiftUI push notification testing
+├── RewriteTests.swift                       # SwiftUI request/response rewriting
+├── StubTests.swift                          # SwiftUI network stubbing and mocking
+├── ThrottleTest.swift                       # SwiftUI network throttling
+├── UnusedStubsPeekAll.swift                 # SwiftUI stub lifecycle testing
+├── UserDefaultsTests.swift                  # SwiftUI UserDefaults manipulation
+├── WebSocketTests.swift                     # SwiftUI WebSocket testing
+├── SBTUITestTunnelServer+Extension.swift    # Shared server utilities
+└── XCTestCase+Extension.swift               # Shared test case helpers
 ```
 
 **SwiftUI-Specific Testing Patterns:**
@@ -693,15 +705,42 @@ SBTUITestTunnel_SwiftUI_Tests:
 - ✅ No regression in existing UIKit functionality
 - ✅ Documentation updated and comprehensive
 
-### Next Steps
+### 🎯 Phase 4 Action Plan - UITests Suite Replacement
 
-1. **Analyze UIKit Implementation Details**: Deep dive into each test category's implementation
-2. **Create SwiftUI Architecture Plan**: Design SwiftUI equivalent patterns
-3. **Implement Core Categories First**: Start with network testing as foundation
-4. **Iterative Development**: Implement and test each category incrementally
-5. **Parallel UITest Development**: Develop UITests alongside app features
+#### Immediate Next Steps
 
-This comprehensive phase will establish the SBTUITestTunnel SwiftUI target as a complete, feature-equivalent alternative to the UIKit implementation, providing developers with both modern SwiftUI patterns and complete testing coverage.
+1. **📋 Analyze Current UIKit UITests**: Deep dive into all 19 test files to understand testing patterns
+2. **🏗️ Create SwiftUI UITests Target**: Set up new test bundle targeting SwiftUI app
+3. **🔄 Replicate Core Tests**: Start with fundamental network testing (StubTests, MonitorTests)
+4. **🚀 Implement System Tests**: Add location, notifications, and system service tests
+5. **✅ Validate Test Parity**: Ensure SwiftUI tests cover all UIKit functionality
+
+#### Implementation Approach
+
+**Week 1: Foundation Setup**
+- Set up `SBTUITestTunnel_SwiftUI_Tests` target in project.yml
+- Implement basic connection and network tests (5-6 test files)
+- Establish SwiftUI testing patterns and navigation
+
+**Week 2: Core Functionality**
+- Implement network stubbing, monitoring, throttling tests (6-7 test files)
+- Add cookie management and request matching tests
+- Validate SBTUITestTunnelClient integration
+
+**Week 3: Advanced Features**
+- Complete system service tests (location, notifications) (5-6 test files)
+- Add edge case and miscellaneous functionality tests
+- Integrate SwiftUI tests into CI/CD pipeline
+
+#### 🎯 Success Criteria: Complete UITests Suite Replacement
+
+✅ **19/19 UIKit test files replicated for SwiftUI target**
+✅ **All SBTUITestTunnel API functionality validated in SwiftUI context**
+✅ **SwiftUI tests integrated into CI/CD pipeline**
+✅ **Both UIKit and SwiftUI test suites maintain >95% success rate**
+✅ **Complete documentation of SwiftUI testing patterns**
+
+This phase will establish the SBTUITestTunnel SwiftUI target as a fully-tested, production-ready alternative to the UIKit implementation, ensuring developers have comprehensive testing coverage for modern SwiftUI applications.
 
 ---
 
