@@ -32,6 +32,7 @@ targets:
     dependencies:
       - target: App
       - package: SBTUITestTunnelClient
+      - package: SBTUITestTunnelServer
     settings:
       base:
         INFOPLIST_FILE: "UITests/Info.plist"

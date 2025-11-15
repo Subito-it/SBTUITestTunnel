@@ -25,8 +25,10 @@ jobs:
       - name: Generate UIKit project
         run: |
           cd Examples/UIKit
-          pod install
           xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
+          pod install --verbose
+          if [ $? -ne 0 ]; then echo "Pod install failed" && exit 1; fi
       - name: Build UIKit App
         run: |
           Scripts/run_build.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
@@ -69,6 +71,7 @@ jobs:
         run: |
           cd Examples/SwiftUI
           xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
       - name: Build SwiftUI App
         run: |
           Scripts/run_build.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
