@@ -3,12 +3,15 @@ require "fileutils"
 
 module Build
   EXAMPLE_APP_SCHEME = "SBTUITestTunnel_UIKit"
+  SWIFTUI_APP_SCHEME = "SBTUITestTunnel_SwiftUI"
   UITESTS_SCHEME = "SBTUITestTunnel_Tests"
   UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
 
-  def self.run_build(project_path)
-    puts "⏳ Building app..."
-    return run_xcodebuild("clean build", project_path, EXAMPLE_APP_SCHEME)
+  def self.run_build(project_path, scheme = nil)
+    scheme ||= EXAMPLE_APP_SCHEME
+    app_type = scheme == SWIFTUI_APP_SCHEME ? "SwiftUI" : "UIKit"
+    puts "⏳ Building #{app_type} app..."
+    return run_xcodebuild("clean build", project_path, scheme)
   end
 
   def self.run_ui_tests(project_path)

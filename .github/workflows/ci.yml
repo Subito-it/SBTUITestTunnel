@@ -25,9 +25,12 @@ jobs:
         run: |
           cd Example; xcodegen
           cd SPM; xcodegen
-      - name: Build App
+      - name: Build UIKit App
         run: |
           Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Build SwiftUI App
+        run: |
+          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
       - name: Run UI Tests
         run: |
           Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
