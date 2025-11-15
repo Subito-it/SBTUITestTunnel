@@ -1,6 +1,15 @@
 source "https://cdn.cocoapods.org/"
-platform :ios, "15.0"
+
 use_frameworks!
+platform :ios, "15.0"
+
+def test_target
+  # This is used only for testing purposes
+  pod "SBTUITestTunnelServer", :path => "../.."
+  # You should normally use SBTUITestTunnelClient only instead
+  pod "SBTUITestTunnelClient", :path => "../.."
+  pod "SBTUITestTunnelCommon", :path => "../.."
+end
 
 target "App" do
   pod "SBTUITestTunnelServer", :path => "../.."
@@ -8,15 +17,11 @@ target "App" do
 end
 
 target "UITests" do
-  pod "SBTUITestTunnelServer", :path => "../.."
-  pod "SBTUITestTunnelClient", :path => "../.."
-  pod "SBTUITestTunnelCommon", :path => "../.."
+  test_target
 end
 
 target "UITestsNoSwizzling" do
-  pod "SBTUITestTunnelServer", :path => "../.."
-  pod "SBTUITestTunnelClient", :path => "../.."
-  pod "SBTUITestTunnelCommon", :path => "../.."
+  test_target
 end
 
 post_install do |installer|
