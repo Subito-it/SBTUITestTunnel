@@ -13,7 +13,7 @@ def test_target
   pod "SBTUITestTunnelCommon", :path => "../"
 end
 
-target "SBTUITestTunnel_Example" do
+target "SBTUITestTunnel_Example_UIKit" do
   pod "SBTUITestTunnelServer", :path => "../"
   pod "SBTUITestTunnelCommon", :path => "../"
 end

@@ -9,7 +9,7 @@ fileGroups:
   - SBTUITestTunnel_Example.entitlements
 
 targets:
-  SBTUITestTunnel_Example:
+  SBTUITestTunnel_Example_UIKit:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
@@ -19,7 +19,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
     sources:
       - path: SBTUITestTunnel
-        name: "SBTUITestTunnel_Example"
+        name: "SBTUITestTunnel_Example_UIKit"
     dependencies:
       - sdk: UIKit.framework
       - sdk: Foundation.framework
@@ -35,7 +35,7 @@ targets:
     sources:
       - SBTUITestTunnel_Tests
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: SBTUITestTunnel_Example_UIKit
 
   SBTUITestTunnel_Example_SwiftUI:
     type: application
@@ -64,13 +64,13 @@ targets:
     sources:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: SBTUITestTunnel_Example_UIKit
 
 schemes:
-  SBTUITestTunnel:
+  SBTUITestTunnel_UIKit:
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
@@ -88,7 +88,7 @@ schemes:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
@@ -109,7 +109,7 @@ schemes:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        SBTUITestTunnel_Example_UIKit: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
