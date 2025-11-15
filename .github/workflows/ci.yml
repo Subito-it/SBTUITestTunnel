@@ -9,6 +9,7 @@ jobs:
   uikit-tests:
     runs-on: macos-15
     name: UIKit Tests
+    timeout-minutes: 30
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -49,6 +50,7 @@ jobs:
   swiftui-tests:
     runs-on: macos-15
     name: SwiftUI Tests
+    timeout-minutes: 30
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -77,6 +79,7 @@ jobs:
   spm-tests:
     runs-on: macos-15
     name: SPM Tests
+    timeout-minutes: 30
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
