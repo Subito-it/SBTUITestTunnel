@@ -25,6 +25,17 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
+        // Scroll to find the CoreLocation button since the list might be long
+        if !app.buttons["showCoreLocationViewController"].exists {
+            // Try scrolling the main app view since SwiftUI List might not be detected as ScrollView
+            app.swipeUp()
+            app.swipeUp()
+        }
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
         wait { self.app.staticTexts["location_status"].label == "-" }
 
@@ -55,6 +66,11 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -75,6 +91,11 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -104,6 +125,11 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -140,6 +166,11 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
@@ -198,6 +229,11 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
+        // Scroll to find the CoreLocation button
+        if !app.buttons["showCoreLocationViewController"].exists {
+            app.swipeUp()
+            app.swipeUp()
+        }
         app.buttons["showCoreLocationViewController"].tap()
 
         app.buttons["Get manager current location"].tap()

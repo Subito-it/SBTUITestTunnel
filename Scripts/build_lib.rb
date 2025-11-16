@@ -3,7 +3,7 @@ require "fileutils"
 
 module Build
   UITESTS_SCHEME = "UIKit"
-  UITESTS_NOSWIZZ_SCHEME = "UIKit_NoSwizzling_Tests"
+  UITESTS_NOSWIZZ_SCHEME = "UIKit_NoSwizzlingTests"
   SWIFTUI_UITESTS_SCHEME = "SwiftUI"
 
   # Configurable UI Test Retry Settings

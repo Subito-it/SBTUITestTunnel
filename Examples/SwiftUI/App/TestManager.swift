@@ -233,6 +233,25 @@ struct ExtensionTest: Test {
     }
 }
 
+struct CoreLocationTest: Test {
+    let name: String
+    let execute: () async throws -> String
+
+    static func makeCoreLocation(name: String) -> CoreLocationTest {
+        CoreLocationTest(name: name, execute: {
+            "CoreLocation functionality"
+        })
+    }
+
+    static func == (lhs: CoreLocationTest, rhs: CoreLocationTest) -> Bool {
+        lhs.name == rhs.name
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+}
+
 struct CrashTest: Test {
     let name: String
     let execute: () async throws -> String
@@ -275,7 +294,7 @@ class TestManager {
         ExtensionTest.makeExtension(name: "showExtensionTable1", description: "Extension Table 1"),
         ExtensionTest.makeExtension(name: "showExtensionTable2", description: "Extension Table 2"),
         ExtensionTest.makeExtension(name: "showExtensionScrollView", description: "Extension ScrollView"),
-        ExtensionTest.makeExtension(name: "showCoreLocationViewController", description: "Core Location"),
+        CoreLocationTest.makeCoreLocation(name: "showCoreLocationViewController"),
         ExtensionTest.makeExtension(name: "showExtensionCollectionViewVertical", description: "Collection View Vertical"),
         ExtensionTest.makeExtension(name: "showExtensionCollectionViewHorizontal", description: "Collection View Horizontal"),
         CrashTest.makeCrash(name: "crashApp")
