@@ -22,6 +22,15 @@ import XCTest
 class ThrottleTest: XCTestCase {
     private let request = NetworkRequests()
 
+    override func setUp() {
+        super.setUp()
+
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
+        app.launchConnectionless { path, params -> String in
+            SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+
     func testThrottle() {
         let requestMatch = SBTRequestMatch(url: "httpbin.org")
         app.throttleRequests(matching: requestMatch, responseTime: 3.0)

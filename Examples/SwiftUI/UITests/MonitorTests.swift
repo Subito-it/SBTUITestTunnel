@@ -22,6 +22,15 @@ import XCTest
 class MonitorTests: XCTestCase {
     private let request = NetworkRequests()
 
+    override func setUp() {
+        super.setUp()
+
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
+        app.launchConnectionless { path, params -> String in
+            SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+
     func testMonitorRemoveSpecific() {
         let requestId = app.monitorRequests(matching: SBTRequestMatch(url: "httpbin.org")) ?? ""
 

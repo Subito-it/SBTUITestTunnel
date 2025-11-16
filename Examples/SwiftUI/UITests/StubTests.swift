@@ -22,6 +22,15 @@ import XCTest
 class StubTests: XCTestCase {
     private let request = NetworkRequests()
 
+    override func setUp() {
+        super.setUp()
+
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
+        app.launchConnectionless { path, params -> String in
+            SBTUITestTunnelServer.performCommand(path, params: params)
+        }
+    }
+
     func testStubRemoveWithID() {
         let stubId = app.stubRequests(matching: SBTRequestMatch(url: "postman-echo.com"), response: SBTStubResponse(response: ["stubbed": 1]))!
 

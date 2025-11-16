@@ -22,6 +22,11 @@ import XCTest
 class DownloadUploadTests: XCTestCase {
     private let request = NetworkRequests()
 
+    override func setUp() {
+        super.setUp()
+        app.launchTunnel()
+    }
+
     func testUploadRequest() {
         let uploadData = "This is an upload test".data(using: .utf8)!
         let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: uploadData)
