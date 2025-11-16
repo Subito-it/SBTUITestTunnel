@@ -31,7 +31,7 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            app.cells["executeWebSocket"].tap()
+            app.buttons["executeWebSocket"].tap()
 
             wait { self.app.staticTexts["connected"].exists }
 
@@ -89,7 +89,7 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            app.cells["executeWebSocket"].tap()
+            app.buttons["executeWebSocket"].tap()
 
             wait { self.app.staticTexts["connected"].exists }
 
@@ -115,7 +115,7 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            app.cells["executeWebSocket"].tap()
+            app.buttons["executeWebSocket"].tap()
 
             wait { self.app.staticTexts["connected"].exists }
 

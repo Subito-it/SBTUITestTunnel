@@ -24,7 +24,11 @@ class DownloadUploadTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        app.launchTunnel()
+
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
+        app.launchConnectionless { path, params -> String in
+            SBTUITestTunnelServer.performCommand(path, params: params)
+        }
     }
 
     func testUploadRequest() {
