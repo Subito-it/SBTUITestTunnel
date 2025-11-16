@@ -158,6 +158,7 @@ class MatchRequestTests: XCTestCase {
 
 extension MatchRequestTests {
     override func setUp() {
+        super.setUp()
         SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
         app.launchConnectionless { path, params -> String in
             SBTUITestTunnelServer.performCommand(path, params: params)

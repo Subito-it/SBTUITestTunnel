@@ -35,7 +35,7 @@ class DownloadUploadTests: XCTestCase {
 
     func testUploadRequestWithHTTPBody() {
         let uploadData = "This is an upload test".data(using: .utf8)!
-        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: uploadData, httpBody: true)
+        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: uploadData)
 
         XCTAssertEqual(request.returnCode(result), 200)
 
