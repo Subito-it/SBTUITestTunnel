@@ -535,10 +535,12 @@ struct WebSocketView: View {
             }
 
             // Result Text - This needs to be accessible as StaticText for tests
-            ScrollView {
+            VStack {
                 Text(webSocketManager.networkResult)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+                Spacer()
             }
             .frame(minHeight: 200)
             .background(Color.gray.opacity(0.1))

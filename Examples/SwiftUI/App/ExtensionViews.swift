@@ -48,16 +48,15 @@ struct ExtensionCollectionVerticalView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(0..<100, id: \.self) { index in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.red)
-                            .frame(height: 100)
-
-                        Text("\(index)")
-                            .foregroundColor(.white)
-                            .accessibilityIdentifier("\(index)")
-                            .accessibilityElement()
-                    }
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(height: 100)
+                        .overlay(
+                            Text("\(index)")
+                                .foregroundColor(.white)
+                                .accessibilityAddTraits(.isStaticText)
+                        )
+                        .accessibilityIdentifier("\(index)")
                 }
             }
             .padding()
@@ -74,16 +73,15 @@ struct ExtensionCollectionHorizontalView: View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 10) {
                 ForEach(0..<100, id: \.self) { index in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.red)
-                            .frame(width: 100)
-
-                        Text("\(index)")
-                            .foregroundColor(.white)
-                            .accessibilityIdentifier("\(index)")
-                            .accessibilityElement()
-                    }
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(width: 100)
+                        .overlay(
+                            Text("\(index)")
+                                .foregroundColor(.white)
+                                .accessibilityAddTraits(.isStaticText)
+                        )
+                        .accessibilityIdentifier("\(index)")
                 }
             }
             .padding()
