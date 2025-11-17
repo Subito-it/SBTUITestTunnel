@@ -168,7 +168,7 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling() {
         app.launchTunnel()
 
-        app.cells["showExtensionTable1"].tap()
+        app.buttons["showExtensionTable1"].tap()
 
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
 
@@ -180,7 +180,7 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling2() {
         app.launchTunnel()
 
-        app.cells["showExtensionTable2"].tap()
+        app.buttons["showExtensionTable2"].tap()
 
         XCTAssertFalse(app.staticTexts["80"].isHittable)
 
@@ -192,7 +192,7 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingVertical() {
         app.launchTunnel()
 
-        app.cells["showExtensionCollectionViewVertical"].tap()
+        app.buttons["showExtensionCollectionViewVertical"].tap()
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
 
@@ -208,7 +208,7 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingHorizontal() {
         app.launchTunnel()
 
-        app.cells["showExtensionCollectionViewHorizontal"].tap()
+        app.buttons["showExtensionCollectionViewHorizontal"].tap()
 
         XCTAssertFalse(app.staticTexts["10"].isHittable)
 
@@ -224,7 +224,7 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToElement() {
         app.launchTunnel()
 
-        app.cells["showExtensionScrollView"].tap()
+        app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.buttons["Button"].isHittable)
 
@@ -236,7 +236,7 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
-        app.cells["showExtensionScrollView"].tap()
+        app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
@@ -316,12 +316,12 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
         XCTAssert(app.monitorRequestRemoveAll())
-        app.cells["crashApp"].tap()
+        app.buttons["crashApp"].tap()
 
         Thread.sleep(forTimeInterval: 2.0)
 
         XCTAssertFalse(app.monitorRequestRemoveAll())
-        XCTAssertFalse(app.cells["crashApp"].exists)
+        XCTAssertFalse(app.buttons["crashApp"].exists)
         XCTAssertFalse(app.wait(for: .runningForeground, timeout: 0.1))
     }
 }

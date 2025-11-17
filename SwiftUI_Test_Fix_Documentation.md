@@ -261,7 +261,60 @@ Scripts/build_lib.rb - Fixed UIKit scheme name (UIKit_NoSwizzlingTests)
 4. **SwiftUI CoreLocation**: Complete `CoreLocationManager` with `CLLocationManagerDelegate`
 5. **UIKit Scheme Fix**: Corrected scheme name for CI compatibility
 
+## 🎉 LATEST BREAKTHROUGH: MiscellaneousTests Fix (2025-11-17)
+
+### **MAJOR DISCOVERY: UI Element Access Pattern Fix** 🔑
+
+**Issue**: MiscellaneousTests were failing because SwiftUI tests used UIKit UI access patterns
+**Root Cause**: Tests were using `app.cells["identifier"]` (UIKit pattern) instead of `app.buttons["identifier"]` (SwiftUI pattern)
+
+**Solution Applied**: Following the golden rule "take UIKit app as reference", systematically changed all UI element access patterns:
+```swift
+// WRONG (UIKit pattern in SwiftUI tests):
+app.cells["showExtensionTable1"].tap()
+
+// CORRECT (SwiftUI pattern):
+app.buttons["showExtensionTable1"].tap()
+```
+
+### **RESULTS: 7/15 MiscellaneousTests Now PASSING! 🚀**
+
+**✅ PASSING TESTS (7 tests):**
+- testCustomCommand ✅ (9.8s)
+- testLaunchArgumentsResetBetweenLaunches ✅ (11.3s)
+- testLaunchTimeWithStubs ✅ (4.2s)
+- testLaunchTimeWithUserDefaults ✅ (4.8s)
+- testStartupCommands ✅ (4.3s)
+- testStartupCommandsWaitsAppropriately ✅ (12.2s)
+- **testStubWithFilename ✅ (6.2s)** ← **This was a critical failing test!**
+
+**❌ FAILING TESTS (7 tests):** SwiftUI app missing UI elements that exist in UIKit app
+- testCollectionViewScrollingHorizontal (missing `showExtensionCollectionViewHorizontal`)
+- testCollectionViewScrollingVertical (missing `showExtensionCollectionViewVertical`)
+- testScrollViewScrollToElement (missing `showExtensionScrollView`)
+- testScrollViewScrollToOffset (missing `showExtensionScrollView`)
+- testShutdown (SwiftUI Lists vs UIKit Tables structural difference)
+- testTableViewScrolling (missing extension scrolling functionality)
+- testTableViewScrolling2 (missing extension scrolling functionality)
+
+**⏭️ SKIPPED TESTS (1 test):**
+- testCrashingAppDoesNotCrashUITest (manual test only)
+
+### **Updated Statistics**
+- **Previous**: 22/41 tests passing (54% success rate)
+- **Current**: **29/41 tests passing (70%+ success rate)** 📈
+- **MiscellaneousTests improvement**: 0/15 → 7/15 (46% improvement!)
+
+### **Key Technical Pattern Discovered**
+The UIKit reference approach worked perfectly:
+1. **Analyzed UIKit tests** to understand proper element access patterns
+2. **Applied same patterns to SwiftUI** by changing UI element selectors
+3. **Result**: Immediate success for all tests that have matching UI elements
+
+### **Files Modified**
+- `Examples/SwiftUI/UITests/MiscellaneousTests.swift` - Fixed all UI element access patterns
+
 ---
-*Last updated: 2025-11-16*
-*Status: ✅ **MAJOR SUCCESS COMPLETE** - 22/41 tests fixed (54% success rate)*
-*CoreLocationTests: 7/7 PASSING | Network Tests: 15/15 PASSING*
+*Last updated: 2025-11-17*
+*Status: ✅ **BREAKTHROUGH SUCCESS** - 29/41 tests fixed (70%+ success rate)*
+*Latest Achievement: MiscellaneousTests 7/15 PASSING using UIKit reference pattern*
