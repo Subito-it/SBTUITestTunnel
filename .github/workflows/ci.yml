@@ -31,24 +31,30 @@ jobs:
           if [ $? -ne 0 ]; then echo "Pod install failed" && exit 1; fi
       - name: Build UIKit App
         run: |
-          Scripts/run_build.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
-      - name: Run UI Tests
+          Scripts/build_app.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
+      - name: Build UIKit UI Tests
         run: |
-          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
+      - name: Run UIKit UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
       - name: Collect UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
           name: SBTUITestTunnel_UIKit_Tests.xcresult
           path: UIKit.xcresult
         if: success() || failure()
-      - name: Run no swizzling UI Tests
+      - name: Build UIKit No Swizzling UI Tests
         run: |
-          Scripts/run_uitests_no_swizzling.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit_NoSwizzlingTests
+      - name: Run UIKit No Swizzling UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit_NoSwizzlingTests
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
           name: SBTUITestTunnel_UIKit_NoSwizzling.xcresult
-          path: UIKit_NoSwizzling_Tests.xcresult
+          path: UIKit_NoSwizzlingTests.xcresult
         if: success() || failure()
 
   swiftui-tests:
@@ -74,10 +80,13 @@ jobs:
           if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
       - name: Build SwiftUI App
         run: |
-          Scripts/run_build.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+          Scripts/build_app.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Build SwiftUI UI Tests
+        run: |
+          Scripts/build_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
       - name: Run SwiftUI UI Tests
         run: |
-          Scripts/run_swiftui_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj
+          Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
       - name: Collect SwiftUI UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:

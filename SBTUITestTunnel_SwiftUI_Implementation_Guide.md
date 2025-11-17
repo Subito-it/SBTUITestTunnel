@@ -125,7 +125,7 @@ xcodebuild -scheme SBTUITestTunnel_UIKit \
   clean build
 
 # Using the build script (default)
-Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
+Scripts/build_app.rb Example/SBTUITestTunnel.xcworkspace
 ```
 
 #### Build SwiftUI Target
@@ -137,7 +137,7 @@ xcodebuild -scheme SBTUITestTunnel_SwiftUI \
   clean build
 
 # Using the build script with scheme parameter
-Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
+Scripts/build_app.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
 ```
 
 #### Build for Device
@@ -375,7 +375,7 @@ The project's continuous integration pipeline has been updated to work with the 
 
 #### Modified Files
 - **`Scripts/build_lib.rb`**: Updated to support both UIKit and SwiftUI targets with scheme parameter
-- **`Scripts/run_build.rb`**: Enhanced to accept optional scheme parameter for building different targets
+- **`Scripts/build_app.rb`**: Enhanced to accept optional scheme parameter for building different targets
 - **`.github/workflows/ci.yml`**: Added separate build steps for UIKit and SwiftUI targets
 
 #### CI Workflow (`.github/workflows/ci.yml`)
@@ -383,13 +383,13 @@ The GitHub Actions workflow has been updated to build both UIKit and SwiftUI tar
 
 ```yaml
 - name: Build UIKit App
-  run: Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
+  run: Scripts/build_app.rb Example/SBTUITestTunnel.xcworkspace
 - name: Build SwiftUI App
-  run: Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
+  run: Scripts/build_app.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI
 - name: Run UI Tests
   run: Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
 - name: Run no swizzling UI Tests
-  run: Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
+  run: Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace UIKit_NoSwizzlingTests
 ```
 
 #### Verification Results
@@ -661,7 +661,7 @@ SBTUITestTunnel_SwiftUI_Tests:
     Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI_Tests
 - name: Run SwiftUI No Swizzling Tests
   run: |
-    Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI_NoSwizzlingTests
+    Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace SBTUITestTunnel_SwiftUI_NoSwizzlingTests
 ```
 
 ### Implementation Timeline & Milestones

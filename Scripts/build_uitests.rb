@@ -13,4 +13,4 @@ end
 project_path = ARGV[0]
 scheme = ARGV[1]
 
-exit Build.run_ui_tests_with_cached_build(project_path, scheme)
+exit Build.build_ui_tests(project_path, scheme)

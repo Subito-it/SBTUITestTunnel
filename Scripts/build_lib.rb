@@ -34,12 +34,72 @@ module Build
     return run_xcodebuild("test", project_path, UITESTS_NOSWIZZ_SCHEME)
   end
 
+  # Generalized build function for any scheme
+  def self.build_ui_tests(project_path, scheme)
+    if scheme.nil? || scheme.empty?
+      puts "❌ Error: Scheme parameter is required"
+      puts "Usage: build_ui_tests(project_path, scheme)"
+      return false
+    end
+
+    puts "🔨 Build UITests Bundle for scheme: #{scheme}..."
+
+    # Clean simulators first to avoid CI hanging issues
+    clean_simulators()
+
+    # Build for testing (creates cached test bundle)
+    puts "   → Building test bundle for caching..."
+    return run_xcodebuild("build-for-testing", project_path, scheme)
+  end
+
+  # Generalized test function for any scheme (uses cached build)
+  def self.run_ui_tests_with_cached_build(project_path, scheme)
+    if scheme.nil? || scheme.empty?
+      puts "❌ Error: Scheme parameter is required"
+      puts "Usage: run_ui_tests_with_cached_build(project_path, scheme)"
+      return false
+    end
+
+    puts "🧪 Run UITests with Cached Build for scheme: #{scheme}..."
+
+    # Run tests using cached build from previous step
+    puts "   → Running tests with cached build..."
+    return run_xcodebuild("test-without-building", project_path, scheme)
+  end
+
+  # Legacy SwiftUI-specific functions (for backward compatibility)
+  def self.build_swiftui_ui_tests(project_path)
+    return build_ui_tests(project_path, SWIFTUI_UITESTS_SCHEME)
+  end
+
+  def self.run_swiftui_ui_tests_with_cached_build(project_path)
+    return run_ui_tests_with_cached_build(project_path, SWIFTUI_UITESTS_SCHEME)
+  end
+
   def self.run_swiftui_ui_tests(project_path)
-    puts "⏳ Run SwiftUI UITests..."
-    return run_xcodebuild("test", project_path, SWIFTUI_UITESTS_SCHEME)
+    puts "⏳ Run SwiftUI UITests (Combined Build + Test)..."
+
+    # Phase 1: Build for testing
+    build_success = build_swiftui_ui_tests(project_path)
+
+    unless build_success
+      puts "❌ Build phase failed, skipping test execution"
+      return false
+    end
+
+    puts "✅ Build phase completed successfully"
+
+    # Phase 2: Run tests using cached build
+    return run_swiftui_ui_tests_with_cached_build(project_path)
   end
 
   def self.run_xcodebuild(action, path, scheme_name)
+    if path.nil? || path.empty?
+      puts "❌ Error: Project path parameter is required"
+      puts "Usage: run_xcodebuild(action, project_path, scheme)"
+      return false
+    end
+
     base_path = `git rev-parse --show-toplevel`.strip
     workspace = "#{base_path}/#{path}"
     destination = make_destination()
@@ -48,10 +108,10 @@ module Build
 
     # Build retry options based on configuration
     retry_options = ""
-    if action.include?("test") && TEST_RETRY_ENABLED
+    if action.include?("test") && !action.include?("build-for-testing") && TEST_RETRY_ENABLED
       retry_options = "-retry-tests-on-failure -test-iterations #{TEST_RETRY_COUNT}"
       puts "🔄 UI Test retry configured: #{TEST_RETRY_COUNT} iterations, retry on failure enabled"
-    elsif action.include?("test")
+    elsif action.include?("test") && !action.include?("build-for-testing")
       puts "🔄 UI Test retry disabled"
     end
 
@@ -94,5 +154,18 @@ module Build
       puts "📱 Selected simulator: '#{device}'"
       return "name=#{device}"
     end
+  end
+
+  def self.clean_simulators()
+    puts "🧹 Cleaning simulators to avoid CI hanging issues..."
+
+    # Shutdown all simulators
+    puts "   → Shutting down all simulators..."
+    system("xcrun simctl shutdown all")
+
+    # Brief pause to ensure shutdown completes
+    sleep(2)
+
+    puts "✅ Simulator cleanup completed"
   end
 end
