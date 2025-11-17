@@ -1,18 +1,4 @@
-// CoreLocationTests.swift
-//
-// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// (c) Subito.it proprietary and confidential
 
 import Foundation
 import SBTUITestTunnelClient
@@ -27,7 +13,7 @@ class CoreLocationTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
         // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         wait { self.app.staticTexts["location_status"].label == "-" }
 
@@ -58,9 +44,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -83,7 +67,7 @@ class CoreLocationTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
         // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -115,7 +99,7 @@ class CoreLocationTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
         // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -154,7 +138,7 @@ class CoreLocationTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
         // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
@@ -215,7 +199,7 @@ class CoreLocationTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
         // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
+        scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
 
         app.buttons["Get manager current location"].tap()

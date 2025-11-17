@@ -118,7 +118,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view!
         // Use collection view scrolling API to navigate to index 0 (executeDataTaskRequest)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 0, animated: true)
+        scrollToTestSection(0)
         app.buttons["executeDataTaskRequest"].tap()
 
         let textResult = app.staticTexts["result"]
@@ -174,7 +174,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view!
         // Use collection view scrolling API to navigate to index 14 (showExtensionTable1)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 14, animated: true)
+        scrollToTestSection(14)
         app.buttons["showExtensionTable1"].tap()
 
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
@@ -189,7 +189,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view!
         // Use collection view scrolling API to navigate to index 15 (showExtensionTable2)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 15, animated: true)
+        scrollToTestSection(15)
         app.buttons["showExtensionTable2"].tap()
 
         XCTAssertFalse(app.staticTexts["80"].isHittable)
@@ -204,7 +204,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
         // Use collection view scrolling API to navigate to index 18 (showExtensionCollectionViewVertical)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 18, animated: true)
+        scrollToTestSection(18)
         app.buttons["showExtensionCollectionViewVertical"].tap()
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
@@ -223,7 +223,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
         // Use collection view scrolling API to navigate to index 19 (showExtensionCollectionViewHorizontal)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 19, animated: true)
+        scrollToTestSection(19)
         app.buttons["showExtensionCollectionViewHorizontal"].tap()
 
         XCTAssertFalse(app.staticTexts["10"].isHittable)
@@ -242,7 +242,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
         // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 16, animated: true)
+        scrollToTestSection(16)
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.buttons["Button"].isHittable)
@@ -257,7 +257,7 @@ class MiscellaneousTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
         // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 16, animated: true)
+        scrollToTestSection(16)
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
@@ -340,7 +340,7 @@ class MiscellaneousTests: XCTestCase {
         XCTAssert(app.monitorRequestRemoveAll())
         // BREAKTHROUGH: SwiftUI List is converted to collection view!
         // Use collection view scrolling API to navigate to index 20 (crashApp)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 20, animated: true)
+        scrollToTestSection(20)
         app.buttons["crashApp"].tap()
 
         Thread.sleep(forTimeInterval: 2.0)

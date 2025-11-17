@@ -88,7 +88,7 @@ class DownloadUploadTests: XCTestCase {
 
         // BREAKTHROUGH: SwiftUI List is converted to collection view!
         // Use collection view scrolling API to navigate to index 3 (executePostDataTaskRequestWithLargeHTTPBody)
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 3, animated: true)
+        scrollToTestSection(3)
         XCTAssertTrue(app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
         app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].tap()
 
