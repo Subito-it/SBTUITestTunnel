@@ -11,8 +11,6 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
         scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         wait { self.app.staticTexts["location_status"].label == "-" }
@@ -65,8 +63,6 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
         scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
@@ -97,8 +93,6 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
         scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
@@ -136,8 +130,6 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
         scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
 
@@ -197,8 +189,6 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
-        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
         scrollToTestSection(17)
         app.buttons["showCoreLocationViewController"].tap()
 

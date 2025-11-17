@@ -116,8 +116,6 @@ class MiscellaneousTests: XCTestCase {
         app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view!
-        // Use collection view scrolling API to navigate to index 0 (executeDataTaskRequest)
         scrollToTestSection(0)
         app.buttons["executeDataTaskRequest"].tap()
 
@@ -172,8 +170,6 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view!
-        // Use collection view scrolling API to navigate to index 14 (showExtensionTable1)
         scrollToTestSection(14)
         app.buttons["showExtensionTable1"].tap()
 
@@ -187,8 +183,6 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling2() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view!
-        // Use collection view scrolling API to navigate to index 15 (showExtensionTable2)
         scrollToTestSection(15)
         app.buttons["showExtensionTable2"].tap()
 
@@ -202,8 +196,6 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingVertical() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
-        // Use collection view scrolling API to navigate to index 18 (showExtensionCollectionViewVertical)
         scrollToTestSection(18)
         app.buttons["showExtensionCollectionViewVertical"].tap()
 
@@ -221,8 +213,6 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingHorizontal() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
-        // Use collection view scrolling API to navigate to index 19 (showExtensionCollectionViewHorizontal)
         scrollToTestSection(19)
         app.buttons["showExtensionCollectionViewHorizontal"].tap()
 
@@ -240,8 +230,6 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToElement() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
-        // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
         scrollToTestSection(16)
         app.buttons["showExtensionScrollView"].tap()
 
@@ -255,8 +243,6 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
-        // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
         scrollToTestSection(16)
         app.buttons["showExtensionScrollView"].tap()
 
@@ -338,8 +324,6 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
         XCTAssert(app.monitorRequestRemoveAll())
-        // BREAKTHROUGH: SwiftUI List is converted to collection view!
-        // Use collection view scrolling API to navigate to index 20 (crashApp)
         scrollToTestSection(20)
         app.buttons["crashApp"].tap()
 

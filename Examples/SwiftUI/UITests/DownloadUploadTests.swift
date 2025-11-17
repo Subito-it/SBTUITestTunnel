@@ -86,8 +86,6 @@ class DownloadUploadTests: XCTestCase {
         let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
-        // BREAKTHROUGH: SwiftUI List is converted to collection view!
-        // Use collection view scrolling API to navigate to index 3 (executePostDataTaskRequestWithLargeHTTPBody)
         scrollToTestSection(3)
         XCTAssertTrue(app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
         app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].tap()

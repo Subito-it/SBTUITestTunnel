@@ -31,8 +31,6 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            // BREAKTHROUGH: SwiftUI List is converted to collection view!
-            // Use collection view scrolling API to navigate to index 11 (executeWebSocket)
             scrollToTestSection(11)
             app.buttons["executeWebSocket"].tap()
 
@@ -92,8 +90,6 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            // BREAKTHROUGH: SwiftUI List is converted to collection view!
-            // Use collection view scrolling API to navigate to index 11 (executeWebSocket)
             scrollToTestSection(11)
             app.buttons["executeWebSocket"].tap()
 
@@ -121,8 +117,6 @@ class WebSocketTests: XCTestCase {
         }
 
         XCTContext.runActivity(named: "Test connection") { _ in
-            // BREAKTHROUGH: SwiftUI List is converted to collection view!
-            // Use collection view scrolling API to navigate to index 11 (executeWebSocket)
             scrollToTestSection(11)
             app.buttons["executeWebSocket"].tap()
 
