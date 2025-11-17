@@ -20,6 +20,13 @@ import SBTUITestTunnelServer
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        // Different tests in this class have different launch requirements
+        // Some need launchTunnel, some need launchConnectionless
+        // Individual methods will handle their own launch setup
+    }
+
     func testLaunchTimeWithStubs() throws {
         func stubAndGetDuration(amount: Int) -> CFAbsoluteTime {
             let start = CFAbsoluteTimeGetCurrent()

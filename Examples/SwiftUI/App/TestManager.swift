@@ -65,57 +65,92 @@ struct NetworkTest: Test {
     }
 
     static func executeDataTaskRequest(url: URL) async throws -> [String: Any] {
-        let (data, response) = try await URLSession.shared.data(from: url)
-        let httpResponse = response as? HTTPURLResponse
-        let httpStatus = httpResponse?.statusCode
-        let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
-        let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: data)
-        return dict
+        return try await withCheckedThrowingContinuation { continuation in
+            let request = URLRequest(url: url)
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                let httpResponse = response as? HTTPURLResponse
+                let httpStatus = httpResponse?.statusCode
+                let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
+                let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: data)
+                continuation.resume(returning: dict)
+            }.resume()
+        }
     }
 
     static func uploadTaskNetwork(url: URL, data: Data, httpMethod: String, httpBody: Bool) async throws -> [String: Any] {
-        var request = URLRequest(url: url)
-        request.httpMethod = httpMethod
-        if httpBody {
-            request.httpBody = "The http body".data(using: .utf8)
+        return try await withCheckedThrowingContinuation { continuation in
+            var request = URLRequest(url: url)
+            request.httpMethod = httpMethod
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
+
+            URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                let httpResponse = response as? HTTPURLResponse
+                let httpStatus = httpResponse?.statusCode
+                let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
+                let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: responseData)
+                continuation.resume(returning: dict)
+            }.resume()
         }
-        let (data, response) = try await URLSession.shared.upload(for: request, from: data)
-        let httpResponse = response as? HTTPURLResponse
-        let httpStatus = httpResponse?.statusCode
-        let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
-        let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: data)
-        return dict
     }
 
     static func postDataTaskRequest(url: URL, httpBody: String?) async throws -> [String: Any] {
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        if let httpBody {
-            request.httpBody = httpBody.data(using: .utf8)
+        return try await withCheckedThrowingContinuation { continuation in
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            if let httpBody {
+                request.httpBody = httpBody.data(using: .utf8)
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                let httpResponse = response as? HTTPURLResponse
+                let httpStatus = httpResponse?.statusCode
+                let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
+                let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: data)
+                continuation.resume(returning: dict)
+            }.resume()
         }
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let httpResponse = response as? HTTPURLResponse
-        let httpStatus = httpResponse?.statusCode
-        let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
-        let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: data)
-        return dict
     }
 
     static func backgroundUploadTaskNetwork(url: URL, data: Data, httpBody: Bool) async throws -> [String: Any] {
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        if httpBody {
-            request.httpBody = "The http body".data(using: .utf8)
-        }
+        return try await withCheckedThrowingContinuation { continuation in
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            if httpBody {
+                request.httpBody = "The http body".data(using: .utf8)
+            }
 
-        // For SwiftUI async/await, we'll use regular upload task
-        // Background tasks require more complex delegate patterns which are better suited for UIKit
-        let (responseData, response) = try await URLSession.shared.upload(for: request, from: data)
-        let httpResponse = response as? HTTPURLResponse
-        let httpStatus = httpResponse?.statusCode
-        let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
-        let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: responseData)
-        return dict
+            // For SwiftUI, we'll use regular upload task instead of background task
+            // Background tasks require more complex delegate patterns which are better suited for UIKit
+            URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                let httpResponse = response as? HTTPURLResponse
+                let httpStatus = httpResponse?.statusCode
+                let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
+                let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: responseData)
+                continuation.resume(returning: dict)
+            }.resume()
+        }
     }
 
     static func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
@@ -275,7 +310,7 @@ struct CrashTest: Test {
 class TestManager {
     lazy var testList: [any Test] = [
         // Basic network requests (4 existing + 7 new network tests)
-        NetworkTest.makeFetch(name: "executeDataTaskRequest", url: URL(string: "https://httpbin.org/get?param1=val1&param2=val2")),
+        NetworkTest.makeFetch(name: "executeDataTaskRequest", url: URL(string: "https://postman-echo.com/get?param1=val1&param2=val2")),
         NetworkTest.makeFetch(name: "executeDataTaskRequest2", url: URL(string: "https://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?q=uitests&param3=val3&param4=val4")),
         NetworkTest.makeFetch(name: "executeDataTaskRequest3", url: URL(string: "https://httpbin.org/get?param1=val1&param2=val2")),
         NetworkTest.makePost(name: "executePostDataTaskRequestWithLargeHTTPBody", url: URL(string: "https://httpbin.org/post"), httpBody: String(repeating: "a", count: 20_000)),
