@@ -65,10 +65,10 @@ struct NetworkTest: Test {
     }
 
     static func executeDataTaskRequest(url: URL) async throws -> [String: Any] {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             let request = URLRequest(url: url)
             URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
                     return
                 }
@@ -83,7 +83,7 @@ struct NetworkTest: Test {
     }
 
     static func uploadTaskNetwork(url: URL, data: Data, httpMethod: String, httpBody: Bool) async throws -> [String: Any] {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             var request = URLRequest(url: url)
             request.httpMethod = httpMethod
             if httpBody {
@@ -91,7 +91,7 @@ struct NetworkTest: Test {
             }
 
             URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
                     return
                 }
@@ -106,7 +106,7 @@ struct NetworkTest: Test {
     }
 
     static func postDataTaskRequest(url: URL, httpBody: String?) async throws -> [String: Any] {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             if let httpBody {
@@ -114,7 +114,7 @@ struct NetworkTest: Test {
             }
 
             URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
                     return
                 }
@@ -129,7 +129,7 @@ struct NetworkTest: Test {
     }
 
     static func backgroundUploadTaskNetwork(url: URL, data: Data, httpBody: Bool) async throws -> [String: Any] {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             if httpBody {
@@ -139,7 +139,7 @@ struct NetworkTest: Test {
             // For SwiftUI, we'll use regular upload task instead of background task
             // Background tasks require more complex delegate patterns which are better suited for UIKit
             URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
                     return
                 }

@@ -17,9 +17,10 @@
 import SwiftUI
 
 // MARK: - Extension Table View 1
+
 struct ExtensionTable1View: View {
     var body: some View {
-        List(0..<100, id: \.self) { index in
+        List(0 ..< 100, id: \.self) { index in
             Text("Label\(index)")
                 .accessibilityIdentifier("Label\(index)")
         }
@@ -29,9 +30,10 @@ struct ExtensionTable1View: View {
 }
 
 // MARK: - Extension Table View 2
+
 struct ExtensionTable2View: View {
     var body: some View {
-        List(0..<100, id: \.self) { index in
+        List(0 ..< 100, id: \.self) { index in
             Text("\(index)")
                 .accessibilityIdentifier("\(index)")
         }
@@ -41,13 +43,14 @@ struct ExtensionTable2View: View {
 }
 
 // MARK: - Extension Collection View Vertical
+
 struct ExtensionCollectionVerticalView: View {
     private let columns = [GridItem(.flexible())]
 
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(0..<100, id: \.self) { index in
+                ForEach(0 ..< 100, id: \.self) { index in
                     Rectangle()
                         .fill(Color.red)
                         .frame(height: 100)
@@ -68,11 +71,12 @@ struct ExtensionCollectionVerticalView: View {
 }
 
 // MARK: - Extension Collection View Horizontal
+
 struct ExtensionCollectionHorizontalView: View {
     var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 10) {
-                ForEach(0..<100, id: \.self) { index in
+                ForEach(0 ..< 100, id: \.self) { index in
                     Rectangle()
                         .fill(Color.red)
                         .frame(width: 100)
@@ -93,12 +97,13 @@ struct ExtensionCollectionHorizontalView: View {
 }
 
 // MARK: - Extension ScrollView
+
 struct ExtensionScrollView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Add enough content to make scrolling necessary
-                ForEach(0..<20, id: \.self) { index in
+                ForEach(0 ..< 20, id: \.self) { index in
                     Text("Content \(index)")
                         .frame(height: 50)
                         .frame(maxWidth: .infinity)
@@ -116,7 +121,7 @@ struct ExtensionScrollView: View {
                 .accessibilityIdentifier("Button")
 
                 // Add more content after the button
-                ForEach(20..<40, id: \.self) { index in
+                ForEach(20 ..< 40, id: \.self) { index in
                     Text("Content \(index)")
                         .frame(height: 50)
                         .frame(maxWidth: .infinity)

@@ -20,7 +20,6 @@ import SBTUITestTunnelServer
 import XCTest
 
 class DownloadUploadTests: XCTestCase {
-
     override func setUp() {
         super.setUp()
 
