@@ -108,6 +108,7 @@ struct ExtensionScrollView: View {
                         .frame(height: 50)
                         .frame(maxWidth: .infinity)
                         .background(Color.gray.opacity(0.3))
+                        .accessibilityIdentifier("pre-content\(index)")
                 }
 
                 // The button that tests will scroll to find
@@ -126,6 +127,7 @@ struct ExtensionScrollView: View {
                         .frame(height: 50)
                         .frame(maxWidth: .infinity)
                         .background(Color.gray.opacity(0.3))
+                        .accessibilityIdentifier("before-content\(index)")
                 }
             }
             .padding()
