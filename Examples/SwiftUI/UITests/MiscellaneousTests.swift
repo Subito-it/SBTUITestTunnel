@@ -144,8 +144,9 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel()
         XCTAssert(app.wait(for: .runningForeground, timeout: 5))
 
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
+        // SwiftUI: Wait for any button in the main list to appear (app successfully restarted)
+        let anyTestButton = app.buttons["executeDataTaskRequest"]
+        XCTAssertTrue(anyTestButton.waitForExistence(timeout: 15.0), "App should show test buttons after restart")
     }
 
     func testLaunchArgumentsResetBetweenLaunches() {
@@ -192,6 +193,10 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingVertical() {
         app.launchTunnel()
 
+        // Scroll to find the CollectionViewVertical button using SBTUITestTunnel scrolling API
+        if !app.buttons["showExtensionCollectionViewVertical"].exists {
+            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showExtensionCollectionViewVertical", animated: true)
+        }
         app.buttons["showExtensionCollectionViewVertical"].tap()
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
@@ -208,6 +213,10 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingHorizontal() {
         app.launchTunnel()
 
+        // Scroll to find the CollectionViewHorizontal button using SBTUITestTunnel scrolling API
+        if !app.buttons["showExtensionCollectionViewHorizontal"].exists {
+            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showExtensionCollectionViewHorizontal", animated: true)
+        }
         app.buttons["showExtensionCollectionViewHorizontal"].tap()
 
         XCTAssertFalse(app.staticTexts["10"].isHittable)
@@ -224,6 +233,10 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToElement() {
         app.launchTunnel()
 
+        // Scroll to find the ExtensionScrollView button using SBTUITestTunnel scrolling API
+        if !app.buttons["showExtensionScrollView"].exists {
+            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showExtensionScrollView", animated: true)
+        }
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.buttons["Button"].isHittable)
@@ -236,6 +249,10 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
+        // Scroll to find the ExtensionScrollView button using SBTUITestTunnel scrolling API
+        if !app.buttons["showExtensionScrollView"].exists {
+            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showExtensionScrollView", animated: true)
+        }
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
