@@ -20,78 +20,94 @@ import SBTUITestTunnelServer
 import XCTest
 
 class DownloadUploadTests: XCTestCase {
-    private let request = NetworkRequests()
 
     override func setUp() {
         super.setUp()
 
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+
+        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.buttons)
+        waitForExpectations(timeout: 15.0, handler: nil)
+
+        Thread.sleep(forTimeInterval: 1.0)
     }
 
-    func testUploadRequest() {
-        let uploadData = "This is an upload test".data(using: .utf8)!
-        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: uploadData)
+    func testSingleDownload() {
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
 
-        XCTAssertEqual(request.returnCode(result), 200)
+        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        let testFilePath = paths.first!.appending("/test_file_a.txt")
 
-        let json = request.json(result)
-        let data = json["data"] as? String ?? ""
-        XCTAssertEqual(data, "This is an upload test")
+        if FileManager.default.fileExists(atPath: testFilePath) {
+            try! FileManager.default.removeItem(atPath: testFilePath)
+        }
+
+        try! (randomString.data(using: .utf8))?.write(to: URL(fileURLWithPath: testFilePath))
+
+        app.uploadItem(atPath: testFilePath, toPath: "test_file_b.txt", relativeTo: .documentDirectory)
+
+        let uploadData = app.downloadItems(fromPath: "test_file_b.txt", relativeTo: .documentDirectory)?.first!
+
+        let uploadedString = String(data: uploadData!, encoding: .utf8)
+
+        XCTAssertTrue(randomString == uploadedString)
     }
 
-    func testUploadRequestWithHTTPBody() {
-        let uploadData = "This is an upload test".data(using: .utf8)!
-        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/post", data: uploadData)
+    func testMultipleDownload() {
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
 
-        XCTAssertEqual(request.returnCode(result), 200)
+        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        let testFilePath = paths.first!.appending("/test_file_a.txt")
 
-        let json = request.json(result)
-        let data = json["data"] as? String ?? ""
-        XCTAssertEqual(data, "This is an upload test")
+        if FileManager.default.fileExists(atPath: testFilePath) {
+            try! FileManager.default.removeItem(atPath: testFilePath)
+        }
+
+        try! (randomString.data(using: .utf8))?.write(to: URL(fileURLWithPath: testFilePath))
+
+        app.uploadItem(atPath: testFilePath, toPath: "test_file_1.txt", relativeTo: .documentDirectory)
+        app.uploadItem(atPath: testFilePath, toPath: "test_file_2.txt", relativeTo: .documentDirectory)
+        app.uploadItem(atPath: testFilePath, toPath: "test_file_3.txt", relativeTo: .documentDirectory)
+
+        if let uploadDatas = app.downloadItems(fromPath: "test_file_*.txt", relativeTo: .documentDirectory) {
+            XCTAssertEqual(uploadDatas.count, 3)
+
+            for uploadData in uploadDatas {
+                let uploadedString = String(data: uploadData, encoding: .utf8)
+
+                XCTAssertTrue(randomString == uploadedString)
+            }
+        } else {
+            XCTFail("No upload data received")
+        }
     }
 
-    func testUploadPUTRequest() {
-        let uploadData = "This is a PUT upload test".data(using: .utf8)!
-        let result = request.uploadTaskNetwork(urlString: "https://httpbin.org/put", data: uploadData, httpMethod: "PUT")
-
-        XCTAssertEqual(request.returnCode(result), 200)
-
-        let json = request.json(result)
-        let data = json["data"] as? String ?? ""
-        XCTAssertEqual(data, "This is a PUT upload test")
-    }
-
-    func testPostRequestWithLargeBody() {
+    func testMonitorPostRequestWithHTTPLargeBodyInAppProcess() {
         let largeBody = String(repeating: "a", count: 20_000)
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: largeBody)
+        let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
+        app.monitorRequests(matching: matchingRequest)
 
-        XCTAssertEqual(request.returnCode(result), 200)
+        XCTAssertTrue(app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
+        app.buttons["executePostDataTaskRequestWithLargeHTTPBody"].tap()
 
-        let json = request.json(result)
-        let data = json["data"] as? String ?? ""
-        XCTAssertEqual(data.count, 20_000)
-        XCTAssertEqual(data, largeBody)
-    }
+        XCTAssertTrue(app.waitForMonitoredRequests(matching: matchingRequest, timeout: 10))
+        let requests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(requests.count, 1)
 
-    func testPostRequestWithFormData() {
-        let formData = "param1=value1&param2=value2"
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/post", httpMethod: "POST", httpBody: formData)
+        for request in requests {
+            guard let httpBody = request.request?.httpBody else {
+                XCTFail("Missing http body")
+                continue
+            }
 
-        XCTAssertEqual(request.returnCode(result), 200)
+            XCTAssertEqual(String(data: httpBody, encoding: .utf8), largeBody)
 
-        let json = request.json(result)
-        let form = json["form"] as? [String: String] ?? [:]
-        XCTAssertEqual(form["param1"], "value1")
-        XCTAssertEqual(form["param2"], "value2")
-    }
+            XCTAssert((request.responseString()!).contains("postman-echo.com"))
+            XCTAssert(request.timestamp > 0.0)
+            XCTAssert(request.requestTime > 0.0)
+        }
 
-    func testDownloadRequest() {
-        let result = request.dataTaskNetwork(urlString: "https://httpbin.org/get?download=test")
-
-        XCTAssertEqual(request.returnCode(result), 200)
-
-        let json = request.json(result)
-        let args = json["args"] as? [String: String] ?? [:]
-        XCTAssertEqual(args["download"], "test")
+        XCTAssert(app.stubRequestsRemoveAll())
+        XCTAssert(app.monitorRequestRemoveAll())
     }
 }
