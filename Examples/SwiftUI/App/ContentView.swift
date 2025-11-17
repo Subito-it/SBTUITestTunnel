@@ -24,35 +24,70 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            List(testManager.testList, id: \.name) { test in
+            List(Array(testManager.testList.enumerated()), id: \.element.name) { index, test in
                 switch test {
                 case let networkTest as NetworkTest:
                     NavigationLink(destination: NetworkResultView(test: networkTest)) {
-                        Text(networkTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(networkTest.name)
+                        }
                     }.accessibilityIdentifier(networkTest.name)
                 case let webSocketTest as WebSocketTest:
                     NavigationLink(destination: WebSocketView(test: webSocketTest)) {
-                        Text(webSocketTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(webSocketTest.name)
+                        }
                     }.accessibilityIdentifier(webSocketTest.name)
                 case let autocompleteTest as AutocompleteTest:
                     NavigationLink(destination: GenericResultView(test: autocompleteTest)) {
-                        Text(autocompleteTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(autocompleteTest.name)
+                        }
                     }.accessibilityIdentifier(autocompleteTest.name)
                 case let cookiesTest as CookiesTest:
                     NavigationLink(destination: GenericResultView(test: cookiesTest)) {
-                        Text(cookiesTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(cookiesTest.name)
+                        }
                     }.accessibilityIdentifier(cookiesTest.name)
                 case let extensionTest as ExtensionTest:
                     NavigationLink(destination: extensionViewFor(test: extensionTest)) {
-                        Text(extensionTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(extensionTest.name)
+                        }
                     }.accessibilityIdentifier(extensionTest.name)
                 case let coreLocationTest as CoreLocationTest:
                     NavigationLink(destination: CoreLocationView(test: coreLocationTest)) {
-                        Text(coreLocationTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(coreLocationTest.name)
+                        }
                     }.accessibilityIdentifier(coreLocationTest.name)
                 case let crashTest as CrashTest:
                     NavigationLink(destination: GenericResultView(test: crashTest)) {
-                        Text(crashTest.name)
+                        HStack {
+                            Text("[\(index)]")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                            Text(crashTest.name)
+                        }
                     }.accessibilityIdentifier(crashTest.name)
                 default:
                     EmptyView()
@@ -286,8 +321,8 @@ extension CLAuthorizationStatus: @retroactive CustomStringConvertible {
     }
 }
 
-
 // MARK: - WebSocket View
+
 class WebSocketManager: ObservableObject {
     @Published var connectionStatus = "unknown"
     @Published var networkResult = ""
@@ -309,7 +344,7 @@ class WebSocketManager: ObservableObject {
         let message = URLSessionWebSocketTask.Message.string("Hello, world!")
         socket?.send(message) { [weak self] error in
             DispatchQueue.main.async {
-                if let error = error {
+                if let error {
                     self?.networkResult = "⚠️ WebSocket couldn't send message: \(error)"
                 } else {
                     self?.networkResult = "Sent: Hello, world!"
@@ -341,7 +376,7 @@ class WebSocketManager: ObservableObject {
     func sendPing() {
         socket?.sendPing { [weak self] error in
             DispatchQueue.main.async {
-                if let error = error {
+                if let error {
                     self?.networkResult = "⚠️ WebSocket couldn't send ping: \(error)"
                 } else {
                     self?.networkResult = "Pong received"

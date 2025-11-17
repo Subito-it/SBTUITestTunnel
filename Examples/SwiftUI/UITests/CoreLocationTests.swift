@@ -25,10 +25,9 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
         wait { self.app.staticTexts["location_status"].label == "-" }
 
@@ -59,10 +58,9 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -83,10 +81,9 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -116,10 +113,9 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
         app.buttons["Update location"].tap()
 
@@ -156,10 +152,9 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
@@ -218,10 +213,9 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
-        // Scroll to find the CoreLocation button using SBTUITestTunnel scrolling API
-        if !app.buttons["showCoreLocationViewController"].exists {
-            app.scrollTableView(withIdentifier: "example_list", toElementWithIdentifier: "showCoreLocationViewController", animated: true)
-        }
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not table view!
+        // Use collection view scrolling API to navigate to index 17 (showCoreLocationViewController)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 17, animated: true)
         app.buttons["showCoreLocationViewController"].tap()
 
         app.buttons["Get manager current location"].tap()

@@ -116,6 +116,9 @@ class MiscellaneousTests: XCTestCase {
         app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
 
+        // BREAKTHROUGH: SwiftUI List is converted to collection view!
+        // Use collection view scrolling API to navigate to index 0 (executeDataTaskRequest)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 0, animated: true)
         app.buttons["executeDataTaskRequest"].tap()
 
         let textResult = app.staticTexts["result"]
@@ -169,6 +172,9 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling() {
         app.launchTunnel()
 
+        // BREAKTHROUGH: SwiftUI List is converted to collection view!
+        // Use collection view scrolling API to navigate to index 14 (showExtensionTable1)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 14, animated: true)
         app.buttons["showExtensionTable1"].tap()
 
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
@@ -181,6 +187,9 @@ class MiscellaneousTests: XCTestCase {
     func testTableViewScrolling2() {
         app.launchTunnel()
 
+        // BREAKTHROUGH: SwiftUI List is converted to collection view!
+        // Use collection view scrolling API to navigate to index 15 (showExtensionTable2)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 15, animated: true)
         app.buttons["showExtensionTable2"].tap()
 
         XCTAssertFalse(app.staticTexts["80"].isHittable)
@@ -193,10 +202,9 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingVertical() {
         app.launchTunnel()
 
-        // Scroll to find the CollectionViewVertical button using SBTUITestTunnel ScrollView API
-        // SwiftUI List is rendered as ScrollView, button is below fold so scroll down
-        // Try scrolling to the very bottom to ensure button is rendered
-        app.scrollScrollView(withIdentifier: "example_list", toOffset: 1.0, animated: true)
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
+        // Use collection view scrolling API to navigate to index 18 (showExtensionCollectionViewVertical)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 18, animated: true)
         app.buttons["showExtensionCollectionViewVertical"].tap()
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
@@ -213,10 +221,9 @@ class MiscellaneousTests: XCTestCase {
     func testCollectionViewScrollingHorizontal() {
         app.launchTunnel()
 
-        // Scroll to find the CollectionViewHorizontal button using SBTUITestTunnel ScrollView API
-        // SwiftUI List is rendered as ScrollView, button is below fold so scroll down
-        // Try scrolling to the very bottom to ensure button is rendered
-        app.scrollScrollView(withIdentifier: "example_list", toOffset: 1.0, animated: true)
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
+        // Use collection view scrolling API to navigate to index 19 (showExtensionCollectionViewHorizontal)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 19, animated: true)
         app.buttons["showExtensionCollectionViewHorizontal"].tap()
 
         XCTAssertFalse(app.staticTexts["10"].isHittable)
@@ -233,9 +240,9 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToElement() {
         app.launchTunnel()
 
-        // Scroll to find the ExtensionScrollView button using SBTUITestTunnel ScrollView API
-        // SwiftUI List is rendered as ScrollView, button is below fold so scroll down
-        app.scrollScrollView(withIdentifier: "example_list", toOffset: 0.7, animated: true)
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
+        // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 16, animated: true)
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.buttons["Button"].isHittable)
@@ -248,9 +255,9 @@ class MiscellaneousTests: XCTestCase {
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
-        // Scroll to find the ExtensionScrollView button using SBTUITestTunnel ScrollView API
-        // SwiftUI List is rendered as ScrollView, button is below fold so scroll down
-        app.scrollScrollView(withIdentifier: "example_list", toOffset: 0.7, animated: true)
+        // BREAKTHROUGH: SwiftUI List is converted to collection view, not scroll view!
+        // Use collection view scrolling API to navigate to index 16 (showExtensionScrollView)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 16, animated: true)
         app.buttons["showExtensionScrollView"].tap()
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
@@ -331,6 +338,9 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
         XCTAssert(app.monitorRequestRemoveAll())
+        // BREAKTHROUGH: SwiftUI List is converted to collection view!
+        // Use collection view scrolling API to navigate to index 20 (crashApp)
+        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: 20, animated: true)
         app.buttons["crashApp"].tap()
 
         Thread.sleep(forTimeInterval: 2.0)
