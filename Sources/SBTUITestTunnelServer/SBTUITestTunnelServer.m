@@ -973,7 +973,22 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     while (!result) {
                         NSArray *allScrollViewViews = [scrollView allSubviews];
                         for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
-                            BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
+                            BOOL matchIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier];
+                            BOOL matchLabel = [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
+                            
+                            // Use key-value coding as a fallback to access the `accessibilityIdentifier`.
+                            // This is necessary for SwiftUI views, which are wrapped in a `UIHostingController`
+                            // and don't directly expose an `accessibilityIdentifier`.
+                            // https://github.com/cashapp/AccessibilitySnapshot/blob/main/Sources/AccessibilitySnapshot/Parser/Swift/Classes/AccessibilityHierarchyParser.swift#L710
+                            BOOL matchAccessibilityElementIdentifier = NO;
+                            for (NSObject *accessibilityElement in scrollViewView.accessibilityElements) {
+                                NSString *accessibilityIdentifier = [accessibilityElement valueForKey:@"accessibilityIdentifier"];
+                                if (accessibilityIdentifier && [accessibilityIdentifier isEqualToString:targetElementIdentifier]) {
+                                    matchAccessibilityElementIdentifier = YES;
+                                }
+                            }
+                            
+                            BOOL expectedTargetIdentifier = matchIdentifier || matchLabel || matchAccessibilityElementIdentifier;
                             
                             if (expectedTargetIdentifier) {
                                 CGRect frameInScrollView = [scrollViewView convertRect:scrollViewView.bounds toView:scrollView];
@@ -1238,6 +1253,97 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *debugInfo = result ? @"" : @"element not found!";
     
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
+#pragma mark - Unified Scroll Methods
+
+- (NSDictionary *)commandScrollContent:(NSDictionary *)parameters
+{
+    NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
+    NSString *targetDestination = parameters[SBTUITunnelObjectValueKey];
+    NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
+    BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
+
+    // Find the scrollable view and determine its type on main thread
+    __block UIView *scrollableView = nil;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        scrollableView = [weakSelf findScrollableViewWithIdentifier:elementIdentifier];
+        dispatch_semaphore_signal(sem);
+    });
+
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
+
+    if (!scrollableView) {
+        return @{ SBTUITunnelResponseResultKey: @"NO",
+                  SBTUITunnelResponseDebugKey: [NSString stringWithFormat:@"No scrollable view found with identifier: %@", elementIdentifier] };
+    }
+
+    // Route to appropriate existing command handler based on detected view type
+    if ([scrollableView isKindOfClass:[UITableView class]]) {
+        if ([scrollType isEqualToString:@"identifier"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
+        } else if ([scrollType isEqualToString:@"offset"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetOffset:[targetDestination floatValue] animated:animated];
+        } else {
+            return [self commandScrollTableViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
+        }
+    } else if ([scrollableView isKindOfClass:[UICollectionView class]]) {
+        if ([scrollType isEqualToString:@"identifier"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
+        } else if ([scrollType isEqualToString:@"offset"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetOffset:[targetDestination floatValue] animated:animated];
+        } else {
+            return [self commandScrollCollectionViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
+        }
+    } else if ([scrollableView isKindOfClass:[UIScrollView class]]) {
+        if ([scrollType isEqualToString:@"identifier"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
+        } else if ([scrollType isEqualToString:@"offset"]) {
+            return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetOffset:[targetDestination floatValue] animated:animated];
+        } else {
+            return @{ SBTUITunnelResponseResultKey: @"NO",
+                      SBTUITunnelResponseDebugKey: [NSString stringWithFormat:@"Cannot scroll content for %@ scrollView without identifier or offset", elementIdentifier] };
+        }
+    }
+
+    return @{ SBTUITunnelResponseResultKey: @"NO",
+              SBTUITunnelResponseDebugKey: [NSString stringWithFormat:@"Unsupported scrollable view type for identifier: %@", elementIdentifier] };
+}
+
+- (UIView *)findScrollableViewWithIdentifier:(NSString *)elementIdentifier
+{
+    NSAssert([NSThread isMainThread], @"Call this from main thread!");
+
+    // Hacky way to get top-most UIViewController (reusing existing pattern)
+    UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    while (rootViewController.presentedViewController != nil) {
+        rootViewController = rootViewController.presentedViewController;
+    }
+
+    NSArray *allViews = [rootViewController.view allSubviews];
+
+    // Priority order: UITableView > UICollectionView > UIScrollView (use first found as per user requirement)
+    for (UIView *view in [allViews reverseObjectEnumerator]) {
+        if ([view isKindOfClass:[UIScrollView class]]) {
+            CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
+            BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
+
+            if (!withinVisibleBounds) {
+                continue;
+            }
+
+            BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] ||
+                                     [view.accessibilityLabel isEqualToString:elementIdentifier];
+            if (expectedIdentifier) {
+                return view; // Return first match found (as per user requirement)
+            }
+        }
+    }
+
+    return nil;
 }
 
 - (NSDictionary *)commandForceTouchPopView:(NSDictionary *)parameters

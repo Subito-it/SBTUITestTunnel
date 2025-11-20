@@ -822,6 +822,45 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
 }
 
+#pragma mark - XCUITest unified scroll extensions
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [@(index) stringValue],
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollContent params:params] boolValue];
+}
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    NSAssert([targetIdentifier length] > 0, @"Invalid empty target identifier!");
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: targetIdentifier,
+                                                     SBTUITunnelXCUIExtensionScrollType: @"identifier",
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollContent params:params] boolValue];
+}
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+    NSAssert(targetOffset >= 0.0 && targetOffset <= 1.0, @"Invalid offset! Must be between 0.0 and 1.0");
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectValueKey: [@(targetOffset) stringValue],
+                                                     SBTUITunnelXCUIExtensionScrollType: @"offset",
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollContent params:params] boolValue];
+}
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

@@ -373,6 +373,22 @@
     return [self.client scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
 }
 
+#pragma mark - XCUITest unified scroll extensions
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
+{
+    return [self.client scrollContentWithIdentifier:identifier toElementIndex:index animated:flag];
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag
+{
+    return [self.client scrollContentWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    return [self.client scrollContentWithIdentifier:identifier toOffset:targetOffset animated:flag];
+}
 
 #pragma mark - XCUITest 3D touch extensions
 

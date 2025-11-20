@@ -16,6 +16,6 @@ extension XCTestCase {
 
     func scrollToTestSection(_ index: Int) {
         wait { self.app.collectionViews["example_list"].exists }
-        app.scrollCollectionView(withIdentifier: "example_list", toElementIndex: index, animated: true)
+        app.scrollContent(withIdentifier: "example_list", toElementIndex: index, animated: true)
     }
 }

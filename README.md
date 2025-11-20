@@ -19,7 +19,7 @@ SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * block cookies
 * interact with NSUserDefaults
 * define custom blocks of codes executed in the application target
-* fine grain fast-scrolling in table/collection/scroll views
+* unified fine-grain scrolling for table/collection/scroll views with automatic view type detection
 * CLLocationManager stubbing
 * UNUserNotificationCenter stubbing
 

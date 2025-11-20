@@ -15,6 +15,9 @@
 // limitations under the License.
 
 @import UIKit;
+@import SwiftUI;
+
+#import <objc/runtime.h>
 
 #import "UIView+Extensions.h"
 
@@ -23,13 +26,13 @@
 - (NSArray *)allSubviews
 {
     NSMutableArray *res = [[NSMutableArray alloc] init];
-    
+
     [res addObject:self];
-    
+
     for (UIView *subview in self.subviews) {
         [res addObjectsFromArray:[subview allSubviews]];
     }
-    
+
     return res;
 }
 
