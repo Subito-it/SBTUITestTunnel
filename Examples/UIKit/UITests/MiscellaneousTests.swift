@@ -109,7 +109,7 @@ class MiscellaneousTests: XCTestCase {
         app.monitorRequests(matching: requestMatch)
         app.stubRequests(matching: requestMatch, response: response)
 
-        app.cells["executeDataTaskRequest"].tap()
+        scrollToTestSection("executeDataTaskRequest")
 
         let textResult = app.textViews["result"]
         wait { textResult.exists }
@@ -225,7 +225,7 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
         XCTAssert(app.monitorRequestRemoveAll())
-        app.cells["crashApp"].tap()
+        scrollToTestSection("crashApp")
 
         Thread.sleep(forTimeInterval: 2.0)
 

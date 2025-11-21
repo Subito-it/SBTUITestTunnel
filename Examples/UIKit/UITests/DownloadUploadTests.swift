@@ -85,8 +85,7 @@ class DownloadUploadTests: XCTestCase {
         let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
-        XCTAssertTrue(app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
-        app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].tap()
+        scrollToTestSection("executePostDataTaskRequestWithLargeHTTPBody")
 
         XCTAssertTrue(app.waitForMonitoredRequests(matching: matchingRequest, timeout: 10))
         let requests = app.monitoredRequestsFlushAll()
