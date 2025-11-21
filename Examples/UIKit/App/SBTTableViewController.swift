@@ -45,6 +45,11 @@ class SBTTableViewController: UITableViewController {
     fileprivate var sessionData: Data?
     fileprivate var sessionResponse: HTTPURLResponse?
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.accessibilityIdentifier = "example_list"
+    }
+
     private let testList: [BaseTest] = [NetworkTest(testSelector: #selector(executeDataTaskRequest)),
                                         NetworkTest(testSelector: #selector(executeDataTaskRequest2)),
                                         NetworkTest(testSelector: #selector(executeDataTaskRequest3)),

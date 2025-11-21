@@ -37,7 +37,7 @@ class ScrollContentTests: XCTestCase {
     // MARK: - 🆕 scrollContent API Tests
 
     func testScrollContentTableView() {
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
 
@@ -48,7 +48,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testScrollContentCollectionViewVertical() {
-        app.tables.firstMatch.cells["Collection view vertical"].tap()
+        scrollToTestSection("showExtensionCollectionViewVertical")
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
 
@@ -58,7 +58,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testScrollContentScrollViewToOffset() {
-        app.tables.firstMatch.cells["Scroll view"].tap()
+        scrollToTestSection("showExtensionScrollView")
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
@@ -73,7 +73,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testScrollContentOffsetWithTableView() {
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         // ✨ scrollContent handles offset scrolling for table views by falling back to ScrollView behavior
         XCTAssertTrue(app.scrollContent(withIdentifier: "table", toOffset: 0.8, animated: false))
@@ -83,7 +83,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testScrollContentElementByIdentifier() {
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         // ✨ scrollContent works with element identifiers across all view types
         // This demonstrates the API capability for element-based scrolling
@@ -93,7 +93,7 @@ class ScrollContentTests: XCTestCase {
     // MARK: - 📜 Legacy API Comparison Tests
 
     func testLegacyTableViewScrolling() {
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         XCTAssertFalse(app.staticTexts["Label5"].isHittable)
 
@@ -104,7 +104,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testLegacyCollectionViewScrolling() {
-        app.tables.firstMatch.cells["Collection view vertical"].tap()
+        scrollToTestSection("showExtensionCollectionViewVertical")
 
         XCTAssertFalse(app.staticTexts["30"].isHittable)
 
@@ -114,7 +114,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testLegacyScrollViewScrolling() {
-        app.tables.firstMatch.cells["Scroll view"].tap()
+        scrollToTestSection("showExtensionScrollView")
 
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
@@ -127,7 +127,7 @@ class ScrollContentTests: XCTestCase {
     // MARK: - 🔄 Migration Examples: Old vs New
 
     func testMigrationExample_TableViewScrolling() {
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         // 📜 OLD WAY: Specific API, need to know it's a table view
         // XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRowIndex: 50, animated: true))
@@ -139,7 +139,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testMigrationExample_CollectionViewScrolling() {
-        app.tables.firstMatch.cells["Collection view horizontal"].tap()
+        scrollToTestSection("showExtensionCollectionViewHorizontal")
 
         // 📜 OLD WAY: Specific API, need to know it's a collection view
         // XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 15, animated: true))
@@ -151,7 +151,7 @@ class ScrollContentTests: XCTestCase {
     }
 
     func testMigrationExample_ScrollViewScrolling() {
-        app.tables.firstMatch.cells["Scroll view"].tap()
+        scrollToTestSection("showExtensionScrollView")
 
         // 📜 OLD WAY: Specific API, need to know it's a scroll view
         // XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.5, animated: true))
@@ -167,7 +167,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentBenefits_ViewTypeFlexibility() {
         // This test demonstrates how the scrollContent API adapts when view implementations change
 
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         // ✨ If developers change from UITableView to UICollectionView in the app,
         // this test will continue to work without modification!
@@ -180,12 +180,12 @@ class ScrollContentTests: XCTestCase {
         // All scrollable views use the same method signatures
 
         let testCases = [
-            ("table", "Table view"),
-            ("collection", "Collection view vertical")
+            ("table", "showExtensionTable1"),
+            ("collection", "showExtensionCollectionViewVertical")
         ]
 
-        for (identifier, cellName) in testCases {
-            app.tables.firstMatch.cells[cellName].tap()
+        for (identifier, cellIdentifier) in testCases {
+            scrollToTestSection(cellIdentifier)
 
             // ✨ Same method signature works for all view types
             XCTAssertTrue(app.scrollContent(withIdentifier: identifier, toElementIndex: 10, animated: false))
@@ -197,7 +197,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentBenefits_OffsetFallback() {
         // Demonstrates how the scrollContent API gracefully handles offset scrolling for table/collection views
 
-        app.tables.firstMatch.cells["Table view"].tap()
+        scrollToTestSection("showExtensionTable1")
 
         // ✨ scrollContent automatically falls back to ScrollView behavior for offset scrolling
         // This works even though UITableView doesn't natively support normalized offsets
