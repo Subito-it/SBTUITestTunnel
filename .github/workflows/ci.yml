@@ -2,13 +2,14 @@ name: CI
 
 on: [pull_request, workflow_dispatch]
 
-jobs:
-  build:
-    runs-on: macos-15
+env:
+  xcode_version: "16.4"
 
-    name: Run UI Test on iOS
-    env:
-      xcode_version: "16.4"
+jobs:
+  uikit-tests:
+    runs-on: macos-15
+    name: UIKit Tests
+    timeout-minutes: 30
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -21,34 +22,75 @@ jobs:
         run: |
           brew update
           brew install xcodegen
-      - name: Generate projects;
+      - name: Generate UIKit project
         run: |
-          cd Example; xcodegen
-          cd SPM; xcodegen
-      - name: Build App
+          cd Examples/UIKit
+          xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
+          pod install --verbose
+          if [ $? -ne 0 ]; then echo "Pod install failed" && exit 1; fi
+      - name: Build UIKit App
         run: |
-          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Run UI Tests
+          Scripts/build_app.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
+      - name: Build UIKit UI Tests
         run: |
-          Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
+      - name: Run UIKit UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit
       - name: Collect UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SBTUITestTunnel_Tests_iOS.xcresult
-          path: SBTUITestTunnel_Tests.xcresult
+          name: SBTUITestTunnel_UIKit_Tests.xcresult
+          path: UIKit.xcresult
         if: success() || failure()
-      - name: Run no swizzling UI Tests
+      - name: Build UIKit No Swizzling UI Tests
         run: |
-          Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit_NoSwizzlingTests
+      - name: Run UIKit No Swizzling UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel_UIKit.xcworkspace UIKit_NoSwizzlingTests
       - name: Collect no swizzling UI Tests artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
-          path: SBTUITestTunnel_TestsNoSwizzling.xcresult
+          name: SBTUITestTunnel_UIKit_NoSwizzling.xcresult
+          path: UIKit_NoSwizzlingTests.xcresult
         if: success() || failure()
-      - name: Build SPM App
+
+  swiftui-tests:
+    runs-on: macos-15
+    name: SwiftUI Tests
+    timeout-minutes: 30
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
         run: |
-          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
-      - name: Run SPM UI Tests
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required tools
         run: |
-          Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
+          brew update
+          brew install xcodegen
+      - name: Generate SwiftUI project
+        run: |
+          cd Examples/SwiftUI
+          xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
+      - name: Build SwiftUI App
+        run: |
+          Scripts/build_app.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Build SwiftUI UI Tests
+        run: |
+          Scripts/build_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Run SwiftUI UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Collect SwiftUI UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_SwiftUI_Tests.xcresult
+          path: SwiftUI.xcresult
+        if: success() || failure()
+

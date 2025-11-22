@@ -1,0 +1,51 @@
+name: SBTUITestTunnel_SwiftUI
+
+options:
+  bundleIdPrefix: com.subito.uitest.swiftui
+
+packages:
+  SBTUITestTunnelServer:
+    path: ../..
+  SBTUITestTunnelClient:
+    path: ../..
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: [App]
+    dependencies:
+      - package: SBTUITestTunnelServer
+      - sdk: SwiftUI.framework
+      - sdk: Foundation.framework
+    settings:
+      base:
+        INFOPLIST_FILE: "App/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "App/SBTUITestTunnel_SwiftUI.entitlements"
+
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources: [UITests]
+    dependencies:
+      - target: App
+      - package: SBTUITestTunnelClient
+      - package: SBTUITestTunnelServer
+    settings:
+      base:
+        INFOPLIST_FILE: "UITests/Info.plist"
+
+schemes:
+  SwiftUI:
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+    run:
+      config: Debug
+    test:
+      targets: [UITests]
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true

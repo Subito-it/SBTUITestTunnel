@@ -313,34 +313,63 @@ Perform precise scrolling operations on collection views, table views, and scrol
 > app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
 > ```
 
-### 📋 Table Views
+### 🆕 scrollContent API (Recommended)
+
+The scrollContent API automatically detects the view type and applies the appropriate scrolling logic, eliminating the need to use different methods for different scrollable views.
+
+```swift
+// ✨ Works with table views, collection views, and scroll views automatically
+app.scrollContent(withIdentifier: "userList", toElementIndex: 10, animated: true)
+
+// 🎯 Scroll to element by identifier (any scrollable view type)
+app.scrollContent(withIdentifier: "photoGrid",
+                 toElementWithIdentifier: "photo_sunset",
+                 animated: true)
+
+// 📏 Scroll to normalized offset (0.0 - 1.0)
+// For table/collection views, falls back to scroll view behavior
+app.scrollContent(withIdentifier: "contentScroll",
+                 toOffset: 0.75,  // 75% down
+                 animated: true)
+
+// 📜 Scroll to bottom (works with any scrollable view)
+app.scrollContent(withIdentifier: "anyScrollableView", toElementIndex: .max, animated: false)
+```
+
+**Benefits of the scrollContent API:**
+- 🎯 **Auto-detection**: No need to know the specific view type
+- 🔄 **Consistent interface**: Same methods work across all scrollable views
+- 🛡️ **Future-proof**: Automatically supports new scrollable view types
+- 📱 **SwiftUI compatible**: Works with SwiftUI ScrollView where feasible
+
+### 📋 Table Views (Legacy API)
 
 ```swift
 // 📍 Scroll to specific row
 app.scrollTableView(withIdentifier: "userList", toRow: 10, animated: true)
 
 // 🎯 Scroll to element by identifier
-app.scrollTableView(withIdentifier: "userList", 
-                   toElementWithIdentifier: "user_john_doe", 
+app.scrollTableView(withIdentifier: "userList",
+                   toElementWithIdentifier: "user_john_doe",
                    animated: true)
 
 // 📜 Scroll to bottom
 app.scrollTableView(withIdentifier: "userList", toRow: .max, animated: false)
 ```
 
-### 🔲 Collection Views
+### 🔲 Collection Views (Legacy API)
 
 ```swift
 // 📍 Scroll to specific item
 app.scrollCollectionView(withIdentifier: "photoGrid", toRow: 25, animated: true)
 
-// 🎯 Scroll to element by identifier  
+// 🎯 Scroll to element by identifier
 app.scrollCollectionView(withIdentifier: "photoGrid",
                         toElementWithIdentifier: "photo_sunset",
                         animated: true)
 ```
 
-### 📜 Scroll Views
+### 📜 Scroll Views (Legacy API)
 
 ```swift
 // 🎯 Scroll to specific element
@@ -353,6 +382,8 @@ app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
                                   toOffset: 0.75,  // 75% down
                                   animated: true)
 ```
+
+> 💡 **Migration Tip**: The legacy APIs remain fully supported for backward compatibility. New projects should use the `scrollContent` API for a better developer experience.
 
 ---
 

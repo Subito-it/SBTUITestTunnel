@@ -14,7 +14,7 @@ let package = Package(
         .library(
             name: "SBTUITestTunnelClient",
             targets: ["SBTUITestTunnelClient"]
-        ),
+        )
     ],
     targets: [
         .target(
@@ -24,10 +24,10 @@ let package = Package(
                 .define("SPM", to: "YES"),
                 .headerSearchPath("GCDWebServer/Core"),
                 .headerSearchPath("GCDWebServer/Requests"),
-                .headerSearchPath("GCDWebServer/Responses"),
+                .headerSearchPath("GCDWebServer/Responses")
             ],
             linkerSettings: [
-                .linkedLibrary("z"),
+                .linkedLibrary("z")
             ]
         ),
         .target(
@@ -51,10 +51,10 @@ let package = Package(
                 .headerSearchPath("DetoxIPC"),
                 .headerSearchPath("DetoxIPC/Apple"),
                 .headerSearchPath("DetoxIPC/DTXObjectiveCHelpers"),
-                .headerSearchPath("DetoxIPC/fno-objc-arc"),
+                .headerSearchPath("DetoxIPC/fno-objc-arc")
             ],
             linkerSettings: [
-                .linkedLibrary("z"),
+                .linkedLibrary("z")
             ]
         ),
         .target(
@@ -65,12 +65,12 @@ let package = Package(
                 .define("SPM", to: "YES"),
                 .headerSearchPath(".."),
                 .headerSearchPath("../Apple"),
-                .unsafeFlags(["-fno-objc-arc"]),
+                .unsafeFlags(["-fno-objc-arc"])
             ]
         ),
         .target(
             name: "SBTUITestTunnelCommonSwift",
             dependencies: ["SBTUITestTunnelCommon"]
-        ),
+        )
     ]
 )

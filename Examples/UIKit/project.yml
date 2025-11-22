@@ -1,0 +1,112 @@
+name: SBTUITestTunnel_UIKit
+
+options:
+  bundleIdPrefix: com.subito
+  groupSortPosition: top
+  postGenCommand: "pod install"
+
+fileGroups:
+  - App/SBTUITestTunnel_UIKit.entitlements
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "App/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "App/SBTUITestTunnel_UIKit.entitlements"
+    sources:
+      - path: App
+        name: "App"
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: Foundation.framework
+      - sdk: CoreGraphics.framework
+
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "UITests/Info.plist"
+    sources:
+      - path: UITests
+        excludes: ["NoSwizzlingTests"]
+    dependencies:
+      - target: App
+
+  UITestsNoSwizzling:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS:
+          ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
+        INFOPLIST_FILE: "UITests/Info.plist"
+    sources:
+      - UITests/NoSwizzlingTests
+    dependencies:
+      - target: App
+
+schemes:
+  UIKit:
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - UITests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      language: en
+      region: EN
+
+  UIKit_Tests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - UITests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false
+
+  UIKit_NoSwizzlingTests:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - UITestsNoSwizzling
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN
+    management:
+      isShown: false
