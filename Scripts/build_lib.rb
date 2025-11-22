@@ -5,6 +5,7 @@ module Build
   UITESTS_SCHEME = "UIKit"
   UITESTS_NOSWIZZ_SCHEME = "UIKit_NoSwizzlingTests"
   SWIFTUI_UITESTS_SCHEME = "SwiftUI"
+  IPHONE = "iPhone 17"
 
   # Configurable UI Test Retry Settings
   # Can be overridden by environment variables:
@@ -44,9 +45,6 @@ module Build
 
     puts "🔨 Build UITests Bundle for scheme: #{scheme}..."
 
-    # Clean simulators first to avoid CI hanging issues
-    clean_simulators()
-
     # Build for testing (creates cached test bundle)
     puts "   → Building test bundle for caching..."
     return run_xcodebuild("build-for-testing", project_path, scheme)
@@ -59,6 +57,8 @@ module Build
       puts "Usage: run_ui_tests_with_cached_build(project_path, scheme)"
       return false
     end
+
+    clean_simulators()
 
     puts "🧪 Run UITests with Cached Build for scheme: #{scheme}..."
 
@@ -144,7 +144,7 @@ module Build
 
   def self.available_simulators()
     # Try to get a specific iPhone simulator with ID for more reliable targeting
-    device_id = `xcrun simctl list devices available | grep "iPhone 12" | head -1 | grep -oE '\\([A-F0-9-]+\\)' | tr -d '()'`.strip
+    device_id = `xcrun simctl list devices available | grep "#{IPHONE}" | head -1 | grep -oE '\\([A-F0-9-]+\\)' | tr -d '()'`.strip
     if !device_id.empty?
       puts "📱 Selected simulator ID: '#{device_id}'"
       return "id=#{device_id}"
@@ -160,11 +160,13 @@ module Build
     puts "🧹 Cleaning simulators to avoid CI hanging issues..."
 
     # Shutdown all simulators
-    puts "   → Shutting down all simulators..."
+    puts "   → ⬇️ Shutting down all simulators..."
     system("xcrun simctl shutdown all")
+    sleep(5)
 
-    # Brief pause to ensure shutdown completes
-    sleep(2)
+    puts "   → ✏️ Erasing all simulators..."
+    system("xcrun simctl erase all")
+    sleep(5)
 
     puts "✅ Simulator cleanup completed"
   end
