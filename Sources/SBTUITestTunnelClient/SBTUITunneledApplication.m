@@ -373,6 +373,75 @@
     return [self.client scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
 }
 
+#pragma mark - XCUITest unified scroll extensions
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
+{
+    BOOL result = NO;
+    XCUIElement *scrollElement = [[[self descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:identifier] firstMatch];
+    if (scrollElement && [scrollElement exists]) {
+        if (scrollElement.elementType == XCUIElementTypeCollectionView) {
+            result = [self.client scrollCollectionViewWithIdentifier:identifier toElementIndex:index animated:flag];
+        } else if (scrollElement.elementType == XCUIElementTypeTable) {
+            result = [self.client scrollTableViewWithIdentifier:identifier toRowIndex:index animated:flag];
+        } else if (scrollElement.elementType == XCUIElementTypeScrollView) {
+            NSLog(@"XCUIElement '%@' view (type: %lu) doesn't support element index (%lu)", identifier, scrollElement.elementType, index);
+        } else {
+            NSLog(@"XCUIElement '%@' is not a supported scrolling view (type: %lu)", identifier, scrollElement.elementType);
+        }
+    } else {
+        NSLog(@"XCUIElement '%@' cannot be found in the Accessibility hierarchy", identifier);
+    }
+    
+    return result;
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag
+{
+    BOOL result = NO;
+    XCUIElement *scrollElement = [[[self descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:identifier] firstMatch];
+    if (scrollElement && [scrollElement exists]) {
+        if (scrollElement.elementType == XCUIElementTypeCollectionView) {
+            result = [self.client scrollCollectionViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+        } else if (scrollElement.elementType == XCUIElementTypeTable) {
+            result = [self.client scrollTableViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+        } else if (scrollElement.elementType == XCUIElementTypeScrollView) {
+            result = [self.client scrollScrollViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+        } else {
+            NSLog(@"XCUIElement '%@' is not a supported scrolling view (type: %lu)", identifier, scrollElement.elementType);
+        }
+        
+        if (!result) {
+            // Couldn't scroll with standard Tunnel API, try using Accessibility API, but first reset position to offset 0
+            BOOL scrollToTop = [self.client scrollScrollViewWithIdentifier:identifier toOffset:0 animated:true];
+            if (scrollToTop) {
+                for (unsigned int i=0; i<100; i++) {
+                    XCUIElement *targetElement = [[[scrollElement descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:targetIdentifier] firstMatch];
+                    
+                    if ([targetElement exists]) {
+                        CGRect intersection = CGRectIntersection([scrollElement frame], [targetElement frame]);
+                        BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
+                        if (withinVisibleBounds) {
+                            result = withinVisibleBounds;
+                            break;
+                        }
+                    }
+                    [self.client scrollScrollViewWithIdentifierByPage:identifier animated:true];
+                }
+            }
+        }
+        
+    } else {
+        NSLog(@"XCUIElement '%@' cannot be found in the Accessibility hierarchy", identifier);
+    }
+    
+    return result;
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    return [self.client scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
+}
 
 #pragma mark - XCUITest 3D touch extensions
 

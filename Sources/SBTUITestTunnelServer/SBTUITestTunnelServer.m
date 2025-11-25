@@ -1090,6 +1090,33 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
+- (NSDictionary *)commandScrollScrollViewByPage:(NSDictionary *)parameters
+{
+    NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
+    BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
+
+    __block BOOL result = NO;
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
+    __weak typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIScrollView *scrollView = (UIScrollView *)[weakSelf findScrollableViewWithIdentifier:elementIdentifier];
+
+        if (scrollView && [scrollView isKindOfClass:[UIScrollView class]]) {
+            result = [weakSelf scrollScrollViewByOnePage:scrollView animated:animated];
+        }
+
+        dispatch_semaphore_signal(sem);
+    });
+
+    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
+
+    NSString *debugInfo = result ? @"" : @"element not found or already at end!";
+
+    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
 - (NSDictionary *)commandScrollTableView:(NSDictionary *)parameters
 {
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];

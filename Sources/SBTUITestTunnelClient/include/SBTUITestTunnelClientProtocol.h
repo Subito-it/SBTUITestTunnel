@@ -550,6 +550,51 @@
  */
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
 
+/**
+ *  Scroll UIScrollView view by one page (vertical or horizontal depending on scroll direction)
+ *
+ *  @param identifier accessibilityIdentifier of the UIScrollView
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the scroll view is already at the end or scroll view not found
+ */
+- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag;
+
+#pragma mark - XCUITest unified scroll extensions
+
+/**
+ *  Unified scroll method that automatically detects the scrollable view type (UITableView, UICollectionView, UIScrollView) and scrolls to the specified index.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param index the index of the element to scroll to. For table/collection views, this flattens sections and uses best effort (stops at last cell if index is larger than available cells). Passing NSIntegerMax guarantees to scroll to last cell.
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag;
+
+/**
+ *  Unified scroll method that automatically detects the scrollable view type (UITableView, UICollectionView, UIScrollView) and scrolls to the specified element.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param targetIdentifier accessibilityIdentifier of the element to scroll to
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
+
+/**
+ *  Unified scroll method that automatically detects the scrollable view type and scrolls to the specified normalized offset. For UITableView and UICollectionView, falls back to UIScrollView behavior using contentOffset.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param targetOffset the normalized offset (0.0 to 1.0) where 0.0 is top/left and 1.0 is bottom/right
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
+
 #pragma mark - XCUITest 3D touch extensions
 
 /**
