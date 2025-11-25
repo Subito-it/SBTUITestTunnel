@@ -973,7 +973,22 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     while (!result) {
                         NSArray *allScrollViewViews = [scrollView allSubviews];
                         for (UIView *scrollViewView in [allScrollViewViews reverseObjectEnumerator]) {
-                            BOOL expectedTargetIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier] || [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
+                            BOOL matchIdentifier = [scrollViewView.accessibilityIdentifier isEqualToString:targetElementIdentifier];
+                            BOOL matchLabel = [scrollViewView.accessibilityLabel isEqualToString:targetElementIdentifier];
+                            
+                            // Use key-value coding as a fallback to access the `accessibilityIdentifier`.
+                            // This is necessary for SwiftUI views, which are wrapped in a `UIHostingController`
+                            // and don't directly expose an `accessibilityIdentifier`.
+                            // https://github.com/cashapp/AccessibilitySnapshot/blob/main/Sources/AccessibilitySnapshot/Parser/Swift/Classes/AccessibilityHierarchyParser.swift#L887-L892
+                            BOOL matchAccessibilityElementIdentifier = NO;
+                            for (NSObject *accessibilityElement in scrollViewView.accessibilityElements) {
+                                NSString *accessibilityIdentifier = [accessibilityElement valueForKey:@"accessibilityIdentifier"];
+                                if (accessibilityIdentifier && [accessibilityIdentifier isEqualToString:targetElementIdentifier]) {
+                                    matchAccessibilityElementIdentifier = YES;
+                                }
+                            }
+                            
+                            BOOL expectedTargetIdentifier = matchIdentifier || matchLabel || matchAccessibilityElementIdentifier;
                             
                             if (expectedTargetIdentifier) {
                                 CGRect frameInScrollView = [scrollViewView convertRect:scrollViewView.bounds toView:scrollView];
