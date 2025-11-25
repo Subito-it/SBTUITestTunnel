@@ -30,7 +30,7 @@
 #import "private/CLLocationManager+Swizzles.h"
 #import "private/UNUserNotificationCenter+Swizzles.h"
 #import "private/UITextField+DisableAutocomplete.h"
-#import "private/SBTProxyURLProtocol.h"
+#import "include/SBTProxyURLProtocol.h"
 #import "private/UIView+Extensions.h"
 #import "WebSocket/SBTWebSocketServer.h"
 
