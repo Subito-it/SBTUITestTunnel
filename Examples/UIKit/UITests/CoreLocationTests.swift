@@ -17,7 +17,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
         wait { self.app.staticTexts["location_status"].label == "-" }
 
         app.coreLocationStubAuthorizationStatus(.notDetermined)
@@ -47,7 +47,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
@@ -67,7 +67,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
@@ -96,7 +96,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
         app.buttons["Update location"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should occurr") { _ in
@@ -132,7 +132,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
 
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
             for status in [CLAuthorizationStatus.notDetermined, .denied, .notDetermined, .restricted] {
@@ -190,7 +190,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        scrollToTestSection("showCoreLocationViewController")
 
         app.buttons["Get manager current location"].tap()
         wait(withTimeout: 2) {

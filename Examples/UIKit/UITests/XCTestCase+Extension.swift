@@ -19,4 +19,10 @@ extension XCTestCase {
             XCTAssert(result == .completed)
         }
     }
+
+    func scrollToTestSection(_ identifier: String) {
+        wait { self.app.tables["example_list"].exists }
+        app.scrollContent(withIdentifier: "example_list", toElementWithIdentifier: identifier, animated: true)
+        app.tables["example_list"].cells[identifier].tap()
+    }
 }

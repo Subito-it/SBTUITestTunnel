@@ -1,4 +1,4 @@
-name: SBTUITestTunnel
+name: SBTUITestTunnel_UIKit
 
 options:
   bundleIdPrefix: com.subito
@@ -6,38 +6,39 @@ options:
   postGenCommand: "pod install"
 
 fileGroups:
-  - SBTUITestTunnel_Example.entitlements
+  - App/SBTUITestTunnel_UIKit.entitlements
 
 targets:
-  SBTUITestTunnel_Example:
+  App:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
     settings:
       base:
-        INFOPLIST_FILE: "SBTUITestTunnel/SBTUITestTunnel-Info.plist"
-        CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
+        INFOPLIST_FILE: "App/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "App/SBTUITestTunnel_UIKit.entitlements"
     sources:
-      - path: SBTUITestTunnel
-        name: "SBTUITestTunnel_Example"
+      - path: App
+        name: "App"
     dependencies:
       - sdk: UIKit.framework
       - sdk: Foundation.framework
       - sdk: CoreGraphics.framework
 
-  SBTUITestTunnel_Tests:
+  UITests:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "15.0"
     settings:
       base:
-        INFOPLIST_FILE: "SBTUITestTunnel_Tests/Info.plist"
+        INFOPLIST_FILE: "UITests/Info.plist"
     sources:
-      - SBTUITestTunnel_Tests
+      - path: UITests
+        excludes: ["NoSwizzlingTests"]
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: App
 
-  SBTUITestTunnel_TestsNoSwizzling:
+  UITestsNoSwizzling:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "15.0"
@@ -45,41 +46,41 @@ targets:
       base:
         GCC_PREPROCESSOR_DEFINITIONS:
           ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
-        INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
+        INFOPLIST_FILE: "UITests/Info.plist"
     sources:
-      - SBTUITestTunnel_TestsNoSwizzling
+      - UITests/NoSwizzlingTests
     dependencies:
-      - target: SBTUITestTunnel_Example
+      - target: App
 
 schemes:
-  SBTUITestTunnel:
+  UIKit:
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        App: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
     test:
       targets:
-        - SBTUITestTunnel_Tests
+        - UITests
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true
       language: en
       region: EN
 
-  SBTUITestTunnel_Tests:
+  UIKit_Tests:
     run:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        App: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
     test:
       targets:
-        - SBTUITestTunnel_Tests
+        - UITests
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true
@@ -89,18 +90,18 @@ schemes:
     management:
       isShown: false
 
-  SBTUITestTunnel_NoSwizzlingTests:
+  UIKit_NoSwizzlingTests:
     run:
       debugEnabled: false
     build:
       targets:
-        SBTUITestTunnel_Example: [run, test, profile, analyze, archive]
+        App: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
     test:
       targets:
-        - SBTUITestTunnel_TestsNoSwizzling
+        - UITestsNoSwizzling
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true

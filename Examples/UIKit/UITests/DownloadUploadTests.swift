@@ -81,12 +81,11 @@ class DownloadUploadTests: XCTestCase {
     }
 
     func testMonitorPostRequestWithHTTPLargeBodyInAppProcess() {
-        let largeBody = String(repeating: "a", count: 20000)
+        let largeBody = String(repeating: "a", count: 20_000)
         let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
-        XCTAssertTrue(app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
-        app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].tap()
+        scrollToTestSection("executePostDataTaskRequestWithLargeHTTPBody")
 
         XCTAssertTrue(app.waitForMonitoredRequests(matching: matchingRequest, timeout: 10))
         let requests = app.monitoredRequestsFlushAll()
