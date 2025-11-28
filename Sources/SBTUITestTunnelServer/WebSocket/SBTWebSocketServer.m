@@ -158,8 +158,8 @@
                 }
                 
                 [weakSelf.receivedMessages addObject:collected];
-                                
-                if (weakSelf.stubbedReceiveMessage) {
+                
+                if (weakSelf.stubbedReceiveMessage && opcode != nw_ws_opcode_ping) {
                     [weakSelf sendMessage:weakSelf.stubbedReceiveMessage];
                 }
             }
