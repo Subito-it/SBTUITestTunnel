@@ -62,7 +62,7 @@
     nw_parameters_set_reuse_local_address(parameters, true); // Allow re-binding to the same port quickly
     
     nw_protocol_options_t wsOptions = nw_ws_create_options(nw_ws_version_13);
-    nw_ws_options_set_auto_reply_ping(wsOptions, true);
+//    nw_ws_options_set_auto_reply_ping(wsOptions, true);
     
     nw_protocol_stack_t stack = nw_parameters_copy_default_protocol_stack(parameters);
     nw_protocol_stack_prepend_application_protocol(stack, wsOptions);
@@ -159,12 +159,34 @@
                 
                 [weakSelf.receivedMessages addObject:collected];
                 
-                if (weakSelf.stubbedReceiveMessage && opcode != nw_ws_opcode_ping) {
+                if (opcode == nw_ws_opcode_ping) {
+                    dispatch_data_t content = dispatch_data_create([NSData new].bytes,
+                                                                   0,
+                                                                   dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
+                                                                   DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+
+                    nw_protocol_metadata_t metadata = nw_ws_create_metadata(nw_ws_opcode_pong);
+
+                    nw_content_context_t context = nw_content_context_create("send-pong");
+                    nw_content_context_set_metadata_for_protocol(context, metadata);
+                    
+                    nw_connection_send(connection,
+                                       nil,
+                                       context,
+                                       true,   // is_complete
+                                       ^(nw_error_t sendErr) {
+                        if (sendErr) {
+                            NSLog(@"[SBTUITestTunnel] SBTWebSocketServer send failed: %@", sendErr);
+                        }
+                    });
+                } else if (weakSelf.stubbedReceiveMessage) {
                     [weakSelf sendMessage:weakSelf.stubbedReceiveMessage];
                 }
             }
         }
         
+        
+        // Start listening for next event
         if (!err) {
             [weakSelf receiveOnConnection:connection];
         }

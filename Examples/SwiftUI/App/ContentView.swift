@@ -377,6 +377,9 @@ struct WebSocketView: View {
         .onAppear {
             webSocketManager.setup()
         }
+        .onDisappear {
+            webSocketManager.disconnect()
+        }
     }
 }
 
