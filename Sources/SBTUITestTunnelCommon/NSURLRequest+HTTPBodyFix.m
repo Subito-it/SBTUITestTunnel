@@ -155,6 +155,17 @@
     return ret;
 }
 
+- (id)sendableCopy
+{
+    NSMutableURLRequest *copy = [self mutableCopy];
+    if ([NSURLProtocol propertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:copy] != nil) {
+        [NSURLProtocol removePropertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:copy];
+        [NSURLProtocol removePropertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:copy];
+        copy.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    }
+    return copy;
+}
+
 + (void)load
 {
     static dispatch_once_t onceToken;

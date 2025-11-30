@@ -45,4 +45,7 @@
 /// Returns a copy of the request without the HTTP body
 - (NSURLRequest *)sbt_copyWithoutBody;
 
+/// Returns a copy that is sendable to another process
+- (id)sendableCopy;
+
 @end
