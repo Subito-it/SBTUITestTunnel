@@ -34,8 +34,6 @@
 // When using a request body (e.g., when matching stubs), previously marked upload requests _must_ exclusively
 // reference the copy from NSURLProtocol because the request's `HTTPBody` was cleared.
 
-NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSURLProtocolIsUploadTaskKey";
-
 + (NSData *)sbt_readFromBodyStream:(NSInputStream *)stream
 {
     if (!stream) {
