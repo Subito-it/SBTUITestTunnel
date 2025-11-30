@@ -124,12 +124,18 @@
 
 - (id)requestJSON
 {
-    if (!self.originalRequest.HTTPBody) {
+    NSData *data = self.requestData;
+    
+    if ([self.originalRequest.allHTTPHeaderFields[@"Content-Encoding"] isEqualToString:@"gzip"]) {
+        data = [data gzipInflate];
+    }
+    
+    if (data == nil) {
         return nil;
     }
     
     NSError *error = nil;
-    id ret = [NSJSONSerialization JSONObjectWithData:[self httpBodyFromRequest:self.originalRequest] options:NSJSONReadingMutableContainers error:&error];
+    id ret = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
