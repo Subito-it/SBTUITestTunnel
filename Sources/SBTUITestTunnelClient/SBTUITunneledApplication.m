@@ -17,6 +17,12 @@
 #import "include/SBTUITunneledApplication.h"
 #import "include/SBTUITestTunnelClient.h"
 
+// Maximum iterations when scrolling to find an element using fallback page-by-page scrolling.
+// With animation at 0.1s per iteration, this allows up to 10 seconds of scrolling.
+// Without animation at 0.05s per iteration, this allows up to 5 seconds of scrolling.
+// Increase this value if testing very long lists or slow-rendering content.
+static const NSInteger SBTUITestTunnelMaxScrollIterations = 100;
+
 @interface SBTUITunneledApplication () <SBTUITestTunnelClientDelegate>
 @property (nonatomic, strong) SBTUITestTunnelClient *client;
 @end
@@ -371,6 +377,105 @@
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
 {
     return [self.client scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
+}
+
+- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag
+{
+    return [self.client scrollScrollViewWithIdentifierByPage:identifier animated:flag];
+}
+
+#pragma mark - XCUITest unified scroll extensions
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
+{
+    XCUIElement *element = [[self descendantsMatchingType:XCUIElementTypeAny] elementMatchingType:XCUIElementTypeAny identifier:identifier];
+    
+    if (!element.exists) {
+        NSLog(@"[SBTUITestTunnel] Element with identifier '%@' not found", identifier);
+        return NO;
+    }
+    
+    XCUIElementType elementType = element.elementType;
+    
+    if (elementType == XCUIElementTypeTable) {
+        return [self scrollTableViewWithIdentifier:identifier toRowIndex:index animated:flag];
+    } else if (elementType == XCUIElementTypeCollectionView) {
+        return [self scrollCollectionViewWithIdentifier:identifier toElementIndex:index animated:flag];
+    } else {
+        NSLog(@"[SBTUITestTunnel] Element index scrolling not supported for element type %ld (only UITableView and UICollectionView support element index)", (long)elementType);
+        return NO;
+    }
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag
+{
+    XCUIElement *element = [[self descendantsMatchingType:XCUIElementTypeAny] elementMatchingType:XCUIElementTypeAny identifier:identifier];
+    
+    if (!element.exists) {
+        NSLog(@"[SBTUITestTunnel] Element with identifier '%@' not found", identifier);
+        return NO;
+    }
+    
+    XCUIElementType elementType = element.elementType;
+    
+    if (elementType == XCUIElementTypeTable) {
+        return [self scrollTableViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+    } else if (elementType == XCUIElementTypeCollectionView) {
+        return [self scrollCollectionViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+    } else {
+        // Try standard scroll view scrolling first
+        BOOL success = [self scrollScrollViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag];
+        
+        if (success) {
+            return YES;
+        }
+        
+        NSLog(@"[SBTUITestTunnel] Standard scrolling failed, re-try page-by-page scrolling");
+        [self scrollScrollViewWithIdentifier:identifier toOffset:0.0 animated:NO];
+        
+        // Scroll page by page until element is found in the accessibility tree or we reach the end
+        XCUIElement *targetElement = [[self descendantsMatchingType:XCUIElementTypeAny] elementMatchingType:XCUIElementTypeAny identifier:targetIdentifier];
+        NSInteger maxIterations = SBTUITestTunnelMaxScrollIterations;
+        
+        for (NSInteger i = 0; i < maxIterations; i++) {
+            if (targetElement.exists) {
+                // Check if element frame is within the visible bounds (at least 50%)
+                CGRect elementFrame = targetElement.frame;
+                CGRect windowFrame = self.frame;
+                
+                CGRect intersection = CGRectIntersection(elementFrame, windowFrame);
+                CGFloat elementArea = elementFrame.size.width * elementFrame.size.height;
+                CGFloat visibleArea = intersection.size.width * intersection.size.height;
+                
+                BOOL isSubstantiallyVisible = (elementArea > 0 && (visibleArea / elementArea) >= 0.5);
+                if (isSubstantiallyVisible) {
+                    return YES;
+                }
+            }
+            
+            BOOL scrolled = [self scrollScrollViewWithIdentifierByPage:identifier animated:flag];
+            if (!scrolled) {
+                // Reached the end without finding the element
+                break;
+            }
+            
+            // Give UI time to update
+            if (flag) {
+                [NSThread sleepForTimeInterval:0.1];
+            } else {
+                // Even without animation, the UI needs time to layout and update the accessibility tree
+                [NSThread sleepForTimeInterval:0.05];
+            }
+        }
+        
+        NSLog(@"[SBTUITestTunnel] Could not find element with identifier '%@' after scrolling", targetIdentifier);
+        return NO;
+    }
+}
+
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    return [self scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
 }
 
 
