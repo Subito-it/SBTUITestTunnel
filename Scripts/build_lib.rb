@@ -1,91 +1,109 @@
 #!/usr/bin/env ruby
-require "fileutils"
+require 'fileutils'
 
 module Build
-  EXAMPLE_APP_SCHEME = "SBTUITestTunnel"
-  UITESTS_SCHEME = "SBTUITestTunnel_Tests"
-  UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
-  UITESTS_MULTISCENE_SCHEME = "MultiSceneExample"
-
-  def self.run_build(project_path)
-    puts "⏳ Building app..."
-    return run_xcodebuild("clean build", project_path, EXAMPLE_APP_SCHEME)
+  def self.build_app(project_path, scheme, simulator_name = nil, simulator_os = nil)
+    puts "⏳ Building app for scheme '#{scheme}'..."
+    run_xcodebuild('clean build', project_path, scheme, simulator_name, simulator_os)
   end
 
-  def self.run_ui_tests(project_path)
-    puts "⏳ Run UITests..."
-    return run_xcodebuild("test", project_path, UITESTS_SCHEME)
+  def self.build_ui_tests(project_path, scheme, simulator_name = nil, simulator_os = nil)
+    puts "⏳ Building UI tests for scheme '#{scheme}'..."
+    run_xcodebuild('build-for-testing', project_path, scheme, simulator_name, simulator_os)
   end
 
-  def self.run_ui_tests_no_swizzling(project_path)
-    puts "⏳ Run UITests with no swizzling..."
-    return run_xcodebuild("test", project_path, UITESTS_NOSWIZZ_SCHEME)
+  def self.run_ui_tests(project_path, scheme, simulator_name = nil, simulator_os = nil)
+    puts "⏳ Running UI tests for scheme '#{scheme}'..."
+    run_xcodebuild('test', project_path, scheme, simulator_name, simulator_os)
   end
 
-  # The multi-scene tests exercise the multi-window path, which iOS only
-  # materialises on iPad. Run them against an iPad so both the launch-ordering
-  # test (device-agnostic) and the multi-scene test actually execute.
-  def self.run_ui_tests_multiscene(project_path)
-    puts "⏳ Run multi-scene UITests..."
-    return run_xcodebuild("test", project_path, UITESTS_MULTISCENE_SCHEME, family: "iPad")
-  end
-
-  def self.run_xcodebuild(action, path, scheme_name, family: "iPhone")
-    base_path = `git rev-parse --show-toplevel`.strip
-    workspace = "#{base_path}/#{path}"
-    destination = make_destination(family)
-    project_type = path.end_with?(".xcworkspace") ? "workspace" : "project"
+  def self.run_xcodebuild(action, path, scheme_name, simulator_name = nil, simulator_os = nil)
+    `git rev-parse --show-toplevel`.strip
+    destination = make_destination(simulator_name, simulator_os)
+    project_type = path.end_with?('.xcworkspace') ? 'workspace' : 'project'
     result_bundle_path = make_result_bundle_path(scheme_name)
-    command = "xcodebuild #{action} -scheme #{scheme_name} -#{project_type} #{path} -sdk iphonesimulator -retry-tests-on-failure -test-iterations 5 -destination \"#{destination}\" -resultBundlePath \"#{result_bundle_path}\" | xcpretty && exit ${PIPESTATUS[0]}"
+    command = "xcodebuild #{action} -scheme #{scheme_name} -#{project_type} #{path} -sdk iphonesimulator -retry-tests-on-failure -test-iterations 3 -destination \"#{destination}\" -resultBundlePath \"#{result_bundle_path}\" | xcpretty && exit ${PIPESTATUS[0]}"
     result = system(command)
     if result
-      puts "XcodeBuild status: ✅ SUCCESS"
+      puts 'XcodeBuild status: ✅ SUCCESS'
     else
-      puts "XcodeBuild status: 🚨 FAILED"
+      puts 'XcodeBuild status: 🚨 FAILED'
     end
-    return result
+    result
   end
 
   def self.make_result_bundle_path(scheme_name)
-    bundle_files = Dir.glob("#{scheme_name}*")
-    if !bundle_files.empty?
+    bundle_files = Dir.glob("#{scheme_name}*.xcresult")
+    unless bundle_files.empty?
       puts "🧹 Delete result bundle files: '#{bundle_files}'"
       FileUtils.rm_r(bundle_files)
     end
-    return "#{scheme_name}.xcresult"
+    "#{scheme_name}.xcresult"
   end
 
-  def self.make_destination(family = "iPhone")
-    platform = "iOS Simulator"
-    udid = available_simulators(family)
-    destination = "platform=#{platform},id=#{udid}"
-    puts "🎯 Selected destination: '#{destination}'"
-    return destination
+  def self.make_destination(simulator_name = nil, simulator_os_prefix = nil)
+    platform = 'iOS Simulator'
+    if simulator_name && simulator_os_prefix
+      os_version = find_matching_os_version(simulator_name, simulator_os_prefix)
+      if os_version
+        destination = "platform=#{platform},name=#{simulator_name},OS=#{os_version}"
+        puts "🎯 Using destination: '#{destination}'"
+      else
+        puts "⚠️ No simulator found for #{simulator_name} with iOS #{simulator_os_prefix}.x, falling back to auto-detect"
+        device = detect_simulator
+        destination = "platform=#{platform},name=#{device}"
+        puts "🎯 Auto-detected destination: '#{destination}'"
+      end
+    else
+      device = detect_simulator
+      destination = "platform=#{platform},name=#{device}"
+      puts "🎯 Auto-detected destination: '#{destination}'"
+    end
+    destination
   end
 
-  def self.available_simulators(family = "iPhone")
-    # Return the UDID of an *available* simulator of the requested family on the
-    # newest installed iOS runtime. Selecting by UDID (rather than name) avoids
-    # the ambiguity where a bare name resolves to OS:latest even though that
-    # device exists only on an older runtime.
-    #
-    # The runtime must be chosen explicitly: runners keep multiple Xcodes (hence
-    # multiple iOS runtimes) installed side by side, so a plain "first device"
-    # scan can land on a stale runtime even after selecting a newer Xcode.
-    # Always target the highest available iOS version.
-    require "json"
-    devices = JSON.parse(`xcrun simctl list devices available --json`)["devices"]
+  def self.find_matching_os_version(simulator_name, os_prefix)
+    # List all available simulators and find matching OS versions
+    output = `xcrun simctl list devices available -j 2>/dev/null`
+    require 'json'
+    begin
+      devices = JSON.parse(output)['devices']
+      matching_versions = []
 
-    newest_runtime = devices.keys
-      .select { |id| id.include?("SimRuntime.iOS-") }
-      .max_by { |id| id[/iOS-([\d-]+)/, 1].split("-").map(&:to_i) }
-    raise "No available iOS simulator runtime found" unless newest_runtime
+      devices.each do |runtime, device_list|
+        # runtime format: "com.apple.CoreSimulator.SimRuntime.iOS-18-4"
+        next unless runtime.include?('iOS')
 
-    device = (devices[newest_runtime] || []).find { |d| d["name"].start_with?(family) }
-    raise "No available #{family} simulator found on #{newest_runtime}" unless device
+        # Extract version from runtime string
+        version_match = runtime.match(/iOS[.-](\d+)[.-](\d+)/)
+        next unless version_match
 
-    ios_version = newest_runtime[/iOS-([\d-]+)/, 1].tr("-", ".")
-    puts "📱 Selected simulator: '#{device["name"]}' (iOS #{ios_version})"
-    return device["udid"]
+        major = version_match[1]
+        minor = version_match[2]
+        version = "#{major}.#{minor}"
+
+        # Check if this runtime has our simulator and matches the prefix
+        next unless major == os_prefix.to_s || version.start_with?(os_prefix.to_s)
+
+        has_simulator = device_list.any? { |d| d['name'] == simulator_name && d['isAvailable'] }
+        matching_versions << version if has_simulator
+      end
+
+      # Sort versions and return the highest one
+      if matching_versions.any?
+        highest = matching_versions.sort_by { |v| v.split('.').map(&:to_i) }.last
+        puts "📱 Found #{simulator_name} with iOS #{highest} (matching prefix #{os_prefix})"
+        return highest
+      end
+    rescue => e
+      puts "⚠️ Error parsing simulators: #{e.message}"
+    end
+    nil
+  end
+
+  def self.detect_simulator
+    device = `xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`.strip
+    puts "📱 Auto-detected simulator: '#{device}'"
+    device
   end
 end
