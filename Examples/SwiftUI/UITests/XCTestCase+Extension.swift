@@ -1,0 +1,49 @@
+// XCTestCase+Extension.swift
+//
+// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import XCTest
+
+extension XCTestCase {
+    func wait(withTimeout timeout: TimeInterval = 30, assertOnFailure: Bool = true, for predicateBlock: @escaping () -> Bool) {
+        let predicate = NSPredicate { _, _ in predicateBlock() }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+
+        let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
+
+        if assertOnFailure {
+            XCTAssert(result == .completed)
+        }
+    }
+
+    func openTestSection(identifier: String) {
+        /// Intentionally avoid looking for a specific scrollable content view implementation (e.g. scrollView, tableView, ...)
+
+        wait {
+            self.app.descendants(matching: .any)
+                .matching(identifier: "example_list")
+                .firstMatch
+                .exists
+        }
+
+        app.scrollContent(withIdentifier: "example_list", toElementWithIdentifier: identifier, animated: true)
+
+        app.collectionViews["example_list"]
+            .descendants(matching: .any)
+            .matching(identifier: identifier)
+            .firstMatch
+            .tap()
+    }
+}
