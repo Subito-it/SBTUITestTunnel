@@ -1,0 +1,120 @@
+// WebSocketManager.swift
+//
+// Copyright (C) 2026 Subito.it S.r.l (www.subito.it)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import SwiftUI
+
+class WebSocketManager: ObservableObject {
+    @Published var connectionStatus = "unknown"
+    @Published var networkResult = ""
+
+    private var socket: URLSessionWebSocketTask?
+    private var timer: Timer?
+
+    func setup() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.handleTimer()
+        }
+
+        let port = UserDefaults.standard.integer(forKey: "websocketport")
+        
+        // Replace with wss://echo.websocket.org to live test
+        let url = URL(string: "ws://localhost:\(port)")!
+        
+        socket = URLSession.shared.webSocketTask(with: url)
+        socket?.resume()
+    }
+
+    func sendMessage() {
+        let message = URLSessionWebSocketTask.Message.string("Hello, world!")
+        networkResult = "Send message..."
+        socket?.send(message) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error {
+                    self?.networkResult = "⚠️ WebSocket couldn't send message: \(error)"
+                } else {
+                    self?.networkResult = "Sent: Hello, world!"
+                }
+            }
+        }
+    }
+
+    func receiveMessage() {
+        networkResult = "Receive message..."
+        socket?.receive { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case let .failure(error):
+                    self?.networkResult = "⚠️ WebSocket receive error: \(error)"
+                case let .success(message):
+                    switch message {
+                    case let .string(text):
+                        self?.networkResult = "Received text: \(text)"
+                    case let .data(data):
+                        self?.networkResult = "Received binary data: \(data.count) bytes"
+                    @unknown default:
+                        self?.networkResult = "Received unexpected message"
+                    }
+                }
+            }
+        }
+    }
+
+    func sendPing() {
+        networkResult = "Send ping..."
+
+        // Register receive before sendPing to avoid dropping the pong.
+        socket?.receive { result in
+            print(#function, result)
+        }
+
+        socket?.sendPing { [weak self] error in
+            DispatchQueue.main.async {
+                if let error {
+                    self?.networkResult = "⚠️ WebSocket couldn't send ping: \(error)"
+                } else {
+                    self?.networkResult = "Pong received"
+                }
+            }
+        }
+    }
+
+    func disconnect() {
+        socket?.cancel(with: .goingAway, reason: nil)
+        socket = nil
+        networkResult = "Disconnected"
+    }
+
+    private func handleTimer() {
+        guard let state = socket?.state else { return }
+
+        let label = switch state {
+        case .running: "connected"
+        case .canceling: "cancelled"
+        case .completed: "closed"
+        case .suspended: "suspended"
+        @unknown default: "unknown"
+        }
+
+        if connectionStatus != label {
+            connectionStatus = label
+        }
+    }
+
+    deinit {
+        timer?.invalidate()
+        socket?.cancel()
+    }
+}
