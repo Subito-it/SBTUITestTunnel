@@ -32,8 +32,13 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: "SBTUITestTunnel_Tests/Info.plist"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
     sources:
-      - SBTUITestTunnel_Tests
+      - path: SBTUITestTunnel_Tests
+        excludes:
+          - "*.swift"
+      - path: ../SharedUITests
+        name: SharedUITests
     dependencies:
       - target: SBTUITestTunnel_Example
 
@@ -46,6 +51,7 @@ targets:
         GCC_PREPROCESSOR_DEFINITIONS:
           ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
         INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
     sources:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
