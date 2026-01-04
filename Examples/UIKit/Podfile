@@ -1,21 +1,21 @@
 source "https://cdn.cocoapods.org/"
 
-deployment_target = File.read("../SBTUITestTunnelClient.podspec").scan(/s.ios.deployment_target = "(.*?)"/)[0][0]
+deployment_target = File.read("../../SBTUITestTunnelClient.podspec").scan(/s.ios.deployment_target = "(.*?)"/)[0][0]
 
 use_frameworks!
 platform :ios, deployment_target
 
 def test_target
   # This is used only for testing purposes
-  pod "SBTUITestTunnelServer", :path => "../"
+  pod "SBTUITestTunnelServer", :path => "../../"
   # You should normally use SBTUITestTunnelClient only instead
-  pod "SBTUITestTunnelClient", :path => "../"
-  pod "SBTUITestTunnelCommon", :path => "../"
+  pod "SBTUITestTunnelClient", :path => "../../"
+  pod "SBTUITestTunnelCommon", :path => "../../"
 end
 
 target "SBTUITestTunnel_Example" do
-  pod "SBTUITestTunnelServer", :path => "../"
-  pod "SBTUITestTunnelCommon", :path => "../"
+  pod "SBTUITestTunnelServer", :path => "../../"
+  pod "SBTUITestTunnelCommon", :path => "../../"
 end
 
 target "SBTUITestTunnel_Tests" do

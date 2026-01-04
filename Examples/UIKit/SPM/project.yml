@@ -31,6 +31,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: "../SBTUITestTunnel_Tests/Info.plist"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
 
 schemes:
   SBTUITestTunnel:

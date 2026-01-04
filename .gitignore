@@ -66,19 +66,23 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 
-Example/SBTUITestTunnel.xcworkspace/xcuserdata
+Examples/UIKit/SBTUITestTunnel.xcworkspace/xcuserdata
 push_to_trunk.sh
 push_to_trunk_readme.md
 
 # Visual Studio Code files
 .vscode
 
-# XcodeGen
-Example/Pods/
-Example/Podfile.lock
+# XcodeGen generated files
 *.xcodeproj/
 *.xcworkspace/
 *.xcresult/
+
+# CocoaPods (in Example directories)
+Example/Pods/
+Example/Podfile.lock
+Examples/*/Pods/
+Examples/*/Podfile.lock
 
 # SwiftPM resolved files
 *.resolved
