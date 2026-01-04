@@ -1,0 +1,60 @@
+name: UIKit Tests
+
+on: [pull_request, workflow_dispatch]
+
+env:
+  xcode_version: "16.4"
+  simulator_name: "iPhone 14"
+  simulator_os: "18"
+
+jobs:
+  test:
+    runs-on: macos-15
+    name: UIKit Tests
+    timeout-minutes: 30
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate UIKit project
+        run: |
+          cd Examples/UIKit
+          xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
+          pod install --verbose
+          if [ $? -ne 0 ]; then echo "Pod install failed" && exit 1; fi
+      - name: Build UIKit App
+        run: |
+          Scripts/build_app.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Build UIKit UI Tests
+        run: |
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_Tests "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Run UIKit UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_Tests "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Collect UIKit UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_UIKit_Tests.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: success() || failure()
+      - name: Build UIKit No Swizzling UI Tests
+        run: |
+          Scripts/build_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_NoSwizzlingTests "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Run UIKit No Swizzling UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_NoSwizzlingTests "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Collect UIKit No Swizzling UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_UIKit_NoSwizzling.xcresult
+          path: SBTUITestTunnel_NoSwizzlingTests.xcresult
+        if: success() || failure()

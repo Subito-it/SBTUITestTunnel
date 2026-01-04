@@ -1,0 +1,46 @@
+name: SwiftUI Tests
+
+on: [pull_request, workflow_dispatch]
+
+env:
+  xcode_version: "26.2"
+  simulator_name: "iPhone 17 Pro"
+  simulator_os: "26"
+
+jobs:
+  test:
+    runs-on: macos-26
+    name: SwiftUI Tests
+    timeout-minutes: 30
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate SwiftUI project
+        run: |
+          cd Examples/SwiftUI
+          xcodegen generate
+          if [ $? -ne 0 ]; then echo "XcodeGen failed" && exit 1; fi
+      - name: Build SwiftUI App
+        run: |
+          Scripts/build_app.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Build SwiftUI UI Tests
+        run: |
+          Scripts/build_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Run SwiftUI UI Tests
+        run: |
+          Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI "${{ env.simulator_name }}" "${{ env.simulator_os }}"
+      - name: Collect SwiftUI UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_SwiftUI_Tests.xcresult
+          path: SwiftUI.xcresult
+        if: success() || failure()
