@@ -1177,6 +1177,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         if ([self view:view hasIdentifier:identifier]) {
             return view;
         }
+        // SwiftUI can expose identifiers on virtual accessibility elements
+        // rather than on the hosting UIView itself.
+        for (NSObject *element in view.accessibilityElements) {
+            @try {
+                if ([[element valueForKey:@"accessibilityIdentifier"] isEqualToString:identifier]) {
+                    return view;
+                }
+            } @catch (NSException *exception) {
+                continue;
+            }
+        }
     }
     return nil;
 }
