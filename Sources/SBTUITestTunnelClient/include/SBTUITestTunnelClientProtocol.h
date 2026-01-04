@@ -550,6 +550,16 @@
  */
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
 
+/**
+ *  Scroll UIScrollView view by one page (vertical or horizontal depending on scroll direction)
+ *
+ *  @param identifier accessibilityIdentifier of the UIScrollView
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the scroll view is already at the end or scroll view not found
+ */
+- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag;
+
 #pragma mark - XCUITest 3D touch extensions
 
 /**
