@@ -16,7 +16,7 @@
 
 @import SBTUITestTunnelCommon;
 
-#import "SBTProxyURLProtocol.h"
+#import "include/SBTProxyURLProtocol.h"
 
 static NSString * const SBTProxyURLOriginalRequestKey = @"SBTProxyURLOriginalRequestKey";
 static NSString * const SBTProxyURLProtocolHandledKey = @"SBTProxyURLProtocolHandledKey";
