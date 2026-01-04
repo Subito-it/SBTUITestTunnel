@@ -822,6 +822,16 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
 }
 
+- (BOOL)scrollScrollViewWithIdentifierByPage:(NSString *)identifier animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewByPage params:params] boolValue];
+}
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier
