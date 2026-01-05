@@ -313,6 +313,29 @@ Perform precise scrolling operations on collection views, table views, and scrol
 > app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
 > ```
 
+### ✨ Unified Scrolling API (NEW)
+
+The unified API automatically detects the view type and works with UITableView, UICollectionView, and UIScrollView.
+
+```swift
+// 🎯 Scroll to element by identifier (works for all view types)
+app.scrollContent(withIdentifier: "myScrollableView", 
+                 toElementWithIdentifier: "targetElement", 
+                 animated: true)
+
+// 📍 Scroll to specific index (TableView/CollectionView only)
+app.scrollContent(withIdentifier: "myList", 
+                 toElementIndex: 10, 
+                 animated: true)
+
+// 📏 Scroll to normalized offset (0.0 - 1.0)
+app.scrollContent(withIdentifier: "myScrollView", 
+                 toOffset: 0.75,  // 75% down
+                 animated: true)
+```
+
+> 💡 **SwiftUI Support**: For UIScrollView, if standard scrolling fails (common in SwiftUI), the API automatically falls back to page-by-page scrolling until the target element is visible.
+
 ### 📋 Table Views
 
 ```swift
@@ -352,6 +375,10 @@ app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
 app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
                                   toOffset: 0.75,  // 75% down
                                   animated: true)
+
+// 📄 Scroll by one page (vertical or horizontal)
+app.scrollScrollViewWithIdentifierByPage(withIdentifier: "contentScroll", 
+                                        animated: true)
 ```
 
 ---
