@@ -40,7 +40,7 @@ class Extension6Test: BaseTest {}
 class Extension7Test: BaseTest {}
 class CrashTest: BaseTest {}
 
-class SBTTableViewController: UITableViewController {
+@objc class SBTTableViewController: UITableViewController {
     fileprivate var sessionTask: URLSessionTask!
     fileprivate var sessionSemaphore: DispatchSemaphore?
     fileprivate var sessionData: Data?
@@ -49,6 +49,17 @@ class SBTTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.accessibilityIdentifier = "example_list"
+
+        // Register all cell types programmatically
+        let cellIdentifiers = [
+            "networkConnectionCell", "webSocketConnectionCell", "autocompleteCell",
+            "cookieCell", "extension1Cell", "extension2Cell", "extension3Cell",
+            "extension4Cell", "extension5Cell", "extension6Cell", "extension7Cell",
+            "crashCell", "baseCell"
+        ]
+        for identifier in cellIdentifiers {
+            tableView.register(UITableViewCell.self, forCellReuseIdentifier: identifier)
+        }
     }
 
     private let testList: [BaseTest] = [NetworkTest(testSelector: #selector(executeDataTaskRequest)),
@@ -116,20 +127,12 @@ class SBTTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    override func shouldPerformSegue(withIdentifier _: String, sender _: Any?) -> Bool {
-        return false
-    }
+    // MARK: - Programmatic Navigation
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        switch (segue.destination, sender) {
-        case (is SBTNetworkTestViewController, is Data):
-            let vc = segue.destination as! SBTNetworkTestViewController
-            let resultData = sender as! Data
-
-            vc.networkResultString = resultData.base64EncodedString()
-        default:
-            break
-        }
+    private func showNetworkResult(data: Data) {
+        let vc = SBTNetworkTestViewController()
+        vc.networkResultString = data.base64EncodedString()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -185,7 +188,7 @@ extension SBTTableViewController {
             if shouldPushResult {
                 DispatchQueue.main.async { [weak self] in
                     let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -221,7 +224,7 @@ extension SBTTableViewController {
             if shouldPushResult {
                 DispatchQueue.main.async { [weak self] in
                     let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -259,7 +262,7 @@ extension SBTTableViewController {
             if shouldPushResult {
                 DispatchQueue.main.async { [weak self] in
                     let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -287,7 +290,7 @@ extension SBTTableViewController {
                 DispatchQueue.main.async { [weak self] in
                     let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
                     let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -315,7 +318,7 @@ extension SBTTableViewController {
                 DispatchQueue.main.async { [weak self] in
                     let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
                     let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -343,7 +346,7 @@ extension SBTTableViewController {
                 DispatchQueue.main.async { [weak self] in
                     let retHeaders = self?.sessionResponse?.allHeaderFields as? [String: String]
                     let retDict = self?.returnDictionary(status: self?.sessionResponse?.statusCode, headers: retHeaders, data: self?.sessionData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
@@ -414,31 +417,36 @@ extension SBTTableViewController {
     }
 
     @objc func executeWebSocket() {
-        performSegue(withIdentifier: "webSocketSegue", sender: nil)
+        let vc = SBTWebSocketTestViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension SBTTableViewController {
     @objc func showAutocompleteForm() {
-        performSegue(withIdentifier: "autocompleteSegue", sender: nil)
+        let vc = SBTAutocompleteViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension SBTTableViewController {
     @objc func showExtensionTable1() {
-        performSegue(withIdentifier: "extensionTable1Segue", sender: nil)
+        let targetViewController = SBTExtensionTableViewController1()
+        navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
 
 extension SBTTableViewController {
     @objc func showExtensionTable2() {
-        performSegue(withIdentifier: "extensionTable2Segue", sender: nil)
+        let targetViewController = SBTExtensionTableViewController2()
+        navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
 
 extension SBTTableViewController {
     @objc func showExtensionScrollView() {
-        performSegue(withIdentifier: "extensionScrollSegue", sender: nil)
+        let targetViewController = SBTExtensionScrollViewController()
+        navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
 
@@ -508,7 +516,7 @@ extension SBTTableViewController {
             if shouldPushResult {
                 DispatchQueue.main.async { [weak self] in
                     let retDict = self?.returnDictionary(status: retResponse.statusCode, headers: retHeaders, data: retData) ?? [:]
-                    self?.performSegue(withIdentifier: "networkSegue", sender: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
+                    self?.showNetworkResult(data: try! JSONSerialization.data(withJSONObject: retDict, options: .prettyPrinted))
                 }
             }
         }
