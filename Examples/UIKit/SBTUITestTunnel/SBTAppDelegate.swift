@@ -22,16 +22,7 @@ import UserNotifications
 
 @main
 class SBTAppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
-
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Setup window and root view controller programmatically
-        window = UIWindow(frame: UIScreen.main.bounds)
-        let rootVC = SBTTableViewController(style: .plain)
-        let navController = UINavigationController(rootViewController: rootVC)
-        window?.rootViewController = navController
-        window?.makeKeyAndVisible()
-
         SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnNil") { object in
             UserDefaults.standard.set(object, forKey: "custom_command_test")
             UserDefaults.standard.synchronize()
@@ -98,5 +89,11 @@ class SBTAppDelegate: UIResponder, UIApplicationDelegate {
         print("Tunnel established: \(didTakeOff)")
 
         return true
+    }
+
+    // MARK: UISceneSession Lifecycle
+
+    func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 }
