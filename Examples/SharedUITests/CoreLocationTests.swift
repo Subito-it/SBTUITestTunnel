@@ -1,6 +1,6 @@
 // CoreLocationTests.swift
 //
-// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2020 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,10 +23,9 @@ class CoreLocationTests: XCTestCase {
         app.launchTunnel()
 
         app.coreLocationStubEnabled(true)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
         openTestSection(identifier: "showCoreLocationViewController")
-        wait { self.app.staticTexts["location_status"].label == "-" }
+        wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
 
         app.coreLocationStubAuthorizationStatus(.notDetermined)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .notDetermined)
@@ -200,18 +199,15 @@ class CoreLocationTests: XCTestCase {
 
         openTestSection(identifier: "showCoreLocationViewController")
 
-        let getLocationButton = app.buttons["Get manager current location"]
-        XCTAssertTrue(getLocationButton.waitForExistence(timeout: 5))
-
-        getLocationButton.tap()
-        wait(withTimeout: 5) {
+        app.buttons["Get manager current location"].tap()
+        wait(withTimeout: 2) {
             self.app.staticTexts["manager_location"].label == "nil"
         }
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
 
-        getLocationButton.tap()
-        wait(withTimeout: 5) {
+        app.buttons["Get manager current location"].tap()
+        wait(withTimeout: 2) {
             self.app.staticTexts["manager_location"].label == "44.0 \(11.1)"
         }
     }

@@ -28,6 +28,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentTableViewToIndex() {
         openTestSection(identifier: "showExtensionTable1")
 
+        wait { self.app.staticTexts["Label 5"].isHittable }
         XCTAssert(app.staticTexts["Label 5"].isHittable)
         XCTAssertFalse(app.staticTexts["Label 99"].isHittable)
 
@@ -40,23 +41,26 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentTableViewToOffset() {
         openTestSection(identifier: "showExtensionTable1")
 
+        wait { self.app.staticTexts["Label 4"].isHittable }
         XCTAssert(app.staticTexts["Label 4"].isHittable)
-        XCTAssertFalse(app.staticTexts["Label 40"].isHittable)
+        XCTAssertFalse(app.staticTexts["Label 80"].isHittable)
 
-        XCTAssertTrue(app.scrollContent(withIdentifier: "table", toOffset: 0.5, animated: false))
+        // Scroll to bottom portion where Label 80 should be visible on both platforms
+        XCTAssertTrue(app.scrollContent(withIdentifier: "table", toOffset: 0.85, animated: false))
 
         XCTAssertFalse(app.staticTexts["Label 4"].isHittable)
-        XCTAssert(app.staticTexts["Label 40"].isHittable)
+        XCTAssert(app.staticTexts["Label 80"].isHittable)
 
         XCTAssertTrue(app.scrollContent(withIdentifier: "table", toOffset: 0, animated: false))
 
         XCTAssert(app.staticTexts["Label 4"].isHittable)
-        XCTAssertFalse(app.staticTexts["Label 40"].isHittable)
+        XCTAssertFalse(app.staticTexts["Label 80"].isHittable)
     }
 
     func testScrollContentTableViewToIdentifier() {
         openTestSection(identifier: "showExtensionTable1")
 
+        wait { self.app.staticTexts["Label 5"].isHittable }
         XCTAssert(app.staticTexts["Label 5"].isHittable)
         XCTAssertFalse(app.staticTexts["Label 99"].isHittable)
 
@@ -76,6 +80,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentCollectionViewVertical() {
         openTestSection(identifier: "showExtensionCollectionViewVertical")
 
+        wait { self.app.buttons["Button 3"].isHittable }
         XCTAssert(app.buttons["Button 3"].isHittable)
         XCTAssertFalse(app.buttons["Button 30"].isHittable)
 
@@ -88,6 +93,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentCollectionViewHorizontal() {
         openTestSection(identifier: "showExtensionCollectionViewHorizontal")
 
+        wait { self.app.staticTexts["3"].isHittable }
         XCTAssert(app.staticTexts["3"].isHittable)
         XCTAssertFalse(app.staticTexts["30"].isHittable)
 
@@ -100,6 +106,7 @@ class ScrollContentTests: XCTestCase {
     func testScrollContentScrollViewToOffset() {
         openTestSection(identifier: "showExtensionScrollView")
 
+        wait { self.app.scrollViews["scrollView"].staticTexts["Content 0"].isHittable }
         XCTAssert(app.scrollViews["scrollView"].staticTexts["Content 0"].isHittable)
         XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
 
