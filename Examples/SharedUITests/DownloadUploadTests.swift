@@ -24,8 +24,12 @@ class DownloadUploadTests: XCTestCase {
 
         app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
 
-        expectation(for: NSPredicate(format: "count > 0"), evaluatedWith: app.tables)
-        waitForExpectations(timeout: 15.0, handler: nil)
+        wait(withTimeout: 15.0) {
+            self.app.descendants(matching: .any)
+                .matching(identifier: "example_list")
+                .firstMatch
+                .exists
+        }
 
         Thread.sleep(forTimeInterval: 1.0)
     }
@@ -81,12 +85,11 @@ class DownloadUploadTests: XCTestCase {
     }
 
     func testMonitorPostRequestWithHTTPLargeBodyInAppProcess() {
-        let largeBody = String(repeating: "a", count: 20000)
+        let largeBody = String(repeating: "a", count: 20_000)
         let matchingRequest = SBTRequestMatch(url: "postman-echo.com", method: "POST")
         app.monitorRequests(matching: matchingRequest)
 
-        XCTAssertTrue(app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].waitForExistence(timeout: 5))
-        app.tables.firstMatch.staticTexts["executePostDataTaskRequestWithLargeHTTPBody"].tap()
+        openTestSection(identifier: "executePostDataTaskRequestWithLargeHTTPBody")
 
         XCTAssertTrue(app.waitForMonitoredRequests(matching: matchingRequest, timeout: 10))
         let requests = app.monitoredRequestsFlushAll()
