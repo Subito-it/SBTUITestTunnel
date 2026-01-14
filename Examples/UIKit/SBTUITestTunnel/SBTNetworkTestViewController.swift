@@ -17,12 +17,29 @@
 import UIKit
 
 class SBTNetworkTestViewController: UIViewController {
-    @IBOutlet var networkResult: UITextView!
+    private let networkResult = UITextView()
     var networkResultString: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        view.backgroundColor = .white
+        setupUI()
         networkResult.text = networkResultString
+    }
+
+    private func setupUI() {
+        networkResult.translatesAutoresizingMaskIntoConstraints = false
+        networkResult.isEditable = false
+        networkResult.isSelectable = false
+        networkResult.font = .systemFont(ofSize: 14)
+        networkResult.accessibilityIdentifier = "result"
+        view.addSubview(networkResult)
+
+        NSLayoutConstraint.activate([
+            networkResult.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            networkResult.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            networkResult.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            networkResult.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
 }
