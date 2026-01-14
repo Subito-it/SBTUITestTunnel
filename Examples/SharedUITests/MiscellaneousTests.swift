@@ -1,6 +1,6 @@
 // MiscellaneousTests.swift
 //
-// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,13 +20,6 @@ import SBTUITestTunnelServer
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
-    override func setUp() {
-        super.setUp()
-        // Different tests in this class have different launch requirements
-        // Some need launchTunnel, some need launchConnectionless
-        // Individual methods will handle their own launch setup
-    }
-
     func testLaunchTimeWithStubs() throws {
         func stubAndGetDuration(amount: Int) -> CFAbsoluteTime {
             let start = CFAbsoluteTimeGetCurrent()
@@ -118,9 +111,15 @@ class MiscellaneousTests: XCTestCase {
 
         openTestSection(identifier: "executeDataTaskRequest")
 
-        let textResult = app.staticTexts["result"]
-        wait { textResult.exists }
-        let result = textResult.label
+        #if SWIFTUI_APP
+            let textResult = app.staticTexts["result"]
+            wait { textResult.exists }
+            let result = textResult.label
+        #else
+            let textResult = app.textViews["result"]
+            wait { textResult.exists }
+            let result = textResult.value as! String
+        #endif
         let resultData = Data(base64Encoded: result)!
         let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
 
@@ -144,9 +143,12 @@ class MiscellaneousTests: XCTestCase {
         app.launchTunnel()
         XCTAssert(app.wait(for: .runningForeground, timeout: 5))
 
-        // SwiftUI: Wait for any button in the main list to appear (app successfully restarted)
-        let anyTestButton = app.buttons["executeDataTaskRequest"]
-        XCTAssertTrue(anyTestButton.waitForExistence(timeout: 15.0), "App should show test buttons after restart")
+        wait(withTimeout: 15.0) {
+            self.app.descendants(matching: .any)
+                .matching(identifier: "example_list")
+                .firstMatch
+                .exists
+        }
     }
 
     func testLaunchArgumentsResetBetweenLaunches() {
@@ -165,6 +167,131 @@ class MiscellaneousTests: XCTestCase {
         // UserDefaults shouldn't get reset
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as? String)
     }
+
+    /// UIKit-specific legacy scrolling tests (modern tests are in: ScrollContentTests.swift)
+    #if UIKIT_APP
+        func testTableViewScrolling() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionTable1")
+
+            XCTAssert(app.staticTexts["Label 5"].isHittable)
+            XCTAssertFalse(app.staticTexts["Label 99"].isHittable)
+
+            XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRowIndex: 99, animated: false))
+
+            XCTAssertFalse(app.staticTexts["Label 5"].isHittable)
+            XCTAssert(app.staticTexts["Label 99"].isHittable)
+        }
+
+        func testTableViewScrolling2() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionTable2")
+
+            XCTAssertFalse(app.staticTexts["80"].isHittable)
+
+            XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true))
+
+            XCTAssert(app.staticTexts["80"].isHittable)
+        }
+
+        func testCollectionViewScrollingVertical() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewVertical")
+
+            XCTAssertFalse(app.buttons["Button 30"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 30, animated: true))
+            XCTAssert(app.buttons["Button 30"].isHittable)
+
+            XCTAssertFalse(app.buttons["Button 50"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "button_50", animated: true))
+            XCTAssert(app.buttons["Button 50"].isHittable)
+        }
+
+        func testCollectionViewScrollingHorizontal() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewHorizontal")
+
+            XCTAssertFalse(app.staticTexts["10"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 10, animated: true))
+            XCTAssert(app.staticTexts["10"].isHittable)
+
+            XCTAssertFalse(app.staticTexts["40"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true))
+            XCTAssert(app.staticTexts["40"].isHittable)
+        }
+
+        func testScrollViewScrollToElement() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionScrollView")
+
+            XCTAssertFalse(app.buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
+
+            XCTAssert(app.buttons["Button"].isHittable)
+        }
+
+        func testScrollViewScrollToElementWithKeyboardVisible() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewWithKeyboard")
+
+            let textField = app.textFields["keyboardTextField"]
+            wait { textField.isHittable }
+            textField.tap()
+
+            wait { self.app.keyboards.count > 0 }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollViewWithKeyboard", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is centered in the visible area (between collection view top and keyboard top)
+            let collectionView = app.collectionViews["scrollViewWithKeyboard"]
+            let keyboard = app.keyboards.firstMatch
+            let visibleTop = collectionView.frame.minY
+            let visibleBottom = keyboard.frame.minY
+            let visibleMidY = (visibleTop + visibleBottom) / 2.0
+
+            let elementMidY = element.frame.midY
+
+            let tolerance = element.frame.height / 2.0 + 50.0
+            XCTAssertEqual(
+                elementMidY,
+                visibleMidY,
+                accuracy: tolerance,
+                "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+            )
+        }
+
+        func testScrollViewScrollToOffset() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionScrollView")
+
+            XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.65, animated: true))
+
+            XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.0, animated: true))
+
+            XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+        }
+    #endif
 
     func testUrlProtocolIsRegisteredWhenRunningUITests() {
         app.launchTunnel()
@@ -222,7 +349,7 @@ class MiscellaneousTests: XCTestCase {
         let last5avg = durations.suffix(5).reduce(0, +) / 5
 
         for duration in durations.dropFirst() {
-            XCTAssertTrue(duration < last5avg * 4.0, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
+            XCTAssertTrue(duration < last5avg * 2.5, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
         }
     }
 
@@ -233,12 +360,11 @@ class MiscellaneousTests: XCTestCase {
 
         XCTAssert(app.monitorRequestRemoveAll())
         openTestSection(identifier: "crashApp")
-        app.buttons["crashApp"].tap()
 
         Thread.sleep(forTimeInterval: 2.0)
 
         XCTAssertFalse(app.monitorRequestRemoveAll())
-        XCTAssertFalse(app.buttons["crashApp"].exists)
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "crashApp").firstMatch.exists)
         XCTAssertFalse(app.wait(for: .runningForeground, timeout: 0.1))
     }
 }

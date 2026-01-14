@@ -1,6 +1,6 @@
 // NotificationCenterTests.swift
 //
-// Copyright (C) 2025 Subito.it S.r.l (www.subito.it)
+// Copyright (C) 2021 Subito.it S.r.l (www.subito.it)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class NotificationCenterTests: XCTestCase {
 
     private func getStubbedNotificationCenterAuthorizationRequest() -> Bool {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnUNAuthRequest", object: nil) as! String
-        return Bool(statusString)!
+        return Int(statusString) == 1
     }
 
     private func getStubbedNotificationCenterAuthorizationStatus() -> UNAuthorizationStatus {
