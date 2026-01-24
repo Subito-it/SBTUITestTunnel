@@ -577,30 +577,41 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
+    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:dataTask];
+    if (taskData == nil) {
+        // This can happen if reset was called while a request was in-flight (e.g., between tests).
+        // The request is stale, so we skip processing entirely.
+        NSLog(@"[SBTUITestTunnel] Warning: received data for stale request (reset was called), URL: %@", dataTask.originalRequest.URL);
+        return;
+    }
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     if ([self rewriteRuleFromMatchingRules:matchingRules] != nil) {
         // if we're rewriting the request we will send only a didLoadData callback after rewriting content once everything was received
     } else {
         [self.client URLProtocol:self didLoadData:data];
     }
-    
-    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:dataTask];
-    NSAssert(taskData != nil, @"Should not be nil");
+
     [taskData appendData:data];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
+    NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
+    if (responseData == nil) {
+        // This can happen if reset was called while a request was in-flight (e.g., between tests).
+        // The request is stale, so we skip processing entirely.
+        NSLog(@"[SBTUITestTunnel] Warning: task completed but data was cleared (reset was called), URL: %@", task.originalRequest.URL);
+        return;
+    }
+    [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSURLRequest *request = self.request;
     NSDictionary *rewriteRule = [self rewriteRuleFromMatchingRules:matchingRules];
     BOOL isRequestRewritten = (rewriteRule != nil);
     
     NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
-    
-    NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
-    NSAssert(responseData != nil, @"Should not be nil");
-    [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
     
     self.response = task.response;
     
