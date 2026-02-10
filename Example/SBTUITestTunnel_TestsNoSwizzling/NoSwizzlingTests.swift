@@ -43,16 +43,25 @@ class NoSwizzlingTests: XCTestCase {
         waitForExpectations(timeout: 15.0, handler: nil)
     }
 
-    func testCoreLocationAuthorizationStatus() {
+    func testMainThreadCoreLocationAuthorizationStatus() {
         app.launchTunnel()
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells["showMainThreadCoreLocationViewController"].tap()
         let statusPredicate = NSPredicate(format: "label == %@", "notDetermined")
         let statusElement = app.staticTexts["location_status"]
         expectation(for: statusPredicate, evaluatedWith: statusElement)
         waitForExpectations(timeout: 15.0, handler: nil)
     }
 
+    func testBackgroundThreadCoreLocationAuthorizationStatus() {
+        app.launchTunnel()
+
+        app.tables.cells["showBackgroundThreadCoreLocationViewController"].tap()
+        let statusPredicate = NSPredicate(format: "label == %@", "notDetermined")
+        let statusElement = app.staticTexts["location_status"]
+        expectation(for: statusPredicate, evaluatedWith: statusElement)
+        waitForExpectations(timeout: 15.0, handler: nil)
+    }
 }
 
 class MyCustomApplication: XCUIApplication {
