@@ -114,6 +114,8 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     NSMutableArray *launchArguments = [self.application.launchArguments mutableCopy];
     [launchArguments addObject:SBTUITunneledApplicationLaunchSignal];
+    [launchArguments addObjectsFromArray:@[@"-DidShowContinuousPathIntroduction", @"YES"]];
+    [launchArguments addObjectsFromArray:@[@"-MultilingualKeyboardTip", @"YES"]];
 
     if (startupBlock) {
         [launchArguments addObject:SBTUITunneledApplicationLaunchOptionHasStartupCommands];
