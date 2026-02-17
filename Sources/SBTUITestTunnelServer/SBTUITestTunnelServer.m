@@ -1344,6 +1344,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 [invocation setSelector:@selector(locationManager:didChangeAuthorizationStatus:)];
                 [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
                 [invocation setArgument:&authorizationStatus atIndex:3];
+                [invocation retainArguments];
                 [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
             }
             #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
@@ -1358,7 +1359,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         [invocation setTarget:locationManager.stubbedDelegate];
                         [invocation setSelector:@selector(locationManagerDidChangeAuthorization:)];
                         [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
-                        [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:locationManager waitUntilDone:NO];
+                        [invocation retainArguments];
+                        [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                     }
                 }
             #endif
@@ -1386,6 +1388,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     [invocation setTarget:locationManager.stubbedDelegate];
                     [invocation setSelector:@selector(locationManagerDidChangeAuthorization:)];
                     [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                    [invocation retainArguments];
                     [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                 }
             }
@@ -1433,6 +1436,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                 [invocation setSelector:@selector(locationManager:didUpdateLocations:)];
                                 [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
                                 [invocation setArgument:&locations atIndex:3];
+                                [invocation retainArguments];
                                 [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                             }
                             
@@ -1470,6 +1474,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 [invocation setSelector:@selector(locationManager:didFailWithError:)];
                 [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
                 [invocation setArgument:&error atIndex:3];
+                [invocation retainArguments];
                 [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
             }
         }
