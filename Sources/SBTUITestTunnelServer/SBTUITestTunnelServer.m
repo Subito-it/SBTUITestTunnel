@@ -1092,7 +1092,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                             break;
                         } else {
                             if (scrollDirection == SBTUITestTunnelScrollDirectionVertical) {
-                                CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.height - scrollView.bounds.size.height / 2.0));
+                                CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
                                 if (scrollView.contentOffset.y < maxOffset)  {
                                     CGFloat targetContentOffsetY = MIN(maxOffset, ceil(scrollView.contentOffset.y + scrollView.frame.size.height));
 
@@ -1105,7 +1105,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     break;
                                 }
                             } else if (scrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-                                CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.width - scrollView.bounds.size.width / 2.0));
+                                CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
                                 if (scrollView.contentOffset.x < maxOffset)  {
                                     CGFloat targetContentOffsetX = MIN(maxOffset, ceil(scrollView.contentOffset.x + scrollView.frame.size.width));
 
