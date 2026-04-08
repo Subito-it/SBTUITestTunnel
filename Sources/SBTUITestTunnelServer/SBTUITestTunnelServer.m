@@ -1091,32 +1091,24 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         if (result) {
                             break;
                         } else {
-                            if (scrollDirection == SBTUITestTunnelScrollDirectionVertical) {
-                                CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
-                                if (scrollView.contentOffset.y < maxOffset)  {
-                                    CGFloat targetContentOffsetY = MIN(maxOffset, ceil(scrollView.contentOffset.y + scrollView.frame.size.height));
+                            BOOL isVertical = (scrollDirection == SBTUITestTunnelScrollDirectionVertical);
+                            CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
+                            CGFloat currentOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
+                            CGFloat pageSize = isVertical ? scrollView.frame.size.height : scrollView.frame.size.width;
 
-                                    [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
-                                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-                                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-                                    }
-                                } else {
-                                    break;
-                                }
-                            } else if (scrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-                                CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
-                                if (scrollView.contentOffset.x < maxOffset)  {
-                                    CGFloat targetContentOffsetX = MIN(maxOffset, ceil(scrollView.contentOffset.x + scrollView.frame.size.width));
+                            if (currentOffset < maxOffset) {
+                                CGFloat targetOffset = MIN(maxOffset, ceil(currentOffset + pageSize));
+                                CGPoint newContentOffset = isVertical
+                                    ? CGPointMake(scrollView.contentOffset.x, targetOffset)
+                                    : CGPointMake(targetOffset, scrollView.contentOffset.y);
 
-                                    [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
-                                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-                                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-                                    }
-                                } else {
-                                    break;
+                                [scrollView setContentOffset:newContentOffset animated:animated];
+                                NSTimeInterval start = CFAbsoluteTimeGetCurrent();
+                                while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
+                                    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
                                 }
+                            } else {
+                                break;
                             }
                         }
                     }
