@@ -263,8 +263,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
             dispatch_semaphore_signal(sem);
         });
-
-        if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {}
+        
+        if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
+            NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
+            NSLog(@"[SBTUITestTunnel] Server command queue timeout after %ds for command '%@'", (int)SBTUITunneledServerDefaultTimeout, command);
+        }
         return ret;
     }];
 

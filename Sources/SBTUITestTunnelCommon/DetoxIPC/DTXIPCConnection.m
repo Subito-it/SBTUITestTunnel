@@ -192,13 +192,22 @@ static dispatch_queue_t _connectionQueue;
 	BOOL _resumed;
 }
 
-- (void)_runQueue
+- (void)_startConnectionSignalingReady:(dispatch_semaphore_t)readySemaphore
 {
 	_runLoop = NSRunLoop.currentRunLoop;
-	
-	[_connection run];
-	
 	_resumed = YES;
+
+	[_connection addRunLoop:_runLoop];
+
+	if (readySemaphore) {
+		CFRunLoopRef rl = CFRunLoopGetCurrent();
+		CFRunLoopPerformBlock(rl, kCFRunLoopDefaultMode, ^{
+			dispatch_semaphore_signal(readySemaphore);
+		});
+		CFRunLoopWakeUp(rl);
+	}
+
+	CFRunLoopRun();
 }
 
 - (BOOL)_commonInit
@@ -282,12 +291,20 @@ static dispatch_queue_t _connectionQueue;
 	{
 		return;
 	}
-	
+
 	NSAssert(_exportedObject != nil || _remoteObjectInterface != nil, @"An exported object or a remote object interface must be set before resuming the connection.");
-	
+
+	dispatch_semaphore_t readySemaphore = dispatch_semaphore_create(0);
 	dispatch_async(_dispatchQueue, ^{
-		[self _runQueue];
+		[self _startConnectionSignalingReady:readySemaphore];
 	});
+	// Wait for the connection's run loop to be actively processing messages.
+	// This prevents a race where the remote endpoint connects before
+	// the run loop is ready to handle incoming Mach port messages.
+	long waitResult = dispatch_semaphore_wait(readySemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)));
+	if (waitResult != 0) {
+		NSLog(@"[DTXIPCConnection] WARNING: Timed out waiting for connection run loop to start for service '%@'", _serviceName);
+	}
 }
 
 - (void)invalidate
@@ -330,7 +347,7 @@ static dispatch_queue_t _connectionQueue;
 
 #pragma mark _DTXIPCImpl
 
-- (oneway void)_slaveDidConnectWithName:(NSString*)slaveServiceName
+- (void)_slaveDidConnectWithName:(NSString*)slaveServiceName
 {
     dispatch_sync(_otherConnectionQueue, ^{
         _otherConnection = [NSConnection connectionWithRegisteredName:slaveServiceName host:nil];
