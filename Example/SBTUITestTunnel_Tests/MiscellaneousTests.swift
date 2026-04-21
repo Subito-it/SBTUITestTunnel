@@ -262,6 +262,74 @@ class MiscellaneousTests: XCTestCase {
         )
     }
 
+    func testScrollViewScrollToElementWithTranslucentNavBar() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewTranslucentNavBar"].tap()
+
+        let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+        wait { collectionView.exists }
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+        let element = app.staticTexts["50"]
+        XCTAssert(element.isHittable)
+
+        // Verify the element is centered in the visible area of the collection view
+        let navBar = app.navigationBars.firstMatch
+        let visibleTop = navBar.frame.maxY
+        let visibleBottom = collectionView.frame.maxY
+        let visibleMidY = (visibleTop + visibleBottom) / 2.0
+
+        let elementMidY = element.frame.midY
+
+        let tolerance = element.frame.height / 2.0 + 50.0
+        XCTAssertEqual(
+            elementMidY,
+            visibleMidY,
+            accuracy: tolerance,
+            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+        )
+    }
+
+    func testScrollViewScrollToElementWithTranslucentNavBarAndKeyboardVisible() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewTranslucentNavBar"].tap()
+
+        let textField = app.textFields["translucentNavBarTextField"]
+        wait { textField.isHittable }
+        textField.tap()
+
+        wait { self.app.keyboards.count > 0 }
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+        let element = app.staticTexts["50"]
+        XCTAssert(element.isHittable)
+
+        // Verify the element is centered in the visible area (between collection view top and keyboard top)
+        let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+        let keyboard = app.keyboards.firstMatch
+        let visibleTop = collectionView.frame.minY
+        let visibleBottom = keyboard.frame.minY
+        let visibleMidY = (visibleTop + visibleBottom) / 2.0
+
+        let elementMidY = element.frame.midY
+
+        let tolerance = element.frame.height / 2.0 + 50.0
+        XCTAssertEqual(
+            elementMidY,
+            visibleMidY,
+            accuracy: tolerance,
+            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+        )
+    }
+
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
