@@ -1063,10 +1063,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                 CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:scrollDirection];
 
                                 if (isVertical) {
-                                    targetContentOffsetY = scrollView.contentOffset.y + (CGRectGetMidY(targetFrameInWindow) - CGRectGetMidY(visibleFrameInWindow));
+                                    targetContentOffsetY = scrollView.contentOffset.y + (CGRectGetMinY(targetFrameInWindow) - CGRectGetMinY(visibleFrameInWindow) - insets.top);
                                     targetContentOffsetY = MIN(maxOffset, MAX(-insets.top, targetContentOffsetY));
                                 } else {
-                                    targetContentOffsetX = scrollView.contentOffset.x + (CGRectGetMidX(targetFrameInWindow) - CGRectGetMidX(visibleFrameInWindow));
+                                    targetContentOffsetX = scrollView.contentOffset.x + (CGRectGetMinX(targetFrameInWindow) - CGRectGetMinX(visibleFrameInWindow) - insets.left);
                                     targetContentOffsetX = MIN(maxOffset, MAX(-insets.left, targetContentOffsetX));
                                 }
 

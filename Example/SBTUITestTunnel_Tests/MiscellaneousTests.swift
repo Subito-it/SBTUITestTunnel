@@ -244,22 +244,19 @@ class MiscellaneousTests: XCTestCase {
         let element = app.staticTexts["50"]
         XCTAssert(element.isHittable)
 
-        // Verify the element is centered in the visible area (between collection view top and keyboard top)
+        // Verify the element is near the top of the visible area (not under the keyboard)
         let collectionView = app.collectionViews["scrollViewWithKeyboard"]
         let keyboard = app.keyboards.firstMatch
         let visibleTop = collectionView.frame.minY
-        let visibleBottom = keyboard.frame.minY
-        let visibleMidY = (visibleTop + visibleBottom) / 2.0
-        
-        let elementMidY = element.frame.midY
 
-        let tolerance = element.frame.height / 2.0 + 50.0
+        let tolerance: CGFloat = 50.0
         XCTAssertEqual(
-            elementMidY,
-            visibleMidY,
+            element.frame.minY,
+            visibleTop,
             accuracy: tolerance,
-            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
         )
+        XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
     }
 
     func testScrollViewScrollToElementWithTranslucentNavBar() {
@@ -277,21 +274,18 @@ class MiscellaneousTests: XCTestCase {
         let element = app.staticTexts["50"]
         XCTAssert(element.isHittable)
 
-        // Verify the element is centered in the visible area of the collection view
+        // Verify the element is near the top of the collection view's visible area
         let navBar = app.navigationBars.firstMatch
-        let visibleTop = navBar.frame.maxY
-        let visibleBottom = collectionView.frame.maxY
-        let visibleMidY = (visibleTop + visibleBottom) / 2.0
+        let visibleTop = collectionView.frame.minY
 
-        let elementMidY = element.frame.midY
-
-        let tolerance = element.frame.height / 2.0 + 50.0
+        let tolerance: CGFloat = 50.0
         XCTAssertEqual(
-            elementMidY,
-            visibleMidY,
+            element.frame.minY,
+            visibleTop,
             accuracy: tolerance,
-            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
         )
+        XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
     }
 
     func testScrollViewScrollToElementWithTranslucentNavBarAndKeyboardVisible() {
@@ -312,22 +306,21 @@ class MiscellaneousTests: XCTestCase {
         let element = app.staticTexts["50"]
         XCTAssert(element.isHittable)
 
-        // Verify the element is centered in the visible area (between collection view top and keyboard top)
+        // Verify the element is near the top of the collection view's visible area (not under the keyboard)
         let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+        let navBar = app.navigationBars.firstMatch
         let keyboard = app.keyboards.firstMatch
         let visibleTop = collectionView.frame.minY
-        let visibleBottom = keyboard.frame.minY
-        let visibleMidY = (visibleTop + visibleBottom) / 2.0
 
-        let elementMidY = element.frame.midY
-
-        let tolerance = element.frame.height / 2.0 + 50.0
+        let tolerance: CGFloat = 50.0
         XCTAssertEqual(
-            elementMidY,
-            visibleMidY,
+            element.frame.minY,
+            visibleTop,
             accuracy: tolerance,
-            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
         )
+        XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+        XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
     }
 
     func testScrollViewScrollToOffset() {
