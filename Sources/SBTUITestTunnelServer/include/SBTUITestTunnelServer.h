@@ -20,6 +20,7 @@
 #import "UIViewController+SBTUITestTunnel.h"
 #import "UIScrollView+SBTUITestTunnel.h"
 #import "SBTAnyViewControllerPreviewing.h"
+#import "SBTProxyURLProtocol.h"
 
 @interface SBTUITestTunnelServer : NSObject
 

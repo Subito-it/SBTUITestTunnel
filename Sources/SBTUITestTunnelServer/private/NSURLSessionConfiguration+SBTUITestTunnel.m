@@ -19,7 +19,7 @@
 @import SBTUITestTunnelCommon;
 
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
-#import "SBTProxyURLProtocol.h"
+#import "../include/SBTProxyURLProtocol.h"
 
 @implementation NSURLSessionConfiguration (SBTUITestTunnel)
 

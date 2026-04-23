@@ -550,6 +550,59 @@
  */
 - (BOOL)scrollScrollViewWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
 
+/**
+ *  Scroll UIScrollView view by one page (vertical or horizontal depending on scroll direction)
+ *
+ *  @param identifier accessibilityIdentifier of the UIScrollView
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the scroll view is already at the end or scroll view not found
+ */
+- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag;
+
+#pragma mark - XCUITest unified scroll extensions
+
+/**
+ *  Scroll any scrollable content view (UITableView, UICollectionView, or UIScrollView) to a specific element index.
+ *  Automatically detects the view type and calls the appropriate specific method.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param index the index of the element to scroll to. For UITableView and UICollectionView, this flattens sections.
+ *               For UIScrollView, element index is not supported and this method will log an error and return NO.
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the view is not found or element index is not supported for the view type
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag;
+
+/**
+ *  Scroll any scrollable content view (UITableView, UICollectionView, or UIScrollView) to a specific element.
+ *  Automatically detects the view type and calls the appropriate specific method.
+ *
+ *  For UITableView and UICollectionView, uses the standard element-based scrolling.
+ *  For UIScrollView, tries standard scrolling first. If that fails (common in SwiftUI), falls back to
+ *  page-by-page scrolling until the target element is found or maximum iterations is reached.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param targetIdentifier accessibilityIdentifier of the element to scroll to
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the view is not found or element cannot be reached
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toElementWithIdentifier:(nonnull NSString *)targetIdentifier animated:(BOOL)flag;
+
+/**
+ *  Scroll any scrollable content view to a specific normalized offset.
+ *  This method forwards to scrollScrollViewWithIdentifier:toOffset:animated: as only UIScrollView supports offset-based scrolling.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param targetOffset the normalized targetOffset (0.0 = top/left, 1.0 = bottom/right)
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the view is not found
+ */
+- (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
+
 #pragma mark - XCUITest 3D touch extensions
 
 /**
