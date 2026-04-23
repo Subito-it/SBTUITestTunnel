@@ -323,6 +323,28 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
     }
 
+    func testScrollViewScrollToElementInLazilyGrowingScrollView() {
+        // Reproduces the bug where scrolling to a target element would stop at the
+        // initial maxContentOffset. The scroll view here holds all 100 labels in the
+        // hierarchy from the start, but its contentSize starts small and grows in
+        // response to scrolling. Without the clamp-then-retry fix in
+        // scrollToTargetView:inScrollView:direction:animated:, the first clamped
+        // scroll would be reported as done and the target would never appear.
+        app.launchTunnel()
+
+        app.cells["showExtensionGrowingScrollView"].tap()
+
+        XCTAssertTrue(app.scrollViews["growingScrollView"].waitForExistence(timeout: 5))
+
+        // Target row 95 — well beyond the initial contentSize — must become hittable.
+        let target = app.staticTexts["95"]
+        XCTAssertFalse(target.isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "growingScrollView", toElementWithIdentifier: "95", animated: false))
+
+        XCTAssertTrue(target.isHittable)
+    }
+
     func testScrollViewScrollToOffset() {
         app.launchTunnel()
 
