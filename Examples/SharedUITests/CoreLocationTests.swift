@@ -141,6 +141,8 @@ class CoreLocationTests: XCTestCase {
 
         openTestSection(identifier: "showCoreLocationViewController")
 
+        wait { self.app.buttons["Get manager current location"].isHittable }
+
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
             for status in [CLAuthorizationStatus.notDetermined, .denied, .notDetermined, .restricted] {
                 app.coreLocationStubAuthorizationStatus(status)

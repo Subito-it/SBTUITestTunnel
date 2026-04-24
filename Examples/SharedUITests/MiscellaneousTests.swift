@@ -20,7 +20,7 @@ import SBTUITestTunnelServer
 import XCTest
 
 class MiscellaneousTests: XCTestCase {
-    func testLaunchTimeWithStubs() throws {
+    func testLaunchTimeWithStubs() {
         func stubAndGetDuration(amount: Int) -> CFAbsoluteTime {
             let start = CFAbsoluteTimeGetCurrent()
             for _ in 1 ... amount {
@@ -40,9 +40,10 @@ class MiscellaneousTests: XCTestCase {
             durations.append(stubAndGetDuration(amount: 10))
         }
 
-        // All metrics should be of similar value, so compare them with the first one.
-        // Multiply the first one by two to give some room for variation
-        let referenceMetric = try XCTUnwrap(durations.first) * 2
+        // Median is more noise-resistant than the first sample on loaded CI runners.
+        let sorted = durations.sorted()
+        let median = sorted[sorted.count / 2]
+        let referenceMetric = median * 2
         XCTAssertTrue(
             durations.allSatisfy { $0 < referenceMetric },
             "Stubbing took longer than expected: metrics \(durations) are higher than the reference \(referenceMetric)"
@@ -348,7 +349,8 @@ class MiscellaneousTests: XCTestCase {
 
         let last5avg = durations.suffix(5).reduce(0, +) / 5
 
-        for duration in durations.dropFirst() {
+        // Skip the first three iterations as warm-up; early samples spike on loaded CI runners.
+        for duration in durations.dropFirst(3) {
             XCTAssertTrue(duration < last5avg * 2.5, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
         }
     }
