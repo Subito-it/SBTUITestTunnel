@@ -914,6 +914,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 
     CGRect visibleFrame = [scrollView convertRect:scrollView.bounds toView:window];
+    visibleFrame = UIEdgeInsetsInsetRect(visibleFrame, scrollView.adjustedContentInset);
     visibleFrame = CGRectIntersection(window.bounds, visibleFrame);
 
     if (CGRectIsNull(visibleFrame) || CGRectIsEmpty(visibleFrame)) {
@@ -1087,10 +1088,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     CGPoint newOffset = scrollView.contentOffset;
     CGFloat desired;
     if (isVertical) {
-        desired = scrollView.contentOffset.y + (CGRectGetMinY(targetFrameInWindow) - CGRectGetMinY(visibleFrameInWindow) - insets.top);
+        desired = scrollView.contentOffset.y + (CGRectGetMinY(targetFrameInWindow) - CGRectGetMinY(visibleFrameInWindow));
         newOffset.y = MIN(maxOffset, MAX(-insets.top, desired));
     } else {
-        desired = scrollView.contentOffset.x + (CGRectGetMinX(targetFrameInWindow) - CGRectGetMinX(visibleFrameInWindow) - insets.left);
+        desired = scrollView.contentOffset.x + (CGRectGetMinX(targetFrameInWindow) - CGRectGetMinX(visibleFrameInWindow));
         newOffset.x = MIN(maxOffset, MAX(-insets.left, desired));
     }
 
@@ -1108,8 +1109,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 }
 
 // Advances the scroll view by one page to reveal more content while searching
-// for a target. If already at the end, waits briefly for lazy loading to extend
-// contentSize. Returns NO when truly at the end (no more pages, no growth).
+// for a target. If already at the end, overscrolls past maxOffset to trigger
+// "load more" handlers that fire on pull-past-edge, then waits briefly for
+// lazy loading to extend contentSize. Returns NO when truly at the end (no
+// more pages, no growth).
 - (BOOL)advanceScrollView:(UIScrollView *)scrollView
                 direction:(SBTUITestTunnelScrollDirection)direction
                  animated:(BOOL)animated
@@ -1129,7 +1132,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
 
+    // At the end: bump contentInset to open an overscroll region, pull into it
+    // so scroll delegates fire (common "load more" trigger), then restore the
+    // inset. UIKit would otherwise clamp setContentOffset: at maxOffset.
+    UIEdgeInsets originalInset = scrollView.contentInset;
+    UIEdgeInsets bumpedInset = originalInset;
+    CGFloat overscroll = pageSize * 0.25;
+    if (isVertical) {
+        bumpedInset.bottom += overscroll;
+    } else {
+        bumpedInset.right += overscroll;
+    }
+    scrollView.contentInset = bumpedInset;
+
+    CGPoint overscrollOffset = isVertical
+        ? CGPointMake(scrollView.contentOffset.x, maxOffset + overscroll)
+        : CGPointMake(maxOffset + overscroll, scrollView.contentOffset.y);
+    [scrollView setContentOffset:overscrollOffset animated:animated];
     [self spinMainRunLoopForInterval:0.5];
+
+    scrollView.contentInset = originalInset;
+
     return [self maxContentOffsetForScrollView:scrollView direction:direction] > maxOffset;
 }
 
