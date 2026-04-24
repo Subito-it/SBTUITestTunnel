@@ -244,22 +244,105 @@ class MiscellaneousTests: XCTestCase {
         let element = app.staticTexts["50"]
         XCTAssert(element.isHittable)
 
-        // Verify the element is centered in the visible area (between collection view top and keyboard top)
+        // Verify the element is near the top of the visible area (not under the keyboard)
         let collectionView = app.collectionViews["scrollViewWithKeyboard"]
         let keyboard = app.keyboards.firstMatch
         let visibleTop = collectionView.frame.minY
-        let visibleBottom = keyboard.frame.minY
-        let visibleMidY = (visibleTop + visibleBottom) / 2.0
-        
-        let elementMidY = element.frame.midY
 
-        let tolerance = element.frame.height / 2.0 + 50.0
+        let tolerance: CGFloat = 50.0
         XCTAssertEqual(
-            elementMidY,
-            visibleMidY,
+            element.frame.minY,
+            visibleTop,
             accuracy: tolerance,
-            "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
         )
+        XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+    }
+
+    func testScrollViewScrollToElementWithTranslucentNavBar() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewTranslucentNavBar"].tap()
+
+        let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+        wait { collectionView.exists }
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+        let element = app.staticTexts["50"]
+        XCTAssert(element.isHittable)
+
+        // Verify the element is near the top of the collection view's visible area
+        let navBar = app.navigationBars.firstMatch
+        let visibleTop = collectionView.frame.minY
+
+        let tolerance: CGFloat = 50.0
+        XCTAssertEqual(
+            element.frame.minY,
+            visibleTop,
+            accuracy: tolerance,
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+        )
+        XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+    }
+
+    func testScrollViewScrollToElementWithTranslucentNavBarAndKeyboardVisible() {
+        app.launchTunnel()
+
+        app.cells["showExtensionCollectionViewTranslucentNavBar"].tap()
+
+        let textField = app.textFields["translucentNavBarTextField"]
+        wait { textField.isHittable }
+        textField.tap()
+
+        wait { self.app.keyboards.count > 0 }
+
+        XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+        let element = app.staticTexts["50"]
+        XCTAssert(element.isHittable)
+
+        // Verify the element is near the top of the collection view's visible area (not under the keyboard)
+        let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+        let navBar = app.navigationBars.firstMatch
+        let keyboard = app.keyboards.firstMatch
+        let visibleTop = collectionView.frame.minY
+
+        let tolerance: CGFloat = 50.0
+        XCTAssertEqual(
+            element.frame.minY,
+            visibleTop,
+            accuracy: tolerance,
+            "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+        )
+        XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+        XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+    }
+
+    func testScrollViewScrollToElementInLazilyGrowingScrollView() {
+        // Reproduces the bug where scrolling to a target element would stop at the
+        // initial maxContentOffset. The scroll view here holds all 100 labels in the
+        // hierarchy from the start, but its contentSize starts small and grows in
+        // response to scrolling. Without the clamp-then-retry fix in
+        // scrollToTargetView:inScrollView:direction:animated:, the first clamped
+        // scroll would be reported as done and the target would never appear.
+        app.launchTunnel()
+
+        app.cells["showExtensionGrowingScrollView"].tap()
+
+        XCTAssertTrue(app.scrollViews["growingScrollView"].waitForExistence(timeout: 5))
+
+        // Target row 95 — well beyond the initial contentSize — must become hittable.
+        let target = app.staticTexts["95"]
+        XCTAssertFalse(target.isHittable)
+
+        XCTAssertTrue(app.scrollScrollView(withIdentifier: "growingScrollView", toElementWithIdentifier: "95", animated: false))
+
+        XCTAssertTrue(target.isHittable)
     }
 
     func testScrollViewScrollToOffset() {

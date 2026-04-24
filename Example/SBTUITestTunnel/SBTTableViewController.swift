@@ -38,6 +38,8 @@ class Extension4Test: BaseTest {}
 class Extension5Test: BaseTest {}
 class Extension6Test: BaseTest {}
 class Extension7Test: BaseTest {}
+class Extension8Test: BaseTest {}
+class Extension9Test: BaseTest {}
 class CrashTest: BaseTest {}
 
 class SBTTableViewController: UITableViewController {
@@ -67,6 +69,8 @@ class SBTTableViewController: UITableViewController {
                                         Extension5Test(testSelector: #selector(showExtensionCollectionViewVertical)),
                                         Extension6Test(testSelector: #selector(showExtensionCollectionViewHorizontal)),
                                         Extension7Test(testSelector: #selector(showExtensionCollectionViewWithKeyboard)),
+                                        Extension8Test(testSelector: #selector(showExtensionCollectionViewTranslucentNavBar)),
+                                        Extension9Test(testSelector: #selector(showExtensionGrowingScrollView)),
                                         CrashTest(testSelector: #selector(crashApp))]
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
@@ -96,6 +100,10 @@ class SBTTableViewController: UITableViewController {
             tableView.dequeueReusableCell(withIdentifier: "extension6Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension7Test {
             tableView.dequeueReusableCell(withIdentifier: "extension7Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension8Test {
+            tableView.dequeueReusableCell(withIdentifier: "extension8Cell", for: indexPath)
+        } else if testList[indexPath.row] is Extension9Test {
+            tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
         } else if testList[indexPath.row] is CrashTest {
             tableView.dequeueReusableCell(withIdentifier: "crashCell", for: indexPath)
         } else {
@@ -457,6 +465,16 @@ extension SBTTableViewController {
     
     @objc func showExtensionCollectionViewWithKeyboard() {
         let targetViewController = SBTExtensionCollectionViewWithKeyboardViewController()
+        navigationController?.pushViewController(targetViewController, animated: true)
+    }
+
+    @objc func showExtensionCollectionViewTranslucentNavBar() {
+        let targetViewController = SBTExtensionCollectionViewTranslucentNavBarViewController()
+        navigationController?.pushViewController(targetViewController, animated: true)
+    }
+
+    @objc func showExtensionGrowingScrollView() {
+        let targetViewController = SBTExtensionGrowingScrollViewController()
         navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
