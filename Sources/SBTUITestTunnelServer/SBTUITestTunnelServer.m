@@ -1067,11 +1067,63 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 }
 
-// Scrolls so the target view becomes visible. Returns YES when the scroll was
-// conclusive (target visible, or clamped at maxOffset with no further content to
-// load). Returns NO when the offset was clamped AND the scroll triggered lazy
-// content growth — the caller should re-resolve the target frame against the
-// new contentSize and call again.
+// Nudges the scroll offset to clear any direct subview of the scroll view that is
+// rendered above the target (higher z-index) and overlaps it after scrolling.
+- (void)adjustScrollView:(UIScrollView *)scrollView
+      forObscuredTarget:(UIView *)target
+              direction:(SBTUITestTunnelScrollDirection)direction
+               animated:(BOOL)animated
+{
+    // Target may be a nested descendant, walk up to find its direct-child ancestor
+    // of the scroll view so we can compare z-indices with sibling views.
+    UIView *targetAncestor = target;
+    while (targetAncestor.superview != nil && targetAncestor.superview != scrollView) {
+        targetAncestor = targetAncestor.superview;
+    }
+
+    NSArray<UIView *> *subviews = scrollView.subviews;
+    NSUInteger targetZ = [subviews indexOfObject:targetAncestor];
+    if (targetZ == NSNotFound) {
+        return;
+    }
+
+    BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
+    UIWindow *window = scrollView.window ?: UIApplication.sharedApplication.keyWindow;
+    // Use the ancestor's frame for overlap detection: pinned headers cover the whole
+    // cell (the ancestor), not just the small nested view that is the scroll target.
+    CGRect ancestorFrame = [targetAncestor convertRect:targetAncestor.bounds toView:window];
+
+    for (NSUInteger i = targetZ + 1; i < subviews.count; i++) {
+        UIView *candidateView = subviews[i];
+        if (candidateView.hidden || candidateView.alpha < 0.01 || candidateView.backgroundColor == nil) {
+            continue;
+        }
+        CGRect candidateFrame = [candidateView convertRect:candidateView.bounds toView:window];
+        CGRect overlap = CGRectIntersection(ancestorFrame, candidateFrame);
+        if (CGRectIsNull(overlap) || CGRectIsEmpty(overlap)) {
+            continue;
+        }
+        CGRect scrollViewFrame = [scrollView convertRect:scrollView.bounds toView:window];
+        CGPoint nudgedOffset = scrollView.contentOffset;
+        if (isVertical) {
+            // A candidate whose midpoint is above the scroll view's visible midpoint is a top
+            // obstruction (e.g. pinned section header); nudge the offset back to expose the target.
+            BOOL obscuredFromTop = CGRectGetMidY(candidateFrame) < CGRectGetMidY(scrollViewFrame);
+            nudgedOffset.y += obscuredFromTop ? -CGRectGetHeight(candidateFrame) : CGRectGetHeight(candidateFrame);
+        } else {
+            BOOL obscuredFromLeft = CGRectGetMidX(candidateFrame) < CGRectGetMidX(scrollViewFrame);
+            nudgedOffset.x += obscuredFromLeft ? -CGRectGetWidth(candidateFrame) : CGRectGetWidth(candidateFrame);
+        }
+        [scrollView setContentOffset:nudgedOffset animated:animated];
+        [self spinMainRunLoopForInterval:0.25];
+        break;
+    }
+}
+
+// Returns YES when the scroll was conclusive (target visible, or clamped at
+// maxOffset with no further content to load). Returns NO when the offset was
+// clamped AND the scroll triggered lazy content growth — the caller should
+// re-resolve the target frame against the new contentSize and call again.
 - (BOOL)scrollToTargetView:(UIView *)target
               inScrollView:(UIScrollView *)scrollView
                  direction:(SBTUITestTunnelScrollDirection)direction
@@ -1110,7 +1162,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         ? scrollView.contentSize.height > previousContentSize.height
         : scrollView.contentSize.width > previousContentSize.width;
 
-    return !(clamped && contentGrew);
+    if (clamped && contentGrew) {
+        return NO;
+    }
+
+    [self adjustScrollView:scrollView forObscuredTarget:target direction:direction animated:animated];
+    return YES;
 }
 
 // Advances the scroll view by one page to reveal more content while searching
