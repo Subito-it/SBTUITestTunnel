@@ -116,7 +116,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         [sharedInstance reset];
     });
-    
+
     return sharedInstance;
 }
 
@@ -133,27 +133,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     dispatch_once(&once, ^{
         result = [self.sharedInstance takeOffOnce];
     });
-    
+
     return result;
 }
 
 - (BOOL)takeOffOnce
 {
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-    
+
     NSString *ipcIdentifier = environment[SBTUITunneledApplicationLaunchEnvironmentIPCKey];
     NSString *tunnelPort = environment[SBTUITunneledApplicationLaunchEnvironmentPortKey];
-    
+
     if (!tunnelPort && !ipcIdentifier) {
         [NSURLProtocol unregisterClass:[SBTProxyURLProtocol class]];
-        
+
         // Required methods missing, presumely app wasn't launched from ui test
         NSLog(@"[SBTUITestTunnel] required environment parameters missing, safely landing");
         return NO;
     }
-    
+
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
-        
+
     if (ipcIdentifier) {
         NSLog(@"[SBTUITestTunnel] IPC tunnel taking off");
         return [self takeOffOnceIPCWithServiceIdentifier:ipcIdentifier];
@@ -166,26 +166,26 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (BOOL)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
 {
     self.ipcConnection = [[DTXIPCConnection alloc] initWithServiceName:[NSString stringWithFormat:@"com.subito.sbtuitesttunnel.ipc.%@", serviceIdentifier]];
-    
+
     self.ipcConnection.remoteObjectInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
     self.ipcConnection.exportedInterface = [DTXIPCInterface interfaceWithProtocol:@protocol(SBTIPCTunnel)];
     self.ipcConnection.exportedObject = self;
 
     [self.ipcConnection resume];
-    
+
     self.ipcProxy = [self.ipcConnection synchronousRemoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
         NSLog(@"Failed getting IPC proxy, %@", error.description);
     }];
-    
+
     [self processLaunchOptionsIfNeeded];
-    
+
     [self.ipcProxy serverDidConnect:nil];
 
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
         return NO;
     }
-    
+
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
@@ -198,7 +198,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
-    
+
     return NO;
 }
 
@@ -208,7 +208,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
     NSString *commandString = [command stringByAppendingString:@":"];
     SEL commandSelector = NSSelectorFromString(commandString);
-    
+
     dispatch_async(self.commandDispatchQueue, ^{
         NSDictionary *response = nil;
 
@@ -224,7 +224,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
             response = func(self, commandSelector, parameters);
         }
-        
+
         block(response);
     });
 }
@@ -232,64 +232,64 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (BOOL)takeOffOnceUsingHTTPPort:(NSString *)tunnelPort
 {
     Class requestClass = ([SBTUITunnelHTTPMethod isEqualToString:@"POST"]) ? [SBTWebServerURLEncodedFormRequest class] : [SBTWebServerRequest class];
-    
+
     __weak typeof(self) weakSelf = self;
     [self.server addDefaultHandlerForMethod:SBTUITunnelHTTPMethod requestClass:requestClass processBlock:^SBTWebServerResponse *(SBTWebServerRequest* request) {
         __strong typeof(weakSelf)strongSelf = weakSelf;
         __block SBTWebServerDataResponse *ret;
-        
+
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         dispatch_async(strongSelf.commandDispatchQueue, ^{
             NSString *command = [request.path stringByReplacingOccurrencesOfString:@"/" withString:@""];
-            
+
             NSString *commandString = [command stringByAppendingString:@":"];
             SEL commandSelector = NSSelectorFromString(commandString);
             NSDictionary *response = nil;
-            
+
             if (![strongSelf processCustomCommandIfNecessary:command parameters:request.parameters returnObject:&response]) {
                 if (![strongSelf respondsToSelector:commandSelector]) {
                     BlockAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", command);
                 }
-                
+
                 IMP imp = [strongSelf methodForSelector:commandSelector];
-                
+
                 NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
-                
+
                 NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request.parameters);
             }
-            
+
             ret = [SBTWebServerDataResponse responseWithJSONObject:response];
-            
+
             dispatch_semaphore_signal(sem);
         });
-        
+
         if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {}
         return ret;
     }];
-    
+
     [self processLaunchOptionsIfNeeded];
-    
+
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
         NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
         return NO;
     }
-    
+
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
-    
+
     [serverOptions setValue:@NO forKey:SBTWebServerOption_AutomaticallySuspendInBackground];
     [serverOptions setValue:@(YES) forKey:SBTWebServerOption_BindToLocalhost];
     if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchOptionDisableKeepAlive]) {
         [serverOptions setValue:@(YES) forKey:SBTWebServerOption_EnableKeepAlive];
     }
-    
+
     if (tunnelPort) {
         [serverOptions setValue:@([tunnelPort intValue]) forKey:SBTWebServerOption_Port];
         NSLog(@"[SBTUITestTunnel] Starting server on port: %@", tunnelPort);
     } else {
         NSAssert(NO, @"No valid discovery method passed");
     }
-    
+
     [SBTWebServer setLogLevel:3];
 
     NSError *serverError = nil;
@@ -297,20 +297,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         BlockAssert(NO, @"[UITestTunnelServer] Failed to start server on port %d. %@", [tunnelPort intValue], serverError.description);
         return NO;
     }
-    
+
     NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-        
+
         if (self.startupCompleted) {
             NSLog(@"[SBTUITestTunnel] Up and running!");
             return YES;
         }
     }
-    
+
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
-    
+
     return NO;
 }
 
@@ -329,17 +329,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSObject *(^block)(NSObject *) = [[SBTUITestTunnelServer customCommands] objectForKey:customCommandName];
         if (block) {
             NSObject *outObject = block(inObj);
-            
+
             NSData *data = [NSKeyedArchiver archivedDataWithRootObject:outObject requiringSecureCoding:NO error:nil];
             NSString *ret = data ? [data base64EncodedStringWithOptions:0] : @"";
             *returnObject = @{ SBTUITunnelResponseResultKey: ret };
-            
+
             return YES;
         } else {
             BlockAssert(NO, @"[UITestTunnelServer] Custom command %@ not registered", customCommandName);
         }
     }
-    
+
     return NO;
 }
 
@@ -366,7 +366,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     __block NSString *stubId = @"";
     SBTRequestMatch *requestMatch = nil;
-    
+
     if ([self validStubRequest:parameters]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0];
 
@@ -382,7 +382,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         stubId = [SBTProxyURLProtocol stubRequestsMatching:requestMatch stubResponse:response];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: stubId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
@@ -391,7 +391,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandStubRequestsRemove:(NSDictionary *)parameters
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0];
-    
+
     NSSet *classes = [NSSet setWithObjects:[NSString class], [SBTRequestMatch class], nil];
     NSError *unarchiveError;
     id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
@@ -403,14 +403,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     } else if ([object isKindOfClass:[SBTRequestMatch class]]) {
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithRequestMatch:(SBTRequestMatch *)object] ? @"YES" : @"NO";
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
 - (NSDictionary *)commandStubRequestsRemoveAll:(NSDictionary *)parameters
 {
     [SBTProxyURLProtocol stubRequestsRemoveAll];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -419,14 +419,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandStubRequestsAll:(NSDictionary *)parameters
 {
     NSString *ret = nil;
-    
+
     NSArray *activeStubs = [SBTProxyURLProtocol stubRequestsAll];
-    
+
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:activeStubs requiringSecureCoding:YES error:nil];
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
 }
 
@@ -436,7 +436,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     __block NSString *rewriteId = @"";
     SBTRequestMatch *requestMatch = nil;
-    
+
     if ([self validRewriteRequest:parameters]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
 
@@ -452,7 +452,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         rewriteId = [SBTProxyURLProtocol rewriteRequestsMatching:requestMatch rewrite:rewrite];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: rewriteId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
@@ -467,14 +467,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
 
     NSString *ret = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId] ? @"YES" : @"NO";
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
 - (NSDictionary *)commandRewriteRemoveAll:(NSDictionary *)parameters
 {
     [SBTProxyURLProtocol rewriteRequestsRemoveAll];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -484,7 +484,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
-    
+
     if ([self validMonitorRequest:parameters]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
@@ -494,7 +494,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         reqId = [SBTProxyURLProtocol monitorRequestsMatching:requestMatch];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: reqId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
@@ -507,34 +507,34 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
 
     NSString *ret = [SBTProxyURLProtocol monitorRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
 - (NSDictionary *)commandMonitorsRemoveAll:(NSDictionary *)parameters
 {
     [SBTProxyURLProtocol monitorRequestsRemoveAll];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 - (NSDictionary *)commandMonitor:(NSDictionary *)parameters flush:(BOOL)flag
 {
     __block NSArray<SBTMonitoredNetworkRequest *> *requestsToFlush = @[];
-    
+
     requestsToFlush = [SBTProxyURLProtocol monitoredRequestsAll];
     if (flag) {
         [SBTProxyURLProtocol monitoredRequestsFlushAll];
     }
-    
+
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:requestsToFlush requiringSecureCoding:YES error:nil];
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
     }
-    
+
     NSString *debugInfo = [NSString stringWithFormat:@"Found %ld monitored requests", (unsigned long)requestsToFlush.count];
-    
+
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo ?: @"" };
 }
 
@@ -554,7 +554,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *reqId = @"";
     SBTRequestMatch *requestMatch = nil;
-    
+
     if ([self validThrottleRequest:parameters]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
@@ -563,10 +563,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSAssert(unarchiveError == nil, @"Error unarchiving SBTRequestMatch");
 
         NSTimeInterval responseDelayTime = [parameters[SBTUITunnelProxyQueryResponseTimeKey] doubleValue];
-        
+
         reqId = [SBTProxyURLProtocol throttleRequestsMatching:requestMatch delayResponse:responseDelayTime];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: reqId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @""};
 }
 
@@ -585,7 +585,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandThrottlesRemoveAll:(NSDictionary *)parameters
 {
     [SBTProxyURLProtocol throttleRequestsRemoveAll];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -595,7 +595,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *cookieBlockId = @"";
     SBTRequestMatch *requestMatch = nil;
-    
+
     if ([self validCookieBlockRequest:parameters]) {
         NSData *requestMatchData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
 
@@ -604,10 +604,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSAssert(unarchiveError == nil, @"Error unarchiving SBTRequestMatch");
 
         NSInteger cookieBlockRemoveAfterCount = [parameters[SBTUITunnelCookieBlockQueryIterationsKey] integerValue];
-        
+
         cookieBlockId = [SBTProxyURLProtocol cookieBlockRequestsMatching:requestMatch activeIterations:cookieBlockRemoveAfterCount];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: cookieBlockId ?: @"", SBTUITunnelResponseDebugKey: [requestMatch description] ?: @"" };
 }
 
@@ -628,7 +628,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandCookiesBlockRemoveAll:(NSDictionary *)parameters
 {
     [SBTProxyURLProtocol cookieBlockRequestsRemoveAll];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -658,7 +658,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [userDefault setObject:obj forKey:objKey];
         ret = [userDefault synchronize] ? @"YES" : @"NO";
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -666,7 +666,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *objKey = parameters[SBTUITunnelObjectKeyKey];
     NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];
-    
+
     NSString *ret = @"NO";
     if (objKey) {
         NSUserDefaults *userDefault;
@@ -675,11 +675,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         } else {
             userDefault = [NSUserDefaults standardUserDefaults];
         }
-        
+
         [userDefault removeObjectForKey:objKey];
         ret = [userDefault synchronize] ? @"YES" : @"NO";
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -687,22 +687,22 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *objKey = parameters[SBTUITunnelObjectKeyKey];
     NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];
-    
+
     NSUserDefaults *userDefault;
     if ([suiteName length] > 0) {
         userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
     } else {
         userDefault = [NSUserDefaults standardUserDefaults];
     }
-    
+
     NSObject *obj = [userDefault objectForKey:objKey];
-    
+
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:obj requiringSecureCoding:NO error:nil];
     NSString *ret = @"";
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
 }
 
@@ -710,7 +710,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSData *objData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
     NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];
-    
+
     // this can't switch to the non-deprecated NSSecureCoding method because the types aren't known ahead of time
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -725,28 +725,28 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         } else {
             userDefault = [NSUserDefaults standardUserDefaults];
         }
-        
+
         [userDefault registerDefaults:defaults];
         ret = [userDefault synchronize] ? @"YES" : @"NO";
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
 - (NSDictionary *)commandNSUserDefaultsReset:(NSDictionary *)parameters
 {
     NSString *suiteName = parameters[SBTUITunnelUserDefaultSuiteNameKey];
-    
+
     NSUserDefaults *userDefault;
     if ([suiteName length] > 0) {
         userDefault = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
     } else {
         userDefault = [NSUserDefaults standardUserDefaults];
     }
-    
+
     [userDefault removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
     [userDefault synchronize];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -759,7 +759,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if (data) {
         ret = [data base64EncodedStringWithOptions:0];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: ret ?: @"" };
 }
 
@@ -775,29 +775,29 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
 
     NSSearchPathDirectory basePath = [parameters[SBTUITunnelUploadBasePathKey] intValue];
-    
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(basePath, NSUserDomainMask, YES);
     NSString *path = [[paths firstObject] stringByAppendingPathComponent:destPath];
-    
+
     NSError *error = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
-        
+
         if (error) {
             return @{ SBTUITunnelResponseResultKey: @"NO" };
         }
     }
-    
+
     [[NSFileManager defaultManager] createDirectoryAtPath:[path stringByDeletingLastPathComponent]
                               withIntermediateDirectories:YES
                                                attributes:nil error:&error];
     if (error) {
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
-    
-    
+
+
     NSString *ret = [fileData writeToFile:path atomically:YES] ? @"YES" : @"NO";
-    
+
     NSString *debugInfo = [NSString stringWithFormat:@"Writing %ld bytes to file %@", (unsigned long)fileData.length, path ?: @""];
     return @{ SBTUITunnelResponseResultKey: ret, SBTUITunnelResponseDebugKey: debugInfo };
 }
@@ -805,9 +805,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandDownload:(NSDictionary *)parameters
 {
     NSSearchPathDirectory basePathDirectory = [parameters[SBTUITunnelDownloadBasePathKey] intValue];
-    
+
     NSString *basePath = [NSSearchPathForDirectoriesInDomains(basePathDirectory, NSUserDomainMask, YES) firstObject];
-    
+
     NSArray *basePathContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:basePath error:nil];
     NSData *pathData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelDownloadPathKey] options:0];
 
@@ -817,17 +817,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
     NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"SELF like %@", filesToMatch];
     NSArray *matchingFiles = [basePathContent filteredArrayUsingPredicate:filterPredicate];
-    
+
     NSMutableArray *filesDataArr = [NSMutableArray array];
     for (NSString *matchingFile in matchingFiles) {
         NSData *fileData = [NSData dataWithContentsOfFile:[basePath stringByAppendingPathComponent:matchingFile]];
-        
+
         [filesDataArr addObject:fileData];
     }
-        
+
     NSData *filesDataArrData = [NSKeyedArchiver archivedDataWithRootObject:filesDataArr requiringSecureCoding:YES error:nil];
     NSString *ret = [filesDataArrData base64EncodedStringWithOptions:0];
-    
+
     NSString *debugInfo = [NSString stringWithFormat:@"Found %ld files matching download request@", (unsigned long)matchingFiles.count];
     return @{ SBTUITunnelResponseResultKey: ret ?: @"", SBTUITunnelResponseDebugKey: debugInfo };
 }
@@ -837,23 +837,23 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandSetUIAnimations:(NSDictionary *)parameters
 {
     BOOL enableAnimations = [parameters[SBTUITunnelObjectKey] boolValue];
-    
+
     [UIView setAnimationsEnabled:enableAnimations];
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 - (NSDictionary *)commandSetUIAnimationSpeed:(NSDictionary *)parameters
 {
     NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
-    
+
     NSInteger animationSpeed = [parameters[SBTUITunnelObjectKey] integerValue];
     dispatch_sync(dispatch_get_main_queue(), ^() {
         // Replacing [UIView setAnimationsEnabled:] as per
         // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
         UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
     });
-    
+
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", (long)animationSpeed];
     return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
 }
@@ -861,11 +861,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandStartupCompleted:(NSDictionary *)parameters
 {
     __weak typeof(self)weakSelf = self;
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
     });
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -942,27 +942,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (BOOL)scrollElementWithIdentifier:(NSString *)elementIdentifier elementClass:(Class)elementClass toRow:(NSInteger)elementRow numberOfSections:(NSInteger (^)(UIView *))sectionsDataSource numberOfRows:(NSInteger (^)(UIView *, NSInteger))rowsDataSource scrollDelegate:(void (^)(UIView *, NSIndexPath *))scrollDelegate;
 {
     NSAssert([NSThread isMainThread], @"Call this from main thread!");
-    
+
     // Hacky way to get top-most UIViewController
     UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
     while (rootViewController.presentedViewController != nil) {
         rootViewController = rootViewController.presentedViewController;
     }
-    
+
     NSArray *allViews = [rootViewController.view allSubviews];
     for (UIView *view in [allViews reverseObjectEnumerator]) {
         if ([view isKindOfClass:elementClass]) {
             CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
             BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
-            
+
             if (!withinVisibleBounds) {
                 continue;
             }
-            
+
             BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
             if (expectedIdentifier) {
                 NSInteger numberOfSections = sectionsDataSource(view);
-                
+
                 NSInteger processedRows = 0;
                 NSInteger targetSection = numberOfSections - 1;
                 NSInteger targetRow = rowsDataSource(view, targetSection) - 1;
@@ -979,7 +979,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         targetRow = elementRow - processedRows;
                         break;
                     }
-                    
+
                     processedRows += rowsInSection;
                 }
 
@@ -992,12 +992,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         scrollDelegate(view, targetIndexPath);
                     }
                 }
-                
+
                 return YES;
             }
         }
     }
-    
+
     return NO;
 }
 
@@ -1007,7 +1007,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *target = parameters[SBTUITunnelObjectValueKey];
     NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
-    
+
     if ([scrollType isEqualToString:@"identifier"]) {
         return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:target animated:animated];
     } else {
@@ -1067,11 +1067,63 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 }
 
-// Scrolls so the target view becomes visible. Returns YES when the scroll was
-// conclusive (target visible, or clamped at maxOffset with no further content to
-// load). Returns NO when the offset was clamped AND the scroll triggered lazy
-// content growth — the caller should re-resolve the target frame against the
-// new contentSize and call again.
+// Nudges the scroll offset to clear any direct subview of the scroll view that is
+// rendered above the target (higher z-index) and overlaps it after scrolling.
+- (void)adjustScrollView:(UIScrollView *)scrollView
+      forObscuredTarget:(UIView *)target
+              direction:(SBTUITestTunnelScrollDirection)direction
+               animated:(BOOL)animated
+{
+    // Target may be a nested descendant, walk up to find its direct-child ancestor
+    // of the scroll view so we can compare z-indices with sibling views.
+    UIView *targetAncestor = target;
+    while (targetAncestor.superview != nil && targetAncestor.superview != scrollView) {
+        targetAncestor = targetAncestor.superview;
+    }
+
+    NSArray<UIView *> *subviews = scrollView.subviews;
+    NSUInteger targetZ = [subviews indexOfObject:targetAncestor];
+    if (targetZ == NSNotFound) {
+        return;
+    }
+
+    BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
+    UIWindow *window = scrollView.window ?: UIApplication.sharedApplication.keyWindow;
+    // Use the ancestor's frame for overlap detection: pinned headers cover the whole
+    // cell (the ancestor), not just the small nested view that is the scroll target.
+    CGRect ancestorFrame = [targetAncestor convertRect:targetAncestor.bounds toView:window];
+
+    for (NSUInteger i = targetZ + 1; i < subviews.count; i++) {
+        UIView *candidateView = subviews[i];
+        if (candidateView.hidden || candidateView.alpha < 0.01 || candidateView.backgroundColor == nil) {
+            continue;
+        }
+        CGRect candidateFrame = [candidateView convertRect:candidateView.bounds toView:window];
+        CGRect overlap = CGRectIntersection(ancestorFrame, candidateFrame);
+        if (CGRectIsNull(overlap) || CGRectIsEmpty(overlap)) {
+            continue;
+        }
+        CGRect scrollViewFrame = [scrollView convertRect:scrollView.bounds toView:window];
+        CGPoint nudgedOffset = scrollView.contentOffset;
+        if (isVertical) {
+            // A candidate whose midpoint is above the scroll view's visible midpoint is a top
+            // obstruction (e.g. pinned section header); nudge the offset back to expose the target.
+            BOOL obscuredFromTop = CGRectGetMidY(candidateFrame) < CGRectGetMidY(scrollViewFrame);
+            nudgedOffset.y += obscuredFromTop ? -CGRectGetHeight(candidateFrame) : CGRectGetHeight(candidateFrame);
+        } else {
+            BOOL obscuredFromLeft = CGRectGetMidX(candidateFrame) < CGRectGetMidX(scrollViewFrame);
+            nudgedOffset.x += obscuredFromLeft ? -CGRectGetWidth(candidateFrame) : CGRectGetWidth(candidateFrame);
+        }
+        [scrollView setContentOffset:nudgedOffset animated:animated];
+        [self spinMainRunLoopForInterval:0.25];
+        break;
+    }
+}
+
+// Returns YES when the scroll was conclusive (target visible, or clamped at
+// maxOffset with no further content to load). Returns NO when the offset was
+// clamped AND the scroll triggered lazy content growth — the caller should
+// re-resolve the target frame against the new contentSize and call again.
 - (BOOL)scrollToTargetView:(UIView *)target
               inScrollView:(UIScrollView *)scrollView
                  direction:(SBTUITestTunnelScrollDirection)direction
@@ -1084,14 +1136,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     UIEdgeInsets insets = scrollView.adjustedContentInset;
     CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:direction];
 
+    // When the target sits at the very bottom/right edge of contentSize, clamping
+    // to maxOffset leaves it flush against any overlaying obstruction (tab bar,
+    // safe area, keyboard). Allow the clamp to overscroll by the inset plus the
+    // target's own size so the element lifts fully clear of any obstruction.
     CGPoint newOffset = scrollView.contentOffset;
     CGFloat desired;
     if (isVertical) {
         desired = scrollView.contentOffset.y + (CGRectGetMinY(targetFrameInWindow) - CGRectGetMinY(visibleFrameInWindow) - insets.top);
-        newOffset.y = MIN(maxOffset, MAX(-insets.top, desired));
+        CGFloat clampCeiling = maxOffset + insets.bottom + targetFrameInWindow.size.height;
+        newOffset.y = MIN(clampCeiling, MAX(-insets.top, desired));
     } else {
         desired = scrollView.contentOffset.x + (CGRectGetMinX(targetFrameInWindow) - CGRectGetMinX(visibleFrameInWindow) - insets.left);
-        newOffset.x = MIN(maxOffset, MAX(-insets.left, desired));
+        CGFloat clampCeiling = maxOffset + insets.right + targetFrameInWindow.size.width;
+        newOffset.x = MIN(clampCeiling, MAX(-insets.left, desired));
     }
 
     BOOL clamped = desired > maxOffset;
@@ -1104,7 +1162,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         ? scrollView.contentSize.height > previousContentSize.height
         : scrollView.contentSize.width > previousContentSize.width;
 
-    return !(clamped && contentGrew);
+    if (clamped && contentGrew) {
+        return NO;
+    }
+
+    [self adjustScrollView:scrollView forObscuredTarget:target direction:direction animated:animated];
+    return YES;
 }
 
 // Advances the scroll view by one page to reveal more content while searching
@@ -1179,30 +1242,30 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetOffset:(CGFloat)targetOffset animated:(BOOL)animated
 {
     __block BOOL result = NO;
-    
+
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         // Hacky way to get top-most UIViewController
         UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
         while (rootViewController.presentedViewController != nil) {
             rootViewController = rootViewController.presentedViewController;
         }
-        
+
         NSArray *allViews = [rootViewController.view allSubviews];
         for (UIView *view in [allViews reverseObjectEnumerator]) {
             if ([view isKindOfClass:[UIScrollView class]]) {
                 CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
                 BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
-                
+
                 if (!withinVisibleBounds) {
                     continue;
                 }
-                
+
                 BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
                 if (expectedIdentifier) {
                     UIScrollView *scrollView = (UIScrollView *)view;
-                    
+
                     if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
                         CGFloat targetContentOffsetY = (scrollView.contentSize.height - scrollView.bounds.size.height) * targetOffset;
                         [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
@@ -1210,12 +1273,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         CGFloat targetContentOffsetX = (scrollView.contentSize.width - scrollView.bounds.size.width) * targetOffset;
                         [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
                     }
-                    
+
                     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
                     while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
                         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
                     }
-                    
+
                     result = YES;
                     dispatch_semaphore_signal(sem);
                     break;
@@ -1223,11 +1286,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
         }
     });
-    
+
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
-    
+
     NSString *debugInfo = result ? @"" : @"element not found!";
-    
+
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -1237,20 +1300,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *targetDestination = parameters[SBTUITunnelObjectValueKey];
     NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
-    
+
     if ([scrollType isEqualToString:@"identifier"]) {
         return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
     } else {
         return [self commandScrollTableViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
     }
 }
-    
+
 - (NSDictionary *)commandScrollTableViewWithIdentifier:(NSString *)tableIdentifier targetRow:(NSInteger)elementRow animated:(BOOL)animated
 {
     __block BOOL result = NO;
-    
+
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    
+
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         result = [weakSelf scrollElementWithIdentifier:tableIdentifier
@@ -1274,10 +1337,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                       }
                                     scrollDelegate:^void (UIView *view, NSIndexPath *indexPath) {
                                         UITableView *tableView = (UITableView *)view;
-                                        
+
                                         [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
                                         [weakSelf mainRunLoopForSeconds:0.5];
-                                        
+
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([tableView.indexPathsForVisibleRows containsObject:indexPath] || iteration == 10) {
@@ -1290,14 +1353,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             }
                                         });
                                     }];
-        
+
         dispatch_semaphore_signal(sem);
     });
-    
+
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
-    
+
     NSString *debugInfo = result ? @"" : @"element not found!";
-    
+
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -1307,20 +1370,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *targetDestination = parameters[SBTUITunnelObjectValueKey];
     NSString *scrollType = parameters[SBTUITunnelXCUIExtensionScrollType];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
-    
+
     if ([scrollType isEqualToString:@"identifier"]) {
         return [self commandScrollScrollViewWithIdentifier:elementIdentifier targetIdentifier:targetDestination animated:animated];
     } else {
         return [self commandScrollCollectionViewWithIdentifier:elementIdentifier targetRow:[targetDestination intValue] animated:animated];
     }
 }
-    
+
 - (NSDictionary *)commandScrollCollectionViewWithIdentifier:(NSString *)collectionIdentifier targetRow:(NSInteger)elementRow animated:(BOOL)animated
 {
     __block BOOL result = NO;
-    
+
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    
+
     __weak typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         result = [weakSelf scrollElementWithIdentifier:collectionIdentifier
@@ -1348,7 +1411,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
                                         [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
                                         [weakSelf mainRunLoopForSeconds:0.5];
-                                        
+
                                         __block int iteration = 0;
                                         repeating_dispatch_after((int64_t)(0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                                             if ([collectionView.indexPathsForVisibleItems containsObject:indexPath] || iteration == 10) {
@@ -1361,14 +1424,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                             }
                                         });
                                     }];
-        
+
         dispatch_semaphore_signal(sem);
     });
-    
+
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
-    
+
     NSString *debugInfo = result ? @"" : @"element not found!";
-    
+
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -1377,30 +1440,30 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
 
     __block BOOL result = NO;
-    
+
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         // Hacky way to get top-most UIViewController
         UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
         while (rootViewController.presentedViewController != nil) {
             rootViewController = rootViewController.presentedViewController;
         }
-        
+
         NSArray *allViews = [rootViewController.view allSubviews];
         for (UIView *view in [allViews reverseObjectEnumerator]) {
             BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
             if (expectedIdentifier) {
                 UIView *registeredView = [UIViewController previewingRegisteredViewForView:view];
                 if (registeredView == nil) { break; }
-                
+
                 id<UIViewControllerPreviewingDelegate> sourceDelegate = [UIViewController previewingDelegateForRegisteredView:registeredView];
                 if (sourceDelegate == nil) { break; }
 
                 SBTAnyViewControllerPreviewing *context = [[SBTAnyViewControllerPreviewing alloc] initWithSourceView:registeredView delegate:sourceDelegate];
                 UIViewController *viewController = [sourceDelegate previewingContext:context viewControllerForLocation:view.center];
                 if (viewController == nil) { break; }
-                
+
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [sourceDelegate previewingContext:context commitViewController:viewController];
                     dispatch_semaphore_signal(sem);
@@ -1408,13 +1471,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
         }
     });
-    
+
     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
         result = NO;
     }
-    
+
     NSString *debugInfo = result ? @"" : @"element not found!";
-    
+
     return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
@@ -1438,7 +1501,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             [CLLocationManager removeSwizzles];
         }
     #endif
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -1462,7 +1525,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     #if !DISABLE_UITUNNEL_SWIZZLING
         NSString *authorizationStatus = parameters[SBTUITunnelObjectValueKey];
-        
+
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
@@ -1481,7 +1544,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             #endif
         }
     #endif
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -1490,7 +1553,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     #if !DISABLE_UITUNNEL_SWIZZLING
         #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
             NSString *accuracyAuthorization = parameters[SBTUITunnelObjectValueKey];
-            
+
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
             for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
                 if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
@@ -1501,14 +1564,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
         #endif
     #endif
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 - (NSDictionary *)commandCoreLocationStubServiceStatus:(NSDictionary *)parameters
 {
     NSString *serviceStatus = parameters[SBTUITunnelObjectValueKey];
-    
+
     [self.coreLocationStubbedServiceStatus setString:serviceStatus];
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1517,7 +1580,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandCoreLocationNotifyUpdate:(NSDictionary *)parameters
 {
     [self commandCoreLocationStubManagerLocation:parameters];
-    
+
     #if !DISABLE_UITUNNEL_SWIZZLING
         NSData *locationsData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelObjectKey] options:0];
 
@@ -1537,7 +1600,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                     [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
                                 });
                             }
-                            
+
                             break;
                         }
                         default:
@@ -1584,14 +1647,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             [UNUserNotificationCenter removeSwizzles];
         }
     #endif
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 - (NSDictionary *)commandNotificationCenterStubAuthorizationStatus:(NSDictionary *)parameters
 {
     NSString *authorizationStatus = parameters[SBTUITunnelObjectValueKey];
-    
+
     [self.notificationCenterStubbedAuthorizationStatus setString:authorizationStatus];
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1607,7 +1670,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     } else {
         [self disableUrlProtocolInWkWebview];
     }
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
@@ -1616,11 +1679,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 + (NSMutableDictionary *)customCommands
 {
     static NSMutableDictionary *customCommandsDict = nil;
-    
+
     if (customCommandsDict == nil) {
         customCommandsDict = [NSMutableDictionary dictionary];
     }
-    
+
     return customCommandsDict;
 }
 
@@ -1632,7 +1695,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     if ([[self customCommands] objectForKey:commandName]) {
         NSAssert(NO, @"Custom command already registered, did you forgot to unregister it?");
     }
-    
+
     [[self customCommands] setObject:block forKey:commandName];
 }
 
@@ -1658,10 +1721,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (![[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0]) {
         NSLog(@"[SBTUITestTunnel] Invalid stubRequest received!");
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -1669,10 +1732,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (![[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelRewriteMatchRuleKey] options:0]) {
         NSLog(@"[SBTUITestTunnel] Invalid rewriteRequest received!");
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -1680,10 +1743,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (![[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0]) {
         NSLog(@"[SBTUITestTunnel] Invalid monitorRequest received!");
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -1691,10 +1754,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (parameters[SBTUITunnelProxyQueryResponseTimeKey] != nil && ![[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0]) {
         NSLog(@"[SBTUITestTunnel] Invalid throttleRequest received!");
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -1702,10 +1765,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     if (![[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0]) {
         NSLog(@"[SBTUITestTunnel] Invalid cookieBlockRequest received!");
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 
@@ -1719,7 +1782,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                                      [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject],
                                      [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject],
                                      NSTemporaryDirectory()];
-    
+
     NSError *error = nil;
     for (NSString *folder in folders) {
         for (NSString *file in [fm contentsOfDirectoryAtPath:folder error:&error]) {
@@ -1734,27 +1797,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *commandString = [commandName stringByAppendingString:@":"];
     SEL commandSelector = NSSelectorFromString(commandString);
-    
+
     NSMutableDictionary *unescapedParams = [params mutableCopy];
     for (NSString *key in params) {
         unescapedParams[key] = [unescapedParams[key] stringByRemovingPercentEncoding];
     }
-        
+
     NSDictionary *response = nil;
 
     if (![self.sharedInstance processCustomCommandIfNecessary:commandName parameters:unescapedParams returnObject:&response]) {
         if (![self.sharedInstance respondsToSelector:commandSelector]) {
             NSAssert(NO, @"[UITestTunnelServer] Unhandled/unknown command! %@", commandName);
         }
-        
+
         IMP imp = [self.sharedInstance methodForSelector:commandSelector];
-        
+
         NSLog(@"[SBTUITestTunnel] Executing command '%@'", commandName);
-        
+
         NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
         response = func(self.sharedInstance, commandSelector, unescapedParams);
     }
-    
+
     return response[SBTUITunnelResponseResultKey];
 }
 
@@ -1767,9 +1830,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (void)reset
 {
     [SBTProxyURLProtocol reset];
-    
+
     [self.webSocketServers removeAllObjects];
-    
+
     [[self customCommands] removeAllObjects];
 }
 
@@ -1806,27 +1869,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandLaunchWebSocket:(NSDictionary *)parameters
 {
     NSString *identifier = parameters[SBTUITunnelObjectKey];
-    
+
     if ([identifier length] == 0) {
         NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
         return @{ SBTUITunnelResponseResultKey: @"0" };
     }
-    
+
     if (self.webSocketServers[identifier]) {
         NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' already exists", identifier);
-        
+
         SBTWebSocketServer *existingServer = self.webSocketServers[identifier];
         NSInteger port = existingServer.port;
-        
+
         return @{ SBTUITunnelResponseResultKey: [NSString stringWithFormat:@"%ld", port] };
     }
-    
+
     NSInteger port = [SBTUITestTunnelNetworkUtility reserveSocketPort];
     if (port < 0) {
         NSLog(@"[SBTUITestTunnel] Failed to find available port for WebSocket server");
         return @{ SBTUITunnelResponseResultKey: @"0" };
     }
-    
+
     SBTWebSocketServer *webSocketServer = [[SBTWebSocketServer alloc] initWithPort:port];
     NSError *error = nil;
     [webSocketServer startWithError:&error];
@@ -1834,11 +1897,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[SBTUITestTunnel] Failed to start WebSocket server: %@", error.description);
         return @{ SBTUITunnelResponseResultKey: @"0" };
     }
-    
+
     self.webSocketServers[identifier] = webSocketServer;
-    
+
     NSLog(@"[SBTUITestTunnel] Started WebSocket server with identifier '%@' on port %ld", identifier, port);
-    
+
     return @{ SBTUITunnelResponseResultKey: [NSString stringWithFormat:@"%ld", port] };
 }
 
@@ -1846,47 +1909,47 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSString *identifier = parameters[SBTUITunnelObjectKey];
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubResponseKey] options:0];
-    
+
     if ([identifier length] == 0) {
         NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
-    
+
     SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
     if (!webSocketServer) {
         NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' not found", identifier);
         return @{ SBTUITunnelResponseResultKey: @"NO" };
     }
-    
+
     webSocketServer.stubbedReceiveMessage = responseData;
-    
+
     NSLog(@"[SBTUITestTunnel] Set stub response for WebSocket server with identifier '%@'", identifier);
-    
+
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
 - (NSDictionary *)commandFlushWebSocketMessages:(NSDictionary *)parameters
 {
     NSString *identifier = parameters[SBTUITunnelObjectKey];
-    
+
     if ([identifier length] == 0) {
         NSLog(@"[SBTUITestTunnel] Invalid WebSocket identifier received!");
         return @{ SBTUITunnelResponseResultKey: @"" };
     }
-    
+
     SBTWebSocketServer *webSocketServer = self.webSocketServers[identifier];
     if (!webSocketServer) {
         NSLog(@"[SBTUITestTunnel] WebSocket server with identifier '%@' not found", identifier);
         return @{ SBTUITunnelResponseResultKey: @"" };
     }
-    
+
     NSArray<NSData *> *messages = [webSocketServer flushReceivedMessages];
-    
+
     NSLog(@"[SBTUITestTunnel] Flushed %lu messages from WebSocket server with identifier '%@'", messages.count, identifier);
-    
+
     NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:messages requiringSecureCoding:YES error:nil];
     NSString *base64String = archivedData ? [archivedData base64EncodedStringWithOptions:0] : @"";
-    
+
     return @{ SBTUITunnelResponseResultKey: base64String };
 }
 
