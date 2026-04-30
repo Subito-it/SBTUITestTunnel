@@ -18,6 +18,7 @@
 #import "include/SBTRequestMatch.h"
 #import "include/SBTRequestPropertyStorage.h"
 #import "include/SBTUITestTunnel.h"
+#import "include/NSURLRequest+HTTPBodyFix.h"
 #import "private/NSData+gzip.h"
 
 @implementation SBTMonitoredNetworkRequest : NSObject
@@ -47,15 +48,8 @@
 {
     [encoder encodeDouble:self.timestamp forKey:NSStringFromSelector(@selector(timestamp))];
     [encoder encodeDouble:self.requestTime forKey:NSStringFromSelector(@selector(requestTime))];
-    
-    NSMutableURLRequest *fixedRequest = [self.request mutableCopy];
-    fixedRequest.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self.request];
-    [encoder encodeObject:fixedRequest forKey:NSStringFromSelector(@selector(request))];
-    
-    NSMutableURLRequest *fixedOriginalRequest = [self.originalRequest mutableCopy];
-    fixedOriginalRequest.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self.originalRequest];
-    [encoder encodeObject:fixedOriginalRequest forKey:NSStringFromSelector(@selector(originalRequest))];
-    
+    [encoder encodeObject:self.request.sendableCopy forKey:NSStringFromSelector(@selector(request))];
+    [encoder encodeObject:self.originalRequest.sendableCopy forKey:NSStringFromSelector(@selector(originalRequest))];
     [encoder encodeObject:self.response forKey:NSStringFromSelector(@selector(response))];
     [encoder encodeObject:self.responseData forKey:NSStringFromSelector(@selector(responseData))];
     [encoder encodeObject:self.requestData forKey:NSStringFromSelector(@selector(requestData))];
@@ -130,12 +124,18 @@
 
 - (id)requestJSON
 {
-    if (!self.originalRequest.HTTPBody) {
+    NSData *data = self.requestData;
+    
+    if ([self.originalRequest.allHTTPHeaderFields[@"Content-Encoding"] isEqualToString:@"gzip"]) {
+        data = [data gzipInflate];
+    }
+    
+    if (data == nil) {
         return nil;
     }
     
     NSError *error = nil;
-    id ret = [NSJSONSerialization JSONObjectWithData:[self httpBodyFromRequest:self.originalRequest] options:NSJSONReadingMutableContainers error:&error];
+    id ret = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
     
     return (ret && !error) ? ret : nil;
 }
