@@ -28,6 +28,7 @@
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate;
 - (CLLocation *)location;
+- (NSThread *)swz_creationThread;
 
 @end
 

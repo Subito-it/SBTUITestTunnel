@@ -1529,16 +1529,33 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
-                });
+                struct objc_method_description desc = protocol_getMethodDescription(@protocol(CLLocationManagerDelegate),
+                                                                                    @selector(locationManager:didChangeAuthorizationStatus:),
+                                                                                    NO,
+                                                                                    YES);
+                NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:desc.types];
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                [invocation setTarget:locationManager.stubbedDelegate];
+                [invocation setSelector:@selector(locationManager:didChangeAuthorizationStatus:)];
+                [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                [invocation setArgument:&authorizationStatus atIndex:3];
+                [invocation retainArguments];
+                [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
             }
             #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
                 if (@available(iOS 14.0, *)) {
                     if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-                        });
+                        struct objc_method_description desc = protocol_getMethodDescription(@protocol(CLLocationManagerDelegate),
+                                                                                            @selector(locationManagerDidChangeAuthorization:),
+                                                                                            NO,
+                                                                                            YES);
+                        NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:desc.types];
+                        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                        [invocation setTarget:locationManager.stubbedDelegate];
+                        [invocation setSelector:@selector(locationManagerDidChangeAuthorization:)];
+                        [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                        [invocation retainArguments];
+                        [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                     }
                 }
             #endif
@@ -1557,9 +1574,17 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
             for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
                 if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-                    });
+                    struct objc_method_description desc = protocol_getMethodDescription(@protocol(CLLocationManagerDelegate),
+                                                                                        @selector(locationManagerDidChangeAuthorization:),
+                                                                                        NO,
+                                                                                        YES);
+                    NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:desc.types];
+                    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                    [invocation setTarget:locationManager.stubbedDelegate];
+                    [invocation setSelector:@selector(locationManagerDidChangeAuthorization:)];
+                    [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                    [invocation retainArguments];
+                    [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                 }
             }
         #endif
@@ -1596,9 +1621,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                         case kCLAuthorizationStatusAuthorizedAlways:
                         case kCLAuthorizationStatusAuthorizedWhenInUse: {
                             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
-                                });
+                                struct objc_method_description desc = protocol_getMethodDescription(@protocol(CLLocationManagerDelegate),
+                                                                                                    @selector(locationManager:didUpdateLocations:),
+                                                                                                    NO,
+                                                                                                    YES);
+                                NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:desc.types];
+                                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                                [invocation setTarget:locationManager.stubbedDelegate];
+                                [invocation setSelector:@selector(locationManager:didUpdateLocations:)];
+                                [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                                [invocation setArgument:&locations atIndex:3];
+                                [invocation retainArguments];
+                                [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
                             }
 
                             break;
@@ -1625,9 +1659,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
             if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didFailWithError:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
-                });
+                struct objc_method_description desc = protocol_getMethodDescription(@protocol(CLLocationManagerDelegate),
+                                                                                    @selector(locationManager:didFailWithError:),
+                                                                                    NO,
+                                                                                    YES);
+                NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:desc.types];
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                [invocation setTarget:locationManager.stubbedDelegate];
+                [invocation setSelector:@selector(locationManager:didFailWithError:)];
+                [invocation setArgument:(void * _Nonnull)&(locationManager) atIndex:2];
+                [invocation setArgument:&error atIndex:3];
+                [invocation retainArguments];
+                [invocation performSelector:@selector(invoke) onThread:locationManager.swz_creationThread withObject:nil waitUntilDone:NO];
             }
         }
     #endif

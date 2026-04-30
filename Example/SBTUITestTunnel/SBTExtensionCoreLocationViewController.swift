@@ -17,17 +17,37 @@
 import CoreLocation
 import UIKit
 
+class MainThreadSBTExtensionCoreLocationViewController: SBTExtensionCoreLocationViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
+    }
+}
+
+class BackgroundThreadSBTExtensionCoreLocationViewController: SBTExtensionCoreLocationViewController {
+    private let workerThread = SBUITestThread()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        workerThread.start { [weak self] in
+            guard let self else { return }
+            self.locationManager = CLLocationManager()
+            self.locationManager?.delegate = self
+        }
+    }
+}
+
 class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManagerDelegate {
-    private let authorizationButton = UIButton()
-    private let updateLocationButton = UIButton()
-    private let stopLocationUpdateButton = UIButton()
-    private let currentLocationButton = UIButton()
-    private let statusLabel = UILabel()
-    private let statusThreadLabel = UILabel()
-    private let locationLabel = UILabel()
-    private let locationThreadLabel = UILabel()
-    private let currentLocationLabel = UILabel()
-    private let locationManager = CLLocationManager()
+    fileprivate let authorizationButton = UIButton()
+    fileprivate let updateLocationButton = UIButton()
+    fileprivate let stopLocationUpdateButton = UIButton()
+    fileprivate let currentLocationButton = UIButton()
+    fileprivate let statusLabel = UILabel()
+    fileprivate let statusThreadLabel = UILabel()
+    fileprivate let locationLabel = UILabel()
+    fileprivate let locationThreadLabel = UILabel()
+    fileprivate let currentLocationLabel = UILabel()
+    fileprivate var locationManager: CLLocationManager?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,27 +106,26 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
             contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
 
-        locationManager.delegate = self
     }
 
     @objc func updateTapped(_: Any) {
-        locationManager.startUpdatingLocation()
+        locationManager?.startUpdatingLocation()
     }
 
     @objc func stopTapped(_: Any) {
-        locationManager.stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
     }
 
     @objc func authorizationStatusTapped(_: Any) {
         if #available(iOS 14.0, *) {
-            statusLabel.text = "\(locationManager.authorizationStatus.description)"
+            statusLabel.text = "\(locationManager?.authorizationStatus.description ?? "nil")"
         } else {
             statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
         }
     }
 
     @objc func currentLocationTapped(_: Any) {
-        if let location = locationManager.location {
+        if let location = locationManager?.location {
             currentLocationLabel.text = "\(location.coordinate.latitude) \(location.coordinate.longitude)"
         } else {
             currentLocationLabel.text = "nil"
@@ -115,9 +134,10 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
 }
 
 @available(iOS 14.0, *)
-extension SBTExtensionCoreLocationViewController {
+extension BackgroundThreadSBTExtensionCoreLocationViewController {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == workerThread.thread)
         DispatchQueue.main.async { [weak self] in
             self?.statusLabel.text = manager.authorizationStatus.description
             self?.statusThreadLabel.text = threadName
@@ -125,9 +145,10 @@ extension SBTExtensionCoreLocationViewController {
     }
 }
 
-extension SBTExtensionCoreLocationViewController {
+extension BackgroundThreadSBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == workerThread.thread)
         if #unavailable(iOS 14.0) {
             DispatchQueue.main.async { [weak self] in
                 self?.statusLabel.text = status.description
@@ -137,9 +158,46 @@ extension SBTExtensionCoreLocationViewController {
     }
 }
 
-extension SBTExtensionCoreLocationViewController {
+extension BackgroundThreadSBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == workerThread.thread)
+        DispatchQueue.main.async { [weak self] in
+            self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
+            self?.locationThreadLabel.text = threadName
+        }
+    }
+}
+
+@available(iOS 14.0, *)
+extension MainThreadSBTExtensionCoreLocationViewController {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == Thread.main)
+        DispatchQueue.main.async { [weak self] in
+            self?.statusLabel.text = manager.authorizationStatus.description
+            self?.statusThreadLabel.text = threadName
+        }
+    }
+}
+
+extension MainThreadSBTExtensionCoreLocationViewController {
+    func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == Thread.main)
+        if #unavailable(iOS 14.0) {
+            DispatchQueue.main.async { [weak self] in
+                self?.statusLabel.text = status.description
+                self?.statusThreadLabel.text = threadName
+            }
+        }
+    }
+}
+
+extension MainThreadSBTExtensionCoreLocationViewController {
+    func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        assert(Thread.current == Thread.main)
         DispatchQueue.main.async { [weak self] in
             self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
             self?.locationThreadLabel.text = threadName
