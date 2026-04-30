@@ -62,6 +62,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ---
 
+## 📱 SceneDelegate Lifecycle Setup
+
+For apps using `UIWindowSceneDelegate`, call `takeOff()` in `scene(_:willConnectTo:options:)` **before** creating the window and root view controller.
+
+**Do not call `takeOff()` in the AppDelegate when using scenes.** `takeOff()` spins the main RunLoop while waiting for the test runner. This causes iOS to deliver `scene(_:willConnectTo:options:)` *during* the `takeOff()` call — before the startup block has executed. Placing `takeOff()` inside the scene callback avoids this, since the RunLoop spin cannot re-enter the same scene connection.
+
+```swift
+import UIKit
+
+#if DEBUG
+import SBTUITestTunnelServer
+#endif
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        
+        #if DEBUG
+        SBTUITestTunnelServer.takeOff()
+        #endif
+        
+        guard let windowScene = scene as? UIWindowScene else { return }
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = // ...
+        window?.makeKeyAndVisible()
+    }
+}
+```
+
+---
+
 ## 🧪 UI Test Target Setup
 
 **No additional setup required!** SBTUITestTunnel automatically provides a convenient `app` property (of type `SBTUITunneledApplication`) that's ready to use in your test cases.
