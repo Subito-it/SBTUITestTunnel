@@ -160,7 +160,7 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 - (void)swz_invokeOldDelegate:(id<CLLocationManagerDelegate>)delegate {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    [delegate locationManager:self didChangeAuthorizationStatus:self.swz_authorizationStatus];
+    [delegate locationManager:self didChangeAuthorizationStatus:self.authorizationStatus];
 #pragma GCC diagnostic pop
 }
 
