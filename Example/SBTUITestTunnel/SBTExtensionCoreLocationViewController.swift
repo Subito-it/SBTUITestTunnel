@@ -24,6 +24,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let currentLocationButton = UIButton()
     private let statusLabel = UILabel()
     private let statusThreadLabel = UILabel()
+    private let preIOS14DeprecatedDelegateStatusLabel = UILabel()
     private let locationLabel = UILabel()
     private let locationThreadLabel = UILabel()
     private let currentLocationLabel = UILabel()
@@ -41,6 +42,10 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         statusThreadLabel.text = "-"
         statusThreadLabel.textColor = .black
         statusThreadLabel.accessibilityIdentifier = "location_status_thread"
+
+        preIOS14DeprecatedDelegateStatusLabel.text = "-"
+        preIOS14DeprecatedDelegateStatusLabel.textColor = .black
+        preIOS14DeprecatedDelegateStatusLabel.accessibilityIdentifier = "location_pre_ios14_deprecated_delegate_status"
 
         locationLabel.text = "-"
         locationLabel.textColor = .black
@@ -69,7 +74,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         stopLocationUpdateButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
         currentLocationButton.addTarget(self, action: #selector(currentLocationTapped), for: .touchUpInside)
 
-        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel, statusThreadLabel])
+        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel, statusThreadLabel, preIOS14DeprecatedDelegateStatusLabel])
         let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, locationThreadLabel, currentLocationLabel])
         let contentStack = UIStackView(arrangedSubviews: [statusStack, locationStack])
 
@@ -128,8 +133,9 @@ extension SBTExtensionCoreLocationViewController {
 extension SBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let threadName = Thread.isMainThread ? "Main" : "Not main"
-        if #unavailable(iOS 14.0) {
-            DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [weak self] in
+            self?.preIOS14DeprecatedDelegateStatusLabel.text = status.description
+            if #unavailable(iOS 14.0) {
                 self?.statusLabel.text = status.description
                 self?.statusThreadLabel.text = threadName
             }

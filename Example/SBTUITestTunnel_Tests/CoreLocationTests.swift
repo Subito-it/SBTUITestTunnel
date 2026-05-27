@@ -204,6 +204,20 @@ class CoreLocationTests: XCTestCase {
         }
     }
 
+    func testCoreLocationPreIOS14DeprecatedDelegateReceivesStubbedAuthorizationStatusOnInit() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+        app.coreLocationStubAuthorizationStatus(.denied)
+
+        app.tables.cells["showCoreLocationViewController"].tap()
+
+        // The pre-iOS 14 deprecated locationManager:didChangeAuthorizationStatus:
+        // delegate method must receive the stubbed status (denied) on the initial
+        // delegate invocation, not the device's actual authorization status.
+        wait { self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "denied" }
+    }
+
     @available(iOS 14, *)
     func testCoreLocationStubAccuracyAuthorization() {
         app.launchTunnel()
