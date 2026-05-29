@@ -79,6 +79,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     self.connected = NO;
     self.connectionPort = 0;
     self.connectionTimeout = SBTUITunneledApplicationDefaultTimeout;
+
+    [self.ipcConnection invalidate];
+    self.ipcConnection = nil;
+    self.ipcProxy = nil;
 }
 
 - (void)shutDownWithError:(NSError *)error
@@ -159,20 +163,24 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.application.launchEnvironment = launchEnvironment;
         
         __weak typeof(self)weakSelf = self;
-        // Start polling the server with the choosen port
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
-            NSLog(@"[SBTUITestTunnel] HTTP tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - self.launchStart);
-            
+
+            if (!weakSelf || weakSelf.connectionPort == 0) {
+                return;
+            }
+
+            NSLog(@"[SBTUITestTunnel] HTTP tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.connected = YES;
                 if (weakSelf.startupBlock) {
                     weakSelf.startupBlock();
                     NSLog(@"[SBTUITestTunnel] Did perform startupBlock");
                 }
-                
+
                 NSAssert([NSThread isMainThread], @"We synch on main thread");
-                weakSelf.startupCompleted = [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
+                weakSelf.startupCompleted = [[weakSelf sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStartupCommandsCompleted params:@{}] isEqualToString:@"YES"];
             });
         });
     }
@@ -1131,8 +1139,10 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         dispatch_semaphore_signal(synchRequestSemaphore);
     }] resume];
     
-    if (dispatch_semaphore_wait(synchRequestSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC))) != 0) {}
-    
+    if (dispatch_semaphore_wait(synchRequestSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledApplicationDefaultTimeout * NSEC_PER_SEC))) != 0) {
+        NSLog(@"[SBTUITestTunnel] HTTP request timeout after %ds for %@", (int)SBTUITunneledApplicationDefaultTimeout, request.URL);
+    }
+
     return responseId;
 }
 
