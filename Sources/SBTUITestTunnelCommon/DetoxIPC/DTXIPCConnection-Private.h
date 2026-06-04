@@ -10,7 +10,8 @@
 
 @protocol _DTXIPCImpl <NSObject>
 
-- (oneway void)_slaveDidConnectWithName:(NSString*)slaveServiceName;
+// Intentionally synchronous (not oneway): caller must block until master sets _otherConnection.
+- (void)_slaveDidConnectWithName:(NSString*)slaveServiceName;
 - (oneway void)_invokeFromRemote:(NSDictionary*)serializedInvocation;
 - (oneway void)_invokeRemoteBlock:(NSDictionary*)serializedBlock;
 - (oneway void)_cleanupRemoteBlock:(NSString*)identifier;
