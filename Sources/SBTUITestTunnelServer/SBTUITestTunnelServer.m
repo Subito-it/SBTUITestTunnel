@@ -34,6 +34,8 @@
 #import "private/UIView+Extensions.h"
 #import "WebSocket/SBTWebSocketServer.h"
 
+#define SBTUITESTTUNNEL_HAS_UIKEYBOARD (!TARGET_OS_TV && !TARGET_OS_WATCH)
+
 #if !defined(NS_BLOCK_ASSERTIONS)
 
 #define BlockAssert(condition, desc, ...) \
@@ -86,7 +88,9 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
 @property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
+#if SBTUITESTTUNNEL_HAS_UIKEYBOARD
 @property (nonatomic, assign) CGRect keyboardFrameInScreenCoordinates;
+#endif
 
 @property (nonatomic, strong) DTXIPCConnection* ipcConnection;
 @property (nonatomic, strong) id<SBTIPCTunnel> ipcProxy;
@@ -110,9 +114,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
         sharedInstance.webSocketServers = [NSMutableDictionary dictionary];
+#if SBTUITESTTUNNEL_HAS_UIKEYBOARD
         sharedInstance.keyboardFrameInScreenCoordinates = CGRectNull;
 
         [sharedInstance startObservingKeyboardNotifications];
+#endif
 
         [sharedInstance reset];
     });
@@ -872,6 +878,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
 
+#if SBTUITESTTUNNEL_HAS_UIKEYBOARD
 - (void)startObservingKeyboardNotifications
 {
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
@@ -895,6 +902,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     return !CGRectIsNull(self.keyboardFrameInScreenCoordinates) && !CGRectIsEmpty(self.keyboardFrameInScreenCoordinates);
 }
+#endif
 
 - (CGFloat)maxContentOffsetForScrollView:(UIScrollView *)scrollView direction:(SBTUITestTunnelScrollDirection)direction
 {
@@ -923,6 +931,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return CGRectZero;
     }
 
+#if SBTUITESTTUNNEL_HAS_UIKEYBOARD
     if ([self isKeyboardVisible]) {
         CGRect keyboardFrame = [window convertRect:self.keyboardFrameInScreenCoordinates fromWindow:nil];
         CGRect overlap = CGRectIntersection(visibleFrame, keyboardFrame);
@@ -936,6 +945,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
         }
     }
+#endif
 
     return visibleFrame;
 }
