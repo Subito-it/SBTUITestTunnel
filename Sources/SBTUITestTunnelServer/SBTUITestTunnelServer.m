@@ -82,6 +82,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableDictionary<NSString *, SBTWebSocketServer *> *webSocketServers;
 
 @property (nonatomic, assign) BOOL startupCompleted;
+@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -106,6 +107,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
+        sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
@@ -186,15 +188,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
-    NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
-    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-    while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
-        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-
-        if (self.startupCompleted) {
-            NSLog(@"[SBTUITestTunnel] Up and running!");
-            return YES;
-        }
+    if ([self waitForStartupCompleted]) {
+        NSLog(@"[SBTUITestTunnel] Up and running!");
+        return YES;
     }
 
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
@@ -301,20 +297,36 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
-    NSAssert([NSThread isMainThread], @"We synch startupCompleted on main thread");
-    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-    while (CFAbsoluteTimeGetCurrent() - start < SBTUITunneledServerDefaultTimeout) {
-        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-
-        if (self.startupCompleted) {
-            NSLog(@"[SBTUITestTunnel] Up and running!");
-            return YES;
-        }
+    if ([self waitForStartupCompleted]) {
+        NSLog(@"[SBTUITestTunnel] Up and running!");
+        return YES;
     }
 
     BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
 
     return NO;
+}
+
+/// Blocks the calling thread until the test runner signals that its startup
+/// commands finished, or the default timeout elapses.
+///
+/// This intentionally parks the thread on a semaphore instead of pumping the
+/// main run loop. `takeOff` is expected to be called from the very start of the
+/// app delegate's `-application:didFinishLaunchingWithOptions:`, and spinning the
+/// main run loop there lets UIKit deliver scene-connection callbacks
+/// (`-scene:willConnectTo:options:`) re-entrantly, *before* the startup commands
+/// have injected their state — so the UI would build from stale data. Parking the
+/// thread keeps the launch sequence strictly ordered on every life cycle
+/// (app-delegate or scene based). Startup commands themselves are serviced on the
+/// server's background command queue (HTTP) or the IPC connection's private queue,
+/// so blocking the main thread does not deadlock the handshake.
+- (BOOL)waitForStartupCompleted
+{
+    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
+        return NO;
+    }
+
+    return self.startupCompleted;
 }
 
 - (BOOL)processCustomCommandIfNecessary:(NSString *)command parameters:(NSDictionary *)parameters returnObject:(NSObject **)returnObject
@@ -863,11 +875,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStartupCompleted:(NSDictionary *)parameters
 {
-    __weak typeof(self)weakSelf = self;
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        weakSelf.startupCompleted = YES; NSAssert([NSThread isMainThread], @"We synch on main thread");
-    });
+    // Runs on the server's background command queue (HTTP) or the IPC private
+    // queue — never the main thread. Flip the flag and release the semaphore
+    // `takeOff` is parked on; do not hop to the main queue, otherwise `takeOff`
+    // would have to pump the main run loop to observe the change and reintroduce
+    // the scene-connection re-entrancy this is designed to avoid.
+    self.startupCompleted = YES;
+    dispatch_semaphore_signal(self.startupCompletedSemaphore);
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }

@@ -26,6 +26,15 @@ target "SBTUITestTunnel_TestsNoSwizzling" do
   test_target
 end
 
+target "SceneExample" do
+  pod "SBTUITestTunnelServer", :path => "../"
+  pod "SBTUITestTunnelCommon", :path => "../"
+end
+
+target "SceneExample_Tests" do
+  test_target
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
