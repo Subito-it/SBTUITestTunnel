@@ -64,14 +64,29 @@ module Build
   end
 
   def self.available_simulators(family = "iPhone")
-    # Return the UDID of the first *available* simulator of the requested family.
-    # Selecting by UDID (rather than name) avoids the ambiguity where a bare
-    # name resolves to OS:latest even though that device exists only on an older
-    # runtime — which fails with "Unable to find a device matching...".
-    line = `xcrun simctl list devices available 2>&1 | grep -E "^ *#{family}"`.each_line.first
-    udid = line ? line[/[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}/] : nil
-    raise "No available #{family} simulator found" unless udid
-    puts "📱 Selected simulator: '#{line.strip}'"
-    return udid
+    # Return the UDID of an *available* simulator of the requested family on the
+    # newest installed iOS runtime. Selecting by UDID (rather than name) avoids
+    # the ambiguity where a bare name resolves to OS:latest even though that
+    # device exists only on an older runtime.
+    #
+    # The runtime must be chosen explicitly: runners keep multiple Xcodes (hence
+    # multiple iOS runtimes) installed side by side, so a plain "first iPad"
+    # scan can land on a stale runtime (e.g. iOS 18.5) even after selecting a
+    # newer Xcode. The multi-window SceneDelegate test in particular needs
+    # iOS 26+, so always target the highest available iOS version.
+    require "json"
+    devices = JSON.parse(`xcrun simctl list devices available --json`)["devices"]
+
+    newest_runtime = devices.keys
+      .select { |id| id.include?("SimRuntime.iOS-") }
+      .max_by { |id| id[/iOS-([\d-]+)/, 1].split("-").map(&:to_i) }
+    raise "No available iOS simulator runtime found" unless newest_runtime
+
+    device = (devices[newest_runtime] || []).find { |d| d["name"].start_with?(family) }
+    raise "No available #{family} simulator found on #{newest_runtime}" unless device
+
+    ios_version = newest_runtime[/iOS-([\d-]+)/, 1].tr("-", ".")
+    puts "📱 Selected simulator: '#{device["name"]}' (iOS #{ios_version})"
+    return device["udid"]
   end
 end
