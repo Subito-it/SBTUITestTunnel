@@ -29,30 +29,27 @@ jobs:
         run: |
           cd Example; xcodegen
           cd SPM; xcodegen
-      # TEMP (scene-delegate investigation): all steps below except the
-      # SceneDelegate UI tests are disabled to shorten CI loops. The rest of the
-      # suite is already green. Restore before merge.
-      # - name: Build App
-      #   run: |
-      #     Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
-      # - name: Run UI Tests
-      #   run: |
-      #     Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
-      # - name: Collect UI Tests artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: SBTUITestTunnel_Tests_iOS.xcresult
-      #     path: SBTUITestTunnel_Tests.xcresult
-      #   if: success() || failure()
-      # - name: Run no swizzling UI Tests
-      #   run: |
-      #     Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
-      # - name: Collect no swizzling UI Tests artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
-      #     path: SBTUITestTunnel_TestsNoSwizzling.xcresult
-      #   if: success() || failure()
+      - name: Build App
+        run: |
+          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Run UI Tests
+        run: |
+          Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Collect UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_Tests_iOS.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: success() || failure()
+      - name: Run no swizzling UI Tests
+        run: |
+          Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Collect no swizzling UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
+          path: SBTUITestTunnel_TestsNoSwizzling.xcresult
+        if: success() || failure()
       - name: Run SceneDelegate UI Tests
         run: |
           Scripts/run_uitests_scene.rb Example/SBTUITestTunnel.xcworkspace
@@ -62,9 +59,9 @@ jobs:
           name: SceneExample_iOS.xcresult
           path: SceneExample.xcresult
         if: success() || failure()
-      # - name: Build SPM App
-      #   run: |
-      #     Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
-      # - name: Run SPM UI Tests
-      #   run: |
-      #     Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      - name: Build SPM App
+        run: |
+          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      - name: Run SPM UI Tests
+        run: |
+          Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
