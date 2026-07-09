@@ -75,5 +75,30 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
             }
             return nil
         }
+
+        // Regression command for the scene+IPC deadlock: performs a *synchronous*
+        // network request (blocking the calling command queue) whose response is
+        // served by the tunnel's own stub proxy. This mirrors a real host app that
+        // seeds an authenticated session during its startup block. If the proxy
+        // delivered the stubbed response on the main queue, this would deadlock
+        // because `takeOff` parks the main thread on the startup semaphore.
+        SBTUITestTunnelServer.registerCustomCommandNamed("performSyncStubbedRequest") { obj in
+            guard let urlString = obj as? String, let url = URL(string: urlString) else { return "no-url" as NSString }
+
+            let semaphore = DispatchSemaphore(value: 0)
+            var result = "timeout"
+            // URLSession.shared honours the globally-registered SBTProxyURLProtocol
+            // (a custom-configuration session would not), so the stub intercepts it.
+            let task = URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let data, let body = String(data: data, encoding: .utf8) {
+                    result = body
+                }
+                semaphore.signal()
+            }
+            task.resume()
+
+            _ = semaphore.wait(timeout: .now() + 30)
+            return result as NSString
+        }
     }
 }

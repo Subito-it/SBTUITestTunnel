@@ -89,6 +89,40 @@ final class SceneLaunchOrderingTests: XCTestCase {
         }
     }
 
+    /// Deadlock regression: a startup command that performs a *synchronous*
+    /// network request served by the tunnel's own stub proxy must complete.
+    ///
+    /// `takeOff()` parks the main thread on the startup semaphore for the whole
+    /// handshake. The stub proxy used to deliver responses on the main queue, so
+    /// a startup command that blocked waiting on a stubbed request would deadlock:
+    /// the delivery block could never run, the command never returned, the
+    /// handshake never finished, and `takeOff` eventually tripped its "Fail
+    /// waiting for launch semaphore" assertion. The proxy now delivers on a
+    /// background queue; this test injects exactly that shape and asserts the
+    /// launch completes and observes the injected state.
+    func testTakeOffInAppDelegate_startupCommandWithSyncStubbedRequest_doesNotDeadlock() {
+        let injectedValue = "injected-\(ProcessInfo.processInfo.globallyUniqueString)"
+        let stubbedBody = "stub-\(ProcessInfo.processInfo.globallyUniqueString)"
+        let requestURL = "https://sbtuitesttunnel.test/session"
+
+        app.launchArguments = [SceneAppDelegateArg.appDelegate]
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem]) {
+            self.app.userDefaultsSetObject(injectedValue as NSString, forKey: LaunchProbeKeys.injectedKey)
+            self.app.stubRequests(matching: SBTRequestMatch(url: "sbtuitesttunnel.test/session"),
+                                  response: SBTStubResponse(response: stubbedBody))
+            // Blocks the command queue on a synchronous stubbed request while
+            // `takeOff` holds the main thread — the exact deadlock shape.
+            let result = self.app.performCustomCommandNamed("performSyncStubbedRequest", object: requestURL as NSString)
+            XCTAssertEqual(result as? String, stubbedBody, "synchronous stubbed startup request did not complete (deadlock)")
+        }
+
+        XCTContext.runActivity(named: "launch completed without deadlocking on the startup semaphore") { _ in
+            let probe = readProbe()
+            XCTAssertEqual(probe.seenAtDidFinishLaunching, injectedValue, "events=\(probe.events)")
+            XCTAssertEqual(probe.seenAtSceneConnection, injectedValue, "events=\(probe.events)")
+        }
+    }
+
     /// Multi-window regression: a *second* scene, connected long after
     /// `takeOff()` has returned, must still observe the injected state.
     ///
