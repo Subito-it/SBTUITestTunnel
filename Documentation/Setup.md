@@ -64,9 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ## 📱 SceneDelegate Lifecycle Setup
 
-For apps using `UIWindowSceneDelegate`, call `takeOff()` in `scene(_:willConnectTo:options:)` **before** creating the window and root view controller.
+**Call `takeOff()` at the very start of `application(_:didFinishLaunchingWithOptions:)` — the same place as for non-scene apps — even when your app uses `UIWindowSceneDelegate`.** Do **not** move it into `scene(_:willConnectTo:options:)`.
 
-**Do not call `takeOff()` in the AppDelegate when using scenes.** `takeOff()` spins the main RunLoop while waiting for the test runner. This causes iOS to deliver `scene(_:willConnectTo:options:)` *during* the `takeOff()` call — before the startup block has executed. Placing `takeOff()` inside the scene callback avoids this, since the RunLoop spin cannot re-enter the same scene connection.
+The reason is ordering. `takeOff()` blocks until the test runner's startup block has finished injecting its state (`UserDefaults`, keychain, stubs, filesystem reset). `didFinishLaunching` runs *before* any scene callback, and it is typically where apps read that state (feature toggles, session restore, SDK setup). If `takeOff()` is deferred to the scene, all of `didFinishLaunching` executes against **un-injected, stale state**, and the scene builds its UI from stale data too.
+
+`takeOff()` parks the calling thread on a semaphore while it waits, so it does **not** pump the main run loop. Placed in `didFinishLaunching`, it completes the handshake before iOS delivers `scene(_:willConnectTo:options:)`, keeping the launch sequence strictly ordered:
 
 ```swift
 import UIKit
@@ -75,16 +77,30 @@ import UIKit
 import SBTUITestTunnelServer
 #endif
 
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        #if DEBUG
+        SBTUITestTunnelServer.takeOff()   // completes before any scene connects
+        #endif
+
+        // Read toggles / restore session / configure SDKs here — the
+        // tunnel-injected state is guaranteed to be in place.
+        return true
+    }
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    
+
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
-        #if DEBUG
-        SBTUITestTunnelServer.takeOff()
-        #endif
-        
         guard let windowScene = scene as? UIWindowScene else { return }
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = // ...
@@ -92,6 +108,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 }
 ```
+
+> ⚠️ Because `takeOff()` blocks the main thread until the startup block completes, do not run a startup-block command that itself performs a *synchronous* main-thread hop (e.g. `setUserInterfaceAnimationSpeed`). Toggling animations with `setUserInterfaceAnimationsEnabled` is safe.
+
+### Multi-window apps
+
+Call `takeOff()` from `didFinishLaunching`, not from `scene(_:willConnectTo:options:)`. The handshake runs once — repeated `takeOff()` calls are no-ops — and completes before any scene connects, so every scene (including additional windows that connect later) reads the state injected at launch.
 
 ---
 

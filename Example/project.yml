@@ -51,6 +51,33 @@ targets:
     dependencies:
       - target: SBTUITestTunnel_Example
 
+  SceneExample:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SceneExample/SceneExample-Info.plist"
+        PRODUCT_BUNDLE_IDENTIFIER: "com.subito.SceneExample"
+    sources:
+      - path: SceneExample
+        name: "SceneExample"
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: Foundation.framework
+
+  SceneExample_Tests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    settings:
+      base:
+        INFOPLIST_FILE: "SceneExample_Tests/Info.plist"
+    sources:
+      - SceneExample_Tests
+    dependencies:
+      - target: SceneExample
+
 schemes:
   SBTUITestTunnel:
     build:
@@ -109,3 +136,22 @@ schemes:
       region: EN
     management:
       isShown: false
+
+  SceneExample:
+    run:
+      debugEnabled: false
+    build:
+      targets:
+        SceneExample: [run, test, profile, analyze, archive]
+      config: Debug
+    profile:
+      config: Debug
+    test:
+      targets:
+        - SceneExample_Tests
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
+      language: en
+      region: EN

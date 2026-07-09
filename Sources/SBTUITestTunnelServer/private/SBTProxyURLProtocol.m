@@ -39,6 +39,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
 @property (nonatomic, strong) dispatch_queue_t monitoredRequestsSyncQueue;
+@property (nonatomic, strong) dispatch_queue_t responseDeliveryQueue;
 
 @property (nonatomic, strong) NSURLResponse *response;
 
@@ -69,6 +70,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     self.tasksTime = [NSMutableDictionary dictionary];
     self.monitoredRequests = [NSMutableArray array];
     self.monitoredRequestsSyncQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.queue", DISPATCH_QUEUE_SERIAL);
+    self.responseDeliveryQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.delivery", DISPATCH_QUEUE_SERIAL);
 }
 
 # pragma mark - Throttling
@@ -417,7 +419,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         __weak typeof(self)weakSelf = self;
         id<NSURLProtocolClient>client = self.client;
         NSURLRequest *request = self.request;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // Deliver on a background queue rather than the main queue: `takeOff`
+        // parks the main thread on a semaphore during the startup-command
+        // handshake, so a startup command that synchronously waits on a stubbed
+        // request would otherwise deadlock (the delivery block would never run).
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), [SBTProxyURLProtocol sharedInstance].responseDeliveryQueue, ^{
             __strong typeof(weakSelf)strongSelf = weakSelf;
             
             strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
@@ -545,7 +551,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         NSTimeInterval delayResponseTime = [self delayResponseTime];
         __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayResponseTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // See the stub delivery above: dispatch off the main queue so a startup
+        // command that synchronously waits on a throttled/passed-through request
+        // doesn't deadlock while `takeOff` has the main thread parked.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayResponseTime * NSEC_PER_SEC)), [SBTProxyURLProtocol sharedInstance].responseDeliveryQueue, ^{
             [weakSelf.connection resume];
         });
     }

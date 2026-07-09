@@ -8,7 +8,7 @@ jobs:
 
     name: Run UI Test on iOS
     env:
-      xcode_version: "16.4"
+      xcode_version: "26.2"
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -45,6 +45,15 @@ jobs:
         with:
           name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
+        if: success() || failure()
+      - name: Run SceneDelegate UI Tests
+        run: |
+          Scripts/run_uitests_scene.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Collect SceneDelegate UI Tests artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SceneExample_iOS.xcresult
+          path: SceneExample.xcresult
         if: success() || failure()
       - name: Build SPM App
         run: |
