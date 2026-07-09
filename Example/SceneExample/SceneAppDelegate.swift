@@ -71,7 +71,12 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
         // returned must still observe the injected state.
         SBTUITestTunnelServer.registerCustomCommandNamed("activateSecondScene") { _ in
             DispatchQueue.main.async {
-                UIApplication.shared.requestSceneSessionActivation(nil, userActivity: nil, options: nil)
+                UIApplication.shared.requestSceneSessionActivation(nil, userActivity: nil, options: nil) { error in
+                    // The Simulator's FrontBoard declines this ("declined to
+                    // create a scene"); log it so a timeout in the test maps back
+                    // to the real reason instead of looking like a slow connection.
+                    LaunchProbe.record("activateSecondScene:error=\(error.localizedDescription)")
+                }
             }
             return nil
         }
