@@ -113,7 +113,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 ### Multi-window apps
 
-`didFinishLaunching` placement is also the correct choice for apps that support multiple scenes (`UIApplicationSupportsMultipleScenes = true`). The handshake runs **once** — it is guarded so repeated `takeOff()` calls are no-ops — and completes before the *first* scene connects. Any additional scene that connects later (a second window, a re-connected scene) simply reads the state that was already injected at launch; it does not re-run the handshake or block. Calling `takeOff()` from `scene(_:willConnectTo:options:)` instead would not only expose `didFinishLaunching` to stale state, it would tie the one-time handshake to a per-scene callback — the wrong granularity for a multi-window lifecycle.
+Call `takeOff()` from `didFinishLaunching`, not from `scene(_:willConnectTo:options:)`. The handshake runs once — repeated `takeOff()` calls are no-ops — and completes before any scene connects, so every scene (including additional windows that connect later) reads the state injected at launch.
 
 ---
 

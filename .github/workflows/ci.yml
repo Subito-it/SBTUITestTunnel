@@ -8,10 +8,6 @@ jobs:
 
     name: Run UI Test on iOS
     env:
-      # The multi-window SceneDelegate test requires an iOS 26+ simulator: the
-      # iOS 18.x simulator's FrontBoard declines programmatic second-scene
-      # activation ("FBSceneManager … declined to create a scene"), which iOS 26
-      # fixed. Xcode 16.4 (iOS 18.5 sim) therefore can't run that test.
       xcode_version: "26.2"
     steps:
       - name: List Xcode installations
