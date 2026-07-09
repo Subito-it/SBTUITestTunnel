@@ -72,9 +72,8 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
         SBTUITestTunnelServer.registerCustomCommandNamed("activateSecondScene") { _ in
             DispatchQueue.main.async {
                 UIApplication.shared.requestSceneSessionActivation(nil, userActivity: nil, options: nil) { error in
-                    // The Simulator's FrontBoard declines this ("declined to
-                    // create a scene"); log it so a timeout in the test maps back
-                    // to the real reason instead of looking like a slow connection.
+                    // Record the failure so that if the scene never connects the
+                    // test sees the real reason instead of an opaque timeout.
                     LaunchProbe.record("activateSecondScene:error=\(error.localizedDescription)")
                 }
             }

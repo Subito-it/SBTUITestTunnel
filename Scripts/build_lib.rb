@@ -70,10 +70,9 @@ module Build
     # device exists only on an older runtime.
     #
     # The runtime must be chosen explicitly: runners keep multiple Xcodes (hence
-    # multiple iOS runtimes) installed side by side, so a plain "first iPad"
-    # scan can land on a stale runtime (e.g. iOS 18.5) even after selecting a
-    # newer Xcode. The multi-window SceneDelegate test in particular needs
-    # iOS 26+, so always target the highest available iOS version.
+    # multiple iOS runtimes) installed side by side, so a plain "first device"
+    # scan can land on a stale runtime even after selecting a newer Xcode.
+    # Always target the highest available iOS version.
     require "json"
     devices = JSON.parse(`xcrun simctl list devices available --json`)["devices"]
 
