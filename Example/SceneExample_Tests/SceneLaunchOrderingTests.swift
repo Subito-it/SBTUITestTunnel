@@ -36,6 +36,11 @@ final class SceneLaunchOrderingTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = true
+        // The first launch on a freshly-booted CI simulator can exceed the 30s
+        // default startup timeout (the app is cold, the runtime is warming up),
+        // producing a spurious "Waiting for startup block completion timed out"
+        // on the first test only. Give the handshake more headroom on CI.
+        SBTUITunneledApplication.setConnectionTimeout(90)
     }
 
     private func launch(takeOffLocation: String, injectedValue: String) -> (seenAtDidFinishLaunching: String?, seenAtSceneConnection: String?, events: [String]) {
