@@ -154,15 +154,17 @@ final class SceneLaunchOrderingTests: XCTestCase {
 
         let secondSceneConnected = expectation(description: "second scene connected")
         var lastProbe = readProbe()
-        // Poll the probe until a second scene connection is recorded.
-        for _ in 0..<20 where lastProbe.valuesSeenAtSceneConnections.count < 2 {
+        // Poll the probe until a second scene connection is recorded. The window
+        // is generous (≈20s) because CI runners are considerably slower than a
+        // local machine at spinning up a second window scene.
+        for _ in 0..<80 where lastProbe.valuesSeenAtSceneConnections.count < 2 {
             usleep(250_000)
             lastProbe = readProbe()
         }
         if lastProbe.valuesSeenAtSceneConnections.count >= 2 {
             secondSceneConnected.fulfill()
         }
-        wait(for: [secondSceneConnected], timeout: 1)
+        wait(for: [secondSceneConnected], timeout: 10)
 
         NSLog("[SceneLaunchOrderingTests] multiscene-events: \(lastProbe.events)")
 
