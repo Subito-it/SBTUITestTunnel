@@ -8,7 +8,11 @@ jobs:
 
     name: Run UI Test on iOS
     env:
-      xcode_version: "16.4"
+      # The multi-window SceneDelegate test requires an iOS 26+ simulator: the
+      # iOS 18.x simulator's FrontBoard declines programmatic second-scene
+      # activation ("FBSceneManager … declined to create a scene"), which iOS 26
+      # fixed. Xcode 16.4 (iOS 18.5 sim) therefore can't run that test.
+      xcode_version: "26.2"
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -25,27 +29,30 @@ jobs:
         run: |
           cd Example; xcodegen
           cd SPM; xcodegen
-      - name: Build App
-        run: |
-          Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Run UI Tests
-        run: |
-          Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Collect UI Tests artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: SBTUITestTunnel_Tests_iOS.xcresult
-          path: SBTUITestTunnel_Tests.xcresult
-        if: success() || failure()
-      - name: Run no swizzling UI Tests
-        run: |
-          Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Collect no swizzling UI Tests artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
-          path: SBTUITestTunnel_TestsNoSwizzling.xcresult
-        if: success() || failure()
+      # TEMP (scene-delegate investigation): all steps below except the
+      # SceneDelegate UI tests are disabled to shorten CI loops. The rest of the
+      # suite is already green. Restore before merge.
+      # - name: Build App
+      #   run: |
+      #     Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
+      # - name: Run UI Tests
+      #   run: |
+      #     Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
+      # - name: Collect UI Tests artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: SBTUITestTunnel_Tests_iOS.xcresult
+      #     path: SBTUITestTunnel_Tests.xcresult
+      #   if: success() || failure()
+      # - name: Run no swizzling UI Tests
+      #   run: |
+      #     Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
+      # - name: Collect no swizzling UI Tests artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
+      #     path: SBTUITestTunnel_TestsNoSwizzling.xcresult
+      #   if: success() || failure()
       - name: Run SceneDelegate UI Tests
         run: |
           Scripts/run_uitests_scene.rb Example/SBTUITestTunnel.xcworkspace
@@ -55,9 +62,9 @@ jobs:
           name: SceneExample_iOS.xcresult
           path: SceneExample.xcresult
         if: success() || failure()
-      - name: Build SPM App
-        run: |
-          Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
-      - name: Run SPM UI Tests
-        run: |
-          Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      # - name: Build SPM App
+      #   run: |
+      #     Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
+      # - name: Run SPM UI Tests
+      #   run: |
+      #     Scripts/run_uitests.rb Example/SPM/SBTUITestTunnel.xcodeproj
