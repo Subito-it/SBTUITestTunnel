@@ -320,6 +320,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 /// (app-delegate or scene based). Startup commands themselves are serviced on the
 /// server's background command queue (HTTP) or the IPC connection's private queue,
 /// so blocking the main thread does not deadlock the handshake.
+///
+/// Cost & maintenance warning: parking here holds `XCUIApplication launch`,
+/// which does not return until the app's main run loop reports idle — and a
+/// parked main thread cannot report idle until the handshake completes. So the
+/// whole handshake duration is added to every launch. Do NOT "optimize" this by
+/// pumping the run loop while waiting: pumping is exactly what lets UIKit deliver
+/// scene connection re-entrantly (the stale-state bug above), and it is a single
+/// mechanism — you cannot keep the app responsive to XCUITest without also
+/// letting the scene connect early. The right lever is to shorten the handshake
+/// *duration* (e.g. how quickly the client connects), not to stop blocking.
 - (BOOL)waitForStartupCompleted
 {
     if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
