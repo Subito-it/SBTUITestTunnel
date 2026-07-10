@@ -163,7 +163,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.application.launchEnvironment = launchEnvironment;
         
         __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
 
             if (!weakSelf || weakSelf.connectionPort == 0) {
@@ -246,7 +246,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         if (serverUp && [self ping]) {
             return;
         } else {
-            [NSThread sleepForTimeInterval:0.5];
+            [NSThread sleepForTimeInterval:0.05];
         }
     }
 
