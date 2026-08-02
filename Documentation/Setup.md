@@ -68,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 The reason is ordering. `takeOff()` blocks until the test runner's startup block has finished injecting its state (`UserDefaults`, keychain, stubs, filesystem reset). `didFinishLaunching` runs *before* any scene callback, and it is typically where apps read that state (feature toggles, session restore, SDK setup). If `takeOff()` is deferred to the scene, all of `didFinishLaunching` executes against **un-injected, stale state**, and the scene builds its UI from stale data too.
 
-`takeOff()` parks the calling thread on a semaphore while it waits, so it does **not** pump the main run loop. Placed in `didFinishLaunching`, it completes the handshake before iOS delivers `scene(_:willConnectTo:options:)`, keeping the launch sequence strictly ordered:
+`takeOff()` waits in a tunnel-private run-loop mode that services only tunnel-owned startup work, not UIKit lifecycle callbacks. After state injection completes, apps without a pending first-scene connection can drain already-ready lifecycle work while the final tunnel response unwinds. Placed in `didFinishLaunching`, the scene-app path completes the handshake before iOS delivers `scene(_:willConnectTo:options:)`, keeping the launch sequence strictly ordered:
 
 ```swift
 import UIKit
@@ -109,7 +109,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 ```
 
-> ⚠️ Because `takeOff()` blocks the main thread until the startup block completes, do not run a startup-block command that itself performs a *synchronous* main-thread hop (e.g. `setUserInterfaceAnimationSpeed`). Toggling animations with `setUserInterfaceAnimationsEnabled` is safe.
+While waiting for the startup block before the first scene connects, `takeOff()` services tunnel-owned main-thread work in an isolated run-loop mode. Commands such as `setUserInterfaceAnimationSpeed` can therefore be used during startup without allowing scene callbacks to run before state injection completes.
 
 ### Multi-window apps
 

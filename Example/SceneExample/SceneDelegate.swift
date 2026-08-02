@@ -45,6 +45,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
         self.window = window
+        if sceneIndex == 0 {
+            LaunchProbe.windowLayerSpeed = window.layer.speed
+        }
 
         LaunchProbe.record("scene:willConnectTo:end index=\(sceneIndex)")
     }

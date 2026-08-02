@@ -63,6 +63,7 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
                 "seenAtDidFinishLaunching": LaunchProbe.valueSeenAtDidFinishLaunching ?? "nil",
                 "seenAtSceneConnection": LaunchProbe.valueSeenAtSceneConnection ?? "nil",
                 "valuesSeenAtSceneConnections": LaunchProbe.valuesSeenAtSceneConnections,
+                "windowLayerSpeed": LaunchProbe.windowLayerSpeed,
             ] as NSDictionary
         }
 
@@ -85,7 +86,7 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
         // served by the tunnel's own stub proxy. This mirrors a real host app that
         // seeds an authenticated session during its startup block. If the proxy
         // delivered the stubbed response on the main queue, this would deadlock
-        // because `takeOff` parks the main thread on the startup semaphore.
+        // because `takeOff` deliberately does not service UIKit's main run-loop mode.
         SBTUITestTunnelServer.registerCustomCommandNamed("performSyncStubbedRequest") { obj in
             guard let urlString = obj as? String, let url = URL(string: urlString) else { return "no-url" as NSString }
 

@@ -44,6 +44,9 @@ enum LaunchProbe {
     /// connect after `takeOff()` has long since returned.
     static var valuesSeenAtSceneConnections: [String] = []
 
+    /// Layer speed observed after the first scene window became key.
+    static var windowLayerSpeed: Float = 0
+
     static func record(_ event: String) {
         events.append(event)
         NSLog("[LaunchProbe] \(event)")

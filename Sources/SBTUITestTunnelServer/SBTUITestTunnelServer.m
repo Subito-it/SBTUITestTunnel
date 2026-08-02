@@ -36,6 +36,8 @@
 
 #define SBTUITESTTUNNEL_HAS_UIKEYBOARD (!TARGET_OS_TV && !TARGET_OS_WATCH)
 
+static NSRunLoopMode const SBTUITestTunnelStartupRunLoopMode = @"com.sbtuitesttunnel.runloop.startup";
+
 #if !defined(NS_BLOCK_ASSERTIONS)
 
 #define BlockAssert(condition, desc, ...) \
@@ -83,8 +85,11 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, SBTWebSocketServer *> *webSocketServers;
 
-@property (nonatomic, assign) BOOL startupCompleted;
-@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
+@property (atomic, assign) BOOL startupCompleted;
+@property (nonatomic, strong) NSPort *startupRunLoopPort;
+@property (atomic, assign) BOOL preservesFirstSceneOrdering;
+@property (atomic, assign) NSInteger requestedUIAnimationSpeed;
+@property (atomic, assign) BOOL hasRequestedUIAnimationSpeed;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -111,7 +116,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
-        sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
+        sharedInstance.startupRunLoopPort = [NSPort port];
+        [NSRunLoop.mainRunLoop addPort:sharedInstance.startupRunLoopPort forMode:SBTUITestTunnelStartupRunLoopMode];
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
@@ -123,6 +129,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #endif
 
         [sharedInstance reset];
+
+        [NSNotificationCenter.defaultCenter addObserver:sharedInstance
+                                               selector:@selector(windowDidBecomeKey:)
+                                                   name:UIWindowDidBecomeKeyNotification
+                                                 object:nil];
     });
 
     return sharedInstance;
@@ -161,6 +172,8 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
+    self.preservesFirstSceneOrdering = [self shouldPreserveFirstSceneOrdering];
+    NSLog(@"[SBTUITestTunnel] Preserving first-scene launch ordering: %@", self.preservesFirstSceneOrdering ? @"YES" : @"NO");
 
     if (ipcIdentifier) {
         NSLog(@"[SBTUITestTunnel] IPC tunnel taking off");
@@ -169,6 +182,20 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[SBTUITestTunnel] HTTP tunnel taking off");
         return [self takeOffOnceUsingHTTPPort:tunnelPort];
     }
+}
+
+- (BOOL)shouldPreserveFirstSceneOrdering
+{
+    NSDictionary *sceneManifest = NSBundle.mainBundle.infoDictionary[@"UIApplicationSceneManifest"];
+    if (sceneManifest == nil) {
+        return NO;
+    }
+
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        return UIApplication.sharedApplication.connectedScenes.count == 0;
+    }
+
+    return NO;
 }
 
 - (BOOL)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
@@ -199,7 +226,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
 
-    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for startup handshake");
 
     return NO;
 }
@@ -308,31 +335,71 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
 
-    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for startup handshake");
 
     return NO;
 }
 
-/// Blocks the calling thread until the test runner signals that its startup
-/// commands finished, or the default timeout elapses.
+/// Waits until the test runner signals that its startup commands finished, or
+/// the default timeout elapses.
 ///
-/// This intentionally parks the thread on a semaphore instead of pumping the
-/// main run loop. `takeOff` is expected to be called from the very start of the
-/// app delegate's `-application:didFinishLaunchingWithOptions:`, and spinning the
-/// main run loop there lets UIKit deliver scene-connection callbacks
-/// (`-scene:willConnectTo:options:`) re-entrantly, *before* the startup commands
-/// have injected their state — so the UI would build from stale data. Parking the
-/// thread keeps the launch sequence strictly ordered on every life cycle
-/// (app-delegate or scene based). Startup commands themselves are serviced on the
-/// server's background command queue (HTTP) or the IPC connection's private queue,
-/// so blocking the main thread does not deadlock the handshake.
+/// Before a scene application's first scene connects, running the default mode
+/// would let UIKit deliver the connection callback re-entrantly, before the
+/// startup block has injected its state. Use a tunnel-private mode in that case.
+/// After injection is complete, apps without a pending first-scene connection
+/// can safely drain already-ready default-mode work. This overlaps the tail of
+/// the command response without making default-mode sources compete with the
+/// startup commands themselves.
 - (BOOL)waitForStartupCompleted
 {
-    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
-        return NO;
+    NSAssert(NSThread.isMainThread, @"takeOff must wait for startup on the main thread");
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:SBTUITunneledServerDefaultTimeout];
+    while (!self.startupCompleted && deadline.timeIntervalSinceNow > 0) {
+        [NSRunLoop.mainRunLoop runMode:SBTUITestTunnelStartupRunLoopMode beforeDate:deadline];
+    }
+
+    if (self.startupCompleted && !self.preservesFirstSceneOrdering) {
+        [self drainReadyDefaultRunLoopSources];
     }
 
     return self.startupCompleted;
+}
+
+- (void)drainReadyDefaultRunLoopSources
+{
+    static const NSUInteger maximumSourcesToDrain = 100;
+    for (NSUInteger index = 0; index < maximumSourcesToDrain; index++) {
+        SInt32 result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.001, true);
+        if (result == kCFRunLoopRunStopped) {
+            continue;
+        }
+        if (result != kCFRunLoopRunHandledSource) {
+            break;
+        }
+    }
+}
+
+- (BOOL)performMainThreadBlockAndWait:(dispatch_block_t)block
+{
+    if (NSThread.isMainThread) {
+        block();
+        return YES;
+    }
+
+    if (self.startupCompleted) {
+        dispatch_sync(dispatch_get_main_queue(), block);
+        return YES;
+    }
+
+    dispatch_semaphore_t completed = dispatch_semaphore_create(0);
+    CFRunLoopPerformBlock(CFRunLoopGetMain(), (__bridge CFStringRef)SBTUITestTunnelStartupRunLoopMode, ^{
+        block();
+        dispatch_semaphore_signal(completed);
+    });
+    CFRunLoopWakeUp(CFRunLoopGetMain());
+
+    return dispatch_semaphore_wait(completed, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) == 0;
 }
 
 - (BOOL)processCustomCommandIfNecessary:(NSString *)command parameters:(NSDictionary *)parameters returnObject:(NSObject **)returnObject
@@ -869,25 +936,33 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
 
     NSInteger animationSpeed = [parameters[SBTUITunnelObjectKey] integerValue];
-    dispatch_sync(dispatch_get_main_queue(), ^() {
+    self.requestedUIAnimationSpeed = animationSpeed;
+    self.hasRequestedUIAnimationSpeed = YES;
+
+    BOOL applied = [self performMainThreadBlockAndWait:^() {
         // Replacing [UIView setAnimationsEnabled:] as per
         // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
         UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
-    });
+    }];
 
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", (long)animationSpeed];
-    return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
+    return @{ SBTUITunnelResponseResultKey: applied ? @"YES" : @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+    if (self.hasRequestedUIAnimationSpeed && [notification.object isKindOfClass:UIWindow.class]) {
+        ((UIWindow *)notification.object).layer.speed = self.requestedUIAnimationSpeed;
+    }
 }
 
 - (NSDictionary *)commandStartupCompleted:(NSDictionary *)parameters
 {
-    // Runs on the server's background command queue (HTTP) or the IPC private
-    // queue — never the main thread. Flip the flag and release the semaphore
-    // `takeOff` is parked on; do not hop to the main queue, otherwise `takeOff`
-    // would have to pump the main run loop to observe the change and reintroduce
-    // the scene-connection re-entrancy this is designed to avoid.
+    // Wake the tunnel-private run-loop mode without servicing UIKit's pending
+    // default-mode lifecycle callbacks.
     self.startupCompleted = YES;
-    dispatch_semaphore_signal(self.startupCompletedSemaphore);
+    CFRunLoopStop(CFRunLoopGetMain());
+    CFRunLoopWakeUp(CFRunLoopGetMain());
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
