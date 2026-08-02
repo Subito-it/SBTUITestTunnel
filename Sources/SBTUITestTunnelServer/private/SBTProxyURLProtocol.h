@@ -30,12 +30,14 @@
 
 + (nullable NSString *)throttleRequestsMatching:(nonnull SBTRequestMatch *)match delayResponse:(NSTimeInterval)delayResponseTime;
 + (BOOL)throttleRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)throttleRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 + (void)throttleRequestsRemoveAll;
 
 #pragma mark - Monitored Requests
 
 + (nullable NSString *)monitorRequestsMatching:(nonnull SBTRequestMatch *)match;
 + (BOOL)monitorRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)monitorRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 + (void)monitorRequestsRemoveAll;
 + (nullable NSArray<SBTMonitoredNetworkRequest *> *)monitoredRequestsAll;
 + (void)monitoredRequestsFlushAll;
@@ -44,6 +46,7 @@
 
 + (nullable NSString *)stubRequestsMatching:(nonnull SBTRequestMatch *)match stubResponse:(nonnull SBTStubResponse *)stubResponse;
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)stubRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 + (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match;
 + (void)stubRequestsRemoveAll;
 + (nonnull NSArray<SBTActiveStub *> *)stubRequestsAll;
@@ -52,12 +55,14 @@
 
 + (nullable NSString *)rewriteRequestsMatching:(nonnull SBTRequestMatch *)match rewrite:(nonnull SBTRewrite *)rewrite;
 + (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)rewriteRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 + (void)rewriteRequestsRemoveAll;
 
 #pragma mark - Cookie Block Requests
 
 + (nullable NSString *)cookieBlockRequestsMatching:(nonnull SBTRequestMatch *)match activeIterations:(NSInteger)activeIterations;
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId;
++ (BOOL)cookieBlockRequestsRemoveWithIds:(nonnull NSArray<NSString *> *)reqIds;
 + (void)cookieBlockRequestsRemoveAll;
 
 @end

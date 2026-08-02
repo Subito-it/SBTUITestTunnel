@@ -47,6 +47,26 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 @implementation SBTProxyURLProtocol
 
++ (BOOL)removeRequestsWithIds:(NSArray<NSString *> *)reqIds matchingRule:(BOOL (^)(NSDictionary *rule))matchesRule
+{
+    NSSet<NSString *> *requestedIds = [NSSet setWithArray:reqIds];
+    NSMutableSet<NSString *> *removedIds = [NSMutableSet set];
+    NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
+
+    @synchronized (self.sharedInstance) {
+        [self.sharedInstance.matchingRules enumerateObjectsUsingBlock:^(NSDictionary *rule, NSUInteger index, BOOL *stop) {
+            NSString *identifier = rule[SBTProxyURLProtocolMatchingRuleIdentifierKey];
+            if ([requestedIds containsObject:identifier] && matchesRule(rule)) {
+                [indexesToRemove addIndex:index];
+                [removedIds addObject:identifier];
+            }
+        }];
+        [self.sharedInstance.matchingRules removeObjectsAtIndexes:indexesToRemove];
+    }
+
+    return removedIds.count == reqIds.count;
+}
+
 + (SBTProxyURLProtocol *)sharedInstance
 {
     static dispatch_once_t once;
@@ -89,19 +109,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)throttleRequestsRemoveWithId:(nonnull NSString *)reqId
 {
-    NSMutableArray *itemsToDelete = [NSMutableArray array];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule[SBTProxyURLProtocolMatchingRuleIdentifierKey] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
-                [itemsToDelete addObject:matchingRule];
-            }
-        }
-        
-        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-    }
-    
-    return itemsToDelete.count > 0;
+    return [self throttleRequestsRemoveWithIds:@[reqId]];
+}
+
++ (BOOL)throttleRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    return [self removeRequestsWithIds:reqIds matchingRule:^BOOL(NSDictionary *rule) {
+        return rule[SBTProxyURLProtocolDelayResponseTimeKey] != nil;
+    }];
 }
 
 + (void)throttleRequestsRemoveAll
@@ -134,19 +149,17 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)monitorRequestsRemoveWithId:(nonnull NSString *)reqId
 {
-    NSMutableArray *itemsToDelete = [NSMutableArray array];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule[SBTProxyURLProtocolMatchingRuleIdentifierKey] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] == nil) {
-                [itemsToDelete addObject:matchingRule];
-            }
-        }
-        
-        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-    }
-    
-    return itemsToDelete.count > 0;
+    return [self monitorRequestsRemoveWithIds:@[reqId]];
+}
+
++ (BOOL)monitorRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    return [self removeRequestsWithIds:reqIds matchingRule:^BOOL(NSDictionary *rule) {
+        return rule[SBTProxyURLProtocolStubResponse] == nil &&
+               rule[SBTProxyURLProtocolDelayResponseTimeKey] == nil &&
+               rule[SBTProxyURLProtocolRewriteResponse] == nil &&
+               rule[SBTProxyURLProtocolBlockCookiesKey] == nil;
+    }];
 }
 
 + (void)monitorRequestsRemoveAll
@@ -197,19 +210,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId
 {
-    NSMutableArray *itemsToDelete = [NSMutableArray array];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule[SBTProxyURLProtocolMatchingRuleIdentifierKey] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolStubResponse] != nil) {
-                [itemsToDelete addObject:matchingRule];
-            }
-        }
-        
-        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-    }
-    
-    return itemsToDelete.count > 0;
+    return [self stubRequestsRemoveWithIds:@[reqId]];
+}
+
++ (BOOL)stubRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    return [self removeRequestsWithIds:reqIds matchingRule:^BOOL(NSDictionary *rule) {
+        return rule[SBTProxyURLProtocolStubResponse] != nil;
+    }];
 }
 
 + (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
@@ -254,9 +262,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         for (NSDictionary *rule in rules) {
             SBTRequestMatch *match = rule[SBTProxyURLProtocolMatchingRuleKey];
             SBTStubResponse *response = rule[SBTProxyURLProtocolStubResponse];
-            
-            SBTActiveStub *activeStub = [[SBTActiveStub alloc] initWithMatch:match response:response];
-            [activeStubs addObject:activeStub];
+            if (response != nil) {
+                SBTActiveStub *activeStub = [[SBTActiveStub alloc] initWithMatch:match response:response];
+                [activeStubs addObject:activeStub];
+            }
         }
     }
     
@@ -278,19 +287,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId
 {
-    NSMutableArray *itemsToDelete = [NSMutableArray array];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule[SBTProxyURLProtocolMatchingRuleIdentifierKey] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolRewriteResponse] != nil) {
-                [itemsToDelete addObject:matchingRule];
-            }
-        }
-        
-        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-    }
-    
-    return itemsToDelete.count > 0;
+    return [self rewriteRequestsRemoveWithIds:@[reqId]];
+}
+
++ (BOOL)rewriteRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    return [self removeRequestsWithIds:reqIds matchingRule:^BOOL(NSDictionary *rule) {
+        return rule[SBTProxyURLProtocolRewriteResponse] != nil;
+    }];
 }
 
 + (void)rewriteRequestsRemoveAll
@@ -325,19 +329,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId
 {
-    NSMutableArray *itemsToDelete = [NSMutableArray array];
-    
-    @synchronized (self.sharedInstance) {
-        for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule[SBTProxyURLProtocolMatchingRuleIdentifierKey] isEqualToString:reqId] && matchingRule[SBTProxyURLProtocolBlockCookiesKey] != nil) {
-                [itemsToDelete addObject:matchingRule];
-            }
-        }
-        
-        [self.sharedInstance.matchingRules removeObjectsInArray:itemsToDelete];
-    }
-    
-    return itemsToDelete.count > 0;
+    return [self cookieBlockRequestsRemoveWithIds:@[reqId]];
+}
+
++ (BOOL)cookieBlockRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
+{
+    return [self removeRequestsWithIds:reqIds matchingRule:^BOOL(NSDictionary *rule) {
+        return rule[SBTProxyURLProtocolBlockCookiesKey] != nil;
+    }];
 }
 
 + (void)cookieBlockRequestsRemoveAll
@@ -487,12 +486,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     if (monitorRule != nil || throttleRule != nil || rewriteRule != nil || cookieBlockRule != nil || stubbingHeaders) {
-        __unused SBTRequestMatch *requestMatch1 = throttleRule[SBTProxyURLProtocolMatchingRuleKey];
-        __unused SBTRequestMatch *requestMatch2 = cookieBlockRule[SBTProxyURLProtocolMatchingRuleKey];
-        __unused SBTRequestMatch *requestMatch3 = rewriteRule[SBTProxyURLProtocolMatchingRuleKey];
-        __unused SBTRequestMatch *requestMatch4 = stubRule[SBTProxyURLProtocolMatchingRuleKey];
-        __unused SBTRequestMatch *requestMatch5 = monitorRule[SBTProxyURLProtocolMatchingRuleKey];
-        NSLog(@"[SBTUITestTunnel] Throttling/monitoring/chaning cookies/stubbing headers %@ request: %@\n\nMatching rule:\n%@", [self.request HTTPMethod], [self.request URL], requestMatch1 ?: requestMatch2 ?: requestMatch3 ?: requestMatch4 ?: requestMatch5);
         NSMutableURLRequest *newRequest = [self.request mutableCopy];
         NSData *bodyData = [self.request sbt_extractHTTPBody];
         if (bodyData) {
@@ -749,18 +742,18 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 + (NSArray<NSDictionary *> *)matchingRulesForRequest:(NSURLRequest *)request
 {
     NSMutableArray *ret = [NSMutableArray array];
+    NSURLRequest *requestToMatch = [self originalRequestFor:request] ?: request;
     
     @synchronized (self.sharedInstance) {
         for (NSDictionary *matchingRule in self.sharedInstance.matchingRules) {
-            if ([matchingRule.allKeys containsObject:SBTProxyURLProtocolMatchingRuleKey]) {
-                NSURLRequest *originalRequest = [self originalRequestFor:request];
-                
-                SBTRequestMatch *match = matchingRule[SBTProxyURLProtocolMatchingRuleKey];
-                if ([match matchesURLRequest:originalRequest ?: request]) {
-                    [ret addObject:matchingRule];
-                }
-            } else {
+            SBTRequestMatch *match = matchingRule[SBTProxyURLProtocolMatchingRuleKey];
+            if (match == nil) {
                 NSAssert(NO, @"???");
+                continue;
+            }
+
+            if ([match matchesURLRequest:requestToMatch]) {
+                [ret addObject:matchingRule];
             }
         }
     }

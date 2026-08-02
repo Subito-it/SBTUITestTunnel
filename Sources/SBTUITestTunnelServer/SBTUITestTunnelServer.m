@@ -248,8 +248,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
             IMP imp = [self methodForSelector:commandSelector];
 
-            NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
-
             NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
             response = func(self, commandSelector, parameters);
         }
@@ -281,8 +279,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
 
                 IMP imp = [strongSelf methodForSelector:commandSelector];
-
-                NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
 
                 NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request.parameters);
@@ -480,13 +476,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0];
 
-    NSSet *classes = [NSSet setWithObjects:[NSString class], [SBTRequestMatch class], nil];
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], [SBTRequestMatch class], nil];
     NSError *unarchiveError;
     id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or SBTRequestMatch");
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString, NSArray or SBTRequestMatch");
 
     NSString *ret = @"NO";
-    if ([object isKindOfClass:[NSString class]]) {
+    if ([object isKindOfClass:[NSArray class]]) {
+        BOOL removed = [SBTProxyURLProtocol stubRequestsRemoveWithIds:object];
+        ret = removed ? @"YES" : @"NO";
+    } else if ([object isKindOfClass:[NSString class]]) {
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:(NSString *)object] ? @"YES" : @"NO";
     } else if ([object isKindOfClass:[SBTRequestMatch class]]) {
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithRequestMatch:(SBTRequestMatch *)object] ? @"YES" : @"NO";
@@ -551,10 +550,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *rewriteId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol rewriteRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
 
     return @{ SBTUITunnelResponseResultKey: ret };
 }
@@ -591,10 +598,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol monitorRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol monitorRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol monitorRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
 
     return @{ SBTUITunnelResponseResultKey: ret };
 }
@@ -663,10 +678,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol throttleRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol throttleRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol throttleRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -706,10 +729,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -1913,8 +1944,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
 
         IMP imp = [self.sharedInstance methodForSelector:commandSelector];
-
-        NSLog(@"[SBTUITestTunnel] Executing command '%@'", commandName);
 
         NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
         response = func(self.sharedInstance, commandSelector, unescapedParams);

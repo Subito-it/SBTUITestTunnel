@@ -329,12 +329,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)stubRequestsRemoveWithIds:(NSArray<NSString *> *)stubIds
 {
-    BOOL ret = YES;
-    for (NSString *stubId in stubIds) {
-        ret &= [self stubRequestsRemoveWithId:stubId];
-    }
-    
-    return ret;
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelStubMatchRuleKey:[self base64SerializeObject:stubIds]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandStubRequestsRemove params:params] boolValue];
 }
 
 - (BOOL)stubRequestsRemoveWithRequestMatch:(nonnull SBTRequestMatch *)match
@@ -388,12 +385,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)rewriteRequestsRemoveWithIds:(NSArray<NSString *> *)rewriteIds
 {
-    BOOL ret = YES;
-    for (NSString *rewriteId in rewriteIds) {
-        ret &= [self rewriteRequestsRemoveWithId:rewriteId];
-    }
-    
-    return ret;
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelRewriteMatchRuleKey:[self base64SerializeObject:rewriteIds]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandRewriteRequestsRemove params:params] boolValue];
 }
 
 - (BOOL)rewriteRequestsRemoveAll
@@ -453,12 +447,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)monitorRequestRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
-    BOOL ret = YES;
-    for (NSString *reqId in reqIds) {
-        ret &= [self monitorRequestRemoveWithId:reqId];
-    }
-    
-    return ret;
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey:[self base64SerializeObject:reqIds]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandMonitorRemove params:params] boolValue];
 }
 
 - (BOOL)monitorRequestRemoveAll
@@ -517,12 +508,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)throttleRequestRemoveWithIds:(NSArray<NSString *> *)reqIds;
 {
-    BOOL ret = YES;
-    for (NSString *reqId in reqIds) {
-        ret &= [self throttleRequestRemoveWithId:reqId];
-    }
-    
-    return ret;
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelProxyQueryRuleKey:[self base64SerializeObject:reqIds]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandThrottleRemove params:params] boolValue];
 }
 
 - (BOOL)throttleRequestRemoveAll
@@ -554,12 +542,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
 - (BOOL)blockCookiesRequestsRemoveWithIds:(NSArray<NSString *> *)reqIds
 {
-    BOOL ret = YES;
-    for (NSString *reqId in reqIds) {
-        ret &= [self blockCookiesRequestsRemoveWithId:reqId];
-    }
-    
-    return ret;
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelCookieBlockMatchRuleKey:[self base64SerializeObject:reqIds]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandCookieBlockRemove params:params] boolValue];
 }
 
 - (BOOL)blockCookiesRequestsRemoveAll
