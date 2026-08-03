@@ -87,7 +87,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 
 @property (atomic, assign) BOOL startupCompleted;
 @property (nonatomic, strong) NSPort *startupRunLoopPort;
-@property (atomic, assign) BOOL preservesFirstSceneOrdering;
 @property (atomic, assign) NSInteger requestedUIAnimationSpeed;
 @property (atomic, assign) BOOL hasRequestedUIAnimationSpeed;
 
@@ -172,8 +171,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
-    self.preservesFirstSceneOrdering = [self shouldPreserveFirstSceneOrdering];
-    NSLog(@"[SBTUITestTunnel] Preserving first-scene launch ordering: %@", self.preservesFirstSceneOrdering ? @"YES" : @"NO");
 
     if (ipcIdentifier) {
         NSLog(@"[SBTUITestTunnel] IPC tunnel taking off");
@@ -355,7 +352,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [NSRunLoop.mainRunLoop runMode:SBTUITestTunnelStartupRunLoopMode beforeDate:deadline];
     }
 
-    if (self.startupCompleted && !self.preservesFirstSceneOrdering) {
+    if (self.startupCompleted && ![self shouldPreserveFirstSceneOrdering]) {
         [self drainReadyDefaultRunLoopSources];
     }
 
