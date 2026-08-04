@@ -18,9 +18,7 @@
 @import SBTUITestTunnelCommon;
 
 #import "include/SBTUITestTunnelClient.h"
-#include <ifaddrs.h>
 #include <arpa/inet.h>
-#include <netdb.h>
 
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
@@ -163,7 +161,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         self.application.launchEnvironment = launchEnvironment;
         
         __weak typeof(self)weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Start probing immediately. The retry loop tolerates the app server
+        // not being ready yet, so a fixed delay only pushes the handshake back.
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [weakSelf waitForConnection];
 
             if (!weakSelf || weakSelf.connectionPort == 0) {
@@ -187,15 +187,15 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     
     [self.delegate tunnelClientIsReadyToLaunch:self];
     
-    while (YES) {
+    // The transport callback can complete the startup handshake re-entrantly while
+    // XCUIApplication.launch is still waiting for the app to become idle. In
+    // that common case there is nothing left to service once launch returns;
+    // avoid paying an unconditional run-loop interval before checking the flag.
+    while (!self.startupCompleted) {
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
         
         if (CFAbsoluteTimeGetCurrent() - self.launchStart > SBTUITunneledApplicationDefaultTimeout) {
             return [self shutDownWithErrorMessage:[NSString stringWithFormat:@"[SBTUITestTunnel] Waiting for startup block completion timed out"] code:SBTUITestTunnelErrorLaunchFailed];
-        }
-        
-        if (self.startupCompleted) {
-            break;
         }
     }
     
@@ -217,28 +217,17 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 {
     NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     while (CFAbsoluteTimeGetCurrent() - start < self.connectionTimeout) {
-        char *hostname = "localhost";
-        
         int sockfd;
         struct sockaddr_in serv_addr;
-        struct hostent *server;
         
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0) {
             return [self shutDownWithErrorMessage:@"Failed opening socket" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
         }
         
-        server = gethostbyname(hostname);
-        if (server == NULL) {
-            return [self shutDownWithErrorMessage:@"Invalid host" code:SBTUITestTunnelErrorConnectionToApplicationFailed];
-        }
-        
         bzero((char *) &serv_addr, sizeof(serv_addr));
         serv_addr.sin_family = AF_INET;
-        bcopy((char *)server->h_addr,
-              (char *)&serv_addr.sin_addr.s_addr,
-              server->h_length);
-        
+        serv_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
         serv_addr.sin_port = htons(self.connectionPort);
         BOOL serverUp = connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) >= 0;
         close(sockfd);
@@ -246,7 +235,9 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
         if (serverUp && [self ping]) {
             return;
         } else {
-            [NSThread sleepForTimeInterval:0.5];
+            // Keep readiness latency bounded without busy-spinning while the
+            // app process and embedded web server are still starting.
+            [NSThread sleepForTimeInterval:0.1];
         }
     }
 
