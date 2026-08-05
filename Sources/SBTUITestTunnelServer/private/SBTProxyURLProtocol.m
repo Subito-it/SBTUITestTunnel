@@ -64,7 +64,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [self.sharedInstance.matchingRules removeObjectsAtIndexes:indexesToRemove];
     }
 
-    return removedIds.count == reqIds.count;
+    return removedIds.count == requestedIds.count;
 }
 
 + (SBTProxyURLProtocol *)sharedInstance
@@ -109,6 +109,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)throttleRequestsRemoveWithId:(nonnull NSString *)reqId
 {
+    if (reqId == nil) {
+        return NO;
+    }
     return [self throttleRequestsRemoveWithIds:@[reqId]];
 }
 
@@ -149,6 +152,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)monitorRequestsRemoveWithId:(nonnull NSString *)reqId
 {
+    if (reqId == nil) {
+        return NO;
+    }
     return [self monitorRequestsRemoveWithIds:@[reqId]];
 }
 
@@ -210,6 +216,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)stubRequestsRemoveWithId:(nonnull NSString *)reqId
 {
+    if (reqId == nil) {
+        return NO;
+    }
     return [self stubRequestsRemoveWithIds:@[reqId]];
 }
 
@@ -287,6 +296,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)rewriteRequestsRemoveWithId:(nonnull NSString *)reqId
 {
+    if (reqId == nil) {
+        return NO;
+    }
     return [self rewriteRequestsRemoveWithIds:@[reqId]];
 }
 
@@ -329,6 +341,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 + (BOOL)cookieBlockRequestsRemoveWithId:(nonnull NSString *)reqId
 {
+    if (reqId == nil) {
+        return NO;
+    }
     return [self cookieBlockRequestsRemoveWithIds:@[reqId]];
 }
 

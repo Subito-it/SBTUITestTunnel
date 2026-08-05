@@ -68,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 The reason is ordering. `takeOff()` blocks until the test runner's startup block has finished injecting its state (`UserDefaults`, keychain, stubs, filesystem reset). `didFinishLaunching` runs *before* any scene callback, and it is typically where apps read that state (feature toggles, session restore, SDK setup). If `takeOff()` is deferred to the scene, all of `didFinishLaunching` executes against **un-injected, stale state**, and the scene builds its UI from stale data too.
 
-`takeOff()` waits in a tunnel-private run-loop mode that services only tunnel-owned startup work, not UIKit lifecycle callbacks. After state injection completes, apps without a pending first-scene connection can drain already-ready lifecycle work while the final tunnel response unwinds. Placed in `didFinishLaunching`, the scene-app path completes the handshake before iOS delivers `scene(_:willConnectTo:options:)`, keeping the launch sequence strictly ordered:
+`takeOff()` waits in a tunnel-private run-loop mode that services only tunnel-owned startup work, not UIKit lifecycle callbacks. Placed in `didFinishLaunching`, the scene-app path completes the handshake before iOS delivers `scene(_:willConnectTo:options:)`, keeping the launch sequence strictly ordered:
 
 ```swift
 import UIKit
@@ -109,7 +109,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 ```
 
-While waiting for the startup block before the first scene connects, `takeOff()` services tunnel-owned main-thread work in an isolated run-loop mode. Commands such as `setUserInterfaceAnimationSpeed` can therefore be used during startup without allowing scene callbacks to run before state injection completes.
+`setUserInterfaceAnimationSpeed` can be called from the startup block before the first scene connects. Its main-thread update is deferred until normal launch processing resumes and is applied to the current or next key window, without allowing scene callbacks to run before state injection completes.
 
 ### Multi-window apps
 

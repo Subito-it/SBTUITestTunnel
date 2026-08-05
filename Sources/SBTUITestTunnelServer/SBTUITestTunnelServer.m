@@ -37,6 +37,45 @@
 #define SBTUITESTTUNNEL_HAS_UIKEYBOARD (!TARGET_OS_TV && !TARGET_OS_WATCH)
 
 static NSRunLoopMode const SBTUITestTunnelStartupRunLoopMode = @"com.sbtuitesttunnel.runloop.startup";
+static CFRunLoopSourceRef SBTUITestTunnelStartupRunLoopSource;
+
+static void SBTUITestTunnelPerformStartupRunLoopSource(void *info) {}
+
+static BOOL SBTApplyUIAnimationSpeedToKeyWindows(NSInteger animationSpeed)
+{
+    UIApplication *application = UIApplication.sharedApplication;
+    BOOL applied = NO;
+
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        for (UIScene *scene in application.connectedScenes) {
+            if (![scene isKindOfClass:UIWindowScene.class]) {
+                continue;
+            }
+
+            for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+                if (window.isKeyWindow) {
+                    window.layer.speed = animationSpeed;
+                    applied = YES;
+                }
+            }
+        }
+    }
+
+    if (!applied) {
+        // Scene-less applications still expose their key window through
+        // UIApplication, including when running on iOS 13 or later.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        UIWindow *keyWindow = application.keyWindow;
+#pragma clang diagnostic pop
+        if (keyWindow != nil) {
+            keyWindow.layer.speed = animationSpeed;
+            applied = YES;
+        }
+    }
+
+    return applied;
+}
 
 #if !defined(NS_BLOCK_ASSERTIONS)
 
@@ -86,9 +125,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableDictionary<NSString *, SBTWebSocketServer *> *webSocketServers;
 
 @property (atomic, assign) BOOL startupCompleted;
-@property (nonatomic, strong) NSPort *startupRunLoopPort;
-@property (atomic, assign) NSInteger requestedUIAnimationSpeed;
-@property (atomic, assign) BOOL hasRequestedUIAnimationSpeed;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -115,8 +151,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
-        sharedInstance.startupRunLoopPort = [NSPort port];
-        [NSRunLoop.mainRunLoop addPort:sharedInstance.startupRunLoopPort forMode:SBTUITestTunnelStartupRunLoopMode];
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
@@ -128,11 +162,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 #endif
 
         [sharedInstance reset];
-
-        [NSNotificationCenter.defaultCenter addObserver:sharedInstance
-                                               selector:@selector(windowDidBecomeKey:)
-                                                   name:UIWindowDidBecomeKeyNotification
-                                                 object:nil];
     });
 
     return sharedInstance;
@@ -170,6 +199,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
+    // A dedicated source is scoped to the startup mode and makes runMode:
+    // return after it is handled. A queued run-loop block would execute in the
+    // right mode, but would not itself end that runMode: invocation.
+    CFRunLoopSourceContext sourceContext = {0};
+    sourceContext.perform = SBTUITestTunnelPerformStartupRunLoopSource;
+    SBTUITestTunnelStartupRunLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &sourceContext);
+    CFRunLoopAddSource(CFRunLoopGetMain(),
+                       SBTUITestTunnelStartupRunLoopSource,
+                       (__bridge CFStringRef)SBTUITestTunnelStartupRunLoopMode);
+
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
 
     if (ipcIdentifier) {
@@ -179,20 +218,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSLog(@"[SBTUITestTunnel] HTTP tunnel taking off");
         return [self takeOffOnceUsingHTTPPort:tunnelPort];
     }
-}
-
-- (BOOL)shouldPreserveFirstSceneOrdering
-{
-    NSDictionary *sceneManifest = NSBundle.mainBundle.infoDictionary[@"UIApplicationSceneManifest"];
-    if (sceneManifest == nil) {
-        return NO;
-    }
-
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        return UIApplication.sharedApplication.connectedScenes.count == 0;
-    }
-
-    return NO;
 }
 
 - (BOOL)takeOffOnceIPCWithServiceIdentifier:(NSString *)serviceIdentifier
@@ -339,10 +364,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 /// Before a scene application's first scene connects, running the default mode
 /// would let UIKit deliver the connection callback re-entrantly, before the
 /// startup block has injected its state. Use a tunnel-private mode in that case.
-/// After injection is complete, apps without a pending first-scene connection
-/// can safely drain already-ready default-mode work. This overlaps the tail of
-/// the command response without making default-mode sources compete with the
-/// startup commands themselves.
 - (BOOL)waitForStartupCompleted
 {
     NSAssert(NSThread.isMainThread, @"takeOff must wait for startup on the main thread");
@@ -352,47 +373,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         [NSRunLoop.mainRunLoop runMode:SBTUITestTunnelStartupRunLoopMode beforeDate:deadline];
     }
 
-    if (self.startupCompleted && ![self shouldPreserveFirstSceneOrdering]) {
-        [self drainReadyDefaultRunLoopSources];
-    }
-
     return self.startupCompleted;
-}
-
-- (void)drainReadyDefaultRunLoopSources
-{
-    static const NSUInteger maximumSourcesToDrain = 100;
-    for (NSUInteger index = 0; index < maximumSourcesToDrain; index++) {
-        SInt32 result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.001, true);
-        if (result == kCFRunLoopRunStopped) {
-            continue;
-        }
-        if (result != kCFRunLoopRunHandledSource) {
-            break;
-        }
-    }
-}
-
-- (BOOL)performMainThreadBlockAndWait:(dispatch_block_t)block
-{
-    if (NSThread.isMainThread) {
-        block();
-        return YES;
-    }
-
-    if (self.startupCompleted) {
-        dispatch_sync(dispatch_get_main_queue(), block);
-        return YES;
-    }
-
-    dispatch_semaphore_t completed = dispatch_semaphore_create(0);
-    CFRunLoopPerformBlock(CFRunLoopGetMain(), (__bridge CFStringRef)SBTUITestTunnelStartupRunLoopMode, ^{
-        block();
-        dispatch_semaphore_signal(completed);
-    });
-    CFRunLoopWakeUp(CFRunLoopGetMain());
-
-    return dispatch_semaphore_wait(completed, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) == 0;
 }
 
 - (BOOL)processCustomCommandIfNecessary:(NSString *)command parameters:(NSDictionary *)parameters returnObject:(NSObject **)returnObject
@@ -964,24 +945,43 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
 
     NSInteger animationSpeed = [parameters[SBTUITunnelObjectKey] integerValue];
-    self.requestedUIAnimationSpeed = animationSpeed;
-    self.hasRequestedUIAnimationSpeed = YES;
+    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
+    __weak NSNotificationCenter *weakNotificationCenter = notificationCenter;
 
-    BOOL applied = [self performMainThreadBlockAndWait:^() {
+    // Register before deferring to the main queue so a window cannot become
+    // key between our initial check and observer installation.
+    __block __weak id weakObserver;
+    id observer = [notificationCenter addObserverForName:UIWindowDidBecomeKeyNotification
+                                                  object:nil
+                                                   queue:NSOperationQueue.mainQueue
+                                              usingBlock:^(NSNotification *notification) {
+        if ([notification.object isKindOfClass:UIWindow.class]) {
+            ((UIWindow *)notification.object).layer.speed = animationSpeed;
+            [weakNotificationCenter removeObserver:weakObserver];
+        }
+    }];
+    weakObserver = observer;
+
+    dispatch_block_t applyToKeyWindow = ^{
         // Replacing [UIView setAnimationsEnabled:] as per
         // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
-        UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
-    }];
+        if (SBTApplyUIAnimationSpeedToKeyWindows(animationSpeed)) {
+            [notificationCenter removeObserver:weakObserver];
+        }
+    };
+
+    if (self.startupCompleted) {
+        dispatch_sync(dispatch_get_main_queue(), applyToKeyWindow);
+    } else {
+        // During startup the main thread is running only the tunnel-private
+        // mode and a scene window usually does not exist yet. Apply once the
+        // normal main queue resumes. It will either find the newly-created key
+        // window or wait for the first key-window notification.
+        dispatch_async(dispatch_get_main_queue(), applyToKeyWindow);
+    }
 
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", (long)animationSpeed];
-    return @{ SBTUITunnelResponseResultKey: applied ? @"YES" : @"NO", SBTUITunnelResponseDebugKey: debugInfo };
-}
-
-- (void)windowDidBecomeKey:(NSNotification *)notification
-{
-    if (self.hasRequestedUIAnimationSpeed && [notification.object isKindOfClass:UIWindow.class]) {
-        ((UIWindow *)notification.object).layer.speed = self.requestedUIAnimationSpeed;
-    }
+    return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
 - (NSDictionary *)commandStartupCompleted:(NSDictionary *)parameters
@@ -989,7 +989,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     // Wake the tunnel-private run-loop mode without servicing UIKit's pending
     // default-mode lifecycle callbacks.
     self.startupCompleted = YES;
-    CFRunLoopStop(CFRunLoopGetMain());
+    CFRunLoopSourceSignal(SBTUITestTunnelStartupRunLoopSource);
     CFRunLoopWakeUp(CFRunLoopGetMain());
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };

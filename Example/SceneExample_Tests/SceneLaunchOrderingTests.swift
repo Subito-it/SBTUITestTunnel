@@ -150,6 +150,18 @@ final class SceneLaunchOrderingTests: XCTestCase {
         XCTAssertLessThan(takeOffEnd, sceneStart)
     }
 
+    func testAnimationSpeedUpdatesConnectedSceneKeyWindow() throws {
+        let animationSpeed = 9
+        app.launchArguments = [SceneAppDelegateArg.appDelegate]
+        app.launchTunnel()
+
+        XCTAssertTrue(app.setUserInterfaceAnimationSpeed(animationSpeed))
+        let rawSpeeds = app.performCustomCommandNamed("keyWindowLayerSpeeds", object: nil)
+        let speeds = try XCTUnwrap(rawSpeeds as? [NSNumber])
+        XCTAssertFalse(speeds.isEmpty)
+        XCTAssertTrue(speeds.allSatisfy { $0.floatValue == Float(animationSpeed) })
+    }
+
     /// Multi-window regression: a *second* scene, connected long after
     /// `takeOff()` has returned, must still observe the injected state.
     ///

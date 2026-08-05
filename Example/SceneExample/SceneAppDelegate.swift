@@ -67,6 +67,21 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
             ] as NSDictionary
         }
 
+        SBTUITestTunnelServer.registerCustomCommandNamed("keyWindowLayerSpeeds") { _ in
+            let readSpeeds: () -> NSArray = {
+                UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap(\.windows)
+                    .filter(\.isKeyWindow)
+                    .map { NSNumber(value: $0.layer.speed) } as NSArray
+            }
+
+            if Thread.isMainThread {
+                return readSpeeds()
+            }
+            return DispatchQueue.main.sync(execute: readSpeeds)
+        }
+
         // Requests activation of an additional scene so the test can exercise the
         // multi-window path: a scene that connects long after `takeOff()` has
         // returned must still observe the injected state.

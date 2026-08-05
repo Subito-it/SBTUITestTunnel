@@ -97,6 +97,9 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertFalse(app.monitorRequestRemove(withId: monitorIDs[0]))
         XCTAssertFalse(app.throttleRequestRemove(withId: throttleIDs[0]))
         XCTAssertFalse(app.blockCookiesRequestsRemove(withId: cookieIDs[0]))
+
+        let duplicateID = try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        XCTAssertTrue(app.stubRequestsRemove(ids: [duplicateID, duplicateID]))
     }
 
     func testStartupCommandsWaitsAppropriately() {
