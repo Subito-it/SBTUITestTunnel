@@ -16,6 +16,16 @@
 
 #import "private/SBTRegularExpressionMatcher.h"
 
+static NSCache<NSString *, NSRegularExpression *> *SBTRegularExpressionCache(void)
+{
+    static NSCache<NSString *, NSRegularExpression *> *cache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [[NSCache alloc] init];
+    });
+    return cache;
+}
+
 @interface SBTRegularExpressionMatcher()
 
 @property (nonatomic, assign) BOOL invertMatch;
@@ -31,7 +41,13 @@
         BOOL invertMatch = [regexString hasPrefix:@"!"];
         // skip first char for inverted matches
         NSString *pattern = [regexString substringFromIndex:invertMatch ? 1 : 0];
-        self.regex = [[NSRegularExpression alloc] initWithPattern:pattern options:0 error:nil];
+        self.regex = [SBTRegularExpressionCache() objectForKey:pattern];
+        if (self.regex == nil) {
+            self.regex = [[NSRegularExpression alloc] initWithPattern:pattern options:0 error:nil];
+            if (self.regex != nil) {
+                [SBTRegularExpressionCache() setObject:self.regex forKey:pattern];
+            }
+        }
         self.invertMatch = invertMatch;
     }
 

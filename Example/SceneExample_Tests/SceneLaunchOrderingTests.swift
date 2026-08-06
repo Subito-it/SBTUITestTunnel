@@ -53,16 +53,23 @@ final class SceneLaunchOrderingTests: XCTestCase {
         return (probe.seenAtDidFinishLaunching, probe.seenAtSceneConnection, probe.events)
     }
 
-    private func readProbe() -> (seenAtDidFinishLaunching: String?, seenAtSceneConnection: String?, valuesSeenAtSceneConnections: [String], events: [String]) {
+    private func readProbe() -> (
+        seenAtDidFinishLaunching: String?,
+        seenAtSceneConnection: String?,
+        valuesSeenAtSceneConnections: [String],
+        windowLayerSpeed: Float,
+        events: [String]
+    ) {
         let raw = app.performCustomCommandNamed("launchProbe", object: nil)
         guard let probe = raw as? [String: Any] else {
             XCTFail("launchProbe returned \(String(describing: raw))")
-            return (nil, nil, [], [])
+            return (nil, nil, [], 0, [])
         }
         return (
             probe["seenAtDidFinishLaunching"] as? String,
             probe["seenAtSceneConnection"] as? String,
             (probe["valuesSeenAtSceneConnections"] as? [String]) ?? [],
+            (probe["windowLayerSpeed"] as? NSNumber)?.floatValue ?? 0,
             (probe["events"] as? [String]) ?? []
         )
     }
@@ -97,8 +104,9 @@ final class SceneLaunchOrderingTests: XCTestCase {
     /// Deadlock regression: a startup command that performs a *synchronous*
     /// network request served by the tunnel's own stub proxy must complete.
     ///
-    /// `takeOff()` parks the main thread on the startup semaphore for the whole
-    /// handshake. The stub proxy used to deliver responses on the main queue, so
+    /// `takeOff()` deliberately does not service UIKit's main run-loop mode for
+    /// the whole handshake. The stub proxy used to deliver responses on the main
+    /// queue, so
     /// a startup command that blocked waiting on a stubbed request would deadlock:
     /// the delivery block could never run, the command never returned, the
     /// handshake never finished, and `takeOff` eventually tripped its "Fail
@@ -121,19 +129,44 @@ final class SceneLaunchOrderingTests: XCTestCase {
             XCTAssertEqual(result as? String, stubbedBody, "synchronous stubbed startup request did not complete (deadlock)")
         }
 
-        XCTContext.runActivity(named: "launch completed without deadlocking on the startup semaphore") { _ in
+        XCTContext.runActivity(named: "launch completed without deadlocking the startup handshake") { _ in
             let probe = readProbe()
             XCTAssertEqual(probe.seenAtDidFinishLaunching, injectedValue, "events=\(probe.events)")
             XCTAssertEqual(probe.seenAtSceneConnection, injectedValue, "events=\(probe.events)")
         }
     }
 
+    func testTakeOffInAppDelegate_startupCommandCanSynchronouslyUseMainThread() throws {
+        let animationSpeed = 7
+        app.launchArguments = [SceneAppDelegateArg.appDelegate]
+        app.launchTunnel {
+            XCTAssertTrue(self.app.setUserInterfaceAnimationSpeed(animationSpeed))
+        }
+
+        let probe = readProbe()
+        XCTAssertEqual(probe.windowLayerSpeed, Float(animationSpeed), "events=\(probe.events)")
+        let takeOffEnd = try XCTUnwrap(probe.events.firstIndex(where: { $0.hasPrefix("takeOff:appDelegate:end") }))
+        let sceneStart = try XCTUnwrap(probe.events.firstIndex(where: { $0.hasPrefix("scene:willConnectTo:start") }))
+        XCTAssertLessThan(takeOffEnd, sceneStart)
+    }
+
+    func testAnimationSpeedUpdatesConnectedSceneKeyWindow() throws {
+        let animationSpeed = 9
+        app.launchArguments = [SceneAppDelegateArg.appDelegate]
+        app.launchTunnel()
+
+        XCTAssertTrue(app.setUserInterfaceAnimationSpeed(animationSpeed))
+        let rawSpeeds = app.performCustomCommandNamed("keyWindowLayerSpeeds", object: nil)
+        let speeds = try XCTUnwrap(rawSpeeds as? [NSNumber])
+        XCTAssertFalse(speeds.isEmpty)
+        XCTAssertTrue(speeds.allSatisfy { $0.floatValue == Float(animationSpeed) })
+    }
+
     /// Multi-window regression: a *second* scene, connected long after
     /// `takeOff()` has returned, must still observe the injected state.
     ///
-    /// The tunnel handshake completes once (guarded by `dispatch_once`), and the
-    /// startup semaphore is signaled exactly once. A scene that connects later
-    /// must not re-enter the handshake, hang on the already-consumed semaphore,
+    /// The tunnel handshake completes once (guarded by `dispatch_once`). A scene
+    /// that connects later must not re-enter or hang on the completed handshake,
     /// or read stale state — it simply sees the state that was injected at
     /// launch. This is the shape (`UIApplicationSupportsMultipleScenes = true`)
     /// that motivated moving `takeOff()` out of the scene delegate.

@@ -63,7 +63,23 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
                 "seenAtDidFinishLaunching": LaunchProbe.valueSeenAtDidFinishLaunching ?? "nil",
                 "seenAtSceneConnection": LaunchProbe.valueSeenAtSceneConnection ?? "nil",
                 "valuesSeenAtSceneConnections": LaunchProbe.valuesSeenAtSceneConnections,
+                "windowLayerSpeed": LaunchProbe.windowLayerSpeed,
             ] as NSDictionary
+        }
+
+        SBTUITestTunnelServer.registerCustomCommandNamed("keyWindowLayerSpeeds") { _ in
+            let readSpeeds: () -> NSArray = {
+                UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap(\.windows)
+                    .filter(\.isKeyWindow)
+                    .map { NSNumber(value: $0.layer.speed) } as NSArray
+            }
+
+            if Thread.isMainThread {
+                return readSpeeds()
+            }
+            return DispatchQueue.main.sync(execute: readSpeeds)
         }
 
         // Requests activation of an additional scene so the test can exercise the
@@ -85,7 +101,7 @@ final class SceneAppDelegate: UIResponder, UIApplicationDelegate {
         // served by the tunnel's own stub proxy. This mirrors a real host app that
         // seeds an authenticated session during its startup block. If the proxy
         // delivered the stubbed response on the main queue, this would deadlock
-        // because `takeOff` parks the main thread on the startup semaphore.
+        // because `takeOff` deliberately does not service UIKit's main run-loop mode.
         SBTUITestTunnelServer.registerCustomCommandNamed("performSyncStubbedRequest") { obj in
             guard let urlString = obj as? String, let url = URL(string: urlString) else { return "no-url" as NSString }
 

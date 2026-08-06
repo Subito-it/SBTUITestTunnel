@@ -61,6 +61,47 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
 
+    func testBatchRemovalForProxyRuleTypes() throws {
+        app.launchTunnel()
+
+        let match = SBTRequestMatch(url: "batch-removal.example/.*")
+        let response = SBTStubResponse(response: Data(), returnCode: 200)
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "before", replace: "after")])
+
+        let stubIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        }
+        let rewriteIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.rewriteRequests(matching: match, rewrite: rewrite))
+        }
+        let monitorIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.monitorRequests(matching: match))
+        }
+        let throttleIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.throttleRequests(matching: match, responseTime: 0))
+        }
+        let cookieIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.blockCookiesInRequests(matching: match))
+        }
+
+        XCTAssertEqual(app.stubRequestsAll().count, stubIDs.count)
+        XCTAssertTrue(app.stubRequestsRemove(ids: stubIDs))
+        XCTAssertTrue(app.rewriteRequestsRemove(withIds: rewriteIDs))
+        XCTAssertTrue(app.monitorRequestRemove(withIds: monitorIDs))
+        XCTAssertTrue(app.throttleRequestRemove(withIds: throttleIDs))
+        XCTAssertTrue(app.blockCookiesRequestsRemove(withIds: cookieIDs))
+        XCTAssertTrue(app.stubRequestsAll().isEmpty)
+
+        XCTAssertFalse(app.stubRequestsRemove(id: stubIDs[0]))
+        XCTAssertFalse(app.rewriteRequestsRemove(withId: rewriteIDs[0]))
+        XCTAssertFalse(app.monitorRequestRemove(withId: monitorIDs[0]))
+        XCTAssertFalse(app.throttleRequestRemove(withId: throttleIDs[0]))
+        XCTAssertFalse(app.blockCookiesRequestsRemove(withId: cookieIDs[0]))
+
+        let duplicateID = try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        XCTAssertTrue(app.stubRequestsRemove(ids: [duplicateID, duplicateID]))
+    }
+
     func testStartupCommandsWaitsAppropriately() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString

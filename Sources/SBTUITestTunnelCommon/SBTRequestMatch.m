@@ -18,6 +18,16 @@
 #import "include/NSURLRequest+HTTPBodyFix.h"
 #import "private/SBTRegularExpressionMatcher.h"
 
+static NSCache<NSString *, NSRegularExpression *> *SBTURLRegularExpressionCache(void)
+{
+    static NSCache<NSString *, NSRegularExpression *> *cache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cache = [[NSCache alloc] init];
+    });
+    return cache;
+}
+
 @implementation NSDictionary (Matcher)
 
 - (BOOL)matchExpectedHeaders:(NSDictionary<NSString *, NSString *> *)expectedHeaders
@@ -162,8 +172,14 @@
     // }
     
     if (self.url != nil) {
-        NSError *error;
-        NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:self.url options:NSRegularExpressionCaseInsensitive error:&error];
+        NSRegularExpression *regex = [SBTURLRegularExpressionCache() objectForKey:self.url];
+        NSError *error = nil;
+        if (regex == nil) {
+            regex = [[NSRegularExpression alloc] initWithPattern:self.url options:NSRegularExpressionCaseInsensitive error:&error];
+            if (regex != nil) {
+                [SBTURLRegularExpressionCache() setObject:regex forKey:self.url];
+            }
+        }
         NSString *stringToMatch = request.URL.absoluteString;
         if (!error && stringToMatch != nil) {
             NSInteger matchCount = [regex numberOfMatchesInString:stringToMatch options:0 range:NSMakeRange(0, stringToMatch.length)];

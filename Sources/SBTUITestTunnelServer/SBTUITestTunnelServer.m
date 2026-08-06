@@ -36,6 +36,47 @@
 
 #define SBTUITESTTUNNEL_HAS_UIKEYBOARD (!TARGET_OS_TV && !TARGET_OS_WATCH)
 
+static NSRunLoopMode const SBTUITestTunnelStartupRunLoopMode = @"com.sbtuitesttunnel.runloop.startup";
+static CFRunLoopSourceRef SBTUITestTunnelStartupRunLoopSource;
+
+static void SBTUITestTunnelPerformStartupRunLoopSource(void *info) {}
+
+static BOOL SBTApplyUIAnimationSpeedToKeyWindows(NSInteger animationSpeed)
+{
+    UIApplication *application = UIApplication.sharedApplication;
+    BOOL applied = NO;
+
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        for (UIScene *scene in application.connectedScenes) {
+            if (![scene isKindOfClass:UIWindowScene.class]) {
+                continue;
+            }
+
+            for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+                if (window.isKeyWindow) {
+                    window.layer.speed = animationSpeed;
+                    applied = YES;
+                }
+            }
+        }
+    }
+
+    if (!applied) {
+        // Scene-less applications still expose their key window through
+        // UIApplication, including when running on iOS 13 or later.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        UIWindow *keyWindow = application.keyWindow;
+#pragma clang diagnostic pop
+        if (keyWindow != nil) {
+            keyWindow.layer.speed = animationSpeed;
+            applied = YES;
+        }
+    }
+
+    return applied;
+}
+
 #if !defined(NS_BLOCK_ASSERTIONS)
 
 #define BlockAssert(condition, desc, ...) \
@@ -83,8 +124,7 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 @property (nonatomic, strong) NSMutableDictionary<NSString *, void (^)(NSObject *)> *customCommands;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, SBTWebSocketServer *> *webSocketServers;
 
-@property (nonatomic, assign) BOOL startupCompleted;
-@property (nonatomic, strong) dispatch_semaphore_t startupCompletedSemaphore;
+@property (atomic, assign) BOOL startupCompleted;
 
 @property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
 @property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
@@ -111,7 +151,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
-        sharedInstance.startupCompletedSemaphore = dispatch_semaphore_create(0);
         sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
         sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
@@ -160,6 +199,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
+    // A dedicated source is scoped to the startup mode and makes runMode:
+    // return after it is handled. A queued run-loop block would execute in the
+    // right mode, but would not itself end that runMode: invocation.
+    CFRunLoopSourceContext sourceContext = {0};
+    sourceContext.perform = SBTUITestTunnelPerformStartupRunLoopSource;
+    SBTUITestTunnelStartupRunLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &sourceContext);
+    CFRunLoopAddSource(CFRunLoopGetMain(),
+                       SBTUITestTunnelStartupRunLoopSource,
+                       (__bridge CFStringRef)SBTUITestTunnelStartupRunLoopMode);
+
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
 
     if (ipcIdentifier) {
@@ -199,7 +248,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
 
-    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for startup handshake");
 
     return NO;
 }
@@ -220,8 +269,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
             }
 
             IMP imp = [self methodForSelector:commandSelector];
-
-            NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
 
             NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
             response = func(self, commandSelector, parameters);
@@ -254,8 +301,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
 
                 IMP imp = [strongSelf methodForSelector:commandSelector];
-
-                NSLog(@"[SBTUITestTunnel] Executing command '%@'", command);
 
                 NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
                 response = func(strongSelf, commandSelector, request.parameters);
@@ -308,28 +353,24 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
 
-    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for launch semaphore");
+    BlockAssert(NO, @"[UITestTunnelServer] Fail waiting for startup handshake");
 
     return NO;
 }
 
-/// Blocks the calling thread until the test runner signals that its startup
-/// commands finished, or the default timeout elapses.
+/// Waits until the test runner signals that its startup commands finished, or
+/// the default timeout elapses.
 ///
-/// This intentionally parks the thread on a semaphore instead of pumping the
-/// main run loop. `takeOff` is expected to be called from the very start of the
-/// app delegate's `-application:didFinishLaunchingWithOptions:`, and spinning the
-/// main run loop there lets UIKit deliver scene-connection callbacks
-/// (`-scene:willConnectTo:options:`) re-entrantly, *before* the startup commands
-/// have injected their state — so the UI would build from stale data. Parking the
-/// thread keeps the launch sequence strictly ordered on every life cycle
-/// (app-delegate or scene based). Startup commands themselves are serviced on the
-/// server's background command queue (HTTP) or the IPC connection's private queue,
-/// so blocking the main thread does not deadlock the handshake.
+/// Before a scene application's first scene connects, running the default mode
+/// would let UIKit deliver the connection callback re-entrantly, before the
+/// startup block has injected its state. Use a tunnel-private mode in that case.
 - (BOOL)waitForStartupCompleted
 {
-    if (dispatch_semaphore_wait(self.startupCompletedSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SBTUITunneledServerDefaultTimeout * NSEC_PER_SEC))) != 0) {
-        return NO;
+    NSAssert(NSThread.isMainThread, @"takeOff must wait for startup on the main thread");
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:SBTUITunneledServerDefaultTimeout];
+    while (!self.startupCompleted && deadline.timeIntervalSinceNow > 0) {
+        [NSRunLoop.mainRunLoop runMode:SBTUITestTunnelStartupRunLoopMode beforeDate:deadline];
     }
 
     return self.startupCompleted;
@@ -413,13 +454,16 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelStubMatchRuleKey] options:0];
 
-    NSSet *classes = [NSSet setWithObjects:[NSString class], [SBTRequestMatch class], nil];
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], [SBTRequestMatch class], nil];
     NSError *unarchiveError;
     id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or SBTRequestMatch");
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString, NSArray or SBTRequestMatch");
 
     NSString *ret = @"NO";
-    if ([object isKindOfClass:[NSString class]]) {
+    if ([object isKindOfClass:[NSArray class]]) {
+        BOOL removed = [SBTProxyURLProtocol stubRequestsRemoveWithIds:object];
+        ret = removed ? @"YES" : @"NO";
+    } else if ([object isKindOfClass:[NSString class]]) {
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithId:(NSString *)object] ? @"YES" : @"NO";
     } else if ([object isKindOfClass:[SBTRequestMatch class]]) {
         ret = [SBTProxyURLProtocol stubRequestsRemoveWithRequestMatch:(SBTRequestMatch *)object] ? @"YES" : @"NO";
@@ -484,10 +528,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelRewriteMatchRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *rewriteId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:rewriteId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol rewriteRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol rewriteRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
 
     return @{ SBTUITunnelResponseResultKey: ret };
 }
@@ -524,10 +576,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol monitorRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol monitorRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol monitorRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
 
     return @{ SBTUITunnelResponseResultKey: ret };
 }
@@ -596,10 +656,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelProxyQueryRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol throttleRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol throttleRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol throttleRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -639,10 +707,18 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSData *responseData = [[NSData alloc] initWithBase64EncodedString:parameters[SBTUITunnelCookieBlockMatchRuleKey] options:0];
 
     NSError *unarchiveError;
-    NSString *reqId = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSString class] fromData:responseData error:&unarchiveError];
-    NSAssert(unarchiveError == nil, @"Error unarchiving NSString");
+    NSSet *classes = [NSSet setWithObjects:[NSArray class], [NSString class], nil];
+    id object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:responseData error:&unarchiveError];
+    NSAssert(unarchiveError == nil, @"Error unarchiving NSString or NSArray");
 
-    NSString *ret = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:reqId] ? @"YES" : @"NO";
+    BOOL removed = YES;
+    if ([object isKindOfClass:[NSArray class]]) {
+        removed = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithIds:object];
+    } else {
+        removed = [SBTProxyURLProtocol cookieBlockRequestsRemoveWithId:object];
+    }
+
+    NSString *ret = removed ? @"YES" : @"NO";
     return @{ SBTUITunnelResponseResultKey: ret };
 }
 
@@ -869,11 +945,40 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSAssert(![NSThread isMainThread], @"Shouldn't be on main thread");
 
     NSInteger animationSpeed = [parameters[SBTUITunnelObjectKey] integerValue];
-    dispatch_sync(dispatch_get_main_queue(), ^() {
+    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
+    __weak NSNotificationCenter *weakNotificationCenter = notificationCenter;
+
+    // Register before deferring to the main queue so a window cannot become
+    // key between our initial check and observer installation.
+    __block __weak id weakObserver;
+    id observer = [notificationCenter addObserverForName:UIWindowDidBecomeKeyNotification
+                                                  object:nil
+                                                   queue:NSOperationQueue.mainQueue
+                                              usingBlock:^(NSNotification *notification) {
+        if ([notification.object isKindOfClass:UIWindow.class]) {
+            ((UIWindow *)notification.object).layer.speed = animationSpeed;
+            [weakNotificationCenter removeObserver:weakObserver];
+        }
+    }];
+    weakObserver = observer;
+
+    dispatch_block_t applyToKeyWindow = ^{
         // Replacing [UIView setAnimationsEnabled:] as per
         // https://pspdfkit.com/blog/2016/running-ui-tests-with-ludicrous-speed/
-        UIApplication.sharedApplication.keyWindow.layer.speed = animationSpeed;
-    });
+        if (SBTApplyUIAnimationSpeedToKeyWindows(animationSpeed)) {
+            [notificationCenter removeObserver:weakObserver];
+        }
+    };
+
+    if (self.startupCompleted) {
+        dispatch_sync(dispatch_get_main_queue(), applyToKeyWindow);
+    } else {
+        // During startup the main thread is running only the tunnel-private
+        // mode and a scene window usually does not exist yet. Apply once the
+        // normal main queue resumes. It will either find the newly-created key
+        // window or wait for the first key-window notification.
+        dispatch_async(dispatch_get_main_queue(), applyToKeyWindow);
+    }
 
     NSString *debugInfo = [NSString stringWithFormat:@"Setting animationSpeed to %ld", (long)animationSpeed];
     return @{ SBTUITunnelResponseResultKey: @"YES", SBTUITunnelResponseDebugKey: debugInfo };
@@ -881,13 +986,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandStartupCompleted:(NSDictionary *)parameters
 {
-    // Runs on the server's background command queue (HTTP) or the IPC private
-    // queue — never the main thread. Flip the flag and release the semaphore
-    // `takeOff` is parked on; do not hop to the main queue, otherwise `takeOff`
-    // would have to pump the main run loop to observe the change and reintroduce
-    // the scene-connection re-entrancy this is designed to avoid.
+    // Wake the tunnel-private run-loop mode without servicing UIKit's pending
+    // default-mode lifecycle callbacks.
     self.startupCompleted = YES;
-    dispatch_semaphore_signal(self.startupCompletedSemaphore);
+    CFRunLoopSourceSignal(SBTUITestTunnelStartupRunLoopSource);
+    CFRunLoopWakeUp(CFRunLoopGetMain());
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -1838,8 +1941,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         }
 
         IMP imp = [self.sharedInstance methodForSelector:commandSelector];
-
-        NSLog(@"[SBTUITestTunnel] Executing command '%@'", commandName);
 
         NSDictionary * (*func)(id, SEL, NSDictionary *) = (void *)imp;
         response = func(self.sharedInstance, commandSelector, unescapedParams);
