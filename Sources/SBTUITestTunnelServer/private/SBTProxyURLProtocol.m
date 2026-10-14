@@ -470,7 +470,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:failureStubResponse.failureCode userInfo:nil];
                 
                 [client URLProtocol:strongSelf didFailWithError:error];
-                [client URLProtocolDidFinishLoading:strongSelf];
             } else {
                 if (stubResponse.headers[@"Location"] != nil) {
                     NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
