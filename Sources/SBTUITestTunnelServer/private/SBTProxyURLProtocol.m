@@ -33,8 +33,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSessionDataTask *connection;
-@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSMutableData *> *tasksData;
-@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSDate *> *tasksTime;
+@property (nonatomic, strong) NSMutableData *connectionData;
+@property (nonatomic, strong) NSDate *connectionStartDate;
 
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
@@ -86,8 +86,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)reset
 {
     self.matchingRules = [NSMutableArray array];
-    self.tasksData = [NSMutableDictionary dictionary];
-    self.tasksTime = [NSMutableDictionary dictionary];
     self.monitoredRequests = [NSMutableArray array];
     self.monitoredRequestsSyncQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.queue", DISPATCH_QUEUE_SERIAL);
     self.responseDeliveryQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.delivery", DISPATCH_QUEUE_SERIAL);
@@ -552,10 +550,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         self.connection = [session dataTaskWithRequest:newRequest];
-        
-        [SBTProxyURLProtocol sharedInstance].tasksTime[self.connection] = [NSDate date];
-        [SBTProxyURLProtocol sharedInstance].tasksData[self.connection] = [NSMutableData data];
-        
+        self.connectionStartDate = [NSDate date];
+        self.connectionData = [NSMutableData data];
+
         NSTimeInterval delayResponseTime = [self delayResponseTime];
         __weak typeof(self)weakSelf = self;
         // See the stub delivery above: dispatch off the main queue so a startup
@@ -600,9 +597,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [self.client URLProtocol:self didLoadData:data];
     }
     
-    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:dataTask];
-    NSAssert(taskData != nil, @"Should not be nil");
-    [taskData appendData:data];
+    [self.connectionData appendData:data];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
@@ -612,12 +607,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     NSDictionary *rewriteRule = [self rewriteRuleFromMatchingRules:matchingRules];
     BOOL isRequestRewritten = (rewriteRule != nil);
     
-    NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
-    
-    NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
-    NSAssert(responseData != nil, @"Should not be nil");
-    [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
-    
+    NSTimeInterval requestTime = -1.0 * [self.connectionStartDate timeIntervalSinceNow];
+
+    NSData *responseData = self.connectionData;
+
     self.response = task.response;
     
     if (isRequestRewritten) {
