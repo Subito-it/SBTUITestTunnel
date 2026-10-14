@@ -660,16 +660,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         });
     }
     
+    // The rewritten response is withheld until the load completes: when it failed, the client only gets the failure
+    if (error == nil && self.response == nil) {
+        error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
+    }
+    if (error != nil) {
+        [self.client URLProtocol:self didFailWithError:error];
+        return;
+    }
+
     if (isRequestRewritten) {
         [self.client URLProtocol:self didReceiveResponse:self.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
         [self.client URLProtocol:self didLoadData:responseData];
     }
-    
-    if (error) {
-        [self.client URLProtocol:self didFailWithError:error];
-    } else {
-        [self.client URLProtocolDidFinishLoading:self];
-    }
+    [self.client URLProtocolDidFinishLoading:self];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
