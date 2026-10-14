@@ -602,6 +602,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
+    // The session only runs this task, and retains its delegate until it gets invalidated
+    [session finishTasksAndInvalidate];
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSURLRequest *request = self.request;
     NSDictionary *rewriteRule = [self rewriteRuleFromMatchingRules:matchingRules];
