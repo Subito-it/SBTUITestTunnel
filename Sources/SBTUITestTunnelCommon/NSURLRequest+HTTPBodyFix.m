@@ -34,8 +34,6 @@
 // When using a request body (e.g., when matching stubs), previously marked upload requests _must_ exclusively
 // reference the copy from NSURLProtocol because the request's `HTTPBody` was cleared.
 
-NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSURLProtocolIsUploadTaskKey";
-
 + (NSData *)sbt_readFromBodyStream:(NSInputStream *)stream
 {
     if (!stream) {
@@ -155,6 +153,17 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     }
     
     return ret;
+}
+
+- (id)sendableCopy
+{
+    NSMutableURLRequest *copy = [self mutableCopy];
+    if (copy.HTTPBody == nil) {
+        copy.HTTPBody = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
+    }
+    [NSURLProtocol removePropertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:copy];
+    [NSURLProtocol removePropertyForKey:SBTUITunneledNSURLProtocolIsUploadTaskKey inRequest:copy];
+    return copy;
 }
 
 + (void)load
