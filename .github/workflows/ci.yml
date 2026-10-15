@@ -9,6 +9,7 @@ jobs:
     name: Run UI Test on iOS
     env:
       xcode_version: "26.2"
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
     steps:
       - name: List Xcode installations
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -16,7 +17,7 @@ jobs:
         run: |
           sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install required tools
         run: |
           brew update
@@ -29,32 +30,35 @@ jobs:
         run: |
           Scripts/run_build.rb Example/SBTUITestTunnel.xcworkspace
       - name: Run UI Tests
+        id: uitests
         run: |
           Scripts/run_uitests.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect UI Tests artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SBTUITestTunnel_Tests_iOS.xcresult
           path: SBTUITestTunnel_Tests.xcresult
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.uitests.outcome != 'skipped' }}
       - name: Run no swizzling UI Tests
+        id: uitests_no_swizzling
         run: |
           Scripts/run_uitests_no_swizzling.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect no swizzling UI Tests artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.uitests_no_swizzling.outcome != 'skipped' }}
       - name: Run SceneDelegate UI Tests
+        id: uitests_scene
         run: |
           Scripts/run_uitests_scene.rb Example/SBTUITestTunnel.xcworkspace
       - name: Collect SceneDelegate UI Tests artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SceneExample_iOS.xcresult
           path: SceneExample.xcresult
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.uitests_scene.outcome != 'skipped' }}
       - name: Build SPM App
         run: |
           Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj

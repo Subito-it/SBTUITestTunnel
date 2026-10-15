@@ -33,8 +33,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @interface SBTProxyURLProtocol() <NSURLSessionDataDelegate,NSURLSessionTaskDelegate,NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSessionDataTask *connection;
-@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSMutableData *> *tasksData;
-@property (nonatomic, strong) NSMutableDictionary<NSURLSessionTask *, NSDate *> *tasksTime;
+@property (nonatomic, strong) NSMutableData *connectionData;
+@property (nonatomic, strong) NSDate *connectionStartDate;
 
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *matchingRules;
 @property (nonatomic, strong) NSMutableArray<SBTMonitoredNetworkRequest *> *monitoredRequests;
@@ -42,6 +42,16 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) dispatch_queue_t responseDeliveryQueue;
 
 @property (nonatomic, strong) NSURLResponse *response;
+// Only accessed on the proxy session's delegate queue. Set when the proxied response is a redirect
+@property (nonatomic, strong) NSURLRequest *redirectRequest;
+// The task drops its response when reading the body of the redirect fails
+@property (nonatomic, strong) NSHTTPURLResponse *redirectResponse;
+
+// The URL loading system calls startLoading and stopLoading on this thread and expects client callbacks on it, in these run loop modes
+@property (nonatomic, strong) NSThread *clientThread;
+@property (nonatomic, copy) NSArray<NSString *> *clientRunLoopModes;
+// Only accessed on clientThread. Set by stopLoading and by the terminal callbacks: once set, the client must not be called anymore
+@property (nonatomic, assign) BOOL finished;
 
 @end
 
@@ -86,8 +96,6 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 - (void)reset
 {
     self.matchingRules = [NSMutableArray array];
-    self.tasksData = [NSMutableDictionary dictionary];
-    self.tasksTime = [NSMutableDictionary dictionary];
     self.monitoredRequests = [NSMutableArray array];
     self.monitoredRequestsSyncQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.queue", DISPATCH_QUEUE_SERIAL);
     self.responseDeliveryQueue = dispatch_queue_create("com.sbtuitesttunnel.protocol.delivery", DISPATCH_QUEUE_SERIAL);
@@ -404,6 +412,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)startLoading
 {
+    self.clientThread = [NSThread currentThread];
+    NSMutableArray<NSString *> *clientRunLoopModes = [NSMutableArray arrayWithObject:NSDefaultRunLoopMode];
+    NSString *currentRunLoopMode = [NSRunLoop currentRunLoop].currentMode;
+    if (currentRunLoopMode != nil && ![currentRunLoopMode isEqualToString:NSDefaultRunLoopMode]) {
+        [clientRunLoopModes addObject:currentRunLoopMode];
+    }
+    self.clientRunLoopModes = clientRunLoopModes;
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *stubRule = [self stubRuleFromMatchingRules:matchingRules];
     NSDictionary *throttleRule = [self throttleRuleFromMatchingRules:matchingRules];
@@ -430,71 +446,72 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             stubbingResponseTime = stubResponse.data.length / (1024 * ABS(stubbingResponseTime));
         }
         
-        __weak typeof(self)weakSelf = self;
-        id<NSURLProtocolClient>client = self.client;
         NSURLRequest *request = self.request;
-        // Deliver on a background queue rather than the main queue: `takeOff`
+        // Wait on a background queue rather than the main queue: `takeOff`
         // parks the main thread on a semaphore during the startup-command
         // handshake, so a startup command that synchronously waits on a stubbed
-        // request would otherwise deadlock (the delivery block would never run).
+        // request would otherwise deadlock. The response is then delivered on
+        // the client thread, a CFNetwork thread rather than main.
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(stubbingResponseTime * NSEC_PER_SEC)), [SBTProxyURLProtocol sharedInstance].responseDeliveryQueue, ^{
-            __strong typeof(weakSelf)strongSelf = weakSelf;
+            [self performOnClientThread:^{
+                if (self.finished) {
+                    return;
+                }
             
-            strongSelf.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
+                self.response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:stubbingStatusCode HTTPVersion:nil headerFields:stubResponse.headers];
             
-            if ([strongSelf monitorRuleFromMatchingRules:matchingRules] != nil) {
-                SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
+                if ([self monitorRuleFromMatchingRules:matchingRules] != nil) {
+                    SBTMonitoredNetworkRequest *monitoredRequest = [[SBTMonitoredNetworkRequest alloc] init];
                 
-                monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
-                monitoredRequest.requestTime = stubbingResponseTime;
-                monitoredRequest.request = strongSelf.request;
-                monitoredRequest.originalRequest = strongSelf.request;
+                    monitoredRequest.timestamp = [[NSDate date] timeIntervalSinceReferenceDate];
+                    monitoredRequest.requestTime = stubbingResponseTime;
+                    monitoredRequest.request = self.request;
+                    monitoredRequest.originalRequest = self.request;
                 
-                monitoredRequest.response = (NSHTTPURLResponse *)strongSelf.response;
+                    monitoredRequest.response = (NSHTTPURLResponse *)self.response;
                 
-                monitoredRequest.responseData = stubResponse.data;
+                    monitoredRequest.responseData = stubResponse.data;
                 
-                monitoredRequest.isStubbed = YES;
-                monitoredRequest.isRewritten = NO;
+                    monitoredRequest.isStubbed = YES;
+                    monitoredRequest.isRewritten = NO;
             
+                    monitoredRequest.requestData = [monitoredRequest.originalRequest sbt_extractHTTPBody];
                 
-                monitoredRequest.requestData = [monitoredRequest.originalRequest sbt_extractHTTPBody];
+                    dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
+                        [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
+                    });
+                }
                 
-                dispatch_sync([SBTProxyURLProtocol sharedInstance].monitoredRequestsSyncQueue, ^{
-                    [[SBTProxyURLProtocol sharedInstance].monitoredRequests addObject:monitoredRequest];
-                });
-            }
+                if ([stubResponse isKindOfClass:[SBTStubFailureResponse class]]) {
+                    SBTStubFailureResponse *failureStubResponse = (SBTStubFailureResponse *)stubResponse;
+                    NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:failureStubResponse.failureCode userInfo:nil];
             
-            if ([stubResponse isKindOfClass:[SBTStubFailureResponse class]]) {
-                SBTStubFailureResponse *failureStubResponse = (SBTStubFailureResponse *)stubResponse;
-                NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:failureStubResponse.failureCode userInfo:nil];
-                
-                [client URLProtocol:strongSelf didFailWithError:error];
-                [client URLProtocolDidFinishLoading:strongSelf];
-            } else {
-                if (stubResponse.headers[@"Location"] != nil) {
-                    NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
-                    NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
+                    [self deliverFailure:error];
+                } else {
+                    if (stubResponse.headers[@"Location"] != nil) {
+                        NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
+                        NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
                     
-                    [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
-                    if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
-                        // don't handle double (or more) redirects
-                        [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
+                        [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
+                        if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
+                            // don't handle double (or more) redirects
+                            [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
+                        }
+
+                        [self deliverRedirectToRequest:redirectionRequest redirectResponse:self.response];
                     }
                     
-                    [client URLProtocol:strongSelf wasRedirectedToRequest:redirectionRequest redirectResponse:strongSelf.response];
-                } else {
-                    [client URLProtocol:strongSelf didReceiveResponse:strongSelf.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                    [client URLProtocol:strongSelf didLoadData:stubResponse.data];
-                    [client URLProtocolDidFinishLoading:strongSelf];
+                    [self deliverResponse:self.response];
+                    [self deliverData:stubResponse.data];
+                    [self deliverFinish];
                 }
-            }
             
-            if (stubResponse.activeIterations > 0) {
-                if (--stubResponse.activeIterations == 0) {
-                    [SBTProxyURLProtocol stubRequestsRemoveWithId:stubRule[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
+                if (stubResponse.activeIterations > 0) {
+                    if (--stubResponse.activeIterations == 0) {
+                        [SBTProxyURLProtocol stubRequestsRemoveWithId:stubRule[SBTProxyURLProtocolMatchingRuleIdentifierKey]];
+                    }
                 }
-            }
+            }];
         });
         
         return;
@@ -553,10 +570,9 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         }
         
         self.connection = [session dataTaskWithRequest:newRequest];
-        
-        [SBTProxyURLProtocol sharedInstance].tasksTime[self.connection] = [NSDate date];
-        [SBTProxyURLProtocol sharedInstance].tasksData[self.connection] = [NSMutableData data];
-        
+        self.connectionStartDate = [NSDate date];
+        self.connectionData = [NSMutableData data];
+
         NSTimeInterval delayResponseTime = [self delayResponseTime];
         __weak typeof(self)weakSelf = self;
         // See the stub delivery above: dispatch off the main queue so a startup
@@ -570,7 +586,78 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)stopLoading
 {
+    self.finished = YES;
     [self.connection cancel];
+}
+
+- (void)performOnClientThread:(dispatch_block_t)block
+{
+    if ([NSThread currentThread] == self.clientThread) {
+        block();
+    } else {
+        [self performSelector:@selector(sbt_performBlock:) onThread:self.clientThread withObject:[block copy] waitUntilDone:NO modes:self.clientRunLoopModes];
+    }
+}
+
+- (void)sbt_performBlock:(dispatch_block_t)block
+{
+    block();
+}
+
+#pragma mark - Client delivery
+
+// Every client call goes through these methods. They run on the client thread and check before each call that the
+// load hasn't ended, as a client callback can synchronously stop the load.
+
+- (void)deliverResponse:(NSURLResponse *)response
+{
+    [self performOnClientThread:^{
+        if (!self.finished) {
+            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+        }
+    }];
+}
+
+- (void)deliverData:(NSData *)data
+{
+    [self performOnClientThread:^{
+        if (!self.finished) {
+            [self.client URLProtocol:self didLoadData:data];
+        }
+    }];
+}
+
+// Doesn't end the load: the URL loading system stops it when it follows the redirect, and when the redirect is declined
+// the redirect response and its body complete the load instead. Deliver them in the same client thread turn as the
+// redirect: if they arrive after the redirect was followed but before this load is stopped, the URL loading system ends
+// the request with them.
+- (void)deliverRedirectToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
+{
+    [self performOnClientThread:^{
+        if (!self.finished) {
+            [self.client URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];
+        }
+    }];
+}
+
+- (void)deliverFinish
+{
+    [self performOnClientThread:^{
+        if (!self.finished) {
+            self.finished = YES;
+            [self.client URLProtocolDidFinishLoading:self];
+        }
+    }];
+}
+
+- (void)deliverFailure:(NSError *)error
+{
+    [self performOnClientThread:^{
+        if (!self.finished) {
+            self.finished = YES;
+            [self.client URLProtocol:self didFailWithError:error];
+        }
+    }];
 }
 
 - (void)moveCookiesToHeader:(NSMutableURLRequest *)newRequest
@@ -594,37 +681,37 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
+    [self.connectionData appendData:data];
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
-    if ([self rewriteRuleFromMatchingRules:matchingRules] != nil) {
-        // if we're rewriting the request we will send only a didLoadData callback after rewriting content once everything was received
-    } else {
-        [self.client URLProtocol:self didLoadData:data];
+    if (self.redirectRequest != nil || [self rewriteRuleFromMatchingRules:matchingRules] != nil) {
+        // Redirects and rewritten responses are delivered once everything was received
+        return;
     }
     
-    NSMutableData *taskData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:dataTask];
-    NSAssert(taskData != nil, @"Should not be nil");
-    [taskData appendData:data];
+    [self deliverData:data];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
+    // The session only runs this task, and retains its delegate until it gets invalidated
+    [session finishTasksAndInvalidate];
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSURLRequest *request = self.request;
     NSDictionary *rewriteRule = [self rewriteRuleFromMatchingRules:matchingRules];
     BOOL isRequestRewritten = (rewriteRule != nil);
     
-    NSTimeInterval requestTime = -1.0 * [[SBTProxyURLProtocol sharedInstance].tasksTime[task] timeIntervalSinceNow];
-    
-    NSData *responseData = [[SBTProxyURLProtocol sharedInstance].tasksData objectForKey:task];
-    NSAssert(responseData != nil, @"Should not be nil");
-    [[SBTProxyURLProtocol sharedInstance].tasksData removeObjectForKey:task];
-    
-    self.response = task.response;
-    
+    NSTimeInterval requestTime = -1.0 * [self.connectionStartDate timeIntervalSinceNow];
+
+    NSData *responseData = self.connectionData;
+
+    self.response = task.response ?: self.redirectResponse;
+
     if (isRequestRewritten) {
         SBTRewrite *rewrite = rewriteRule[SBTProxyURLProtocolRewriteResponse];
         responseData = [rewrite rewriteResponseBody:responseData];
-        NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
+        NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)self.response;
         if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
             NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
             NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
@@ -660,16 +747,35 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         });
     }
     
-    if (isRequestRewritten) {
-        [self.client URLProtocol:self didReceiveResponse:self.response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-        [self.client URLProtocol:self didLoadData:responseData];
+    NSURLResponse *response = self.response;
+    NSURLRequest *redirectRequest = self.redirectRequest;
+
+    // Redirects and rewritten responses are withheld until the load completes: when a rewritten load failed, the client
+    // only gets the failure. A redirect is still reported when reading its body failed, as following it doesn't need the
+    // body: the failure only ends the load when the redirect is declined.
+    if (error == nil && response == nil) {
+        error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
     }
-    
-    if (error) {
-        [self.client URLProtocol:self didFailWithError:error];
-    } else {
-        [self.client URLProtocolDidFinishLoading:self];
+    if (error != nil && redirectRequest == nil) {
+        [self deliverFailure:error];
+        return;
     }
+
+    BOOL isResponseWithheld = isRequestRewritten || redirectRequest != nil;
+    [self performOnClientThread:^{
+        if (redirectRequest != nil) {
+            [self deliverRedirectToRequest:redirectRequest redirectResponse:response];
+        }
+        if (isResponseWithheld) {
+            [self deliverResponse:response];
+            [self deliverData:responseData];
+        }
+        if (error != nil) {
+            [self deliverFailure:error];
+        } else {
+            [self deliverFinish];
+        }
+    }];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
@@ -685,13 +791,21 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [[self class] associateOriginalRequest:self.request withRequest:mRequest];
     }
     
-    [self.client URLProtocol:self wasRedirectedToRequest:mRequest redirectResponse:response];
-    
-    completionHandler(mRequest);
+    self.redirectRequest = mRequest;
+    self.redirectResponse = response;
+
+    // The URL loading system follows the redirect: this task completes with the redirect response instead
+    completionHandler(nil);
 }
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
+    if (self.redirectRequest != nil) {
+        // Delivered with the redirect once everything was received
+        completionHandler(NSURLSessionResponseAllow);
+        return;
+    }
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *headersStubRequest = [self stubRuleFromMatchingRules:matchingRules];
     if ([self rewriteRuleFromMatchingRules:matchingRules] != nil) {
@@ -720,15 +834,14 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             }
         }
         
+        [self deliverResponse:response];
         if (headersMatch) {
-            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-            [self.client URLProtocol:self didLoadData:stubResponse.data];
-            [self.client URLProtocolDidFinishLoading:self];
-        } else {
-            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            // The stub replaces the body and finishes the load, so the rest of the real load doesn't reach the client
+            [self deliverData:stubResponse.data];
+            [self deliverFinish];
         }
     } else {
-        [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+        [self deliverResponse:response];
     }
     
     completionHandler(NSURLSessionResponseAllow);

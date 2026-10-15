@@ -277,6 +277,16 @@ class RewriteTests: XCTestCase {
             XCTAssertEqual(result.response.url?.absoluteString, "https://postman-echo.com/get?param_a1=val_a1&param_b1=val_b1")
         }
     }
+
+    func testURLRewriteToUnreachableHostFailsTheRequest() {
+        let requestMatch = SBTRequestMatch(url: "postman-echo.com")
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "postman-echo\\.com", replace: "sbtuitesttunnel.invalid")])
+        app.rewriteRequests(matching: requestMatch, rewrite: rewrite)
+
+        let result = request.downloadTaskNetwork(urlString: "https://postman-echo.com/get", httpMethod: "GET")
+
+        XCTAssertEqual(request.returnCode(result), -1)
+    }
 }
 
 extension RewriteTests {
