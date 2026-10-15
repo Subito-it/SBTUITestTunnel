@@ -102,6 +102,7 @@ class ProxyURLProtocolClientTests: XCTestCase {
         let protocolClass = try XCTUnwrap(NSClassFromString("SBTProxyURLProtocol") as? URLProtocol.Type)
         let urlProtocol = protocolClass.init(request: request, cachedResponse: nil, client: client)
         // The test thread becomes the client thread, so the client gets its callbacks while the test spins the main run loop
+        client.willStartLoading()
         urlProtocol.startLoading()
 
         return urlProtocol
@@ -113,6 +114,7 @@ class ProxyURLProtocolClientTests: XCTestCase {
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertEqual(client.events, expectedEvents, file: file, line: line)
+        XCTAssertEqual(client.offThreadEvents, [], "Callbacks must arrive on the thread that started the load", file: file, line: line)
     }
 }
 
@@ -128,6 +130,8 @@ private final class RecordingClient: NSObject, URLProtocolClient {
     private let stopsLoadingOnResponse: Bool
     private let lock = NSLock()
     private var recordedEvents = [Event]()
+    private var recordedOffThreadEvents = [Event]()
+    private var loadingThread: Thread?
 
     init(stopsLoadingOnResponse: Bool = false) {
         self.stopsLoadingOnResponse = stopsLoadingOnResponse
@@ -137,8 +141,23 @@ private final class RecordingClient: NSObject, URLProtocolClient {
         lock.withLock { recordedEvents }
     }
 
+    /// Callbacks that didn't arrive on the thread that started the load
+    var offThreadEvents: [Event] {
+        lock.withLock { recordedOffThreadEvents }
+    }
+
+    func willStartLoading() {
+        lock.withLock { loadingThread = .current }
+    }
+
     private func record(_ event: Event) {
-        lock.withLock { recordedEvents.append(event) }
+        let thread = Thread.current
+        lock.withLock {
+            recordedEvents.append(event)
+            if thread != loadingThread {
+                recordedOffThreadEvents.append(event)
+            }
+        }
     }
 
     func urlProtocol(_: URLProtocol, wasRedirectedTo _: URLRequest, redirectResponse _: URLResponse) {
