@@ -44,6 +44,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) NSURLResponse *response;
 // Only accessed on the proxy session's delegate queue. Set when the proxied response is a redirect
 @property (nonatomic, strong) NSURLRequest *redirectRequest;
+// The task drops its response when reading the body of the redirect fails
+@property (nonatomic, strong) NSHTTPURLResponse *redirectResponse;
 
 // The URL loading system calls startLoading and stopLoading on this thread and expects client callbacks on it, in these run loop modes
 @property (nonatomic, strong) NSThread *clientThread;
@@ -704,12 +706,12 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
     NSData *responseData = self.connectionData;
 
-    self.response = task.response;
-    
+    self.response = task.response ?: self.redirectResponse;
+
     if (isRequestRewritten) {
         SBTRewrite *rewrite = rewriteRule[SBTProxyURLProtocolRewriteResponse];
         responseData = [rewrite rewriteResponseBody:responseData];
-        NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)task.response;
+        NSHTTPURLResponse *taskResponse = (NSHTTPURLResponse *)self.response;
         if ([taskResponse isKindOfClass:[NSHTTPURLResponse class]]) {
             NSDictionary *headers = [rewrite rewriteResponseHeaders:taskResponse.allHeaderFields];
             NSInteger statusCode = [rewrite rewriteStatusCode:taskResponse.statusCode];
@@ -745,17 +747,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         });
     }
     
-    // Redirects and rewritten responses are withheld until the load completes: when it failed, the client only gets the failure
-    if (error == nil && self.response == nil) {
+    NSURLResponse *response = self.response;
+    NSURLRequest *redirectRequest = self.redirectRequest;
+
+    // Redirects and rewritten responses are withheld until the load completes: when a rewritten load failed, the client
+    // only gets the failure. A redirect is still reported when reading its body failed, as following it doesn't need the
+    // body: the failure only ends the load when the redirect is declined.
+    if (error == nil && response == nil) {
         error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
     }
-    if (error != nil) {
+    if (error != nil && redirectRequest == nil) {
         [self deliverFailure:error];
         return;
     }
 
-    NSURLResponse *response = self.response;
-    NSURLRequest *redirectRequest = self.redirectRequest;
     BOOL isResponseWithheld = isRequestRewritten || redirectRequest != nil;
     [self performOnClientThread:^{
         if (redirectRequest != nil) {
@@ -765,7 +770,11 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
             [self deliverResponse:response];
             [self deliverData:responseData];
         }
-        [self deliverFinish];
+        if (error != nil) {
+            [self deliverFailure:error];
+        } else {
+            [self deliverFinish];
+        }
     }];
 }
 
@@ -783,7 +792,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }
     
     self.redirectRequest = mRequest;
-    
+    self.redirectResponse = response;
+
     // The URL loading system follows the redirect: this task completes with the redirect response instead
     completionHandler(nil);
 }

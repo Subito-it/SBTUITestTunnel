@@ -74,6 +74,44 @@ class RedirectTests: XCTestCase {
         XCTAssertEqual(server.hits("/destination"), 1)
     }
 
+    func testMonitoredRedirectWithFailingBodyLoadsTheDestination() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "127.0.0.1"))
+
+        let result = load(server.url("/failing-body-redirect"), delegate: RedirectHandlingDelegate(followsRedirects: true))
+
+        XCTAssertEqual(result.completions, 1)
+        XCTAssertNil(result.error)
+        XCTAssertEqual(result.response?.statusCode, 200)
+        XCTAssertEqual(String(decoding: result.data, as: UTF8.self), "destination body")
+        XCTAssertEqual(server.hits("/failing-body-redirect"), 1)
+        XCTAssertEqual(server.hits("/destination"), 1)
+    }
+
+    func testMonitoredRedirectWithFailingBodyFollowedLateLoadsTheDestination() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "127.0.0.1"))
+
+        let result = loadFollowingRedirectsLate(server.url("/failing-body-redirect"))
+
+        XCTAssertEqual(result.completions, 1)
+        XCTAssertNil(result.error)
+        XCTAssertEqual(result.response?.statusCode, 200)
+        XCTAssertEqual(String(decoding: result.data, as: UTF8.self), "destination body")
+        XCTAssertEqual(server.hits("/failing-body-redirect"), 1)
+        XCTAssertEqual(server.hits("/destination"), 1)
+    }
+
+    func testMonitoredDeclinedRedirectWithFailingBodyFailsWithTheBodyError() {
+        app.monitorRequests(matching: SBTRequestMatch(url: "127.0.0.1"))
+
+        let result = loadDecliningRedirects(server.url("/failing-body-redirect"))
+
+        XCTAssertEqual(result.completions, 1)
+        XCTAssertEqual((result.error as? URLError)?.code, .networkConnectionLost)
+        XCTAssertEqual(server.hits("/failing-body-redirect"), 1)
+        XCTAssertEqual(server.hits("/destination"), 0)
+        XCTAssertEqual(app.monitoredRequestsFlushAll().map { $0.response?.statusCode }, [302])
+    }
+
     func testStubbedRedirectFollowedLateLoadsTheDestination() {
         app.stubRequests(matching: SBTRequestMatch(url: "stubbed-redirect"), response: stubbedRedirect)
 
@@ -171,7 +209,8 @@ extension RedirectTests {
         server = try LocalHTTPServer(routes: [
             "/redirect": .init(statusCode: 302, headers: ["Location": "/hop"], body: "redirect body"),
             "/hop": .init(statusCode: 302, headers: ["Location": "/destination"], body: "hop body"),
-            "/destination": .init(statusCode: 200, body: "destination body")
+            "/destination": .init(statusCode: 200, body: "destination body"),
+            "/failing-body-redirect": .init(statusCode: 302, headers: ["Location": "/destination"], body: "redirect body", failsBodyTransfer: true)
         ])
 
         SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))

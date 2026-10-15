@@ -23,6 +23,8 @@ final class LocalHTTPServer {
         var statusCode: Int
         var headers: [String: String] = [:]
         var body: String = ""
+        /// Resets the connection before the last chunk of the body, so the body transfer fails
+        var failsBodyTransfer = false
     }
 
     private let listener: NWListener
@@ -102,10 +104,15 @@ final class LocalHTTPServer {
         hitsByPath[path, default: 0] += 1
 
         let response = routes[path] ?? Response(statusCode: 404)
-        let body = Data(response.body.utf8)
+        var body = Data(response.body.utf8)
         var headers = response.headers
         headers["Content-Type"] = headers["Content-Type"] ?? "text/plain"
-        headers["Content-Length"] = "\(body.count)"
+        if response.failsBodyTransfer {
+            headers["Transfer-Encoding"] = "chunked"
+            body = Data("\(String(body.count, radix: 16))\r\n".utf8) + body + Data("\r\n".utf8)
+        } else {
+            headers["Content-Length"] = "\(body.count)"
+        }
         headers["Connection"] = "close"
 
         var responseHead = "HTTP/1.1 \(response.statusCode) \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode))\r\n"
@@ -115,7 +122,11 @@ final class LocalHTTPServer {
         responseHead += "\r\n"
 
         connection.send(content: Data(responseHead.utf8) + body, completion: .contentProcessed { _ in
-            connection.cancel()
+            if response.failsBodyTransfer {
+                connection.forceCancel()
+            } else {
+                connection.cancel()
+            }
         })
     }
 }
