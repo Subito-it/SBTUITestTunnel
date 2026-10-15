@@ -187,6 +187,8 @@ for request in requests {
 app.monitorRequestRemoveAll()
 ```
 
+Each hop of a redirect is a separate monitored request: the request that got redirected is recorded with the redirect response, and each redirected request is recorded with its own response. Waiting for a request matching only the first URL of a redirect chain can therefore return before the final destination has loaded.
+
 ### ⏱️ Throttling
 
 Simulate different network conditions to test your app's performance under various scenarios.
