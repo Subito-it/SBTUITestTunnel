@@ -42,6 +42,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) dispatch_queue_t responseDeliveryQueue;
 
 @property (nonatomic, strong) NSURLResponse *response;
+// Only accessed on the proxy session's delegate queue. Set when the proxied response is a redirect
+@property (nonatomic, strong) NSURLRequest *redirectRequest;
 
 // The URL loading system calls startLoading and stopLoading on this thread and expects client callbacks on it, in these run loop modes
 @property (nonatomic, strong) NSThread *clientThread;
@@ -483,18 +485,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
                     NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:failureStubResponse.failureCode userInfo:nil];
             
                     [self deliverFailure:error];
-                } else if (stubResponse.headers[@"Location"] != nil) {
-                    NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
-                    NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
+                } else {
+                    if (stubResponse.headers[@"Location"] != nil) {
+                        NSURL *redirectionUrl = [NSURL URLWithString:stubResponse.headers[@"Location"]];
+                        NSMutableURLRequest *redirectionRequest = [NSMutableURLRequest requestWithURL:redirectionUrl];
                     
-                    [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
-                    if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
-                        // don't handle double (or more) redirects
-                        [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
+                        [NSURLProtocol removePropertyForKey:SBTProxyURLProtocolHandledKey inRequest:redirectionRequest];
+                        if (![SBTRequestPropertyStorage propertyForKey:SBTProxyURLOriginalRequestKey inRequest:redirectionRequest]) {
+                            // don't handle double (or more) redirects
+                            [[self class] associateOriginalRequest:request withRequest:redirectionRequest];
+                        }
+
+                        [self deliverRedirectToRequest:redirectionRequest redirectResponse:self.response];
                     }
                     
-                    [self deliverRedirectToRequest:redirectionRequest redirectResponse:self.response];
-                } else {
                     [self deliverResponse:self.response];
                     [self deliverData:stubResponse.data];
                     [self deliverFinish];
@@ -621,7 +625,10 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     }];
 }
 
-// Doesn't end the load: the URL loading system stops it when it follows the redirect
+// Doesn't end the load: the URL loading system stops it when it follows the redirect, and when the redirect is declined
+// the redirect response and its body complete the load instead. Deliver them in the same client thread turn as the
+// redirect: if they arrive after the redirect was followed but before this load is stopped, the URL loading system ends
+// the request with them.
 - (void)deliverRedirectToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
     [self performOnClientThread:^{
@@ -675,8 +682,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
     [self.connectionData appendData:data];
 
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
-    if ([self rewriteRuleFromMatchingRules:matchingRules] != nil) {
-        // if we're rewriting the request we will send only a didLoadData callback after rewriting content once everything was received
+    if (self.redirectRequest != nil || [self rewriteRuleFromMatchingRules:matchingRules] != nil) {
+        // Redirects and rewritten responses are delivered once everything was received
         return;
     }
     
@@ -738,7 +745,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         });
     }
     
-    // The rewritten response is withheld until the load completes: when it failed, the client only gets the failure
+    // Redirects and rewritten responses are withheld until the load completes: when it failed, the client only gets the failure
     if (error == nil && self.response == nil) {
         error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
     }
@@ -747,11 +754,19 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         return;
     }
 
-    if (isRequestRewritten) {
-        [self deliverResponse:self.response];
-        [self deliverData:responseData];
-    }
-    [self deliverFinish];
+    NSURLResponse *response = self.response;
+    NSURLRequest *redirectRequest = self.redirectRequest;
+    BOOL isResponseWithheld = isRequestRewritten || redirectRequest != nil;
+    [self performOnClientThread:^{
+        if (redirectRequest != nil) {
+            [self deliverRedirectToRequest:redirectRequest redirectResponse:response];
+        }
+        if (isResponseWithheld) {
+            [self deliverResponse:response];
+            [self deliverData:responseData];
+        }
+        [self deliverFinish];
+    }];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler
@@ -767,13 +782,20 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         [[self class] associateOriginalRequest:self.request withRequest:mRequest];
     }
     
-    [self deliverRedirectToRequest:mRequest redirectResponse:response];
+    self.redirectRequest = mRequest;
     
-    completionHandler(mRequest);
+    // The URL loading system follows the redirect: this task completes with the redirect response instead
+    completionHandler(nil);
 }
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
 {
+    if (self.redirectRequest != nil) {
+        // Delivered with the redirect once everything was received
+        completionHandler(NSURLSessionResponseAllow);
+        return;
+    }
+
     NSArray<NSDictionary *> *matchingRules = [SBTProxyURLProtocol matchingRulesForRequest:self.request];
     NSDictionary *headersStubRequest = [self stubRuleFromMatchingRules:matchingRules];
     if ([self rewriteRuleFromMatchingRules:matchingRules] != nil) {

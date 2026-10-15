@@ -364,9 +364,9 @@ class MonitorTests: XCTestCase {
     func testRedirectForMonitoredRequestShouldMatch() {
         let redirectMatch = SBTRequestMatch(url: "postman-echo.com")
         app.monitorRequests(matching: redirectMatch)
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            _ = self?.request.dataTaskNetwork(urlString: "https://postman-echo.com/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
-        }
+
+        // Synchronous: every redirect hop is recorded when it completes, so a hop still in flight would end up in the next test's monitored requests
+        _ = request.dataTaskNetwork(urlString: "https://postman-echo.com/redirect-to?url=http%3A%2F%2Fgoogle.com%2F")
 
         XCTAssert(app.waitForMonitoredRequests(matching: redirectMatch, timeout: 10.0, iterations: 1))
     }
