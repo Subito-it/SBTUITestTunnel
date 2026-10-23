@@ -11,7 +11,7 @@ The easiest and most modern way to integrate SBTUITestTunnel into your project.
    ```
    https://github.com/Subito-it/SBTUITestTunnel
    ```
-3. For **Dependency Rule**, select the `master` branch
+3. For **Dependency Rule**, select **Up to Next Major Version** starting from `12.0.0`
 4. Add the packages to your targets:
    - **`SBTUITestTunnelServer`** → Your main app target
    - **`SBTUITestTunnelClient`** → Your UI test target

@@ -78,18 +78,23 @@ static NSMutableDictionary* _registry;
 
 + (oneway void)releaseRemoteBlock:(NSString*)identifier
 {
-	pthread_mutex_lock_deferred_unlock(&_registryMutex);
-	
 	@autoreleasepool
 	{
-		_DTXRemoteBlockRegistryEntry* entry = [_registry objectForKey:identifier];
-		entry.blockRetainCount -= 1;
+		//Kept alive past the unlock: destroying a removed entry releases the block's captures, whose dealloc may re-enter the registry.
+		NS_VALID_UNTIL_END_OF_SCOPE _DTXRemoteBlockRegistryEntry* entry = nil;
 		
-		if(entry.blockRetainCount == 0)
 		{
-			[entry.distantObject _leavelReplyBlock];
+			pthread_mutex_lock_deferred_unlock(&_registryMutex);
 			
-			[_registry removeObjectForKey:identifier];
+			entry = [_registry objectForKey:identifier];
+			entry.blockRetainCount -= 1;
+			
+			if(entry.blockRetainCount == 0)
+			{
+				[entry.distantObject _leavelReplyBlock];
+				
+				[_registry removeObjectForKey:identifier];
+			}
 		}
 	}
 }
