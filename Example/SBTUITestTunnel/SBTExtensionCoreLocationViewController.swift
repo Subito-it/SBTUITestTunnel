@@ -15,9 +15,12 @@
 // limitations under the License.
 
 import CoreLocation
+import SBTUITestTunnelServer
 import UIKit
 
 class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManagerDelegate {
+    private static let fixtureCommandName = "coreLocationFixture"
+
     private let authorizationButton = UIButton()
     private let updateLocationButton = UIButton()
     private let stopLocationUpdateButton = UIButton()
@@ -33,8 +36,10 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let errorThreadLabel = UILabel()
 
     private let backgroundThread: SBTRunLoopThread?
+    private let replacementDelegate = SBTReplacementLocationDelegate()
     // Only accessed on managerThread
     private var locationManager: CLLocationManager?
+    private var clearsDelegateOnLegacyAuthorizationCallback = false
 
     private var managerThread: Thread {
         backgroundThread ?? Thread.main
@@ -123,10 +128,17 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
             contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
 
+        replacementDelegate.locationLabel = locationLabel
+
         backgroundThread?.start()
         onManagerThread {
             self.locationManager = CLLocationManager()
             self.locationManager?.delegate = self
+        }
+
+        SBTUITestTunnelServer.registerCustomCommandNamed(Self.fixtureCommandName) { [weak self] action in
+            self?.performFixtureAction(action as? String)
+            return "YES" as NSString
         }
     }
 
@@ -135,8 +147,37 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
 
         guard isMovingFromParent else { return }
 
+        SBTUITestTunnelServer.unregisterCommandNamed(Self.fixtureCommandName)
         onManagerThread { self.locationManager = nil }
         backgroundThread?.stop()
+    }
+
+    // Invoked on the tunnel's command queue
+    private func performFixtureAction(_ action: String?) {
+        switch action {
+        case "reassignDelegate":
+            onManagerThread { self.locationManager?.delegate = self }
+        case "clearDelegateOnLegacyAuthorizationCallback":
+            onManagerThread { self.clearsDelegateOnLegacyAuthorizationCallback = true }
+        case "holdThenClearDelegate":
+            holdManagerThread { self.locationManager?.delegate = nil }
+        case "holdThenReplaceDelegate":
+            holdManagerThread { self.locationManager?.delegate = self.replacementDelegate }
+        default:
+            assertionFailure("Unknown Core Location fixture action \(action ?? "nil")")
+        }
+    }
+
+    // Returns once the manager thread is blocked, so events sent meanwhile queue up behind `work`
+    private func holdManagerThread(then work: @escaping () -> Void) {
+        let isHolding = DispatchSemaphore(value: 0)
+        let block = SBTBlock {
+            isHolding.signal()
+            Thread.sleep(forTimeInterval: 3.0)
+            work()
+        }
+        block.perform(#selector(SBTBlock.run), on: managerThread, with: nil, waitUntilDone: false)
+        isHolding.wait()
     }
 
     @objc func updateTapped(_: Any) {
@@ -190,8 +231,11 @@ extension SBTExtensionCoreLocationViewController {
 }
 
 extension SBTExtensionCoreLocationViewController {
-    func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let threadName = currentThreadName
+        if clearsDelegateOnLegacyAuthorizationCallback {
+            manager.delegate = nil
+        }
         DispatchQueue.main.async { [weak self] in
             self?.preIOS14DeprecatedDelegateStatusLabel.text = status.description
             if #unavailable(iOS 14.0) {
@@ -206,7 +250,7 @@ extension SBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let threadName = currentThreadName
         DispatchQueue.main.async { [weak self] in
-            self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
+            self?.locationLabel.text = describe(locations)
             self?.locationThreadLabel.text = threadName
         }
     }
@@ -234,6 +278,20 @@ extension CLAuthorizationStatus: CustomStringConvertible {
         @unknown default: return "@unknown"
         }
     }
+}
+
+private final class SBTReplacementLocationDelegate: NSObject, CLLocationManagerDelegate {
+    weak var locationLabel: UILabel?
+
+    func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        DispatchQueue.main.async { [weak self] in
+            self?.locationLabel?.text = "replacement \(describe(locations))"
+        }
+    }
+}
+
+private func describe(_ locations: [CLLocation]) -> String {
+    locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
 }
 
 /// Core Location delivers delegate callbacks through the run loop of the thread that created the manager.

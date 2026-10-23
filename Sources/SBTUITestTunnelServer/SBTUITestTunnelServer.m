@@ -1663,6 +1663,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                 }
                 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
                     if (@available(iOS 14.0, *)) {
+                        // The legacy callback may have cleared or replaced the delegate
+                        delegate = locationManager.stubbedDelegate;
+
                         if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
                             [delegate locationManagerDidChangeAuthorization:locationManager];
                         }

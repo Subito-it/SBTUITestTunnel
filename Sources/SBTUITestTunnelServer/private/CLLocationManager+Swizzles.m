@@ -125,6 +125,13 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 
 - (void)swz_setDelegate:(id<CLLocationManagerDelegate>)delegate
 {
+    if (delegate == nil) {
+        // NSMapTable ignores setObject:nil, which would leave the previous delegate registered
+        [_delegatesHashTable removeObjectForKey:self];
+        [_instanceHashTable removeObjectForKey:self];
+        return;
+    }
+
     [_delegatesHashTable setObject:delegate forKey:self];
     [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 
