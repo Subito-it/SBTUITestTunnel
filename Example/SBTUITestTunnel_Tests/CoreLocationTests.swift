@@ -359,6 +359,39 @@ class CoreLocationTests: XCTestCase {
         XCTAssertTrue(getStubbedCoreLocationServicesEnabled())
     }
 
+    func testCoreLocationStubStateUnderConcurrentAccess() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+
+        // Worker threads churn their own managers and reenter the stub from callbacks while the server enumerates them
+        app.performCustomCommandNamed("coreLocationFixture", object: "startStress")
+
+        let statuses: [CLAuthorizationStatus] = [.authorizedAlways, .denied, .authorizedWhenInUse, .notDetermined]
+        for i in 0 ..< 100 {
+            let coordinate = Double(i % 90)
+            app.coreLocationStubAuthorizationStatus(statuses[i % statuses.count])
+            app.coreLocationStubAccuracyAuthorization(i.isMultiple(of: 2) ? .reducedAccuracy : .fullAccuracy)
+            app.coreLocationStubLocationServicesEnabled(i.isMultiple(of: 3))
+            app.coreLocationStubManagerLocation(i.isMultiple(of: 5) ? nil : CLLocation(latitude: coordinate, longitude: coordinate))
+            app.coreLocationNotifyLocationUpdate([CLLocation(latitude: coordinate, longitude: coordinate)])
+            app.coreLocationNotifyLocationError(NSError(domain: kCLErrorDomain, code: CLError.Code.network.rawValue))
+        }
+
+        let summary = app.performCustomCommandNamed("coreLocationFixture", object: "stopStress") as! String
+        let stats = Dictionary(uniqueKeysWithValues: summary.split(separator: ";").map { entry in
+            let pair = entry.split(separator: "=")
+            return (String(pair[0]), Int(pair[1])!)
+        })
+
+        XCTAssertGreaterThan(stats["callbacks"]!, 0, summary)
+        XCTAssertGreaterThan(stats["reads"]!, 0, summary)
+        XCTAssertEqual(stats["wrongThread"], 0, summary)
+        XCTAssertEqual(stats["invalidValue"], 0, summary)
+    }
+
     private func getStubbedCoreLocationServicesEnabled() -> Bool {
         app.performCustomCommandNamed("myCustomCommandReturnCLServicesEnabled", object: nil) as! String == "YES"
     }
