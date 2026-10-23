@@ -6,21 +6,9 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
-/***
-*    ██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ ██████╗
-*    ██║    ██║██╔══██╗██╔══██╗████╗  ██║██║████╗  ██║██╔════╝
-*    ██║ █╗ ██║███████║██████╔╝██╔██╗ ██║██║██╔██╗ ██║██║  ███╗
-*    ██║███╗██║██╔══██║██╔══██╗██║╚██╗██║██║██║╚██╗██║██║   ██║
-*    ╚███╔███╔╝██║  ██║██║  ██║██║ ╚████║██║██║ ╚████║╚██████╔╝
-*     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝
-*
-*
-* WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
-*/
-
 #import "_DTXIPCRemoteBlockRegistry.h"
 #import "_DTXIPCDistantObject.h"
-#import "../DTXObjectiveCHelpers/Swiftier.h"
+#import "Swiftier.h"
 @import ObjectiveC;
 @import Darwin;
 
@@ -55,11 +43,9 @@ static NSMutableDictionary* _registry;
 	
 	@autoreleasepool
 	{
-		id copied = _Block_copy(block);
-		
 		_DTXRemoteBlockRegistryEntry* entry = [_DTXRemoteBlockRegistryEntry new];
 		entry.identifier = identifier;
-		entry.block = [copied autorelease];
+		entry.block = [block copy];
 		entry.blockRetainCount = 1;
 		entry.distantObject = distantObject;
 		[entry.distantObject _enterReplyBlock];

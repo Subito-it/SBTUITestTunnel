@@ -22,6 +22,5 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.source_files = ["Sources/SBTUITestTunnelCommon/**/*.{h,m}", "Sources/SBTUITestTunnelCommonSwift/**/*.{swift}"]
-  s.requires_arc = false
-  s.requires_arc = ["Sources/SBTUITestTunnelCommon/*.{m}", "Sources/SBTUITestTunnelCommon/DetoxIPC/*.{m}", "Sources/SBTUITestTunnelCommon/DetoxIPC/Apple/**/*.{m}", "Sources/SBTUITestTunnelCommon/DetoxIPC/DTXObjectiveCHelpers/**/*.{m}"]
+  s.requires_arc = true
 end
