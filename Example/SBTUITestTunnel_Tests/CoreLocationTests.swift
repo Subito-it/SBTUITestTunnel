@@ -281,8 +281,8 @@ class CoreLocationTests: XCTestCase {
 
         app.performCustomCommandNamed("coreLocationFixture", object: "holdThenClearDelegate")
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+        app.performCustomCommandNamed("coreLocationFixture", object: "releaseManagerThread")
 
-        Thread.sleep(forTimeInterval: 5.0)
         XCTAssertEqual(app.staticTexts["location_pos"].label, "-")
     }
 
@@ -296,8 +296,9 @@ class CoreLocationTests: XCTestCase {
 
         app.performCustomCommandNamed("coreLocationFixture", object: "holdThenReplaceDelegate")
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+        app.performCustomCommandNamed("coreLocationFixture", object: "releaseManagerThread")
 
-        wait { self.app.staticTexts["location_pos"].label == "replacement 44.0 11.1" }
+        XCTAssertEqual(app.staticTexts["location_pos"].label, "replacement 44.0 11.1")
     }
 
     func testCoreLocationDelegateClearedByLegacyAuthorizationCallbackSkipsModernCallback() {
@@ -313,10 +314,36 @@ class CoreLocationTests: XCTestCase {
 
         app.performCustomCommandNamed("coreLocationFixture", object: "clearDelegateOnLegacyAuthorizationCallback")
         app.coreLocationStubAuthorizationStatus(.denied)
+        app.performCustomCommandNamed("coreLocationFixture", object: "waitForQueuedCallbacks")
 
-        wait { self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "denied" }
-        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertEqual(app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label, "denied")
         XCTAssertEqual(app.staticTexts["location_status"].label, "authorizedAlways")
+    }
+
+    func testCoreLocationInitialAuthorizationIsDroppedWhenDelegateIsClearedBeforeDelivery() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+        wait {
+            self.app.staticTexts["location_status"].label == "authorizedAlways" &&
+                self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "authorizedAlways"
+        }
+
+        // Unregistered, so the delegate isn't told about the new status
+        app.performCustomCommandNamed("coreLocationFixture", object: "clearDelegate")
+        app.coreLocationStubAuthorizationStatus(.denied)
+
+        app.performCustomCommandNamed("coreLocationFixture", object: "assignThenClearDelegate")
+        XCTAssertEqual(app.staticTexts["location_status"].label, "authorizedAlways")
+        XCTAssertEqual(app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label, "authorizedAlways")
+
+        app.performCustomCommandNamed("coreLocationFixture", object: "reassignDelegate")
+        wait {
+            self.app.staticTexts["location_status"].label == "denied" &&
+                self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "denied"
+        }
     }
 
     private func getStubbedCoreLocationAuthorizationStatus() -> CLAuthorizationStatus {
