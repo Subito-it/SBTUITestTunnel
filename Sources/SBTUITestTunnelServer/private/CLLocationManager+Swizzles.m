@@ -168,6 +168,23 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
     [delegate locationManagerDidChangeAuthorization:self];
 }
 
+- (void)sbt_performOnCreationThread:(dispatch_block_t)block
+{
+    NSThread *thread = self.swz_creationThread ?: NSThread.mainThread;
+
+    [self performSelector:@selector(sbt_executeBlock:)
+                 onThread:thread
+               withObject:[block copy]
+            waitUntilDone:NO];
+}
+
+- (void)sbt_executeBlock:(dispatch_block_t)block
+{
+    @autoreleasepool {
+        block();
+    }
+}
+
 - (id<CLLocationManagerDelegate>)stubbedDelegate
 {
     return [_instanceHashTable objectForKey:self];

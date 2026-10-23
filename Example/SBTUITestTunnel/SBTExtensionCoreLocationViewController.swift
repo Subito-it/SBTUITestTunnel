@@ -25,10 +25,30 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private let statusLabel = UILabel()
     private let statusThreadLabel = UILabel()
     private let preIOS14DeprecatedDelegateStatusLabel = UILabel()
+    private let accuracyLabel = UILabel()
     private let locationLabel = UILabel()
     private let locationThreadLabel = UILabel()
     private let currentLocationLabel = UILabel()
-    private let locationManager = CLLocationManager()
+    private let errorLabel = UILabel()
+    private let errorThreadLabel = UILabel()
+
+    private let backgroundThread: SBTRunLoopThread?
+    // Only accessed on managerThread
+    private var locationManager: CLLocationManager?
+
+    private var managerThread: Thread {
+        backgroundThread ?? Thread.main
+    }
+
+    init(managerOnBackgroundThread: Bool = false) {
+        backgroundThread = managerOnBackgroundThread ? SBTRunLoopThread() : nil
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +67,10 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         preIOS14DeprecatedDelegateStatusLabel.textColor = .black
         preIOS14DeprecatedDelegateStatusLabel.accessibilityIdentifier = "location_pre_ios14_deprecated_delegate_status"
 
+        accuracyLabel.text = "-"
+        accuracyLabel.textColor = .black
+        accuracyLabel.accessibilityIdentifier = "location_accuracy"
+
         locationLabel.text = "-"
         locationLabel.textColor = .black
         locationLabel.accessibilityIdentifier = "location_pos"
@@ -58,6 +82,14 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         currentLocationLabel.text = "-"
         currentLocationLabel.textColor = .black
         currentLocationLabel.accessibilityIdentifier = "manager_location"
+
+        errorLabel.text = "-"
+        errorLabel.textColor = .black
+        errorLabel.accessibilityIdentifier = "location_error"
+
+        errorThreadLabel.text = "-"
+        errorThreadLabel.textColor = .black
+        errorThreadLabel.accessibilityIdentifier = "location_error_thread"
 
         authorizationButton.setTitle("Authorization status", for: .normal)
         updateLocationButton.setTitle("Update location", for: .normal)
@@ -74,8 +106,8 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         stopLocationUpdateButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
         currentLocationButton.addTarget(self, action: #selector(currentLocationTapped), for: .touchUpInside)
 
-        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel, statusThreadLabel, preIOS14DeprecatedDelegateStatusLabel])
-        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, locationThreadLabel, currentLocationLabel])
+        let statusStack = UIStackView(arrangedSubviews: [authorizationButton, statusLabel, statusThreadLabel, preIOS14DeprecatedDelegateStatusLabel, accuracyLabel])
+        let locationStack = UIStackView(arrangedSubviews: [updateLocationButton, stopLocationUpdateButton, currentLocationButton, locationLabel, locationThreadLabel, currentLocationLabel, errorLabel, errorThreadLabel])
         let contentStack = UIStackView(arrangedSubviews: [statusStack, locationStack])
 
         for item in [statusStack, locationStack, contentStack] {
@@ -91,48 +123,75 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
             contentStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
 
-        locationManager.delegate = self
-    }
-
-    @objc func updateTapped(_: Any) {
-        locationManager.startUpdatingLocation()
-    }
-
-    @objc func stopTapped(_: Any) {
-        locationManager.stopUpdatingLocation()
-    }
-
-    @objc func authorizationStatusTapped(_: Any) {
-        if #available(iOS 14.0, *) {
-            statusLabel.text = "\(locationManager.authorizationStatus.description)"
-        } else {
-            statusLabel.text = "\(CLLocationManager.authorizationStatus().description)"
+        backgroundThread?.start()
+        onManagerThread {
+            self.locationManager = CLLocationManager()
+            self.locationManager?.delegate = self
         }
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        guard isMovingFromParent else { return }
+
+        onManagerThread { self.locationManager = nil }
+        backgroundThread?.stop()
+    }
+
+    @objc func updateTapped(_: Any) {
+        onManagerThread { self.locationManager?.startUpdatingLocation() }
+    }
+
+    @objc func stopTapped(_: Any) {
+        onManagerThread { self.locationManager?.stopUpdatingLocation() }
+    }
+
+    @objc func authorizationStatusTapped(_: Any) {
+        statusLabel.text = onManagerThread { self.locationManager?.authorizationStatus.description ?? "nil" }
+    }
+
     @objc func currentLocationTapped(_: Any) {
-        if let location = locationManager.location {
+        if let location = onManagerThread({ self.locationManager?.location }) {
             currentLocationLabel.text = "\(location.coordinate.latitude) \(location.coordinate.longitude)"
         } else {
             currentLocationLabel.text = "nil"
         }
+    }
+
+    @discardableResult
+    private func onManagerThread<T>(_ work: @escaping () -> T) -> T {
+        var result: T?
+        let block = SBTBlock { result = work() }
+        block.perform(#selector(SBTBlock.run), on: managerThread, with: nil, waitUntilDone: true)
+        return result!
+    }
+
+    private var currentThreadName: String {
+        if Thread.isMainThread {
+            return "Main"
+        }
+        return Thread.current === backgroundThread ? "Background" : "Other"
     }
 }
 
 @available(iOS 14.0, *)
 extension SBTExtensionCoreLocationViewController {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        let threadName = currentThreadName
+        let status = manager.authorizationStatus.description
+        let accuracy = manager.accuracyAuthorization == .reducedAccuracy ? "reducedAccuracy" : "fullAccuracy"
         DispatchQueue.main.async { [weak self] in
-            self?.statusLabel.text = manager.authorizationStatus.description
+            self?.statusLabel.text = status
             self?.statusThreadLabel.text = threadName
+            self?.accuracyLabel.text = accuracy
         }
     }
 }
 
 extension SBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        let threadName = currentThreadName
         DispatchQueue.main.async { [weak self] in
             self?.preIOS14DeprecatedDelegateStatusLabel.text = status.description
             if #unavailable(iOS 14.0) {
@@ -145,10 +204,21 @@ extension SBTExtensionCoreLocationViewController {
 
 extension SBTExtensionCoreLocationViewController {
     func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let threadName = Thread.isMainThread ? "Main" : "Not main"
+        let threadName = currentThreadName
         DispatchQueue.main.async { [weak self] in
             self?.locationLabel.text = locations.map { "\($0.coordinate.latitude) \($0.coordinate.longitude)" }.joined(separator: "+")
             self?.locationThreadLabel.text = threadName
+        }
+    }
+}
+
+extension SBTExtensionCoreLocationViewController {
+    func locationManager(_: CLLocationManager, didFailWithError error: Error) {
+        let threadName = currentThreadName
+        let error = error as NSError
+        DispatchQueue.main.async { [weak self] in
+            self?.errorLabel.text = "\(error.domain) \(error.code)"
+            self?.errorThreadLabel.text = threadName
         }
     }
 }
@@ -163,5 +233,35 @@ extension CLAuthorizationStatus: CustomStringConvertible {
         case .authorizedWhenInUse: return "authorizedWhenInUse"
         @unknown default: return "@unknown"
         }
+    }
+}
+
+/// Core Location delivers delegate callbacks through the run loop of the thread that created the manager.
+private final class SBTRunLoopThread: Thread {
+    override func main() {
+        // Without an input source run(mode:before:) returns immediately and the loop would spin
+        RunLoop.current.add(Port(), forMode: .default)
+
+        while !isCancelled {
+            autoreleasepool {
+                _ = RunLoop.current.run(mode: .default, before: .distantFuture)
+            }
+        }
+    }
+
+    func stop() {
+        perform(#selector(cancel), on: self, with: nil, waitUntilDone: false)
+    }
+}
+
+private final class SBTBlock: NSObject {
+    private let block: () -> Void
+
+    init(_ block: @escaping () -> Void) {
+        self.block = block
+    }
+
+    @objc func run() {
+        block()
     }
 }

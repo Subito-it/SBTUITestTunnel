@@ -1651,23 +1651,24 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     #if !DISABLE_UITUNNEL_SWIZZLING
         NSString *authorizationStatus = parameters[SBTUITunnelObjectValueKey];
+        CLAuthorizationStatus status = (CLAuthorizationStatus)authorizationStatus.intValue;
 
         [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [locationManager.stubbedDelegate locationManager:locationManager didChangeAuthorizationStatus:authorizationStatus.intValue];
-                });
-            }
-            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-                if (@available(iOS 14.0, *)) {
-                    if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-                        });
-                    }
+            [locationManager sbt_performOnCreationThread:^{
+                id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
+
+                if ([delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
+                    [delegate locationManager:locationManager didChangeAuthorizationStatus:status];
                 }
-            #endif
+                #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+                    if (@available(iOS 14.0, *)) {
+                        if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                            [delegate locationManagerDidChangeAuthorization:locationManager];
+                        }
+                    }
+                #endif
+            }];
         }
     #endif
 
@@ -1682,11 +1683,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
             for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-                if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [locationManager.stubbedDelegate locationManagerDidChangeAuthorization:locationManager];
-                    });
-                }
+                [locationManager sbt_performOnCreationThread:^{
+                    id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
+
+                    if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                        [delegate locationManagerDidChangeAuthorization:locationManager];
+                    }
+                }];
             }
         #endif
     #endif
@@ -1721,11 +1724,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     switch (locationManager.authorizationStatus) {
                         case kCLAuthorizationStatusAuthorizedAlways:
                         case kCLAuthorizationStatusAuthorizedWhenInUse: {
-                            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [locationManager.stubbedDelegate locationManager:locationManager didUpdateLocations:locations];
-                                });
-                            }
+                            [locationManager sbt_performOnCreationThread:^{
+                                id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
+
+                                if ([delegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) {
+                                    [delegate locationManager:locationManager didUpdateLocations:locations];
+                                }
+                            }];
 
                             break;
                         }
@@ -1750,11 +1755,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSAssert(unarchiveError == nil, @"Error unarchiving NSError");
 
         for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
-            if ([locationManager.stubbedDelegate respondsToSelector:@selector(locationManager:didFailWithError:)]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [locationManager.stubbedDelegate locationManager:locationManager didFailWithError:error];
-                });
-            }
+            [locationManager sbt_performOnCreationThread:^{
+                id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
+
+                if ([delegate respondsToSelector:@selector(locationManager:didFailWithError:)]) {
+                    [delegate locationManager:locationManager didFailWithError:error];
+                }
+            }];
         }
     #endif
 
