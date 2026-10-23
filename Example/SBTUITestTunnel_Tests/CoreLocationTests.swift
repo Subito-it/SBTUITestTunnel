@@ -255,6 +255,70 @@ class CoreLocationTests: XCTestCase {
         }
     }
 
+    func testCoreLocationManagerCreatedBeforeStubbingIsNotifiedOnMainThread() {
+        app.launchTunnel()
+
+        app.tables.cells[coreLocationCell].tap()
+
+        // The manager predates the init swizzle, so its creation thread is unknown and delivery falls back to main
+        app.coreLocationStubEnabled(true)
+        app.performCustomCommandNamed("coreLocationFixture", object: "reassignDelegate")
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+
+        wait {
+            self.app.staticTexts["location_pos"].label == "44.0 11.1" &&
+                self.app.staticTexts["location_thread"].label == "Main"
+        }
+    }
+
+    func testCoreLocationQueuedUpdateIsDroppedWhenDelegateIsCleared() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+        app.buttons["Update location"].tap()
+
+        app.performCustomCommandNamed("coreLocationFixture", object: "holdThenClearDelegate")
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+
+        Thread.sleep(forTimeInterval: 5.0)
+        XCTAssertEqual(app.staticTexts["location_pos"].label, "-")
+    }
+
+    func testCoreLocationQueuedUpdateReachesReplacementDelegate() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+        app.buttons["Update location"].tap()
+
+        app.performCustomCommandNamed("coreLocationFixture", object: "holdThenReplaceDelegate")
+        app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
+
+        wait { self.app.staticTexts["location_pos"].label == "replacement 44.0 11.1" }
+    }
+
+    func testCoreLocationDelegateClearedByLegacyAuthorizationCallbackSkipsModernCallback() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+        wait {
+            self.app.staticTexts["location_status"].label == "authorizedAlways" &&
+                self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "authorizedAlways"
+        }
+
+        app.performCustomCommandNamed("coreLocationFixture", object: "clearDelegateOnLegacyAuthorizationCallback")
+        app.coreLocationStubAuthorizationStatus(.denied)
+
+        wait { self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "denied" }
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertEqual(app.staticTexts["location_status"].label, "authorizedAlways")
+    }
+
     private func getStubbedCoreLocationAuthorizationStatus() -> CLAuthorizationStatus {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnCLAuthStatus", object: nil) as! String
         return CLAuthorizationStatus(rawValue: Int32(statusString)!)!
