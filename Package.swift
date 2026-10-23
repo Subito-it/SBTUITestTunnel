@@ -44,28 +44,15 @@ let package = Package(
         ),
         .target(
             name: "SBTUITestTunnelCommon",
-            dependencies: ["SBTUITestTunnelCommonNoARC"],
-            exclude: ["DetoxIPC/fno-objc-arc", "DetoxIPC/Info.plist", "DetoxIPC/DetoxIPC.pch", "DetoxIPC/DTXObjectiveCHelpers/LICENSE", "DetoxIPC/DTXObjectiveCHelpers/README.md"],
+            exclude: ["DetoxIPC/Info.plist", "DetoxIPC/DetoxIPC.pch", "DetoxIPC/DTXObjectiveCHelpers/LICENSE", "DetoxIPC/DTXObjectiveCHelpers/README.md"],
             cSettings: [
                 .define("SPM", to: "YES"),
                 .headerSearchPath("DetoxIPC"),
                 .headerSearchPath("DetoxIPC/Apple"),
                 .headerSearchPath("DetoxIPC/DTXObjectiveCHelpers"),
-                .headerSearchPath("DetoxIPC/fno-objc-arc"),
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
-            ]
-        ),
-        .target(
-            name: "SBTUITestTunnelCommonNoARC",
-            path: "Sources/SBTUITestTunnelCommon/DetoxIPC/fno-objc-arc",
-            publicHeadersPath: ".",
-            cSettings: [
-                .define("SPM", to: "YES"),
-                .headerSearchPath(".."),
-                .headerSearchPath("../Apple"),
-                .unsafeFlags(["-fno-objc-arc"]),
             ]
         ),
         .target(

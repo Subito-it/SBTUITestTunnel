@@ -6,18 +6,6 @@
 //  Copyright © 2019 LeoNatan. All rights reserved.
 //
 
-/***
-*    ██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ ██████╗
-*    ██║    ██║██╔══██╗██╔══██╗████╗  ██║██║████╗  ██║██╔════╝
-*    ██║ █╗ ██║███████║██████╔╝██╔██╗ ██║██║██╔██╗ ██║██║  ███╗
-*    ██║███╗██║██╔══██║██╔══██╗██║╚██╗██║██║██║╚██╗██║██║   ██║
-*    ╚███╔███╔╝██║  ██║██║  ██║██║ ╚████║██║██║ ╚████║╚██████╔╝
-*     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝
-*
-*
-* WARNING: This file compiles with ARC disabled! Take extra care when modifying or adding functionality.
-*/
-
 #import "NSInvocation+DTXRemoteSerialization.h"
 #import "_DTXIPCRemoteBlockRegistry.h"
 #import "DTXIPCConnection-Private.h"
@@ -30,7 +18,7 @@ void* _DTXRemoteBlockIdentifierKey = &_DTXRemoteBlockIdentifierKey;
 static void* _DTXCleanupIdentifierKey = &_DTXCleanupIdentifierKey;
 
 extern const char * _Block_signature(id aBlock);
-extern id __NSMakeSpecialForwardingCaptureBlock(const char *signature, void (^handler)(NSInvocation *inv));
+extern id __NSMakeSpecialForwardingCaptureBlock(const char *signature, void (^handler)(NSInvocation *inv)) NS_RETURNS_RETAINED;
 
 @interface _DTXCleanUpHandler : NSObject @end
 @implementation _DTXCleanUpHandler
@@ -42,24 +30,19 @@ extern id __NSMakeSpecialForwardingCaptureBlock(const char *signature, void (^ha
 {
 	NSParameterAssert(block != nil);
 	_DTXCleanUpHandler* rv = [_DTXCleanUpHandler new];
-	rv->_cleanupBlock = _Block_copy(block);
-	return [rv autorelease];
+	rv->_cleanupBlock = [block copy];
+	return rv;
 }
 
 - (void)dealloc
 {
 	_cleanupBlock();
-	
-	_Block_release(_cleanupBlock);
-	
-	[super dealloc];
 }
 
 @end
 
 @implementation NSInvocation (DTXRemoteSerialization)
 
-//Returns autoreleased encoded object
 static id _encodeObject(id object, _DTXIPCDistantObject* distantObject)
 {
 	if(object == nil)
@@ -209,7 +192,7 @@ static void _encodeInvocation(NSInvocation* self, NSMutableDictionary* serialize
 			// Objective-C object
 			case '@':
 			{
-				id value;
+				__unsafe_unretained id value;
 				[self getArgument:&value atIndex:i];
 				
 				[arguments addObject:_encodeObject(value, distantObject)];
@@ -245,7 +228,6 @@ static void _encodeInvocation(NSInvocation* self, NSMutableDictionary* serialize
 	serialized[@"arguments"] = arguments;
 }
 
-//Returns autoreleased dictionary
 - (NSDictionary*)_dtx_serializedDictionaryForDistantObject:(_DTXIPCDistantObject*)distantObject
 {
 	NSMutableDictionary* serialized = [NSMutableDictionary dictionary];
@@ -268,7 +250,6 @@ static void _encodeInvocation(NSInvocation* self, NSMutableDictionary* serialize
 	return serialized;
 }
 
-//Returns autoreleased decoded object
 static id _decodeObject(NSDictionary* encodedObj, DTXIPCConnection* connection)
 {
 	id rv = nil;
@@ -295,15 +276,13 @@ static id _decodeObject(NSDictionary* encodedObj, DTXIPCConnection* connection)
 			[connection.otherConnection.rootProxy _cleanupRemoteBlock:remoteIdentifier];
 		}], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		
-		rv = [localForwardingBlock autorelease];
+		rv = localForwardingBlock;
 	}
 	else
 	{
 		NSKeyedUnarchiver* unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedObj[@"data"] error:NULL];
 		unarchiver.requiresSecureCoding = NO;
 		rv = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-		[unarchiver release];
-		unarchiver = nil;
 	}
 	
 	return rv;
@@ -313,6 +292,9 @@ static void _decodeInvocation(NSDictionary* serialized, NSInvocation* invocation
 {
 	NSMethodSignature* signature = invocation.methodSignature;
 	NSArray* arguments = serialized[@"arguments"];
+	
+	//Decoded objects are only owned by locals below, so the invocation must retain them.
+	[invocation retainArguments];
 	
 	for(NSUInteger i = firstArg; i < signature.numberOfArguments; i++)
 	{
@@ -411,7 +393,6 @@ static void _decodeInvocation(NSDictionary* serialized, NSInvocation* invocation
 	}
 }
 
-//Returns autoreleased invocation
 + (instancetype)_dtx_invocationWithSerializedDictionary:(NSDictionary*)serialized remoteConnection:(nonnull DTXIPCConnection *)connection
 {
 	NSMethodSignature* methodSignature = nil;
@@ -420,7 +401,7 @@ static void _decodeInvocation(NSDictionary* serialized, NSInvocation* invocation
 	Class invocationClass = NSInvocation.class;
 	SEL selector = NULL;
 	
-	BOOL blockCall = serialized[@"blockCall"];
+	BOOL blockCall = serialized[@"blockCall"] != nil;
 	if(blockCall)
 	{
 		blockId = serialized[@"remoteBlockIdentifier"];
