@@ -11,33 +11,34 @@ import SBTUITestTunnelClient
 import XCTest
 
 class CoreLocationTests: XCTestCase {
+    var coreLocationCell: String { "showCoreLocationViewController" }
+    var managerThread: String { "Main" }
+
     func testCoreLocationStubAuthorizationStatus() {
         app.launchTunnel()
 
         app.coreLocationStubEnabled(true)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
         wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
 
-        app.coreLocationStubAuthorizationStatus(.notDetermined)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .notDetermined)
-        wait { self.app.staticTexts["location_status"].label == "notDetermined" }
+        let statuses: [(CLAuthorizationStatus, String)] = [
+            (.notDetermined, "notDetermined"),
+            (.denied, "denied"),
+            (.restricted, "restricted"),
+            (.authorizedWhenInUse, "authorizedWhenInUse"),
+            (.authorizedAlways, "authorizedAlways"),
+        ]
 
-        app.coreLocationStubAuthorizationStatus(.denied)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .denied)
-        wait { self.app.staticTexts["location_status"].label == "denied" }
-
-        app.coreLocationStubAuthorizationStatus(.restricted)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .restricted)
-        wait { self.app.staticTexts["location_status"].label == "restricted" }
-
-        app.coreLocationStubAuthorizationStatus(.authorizedWhenInUse)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedWhenInUse)
-        wait { self.app.staticTexts["location_status"].label == "authorizedWhenInUse" }
-
-        app.coreLocationStubAuthorizationStatus(.authorizedAlways)
-        XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
-        wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
+        for (status, statusDescription) in statuses {
+            app.coreLocationStubAuthorizationStatus(status)
+            XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), status)
+            wait {
+                self.app.staticTexts["location_status"].label == statusDescription &&
+                    self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == statusDescription
+            }
+            XCTAssertEqual(app.staticTexts["location_status_thread"].label, managerThread)
+        }
     }
 
     func testCoreLocationUpdate() {
@@ -46,7 +47,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
@@ -66,19 +67,19 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
 
         wait { self.app.staticTexts["location_pos"].label == "44.0 11.1" }
-        wait { self.app.staticTexts["location_thread"].label == "Main" }
+        wait { self.app.staticTexts["location_thread"].label == self.managerThread }
 
         app.buttons["Stop location updates"].tap()
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 0.0, longitude: 0.0)])
         Thread.sleep(forTimeInterval: 2.0)
         wait { self.app.staticTexts["location_pos"].label == "44.0 11.1" }
-        wait { self.app.staticTexts["location_thread"].label == "Main" }
+        wait { self.app.staticTexts["location_thread"].label == self.managerThread }
 
         app.buttons["Update location"].tap()
 
@@ -86,7 +87,7 @@ class CoreLocationTests: XCTestCase {
 
         wait(withTimeout: 2) {
             self.app.staticTexts["location_pos"].label == "11.1 44.0" &&
-                self.app.staticTexts["location_thread"].label == "Main"
+                self.app.staticTexts["location_thread"].label == self.managerThread
         }
     }
 
@@ -95,7 +96,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
         app.buttons["Update location"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should occurr") { _ in
@@ -104,7 +105,7 @@ class CoreLocationTests: XCTestCase {
                 app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
                 Thread.sleep(forTimeInterval: 1.0)
                 XCTAssertEqual(app.staticTexts["location_pos"].label, "-", "Unexpected update with status \(status)")
-                XCTAssertEqual(app.staticTexts["location_status_thread"].label, "Main", "Unexpected status update on Not main thread")
+                XCTAssertEqual(app.staticTexts["location_status_thread"].label, managerThread, "Unexpected status update thread")
             }
         }
 
@@ -118,8 +119,8 @@ class CoreLocationTests: XCTestCase {
                     self.app.staticTexts["location_pos"].label == "44.0 \(11.1 + statusIndex)"
                 }
 
-                XCTAssertEqual(app.staticTexts["location_thread"].label, "Main", "Unexpected location update on Not main thread")
-                XCTAssertEqual(app.staticTexts["location_status_thread"].label, "Main", "Unexpected status update on Not main thread")
+                XCTAssertEqual(app.staticTexts["location_thread"].label, managerThread, "Unexpected location update thread")
+                XCTAssertEqual(app.staticTexts["location_status_thread"].label, managerThread, "Unexpected status update thread")
 
                 statusIndex += 1.0
             }
@@ -131,7 +132,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should be returned") { _ in
             for status in [CLAuthorizationStatus.notDetermined, .denied, .notDetermined, .restricted] {
@@ -189,7 +190,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
 
         app.buttons["Get manager current location"].tap()
         wait(withTimeout: 2) {
@@ -210,7 +211,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.denied)
 
-        app.tables.cells["showCoreLocationViewController"].tap()
+        app.tables.cells[coreLocationCell].tap()
 
         // The pre-iOS 14 deprecated locationManager:didChangeAuthorizationStatus:
         // delegate method must receive the stubbed status (denied) on the initial
@@ -224,11 +225,34 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        app.coreLocationStubAccuracyAuthorization(.fullAccuracy)
-        XCTAssertEqual(getStubbedCoreLocationAccuracyAuthorization(), .fullAccuracy)
+        app.tables.cells[coreLocationCell].tap()
+        wait { self.app.staticTexts["location_accuracy"].label == "fullAccuracy" }
 
         app.coreLocationStubAccuracyAuthorization(.reducedAccuracy)
         XCTAssertEqual(getStubbedCoreLocationAccuracyAuthorization(), .reducedAccuracy)
+        wait { self.app.staticTexts["location_accuracy"].label == "reducedAccuracy" }
+        XCTAssertEqual(app.staticTexts["location_status_thread"].label, managerThread)
+
+        app.coreLocationStubAccuracyAuthorization(.fullAccuracy)
+        XCTAssertEqual(getStubbedCoreLocationAccuracyAuthorization(), .fullAccuracy)
+        wait { self.app.staticTexts["location_accuracy"].label == "fullAccuracy" }
+        XCTAssertEqual(app.staticTexts["location_status_thread"].label, managerThread)
+    }
+
+    func testCoreLocationNotifyLocationError() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+
+        app.tables.cells[coreLocationCell].tap()
+        app.buttons["Update location"].tap()
+
+        app.coreLocationNotifyLocationError(NSError(domain: kCLErrorDomain, code: CLError.Code.network.rawValue))
+
+        wait {
+            self.app.staticTexts["location_error"].label == "\(kCLErrorDomain) \(CLError.Code.network.rawValue)" &&
+                self.app.staticTexts["location_error_thread"].label == self.managerThread
+        }
     }
 
     private func getStubbedCoreLocationAuthorizationStatus() -> CLAuthorizationStatus {
@@ -241,4 +265,9 @@ class CoreLocationTests: XCTestCase {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnCLAccuracyAuth", object: nil) as! String
         return CLAccuracyAuthorization(rawValue: Int(statusString)!)!
     }
+}
+
+final class CoreLocationBackgroundThreadTests: CoreLocationTests {
+    override var coreLocationCell: String { "showCoreLocationViewControllerOnBackgroundThread" }
+    override var managerThread: String { "Background" }
 }

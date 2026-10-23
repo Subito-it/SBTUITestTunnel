@@ -66,6 +66,7 @@ class SBTTableViewController: UITableViewController {
                                         Extension2Test(testSelector: #selector(showExtensionTable2)),
                                         Extension3Test(testSelector: #selector(showExtensionScrollView)),
                                         Extension4Test(testSelector: #selector(showCoreLocationViewController)),
+                                        Extension4Test(testSelector: #selector(showCoreLocationViewControllerOnBackgroundThread)),
                                         Extension5Test(testSelector: #selector(showExtensionCollectionViewVertical)),
                                         Extension6Test(testSelector: #selector(showExtensionCollectionViewHorizontal)),
                                         Extension7Test(testSelector: #selector(showExtensionCollectionViewWithKeyboard)),
@@ -448,6 +449,11 @@ extension SBTTableViewController {
 extension SBTTableViewController {
     @objc func showCoreLocationViewController() {
         let targetViewController = SBTExtensionCoreLocationViewController()
+        navigationController?.pushViewController(targetViewController, animated: true)
+    }
+
+    @objc func showCoreLocationViewControllerOnBackgroundThread() {
+        let targetViewController = SBTExtensionCoreLocationViewController(managerOnBackgroundThread: true)
         navigationController?.pushViewController(targetViewController, animated: true)
     }
 }
