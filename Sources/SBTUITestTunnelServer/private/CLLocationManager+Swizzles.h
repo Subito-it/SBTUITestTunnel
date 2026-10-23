@@ -28,6 +28,7 @@
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate;
 - (CLLocation *)location;
+- (void)sbt_performOnCreationThread:(dispatch_block_t)block;
 
 @end
 
