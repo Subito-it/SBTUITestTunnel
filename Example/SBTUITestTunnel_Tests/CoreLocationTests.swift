@@ -365,6 +365,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
 
         app.tables.cells[coreLocationCell].tap()
+        wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
 
         // Worker threads churn their own managers and reenter the stub from callbacks while the server enumerates them
         app.performCustomCommandNamed("coreLocationFixture", object: "startStress")
