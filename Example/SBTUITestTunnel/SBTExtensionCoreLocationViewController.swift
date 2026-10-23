@@ -40,6 +40,8 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     // Only accessed on managerThread
     private var locationManager: CLLocationManager?
     private var clearsDelegateOnLegacyAuthorizationCallback = false
+    // Only accessed on the tunnel's command queue
+    private var heldManagerThreadRelease: DispatchSemaphore?
 
     private var managerThread: Thread {
         backgroundThread ?? Thread.main
@@ -157,27 +159,50 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         switch action {
         case "reassignDelegate":
             onManagerThread { self.locationManager?.delegate = self }
+        case "clearDelegate":
+            onManagerThread { self.locationManager?.delegate = nil }
+        case "assignThenClearDelegate":
+            onManagerThread {
+                self.locationManager?.delegate = self
+                self.locationManager?.delegate = nil
+            }
+            waitForQueuedCallbacks()
         case "clearDelegateOnLegacyAuthorizationCallback":
             onManagerThread { self.clearsDelegateOnLegacyAuthorizationCallback = true }
         case "holdThenClearDelegate":
             holdManagerThread { self.locationManager?.delegate = nil }
         case "holdThenReplaceDelegate":
             holdManagerThread { self.locationManager?.delegate = self.replacementDelegate }
+        case "releaseManagerThread":
+            heldManagerThreadRelease?.signal()
+            heldManagerThreadRelease = nil
+            waitForQueuedCallbacks()
+        case "waitForQueuedCallbacks":
+            waitForQueuedCallbacks()
         default:
             assertionFailure("Unknown Core Location fixture action \(action ?? "nil")")
         }
     }
 
-    // Returns once the manager thread is blocked, so events sent meanwhile queue up behind `work`
+    // Returns once the manager thread is blocked; events sent before "releaseManagerThread" queue up behind `work`
     private func holdManagerThread(then work: @escaping () -> Void) {
         let isHolding = DispatchSemaphore(value: 0)
+        let release = DispatchSemaphore(value: 0)
+        heldManagerThreadRelease = release
+
         let block = SBTBlock {
             isHolding.signal()
-            Thread.sleep(forTimeInterval: 3.0)
+            release.wait()
             work()
         }
         block.perform(#selector(SBTBlock.run), on: managerThread, with: nil, waitUntilDone: false)
         isHolding.wait()
+    }
+
+    // Returns once callbacks already queued on the manager thread have run and their label updates are applied
+    private func waitForQueuedCallbacks() {
+        onManagerThread {}
+        DispatchQueue.main.sync {}
     }
 
     @objc func updateTapped(_: Any) {
