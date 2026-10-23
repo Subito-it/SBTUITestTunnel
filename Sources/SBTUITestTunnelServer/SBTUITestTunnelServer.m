@@ -122,7 +122,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 
 @property (atomic, assign) BOOL startupCompleted;
 
-@property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
 @property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
 #if SBTUITESTTUNNEL_HAS_UIKEYBOARD
 @property (nonatomic, assign) CGRect keyboardFrameInScreenCoordinates;
@@ -146,7 +145,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
-        sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
         sharedInstance.webSocketServers = [NSMutableDictionary dictionary];
 #if SBTUITESTTUNNEL_HAS_UIKEYBOARD
@@ -1701,9 +1699,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubServiceStatus:(NSDictionary *)parameters
 {
-    NSString *serviceStatus = parameters[SBTUITunnelObjectValueKey];
+    #if !DISABLE_UITUNNEL_SWIZZLING
+        BOOL enabled = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
 
-    [self.coreLocationStubbedServiceStatus setString:serviceStatus];
+        [CLLocationManager setStubbedLocationServicesEnabled:enabled];
+    #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }

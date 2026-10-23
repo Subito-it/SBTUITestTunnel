@@ -282,6 +282,13 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
     os_unfair_lock_unlock(&sStateLock);
 }
 
++ (void)setStubbedLocationServicesEnabled:(BOOL)enabled
+{
+    os_unfair_lock_lock(&sStateLock);
+    _locationServicesEnabled = enabled;
+    os_unfair_lock_unlock(&sStateLock);
+}
+
 - (CLLocation *)location
 {
     CLLocation *location NS_VALID_UNTIL_END_OF_SCOPE;

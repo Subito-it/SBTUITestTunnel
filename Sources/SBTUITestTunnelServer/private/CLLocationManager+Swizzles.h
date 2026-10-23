@@ -25,6 +25,7 @@
 + (void)setStubbedAccuracyAuthorization:(CLAccuracyAuthorization)accuracyAuthorization API_AVAILABLE(ios(14));
 #endif
 + (void)setStubbedCurrentLocation:(CLLocation *)location;
++ (void)setStubbedLocationServicesEnabled:(BOOL)enabled;
 + (void)loadSwizzles;
 + (void)removeSwizzles;
 

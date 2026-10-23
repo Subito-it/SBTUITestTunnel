@@ -346,6 +346,23 @@ class CoreLocationTests: XCTestCase {
         }
     }
 
+    func testCoreLocationStubLocationServicesEnabled() {
+        app.launchTunnel()
+
+        app.coreLocationStubEnabled(true)
+        XCTAssertTrue(getStubbedCoreLocationServicesEnabled())
+
+        app.coreLocationStubLocationServicesEnabled(false)
+        XCTAssertFalse(getStubbedCoreLocationServicesEnabled())
+
+        app.coreLocationStubLocationServicesEnabled(true)
+        XCTAssertTrue(getStubbedCoreLocationServicesEnabled())
+    }
+
+    private func getStubbedCoreLocationServicesEnabled() -> Bool {
+        app.performCustomCommandNamed("myCustomCommandReturnCLServicesEnabled", object: nil) as! String == "YES"
+    }
+
     private func getStubbedCoreLocationAuthorizationStatus() -> CLAuthorizationStatus {
         let statusString = app.performCustomCommandNamed("myCustomCommandReturnCLAuthStatus", object: nil) as! String
         return CLAuthorizationStatus(rawValue: Int32(statusString)!)!
