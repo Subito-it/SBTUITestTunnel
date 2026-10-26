@@ -5,7 +5,7 @@ module Build
   EXAMPLE_APP_SCHEME = "SBTUITestTunnel"
   UITESTS_SCHEME = "SBTUITestTunnel_Tests"
   UITESTS_NOSWIZZ_SCHEME = "SBTUITestTunnel_NoSwizzlingTests"
-  UITESTS_SCENE_SCHEME = "SceneExample"
+  UITESTS_MULTISCENE_SCHEME = "MultiSceneExample"
 
   def self.run_build(project_path)
     puts "⏳ Building app..."
@@ -22,12 +22,12 @@ module Build
     return run_xcodebuild("test", project_path, UITESTS_NOSWIZZ_SCHEME)
   end
 
-  # The scene lifecycle tests exercise the multi-window path, which iOS only
+  # The multi-scene tests exercise the multi-window path, which iOS only
   # materialises on iPad. Run them against an iPad so both the launch-ordering
   # test (device-agnostic) and the multi-scene test actually execute.
-  def self.run_ui_tests_scene(project_path)
-    puts "⏳ Run SceneDelegate UITests..."
-    return run_xcodebuild("test", project_path, UITESTS_SCENE_SCHEME, family: "iPad")
+  def self.run_ui_tests_multiscene(project_path)
+    puts "⏳ Run multi-scene UITests..."
+    return run_xcodebuild("test", project_path, UITESTS_MULTISCENE_SCHEME, family: "iPad")
   end
 
   def self.run_xcodebuild(action, path, scheme_name, family: "iPhone")

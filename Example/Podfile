@@ -26,12 +26,12 @@ target "SBTUITestTunnel_TestsNoSwizzling" do
   test_target
 end
 
-target "SceneExample" do
+target "MultiSceneExample" do
   pod "SBTUITestTunnelServer", :path => "../"
   pod "SBTUITestTunnelCommon", :path => "../"
 end
 
-target "SceneExample_Tests" do
+target "MultiSceneExample_Tests" do
   test_target
 end
 

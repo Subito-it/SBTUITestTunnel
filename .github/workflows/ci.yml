@@ -49,16 +49,16 @@ jobs:
           name: SBTUITestTunnel_TestsNoSwizzling_iOS.xcresult
           path: SBTUITestTunnel_TestsNoSwizzling.xcresult
         if: ${{ !cancelled() && steps.uitests_no_swizzling.outcome != 'skipped' }}
-      - name: Run SceneDelegate UI Tests
-        id: uitests_scene
+      - name: Run multi-scene UI Tests
+        id: uitests_multiscene
         run: |
-          Scripts/run_uitests_scene.rb Example/SBTUITestTunnel.xcworkspace
-      - name: Collect SceneDelegate UI Tests artifacts
+          Scripts/run_uitests_multiscene.rb Example/SBTUITestTunnel.xcworkspace
+      - name: Collect multi-scene UI Tests artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: SceneExample_iOS.xcresult
-          path: SceneExample.xcresult
-        if: ${{ !cancelled() && steps.uitests_scene.outcome != 'skipped' }}
+          name: MultiSceneExample_iOS.xcresult
+          path: MultiSceneExample.xcresult
+        if: ${{ !cancelled() && steps.uitests_multiscene.outcome != 'skipped' }}
       - name: Build SPM App
         run: |
           Scripts/run_build.rb Example/SPM/SBTUITestTunnel.xcodeproj
