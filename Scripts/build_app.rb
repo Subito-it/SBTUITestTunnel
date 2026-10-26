@@ -4,7 +4,7 @@ require_relative 'build_lib'
 if ARGV.length < 2
   puts "❌ Usage: #{File.basename($0)} <project_path> <scheme> [simulator_name] [simulator_os]"
   puts 'Examples:'
-  puts "  #{File.basename($0)} Examples/UIKit/SBTUITestTunnel.xcworkspace UIKit"
+  puts "  #{File.basename($0)} Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel"
   puts "  #{File.basename($0)} Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI"
   puts "  #{File.basename($0)} Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI 'iPhone 16' '18.0'"
   exit 1

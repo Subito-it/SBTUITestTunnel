@@ -27,7 +27,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
 
         let statuses: [(CLAuthorizationStatus, String)] = [
@@ -55,7 +55,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
@@ -75,7 +75,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         XCTAssertEqual(getStubbedCoreLocationAuthorizationStatus(), .authorizedAlways)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationUpdate([CLLocation(latitude: 44.0, longitude: 11.1)])
@@ -104,7 +104,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         XCTContext.runActivity(named: "Without authorization no location update should occurr") { _ in
@@ -140,7 +140,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
 
         wait { self.app.buttons["Get manager current location"].isHittable }
 
@@ -200,7 +200,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.authorizedAlways)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
 
         app.buttons["Get manager current location"].tap()
         wait(withTimeout: 2) {
@@ -221,7 +221,7 @@ class CoreLocationTests: XCTestCase {
         app.coreLocationStubEnabled(true)
         app.coreLocationStubAuthorizationStatus(.denied)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
 
         // The pre-iOS 14 deprecated locationManager:didChangeAuthorizationStatus:
         // delegate method must receive the stubbed status (denied) on the initial
@@ -235,7 +235,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         wait { self.app.staticTexts["location_accuracy"].label == "fullAccuracy" }
 
         app.coreLocationStubAccuracyAuthorization(.reducedAccuracy)
@@ -254,7 +254,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         app.coreLocationNotifyLocationError(NSError(domain: kCLErrorDomain, code: CLError.Code.network.rawValue))
@@ -268,7 +268,7 @@ class CoreLocationTests: XCTestCase {
     func testCoreLocationManagerCreatedBeforeStubbingIsNotifiedOnMainThread() {
         app.launchTunnel()
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
 
         // The manager predates the init swizzle, so its creation thread is unknown and delivery falls back to main
         app.coreLocationStubEnabled(true)
@@ -286,7 +286,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         app.performCustomCommandNamed("coreLocationFixture", object: "holdThenClearDelegate")
@@ -301,7 +301,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         app.buttons["Update location"].tap()
 
         app.performCustomCommandNamed("coreLocationFixture", object: "holdThenReplaceDelegate")
@@ -316,7 +316,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         wait {
             self.app.staticTexts["location_status"].label == "authorizedAlways" &&
                 self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "authorizedAlways"
@@ -335,7 +335,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         wait {
             self.app.staticTexts["location_status"].label == "authorizedAlways" &&
                 self.app.staticTexts["location_pre_ios14_deprecated_delegate_status"].label == "authorizedAlways"
@@ -374,7 +374,7 @@ class CoreLocationTests: XCTestCase {
 
         app.coreLocationStubEnabled(true)
 
-        openTestSection(identifier: "showCoreLocationViewController")
+        openTestSection(identifier: coreLocationCell)
         wait { self.app.staticTexts["location_status"].label == "authorizedAlways" }
 
         // Worker threads churn their own managers and reenter the stub from callbacks while the server enumerates them

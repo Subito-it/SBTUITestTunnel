@@ -18,84 +18,95 @@ import SwiftUI
 
 struct ContentView: View {
     let testManager = TestManager()
+    private let launchInjectedValue: String
 
-    @State private var readyToNavigate: Bool = false
+    init() {
+        // Capture at construction so the launch-ordering test can detect state
+        // read before the tunnel's startup block finishes.
+        self.launchInjectedValue = UserDefaults.standard.string(forKey: "swiftui_launch_injected_value") ?? "-"
+    }
 
     var body: some View {
         NavigationView {
-            List(Array(testManager.testList.enumerated()), id: \.element.name) { index, test in
-                switch test {
-                case let networkTest as NetworkTest:
-                    NavigationLink(destination: NetworkResultView(test: networkTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(networkTest.name)
-                        }
-                    }.accessibilityIdentifier(networkTest.name)
-                case let webSocketTest as WebSocketTest:
-                    NavigationLink(destination: WebSocketView(test: webSocketTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(webSocketTest.name)
-                        }
-                    }.accessibilityIdentifier(webSocketTest.name)
-                case let autocompleteTest as AutocompleteTest:
-                    NavigationLink(destination: GenericResultView(test: autocompleteTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(autocompleteTest.name)
-                        }
-                    }.accessibilityIdentifier(autocompleteTest.name)
-                case let cookiesTest as CookiesTest:
-                    NavigationLink(destination: GenericResultView(test: cookiesTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(cookiesTest.name)
-                        }
-                    }.accessibilityIdentifier(cookiesTest.name)
-                case let extensionTest as ExtensionTest:
-                    NavigationLink(destination: extensionViewFor(test: extensionTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(extensionTest.name)
-                        }
-                    }.accessibilityIdentifier(extensionTest.name)
-                case let coreLocationTest as CoreLocationTest:
-                    NavigationLink(destination: CoreLocationView(test: coreLocationTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(coreLocationTest.name)
-                        }
-                    }.accessibilityIdentifier(coreLocationTest.name)
-                case let crashTest as CrashTest:
-                    NavigationLink(destination: GenericResultView(test: crashTest)) {
-                        HStack {
-                            Text("[\(index)]")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                            Text(crashTest.name)
-                        }
-                    }.accessibilityIdentifier(crashTest.name)
-                default:
-                    EmptyView()
+            VStack(spacing: 0) {
+                Text(launchInjectedValue)
+                    .font(.caption)
+                    .accessibilityIdentifier("launch_injected_value")
+                List(Array(testManager.testList.enumerated()), id: \.element.name) { index, test in
+                    switch test {
+                    case let networkTest as NetworkTest:
+                        NavigationLink(destination: NetworkResultView(test: networkTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(networkTest.name)
+                            }
+                        }.accessibilityIdentifier(networkTest.name)
+                    case let webSocketTest as WebSocketTest:
+                        NavigationLink(destination: WebSocketView(test: webSocketTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(webSocketTest.name)
+                            }
+                        }.accessibilityIdentifier(webSocketTest.name)
+                    case let autocompleteTest as AutocompleteTest:
+                        NavigationLink(destination: AutocompleteView()) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(autocompleteTest.name)
+                            }
+                        }.accessibilityIdentifier(autocompleteTest.name)
+                    case let cookiesTest as CookiesTest:
+                        NavigationLink(destination: GenericResultView(test: cookiesTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(cookiesTest.name)
+                            }
+                        }.accessibilityIdentifier(cookiesTest.name)
+                    case let extensionTest as ExtensionTest:
+                        NavigationLink(destination: extensionViewFor(test: extensionTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(extensionTest.name)
+                            }
+                        }.accessibilityIdentifier(extensionTest.name)
+                    case let coreLocationTest as CoreLocationTest:
+                        NavigationLink(destination: CoreLocationView(test: coreLocationTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(coreLocationTest.name)
+                            }
+                        }.accessibilityIdentifier(coreLocationTest.name)
+                    case let crashTest as CrashTest:
+                        NavigationLink(destination: GenericResultView(test: crashTest)) {
+                            HStack {
+                                Text("[\(index)]")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                                Text(crashTest.name)
+                            }
+                        }.accessibilityIdentifier(crashTest.name)
+                    default:
+                        EmptyView()
+                    }
                 }
+                .accessibilityIdentifier("example_list")
             }
-            .accessibilityIdentifier("example_list")
             .navigationTitle("SBTUITestTunnel Example")
             .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationViewStyle(.stack)
     }
 
     @ViewBuilder

@@ -31,6 +31,7 @@ final class LocalHTTPServer {
     private let queue = DispatchQueue(label: "LocalHTTPServer")
     private let routes: [String: Response]
     private var hitsByPath: [String: Int] = [:]
+    private var bodiesByPath: [String: [Data]] = [:]
 
     init(routes: [String: Response]) throws {
         self.routes = routes
@@ -72,6 +73,10 @@ final class LocalHTTPServer {
         queue.sync { hitsByPath[path, default: 0] }
     }
 
+    func bodies(_ path: String) -> [Data] {
+        queue.sync { bodiesByPath[path, default: []] }
+    }
+
     private func handle(_ connection: NWConnection) {
         connection.start(queue: queue)
         receiveRequestHead(on: connection, buffer: Data())
@@ -87,7 +92,23 @@ final class LocalHTTPServer {
             }
 
             if let headEnd = buffer.range(of: Data("\r\n\r\n".utf8)) {
-                respond(toRequestHead: buffer[..<headEnd.lowerBound], on: connection)
+                let head = buffer[..<headEnd.lowerBound]
+                let contentLength = String(decoding: head, as: UTF8.self)
+                    .components(separatedBy: "\r\n")
+                    .dropFirst()
+                    .compactMap { line -> Int? in
+                        let fields = line.split(separator: ":", maxSplits: 1)
+                        guard fields.count == 2, fields[0].lowercased() == "content-length" else { return nil }
+                        return Int(fields[1].trimmingCharacters(in: .whitespaces))
+                    }.first ?? 0
+                let bodyEnd = headEnd.upperBound + max(0, contentLength)
+                if buffer.count >= bodyEnd {
+                    respond(toRequestHead: head, body: buffer[headEnd.upperBound ..< bodyEnd], on: connection)
+                } else if isComplete || error != nil {
+                    connection.cancel()
+                } else {
+                    receiveRequestHead(on: connection, buffer: buffer)
+                }
             } else if isComplete || error != nil {
                 connection.cancel()
             } else {
@@ -96,12 +117,13 @@ final class LocalHTTPServer {
         }
     }
 
-    private func respond(toRequestHead head: Data, on connection: NWConnection) {
+    private func respond(toRequestHead head: Data, body requestBody: Data, on connection: NWConnection) {
         let requestLine = String(decoding: head, as: UTF8.self).components(separatedBy: "\r\n").first ?? ""
         let requestLineParts = requestLine.split(separator: " ")
         let path = requestLineParts.count > 1 ? String(requestLineParts[1]) : "/"
 
         hitsByPath[path, default: 0] += 1
+        bodiesByPath[path, default: []].append(requestBody)
 
         let response = routes[path] ?? Response(statusCode: 404)
         var body = Data(response.body.utf8)

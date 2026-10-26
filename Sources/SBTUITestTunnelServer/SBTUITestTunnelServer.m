@@ -1065,22 +1065,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     NSAssert([NSThread isMainThread], @"Call this from main thread!");
 
-    // Hacky way to get top-most UIViewController
-    UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
-    while (rootViewController.presentedViewController != nil) {
-        rootViewController = rootViewController.presentedViewController;
-    }
-
-    NSArray *allViews = [rootViewController.view allSubviews];
+    UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
+    NSArray *allViews = scrollView != nil ? @[scrollView] : @[];
     for (UIView *view in [allViews reverseObjectEnumerator]) {
         if ([view isKindOfClass:elementClass]) {
-            CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
-            BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
-
-            if (!withinVisibleBounds) {
-                continue;
-            }
-
             BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
             if (expectedIdentifier) {
                 NSInteger numberOfSections = sectionsDataSource(view);
@@ -1137,56 +1125,118 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }
 }
 
-- (UIViewController *)topMostViewController
-{
-    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-    while (vc.presentedViewController != nil) {
-        vc = vc.presentedViewController;
-    }
-    return vc;
-}
-
 - (BOOL)view:(UIView *)view hasIdentifier:(NSString *)identifier
 {
     return [view.accessibilityIdentifier isEqualToString:identifier] ||
            [view.accessibilityLabel isEqualToString:identifier];
 }
 
-- (BOOL)isViewIntersectingScreen:(UIView *)view
-{
-    CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
-    return intersection.size.height > 0 && intersection.size.width > 0;
-}
-
 - (UIScrollView *)findVisibleScrollViewWithIdentifier:(NSString *)identifier
 {
-    NSArray *allViews = [[self topMostViewController].view allSubviews];
-    for (UIView *view in [allViews reverseObjectEnumerator]) {
-        if (![view isKindOfClass:[UIScrollView class]]) { continue; }
-        if (![self isViewIntersectingScreen:view]) { continue; }
-        if ([self view:view hasIdentifier:identifier]) {
-            return (UIScrollView *)view;
+    UIApplication *application = UIApplication.sharedApplication;
+    NSMutableArray<UIWindow *> *windows = [NSMutableArray array];
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        for (UIScene *scene in application.connectedScenes) {
+            if ([scene isKindOfClass:UIWindowScene.class] &&
+                (scene.activationState == UISceneActivationStateForegroundActive ||
+                 scene.activationState == UISceneActivationStateForegroundInactive)) {
+                [windows addObjectsFromArray:((UIWindowScene *)scene).windows];
+            }
+        }
+    }
+    if (windows.count == 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [windows addObjectsFromArray:application.windows];
+#pragma clang diagnostic pop
+    }
+
+    // Prefer the key window, while still supporting multiple SwiftUI scenes.
+    [windows sortUsingComparator:^NSComparisonResult(UIWindow *lhs, UIWindow *rhs) {
+        if (lhs.isKeyWindow == rhs.isKeyWindow) { return NSOrderedSame; }
+        return lhs.isKeyWindow ? NSOrderedAscending : NSOrderedDescending;
+    }];
+    for (UIWindow *window in windows) {
+        if (window.hidden || window.alpha < 0.01) { continue; }
+        UIViewController *controller = window.rootViewController;
+        while (controller.presentedViewController != nil) {
+            controller = controller.presentedViewController;
+        }
+        for (UIView *view in [[controller.view allSubviews] reverseObjectEnumerator]) {
+            if (![view isKindOfClass:UIScrollView.class] || view.hidden || view.alpha < 0.01) { continue; }
+            CGRect frame = [view convertRect:view.bounds toView:window];
+            CGRect intersection = CGRectIntersection(window.bounds, frame);
+            if (CGRectIsNull(intersection) || CGRectIsEmpty(intersection)) { continue; }
+            if ([self view:view hasIdentifier:identifier]) {
+                return (UIScrollView *)view;
+            }
         }
     }
     return nil;
 }
 
-- (UIView *)findSubviewWithIdentifier:(NSString *)identifier inScrollView:(UIScrollView *)scrollView
+- (CGRect)frameForScrollTarget:(id)target inWindow:(UIWindow *)window
 {
-    for (UIView *view in [[scrollView allSubviews] reverseObjectEnumerator]) {
-        if ([self view:view hasIdentifier:identifier]) {
-            return view;
-        }
-        // SwiftUI can expose identifiers on virtual accessibility elements
-        // rather than on the hosting UIView itself.
-        for (NSObject *element in view.accessibilityElements) {
-            @try {
-                if ([[element valueForKey:@"accessibilityIdentifier"] isEqualToString:identifier]) {
-                    return view;
-                }
-            } @catch (NSException *exception) {
-                continue;
+    if ([target isKindOfClass:UIView.class]) {
+        UIView *view = target;
+        return [view convertRect:view.bounds toView:window];
+    }
+    if ([target respondsToSelector:@selector(accessibilityFrame)]) {
+        // Accessibility frames are screen coordinates, not the bounds of the
+        // hosting UIView (which can represent the entire SwiftUI hierarchy).
+        return [window convertRect:[target accessibilityFrame] fromCoordinateSpace:window.screen.coordinateSpace];
+    }
+    return CGRectNull;
+}
+
+- (id)findScrollTargetWithIdentifier:(NSString *)identifier inScrollView:(UIScrollView *)scrollView
+{
+    NSMutableArray *pending = [[scrollView allSubviews] mutableCopy];
+    NSHashTable *visited = [NSHashTable hashTableWithOptions:NSPointerFunctionsObjectPointerPersonality];
+    // Containers can expose cyclic or dynamically generated accessibility trees.
+    // Bound traversal independently of the paging timeout.
+    while (pending.count > 0 && visited.count < 4096) {
+        id element = pending.lastObject;
+        [pending removeLastObject];
+        if ([visited containsObject:element]) { continue; }
+        [visited addObject:element];
+        if ([element isKindOfClass:UIView.class]) {
+            UIView *view = element;
+            BOOL hidden = NO;
+            for (UIView *ancestor = view; ancestor != nil; ancestor = ancestor.superview) {
+                if (ancestor.hidden || ancestor.alpha < 0.01) { hidden = YES; break; }
             }
+            if (hidden) { continue; }
+        }
+        @try {
+            BOOL matchesIdentifier = [element respondsToSelector:@selector(accessibilityIdentifier)] &&
+                [[element accessibilityIdentifier] isEqualToString:identifier];
+            BOOL matchesLabel = [element respondsToSelector:@selector(accessibilityLabel)] &&
+                [[element accessibilityLabel] isEqualToString:identifier];
+            if (matchesIdentifier || matchesLabel) {
+                CGRect frame = [self frameForScrollTarget:element inWindow:scrollView.window];
+                if (!CGRectIsNull(frame) && !CGRectIsEmpty(frame) &&
+                    isfinite(frame.origin.x) && isfinite(frame.origin.y) &&
+                    isfinite(frame.size.width) && isfinite(frame.size.height)) {
+                    return element;
+                }
+            }
+            NSArray *children = [element respondsToSelector:@selector(accessibilityElements)] ? [element accessibilityElements] : nil;
+            if (children != nil) {
+                [pending addObjectsFromArray:children];
+            } else if ([element respondsToSelector:@selector(accessibilityElementCount)] &&
+                       [element respondsToSelector:@selector(accessibilityElementAtIndex:)]) {
+                NSInteger count = [element accessibilityElementCount];
+                if (count > 0 && count <= 4096) {
+                    for (NSInteger index = 0; index < count; index++) {
+                        id child = [element accessibilityElementAtIndex:index];
+                        if (child != nil) { [pending addObject:child]; }
+                    }
+                }
+            }
+        } @catch (NSException *exception) {
+            // A custom accessibility container may decline an optional getter.
+            continue;
         }
     }
     return nil;
@@ -1257,7 +1307,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 // maxOffset with no further content to load). Returns NO when the offset was
 // clamped AND the scroll triggered lazy content growth — the caller should
 // re-resolve the target frame against the new contentSize and call again.
-- (BOOL)scrollToTargetView:(UIView *)target
+- (BOOL)scrollToTargetView:(id)target
               inScrollView:(UIScrollView *)scrollView
                  direction:(SBTUITestTunnelScrollDirection)direction
                   animated:(BOOL)animated
@@ -1265,7 +1315,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
     UIWindow *window = scrollView.window ?: UIApplication.sharedApplication.keyWindow;
     CGRect visibleFrameInWindow = [self visibleUnobscuredFrameInWindowForScrollView:scrollView];
-    CGRect targetFrameInWindow = [target convertRect:target.bounds toView:window];
+    CGRect targetFrameInWindow = [self frameForScrollTarget:target inWindow:window];
     UIEdgeInsets insets = scrollView.adjustedContentInset;
     CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:direction];
 
@@ -1299,8 +1349,15 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
-    [self adjustScrollView:scrollView forObscuredTarget:target direction:direction animated:animated];
-    return YES;
+    if ([target isKindOfClass:UIView.class]) {
+        [self adjustScrollView:scrollView forObscuredTarget:target direction:direction animated:animated];
+        return YES;
+    }
+    CGRect targetFrame = [self frameForScrollTarget:target inWindow:window];
+    CGRect intersection = CGRectIntersection(targetFrame, [self visibleUnobscuredFrameInWindowForScrollView:scrollView]);
+    CGFloat area = CGRectGetWidth(targetFrame) * CGRectGetHeight(targetFrame);
+    return !CGRectIsNull(intersection) && area > 0.0 &&
+        CGRectGetWidth(intersection) * CGRectGetHeight(intersection) / area >= 0.5;
 }
 
 // Advances the scroll view by one page to reveal more content while searching
@@ -1313,15 +1370,24 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
     CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:direction];
     CGFloat currentOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
-    CGFloat pageSize = isVertical ? scrollView.frame.size.height : scrollView.frame.size.width;
+    UIEdgeInsets insets = scrollView.adjustedContentInset;
+    CGFloat pageSize = isVertical
+        ? scrollView.bounds.size.height - insets.top - insets.bottom
+        : scrollView.bounds.size.width - insets.left - insets.right;
+    pageSize = MAX(1.0, pageSize * 0.9);
 
-    if (currentOffset < maxOffset) {
+    if (currentOffset < maxOffset - 0.5) {
         CGFloat pagedOffset = MIN(maxOffset, ceil(currentOffset + pageSize));
         CGPoint newOffset = isVertical
             ? CGPointMake(scrollView.contentOffset.x, pagedOffset)
             : CGPointMake(pagedOffset, scrollView.contentOffset.y);
         [scrollView setContentOffset:newOffset animated:animated];
-        [self spinMainRunLoopForInterval:0.25];
+        if (!animated) {
+            // Realize reusable UIKit cells immediately; nonanimated searches
+            // need only a short run-loop yield for lazy/accessibility updates.
+            [scrollView layoutIfNeeded];
+        }
+        [self spinMainRunLoopForInterval:animated ? 0.25 : 0.05];
         return YES;
     }
 
@@ -1332,184 +1398,102 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetIdentifier:(NSString *)targetElementIdentifier animated:(BOOL)animated
 {
     __block BOOL result = NO;
-    __block BOOL cancelled = NO;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    NSTimeInterval deadline = CFAbsoluteTimeGetCurrent() + 9.0;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
-        if (scrollView == nil) {
-            dispatch_semaphore_signal(sem);
-            return;
-        }
-
-        SBTUITestTunnelScrollDirection direction = scrollView.suggestedScrollDirection;
-
-        while (!cancelled) {
-            UIView *target = [self findSubviewWithIdentifier:targetElementIdentifier inScrollView:scrollView];
-
-            if (target != nil) {
-                if ([self scrollToTargetView:target inScrollView:scrollView direction:direction animated:animated]) {
-                    result = YES;
-                    break;
+        if (scrollView != nil) {
+            SBTUITestTunnelScrollDirection direction = scrollView.suggestedScrollDirection;
+            BOOL searchedFromBeginning = NO;
+            BOOL exhausted = NO;
+            while (CFAbsoluteTimeGetCurrent() < deadline) {
+                id target = [self findScrollTargetWithIdentifier:targetElementIdentifier inScrollView:scrollView];
+                if (target != nil) {
+                    if ([self scrollToTargetView:target inScrollView:scrollView direction:direction animated:animated]) {
+                        result = YES;
+                        break;
+                    }
+                    continue;
                 }
-                // Clamped + content grew: re-resolve target frame against the new bounds.
-                continue;
-            }
-
-            if (![self advanceScrollView:scrollView direction:direction animated:animated]) {
-                break;
+                if (exhausted) { break; }
+                if (!searchedFromBeginning) {
+                    // Lazy lists discard earlier children. Restart at the actual
+                    // inset-adjusted beginning before walking forward once.
+                    UIEdgeInsets insets = scrollView.adjustedContentInset;
+                    CGPoint start = scrollView.contentOffset;
+                    if (direction == SBTUITestTunnelScrollDirectionVertical) {
+                        start.y = -insets.top;
+                    } else {
+                        start.x = -insets.left;
+                    }
+                    searchedFromBeginning = YES;
+                    [scrollView setContentOffset:start animated:NO];
+                    [self spinMainRunLoopForInterval:0.1];
+                    continue;
+                }
+                // Re-resolve once after the end-of-content layout wait, even
+                // when lazy children appeared without growing contentSize.
+                exhausted = ![self advanceScrollView:scrollView direction:direction animated:animated];
             }
         }
-
         dispatch_semaphore_signal(sem);
     });
 
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {
-        cancelled = YES;
-    }
-
-    NSString *debugInfo = result ? @"" : @"element not found!";
-    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+    BOOL completed = dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) == 0;
+    BOOL success = completed && result;
+    NSString *debugInfo = success ? @"" : @"element not found!";
+    return @{ SBTUITunnelResponseResultKey: success ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
 }
 
 - (NSDictionary *)commandScrollScrollViewWithIdentifier:(NSString *)elementIdentifier targetOffset:(CGFloat)targetOffset animated:(BOOL)animated
 {
     __block BOOL result = NO;
-
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-
     dispatch_async(dispatch_get_main_queue(), ^{
-        // Hacky way to get top-most UIViewController
-        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
-        while (rootViewController.presentedViewController != nil) {
-            rootViewController = rootViewController.presentedViewController;
-        }
-
-        NSArray *allViews = [rootViewController.view allSubviews];
-        for (UIView *view in [allViews reverseObjectEnumerator]) {
-            if ([view isKindOfClass:[UIScrollView class]]) {
-                CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
-                BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
-
-                if (!withinVisibleBounds) {
-                    continue;
-                }
-
-                BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] || [view.accessibilityLabel isEqualToString:elementIdentifier];
-                if (expectedIdentifier) {
-                    UIScrollView *scrollView = (UIScrollView *)view;
-
-                    if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
-                        CGFloat targetContentOffsetY = (scrollView.contentSize.height - scrollView.bounds.size.height) * targetOffset;
-                        [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
-                    } else {
-                        CGFloat targetContentOffsetX = (scrollView.contentSize.width - scrollView.bounds.size.width) * targetOffset;
-                        [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
-                    }
-
-                    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-                    while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-                    }
-
-                    result = YES;
-                    dispatch_semaphore_signal(sem);
-                    break;
-                }
+        UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
+        if (scrollView != nil && isfinite(targetOffset)) {
+            SBTUITestTunnelScrollDirection direction = scrollView.suggestedScrollDirection;
+            UIEdgeInsets insets = scrollView.adjustedContentInset;
+            CGFloat minimum = direction == SBTUITestTunnelScrollDirectionVertical ? -insets.top : -insets.left;
+            CGFloat maximum = [self maxContentOffsetForScrollView:scrollView direction:direction];
+            CGFloat normalized = MIN(1.0, MAX(0.0, targetOffset));
+            CGFloat offset = minimum + (maximum - minimum) * normalized;
+            CGPoint destination = scrollView.contentOffset;
+            if (direction == SBTUITestTunnelScrollDirectionVertical) {
+                destination.y = offset;
+            } else {
+                destination.x = offset;
             }
+            [scrollView setContentOffset:destination animated:animated];
+            [self spinMainRunLoopForInterval:0.25];
+            result = YES;
         }
+        dispatch_semaphore_signal(sem);
     });
-
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
-
-    NSString *debugInfo = result ? @"" : @"element not found!";
-
-    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
+    BOOL completed = dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) == 0;
+    BOOL success = completed && result;
+    return @{ SBTUITunnelResponseResultKey: success ? @"YES": @"NO",
+              SBTUITunnelResponseDebugKey: success ? @"" : @"element not found!" };
 }
 
 - (NSDictionary *)commandScrollScrollViewByPage:(NSDictionary *)parameters
 {
     NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
     BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
-
     __block BOOL result = NO;
-
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
-        while (rootViewController.presentedViewController != nil) {
-            rootViewController = rootViewController.presentedViewController;
+        UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
+        if (scrollView != nil) {
+            result = [self advanceScrollView:scrollView direction:scrollView.suggestedScrollDirection animated:animated];
         }
-
-        NSArray *allViews = [rootViewController.view allSubviews];
-
-        for (UIView *view in [allViews reverseObjectEnumerator]) {
-            if ([view isKindOfClass:[UIScrollView class]]) {
-                CGRect intersection = CGRectIntersection(UIScreen.mainScreen.bounds, [view convertRect:view.bounds toView:nil]);
-                BOOL withinVisibleBounds = intersection.size.height > 0 && intersection.size.width > 0;
-
-                if (!withinVisibleBounds) {
-                    continue;
-                }
-
-                BOOL expectedIdentifier = [view.accessibilityIdentifier isEqualToString:elementIdentifier] ||
-                                         [view.accessibilityLabel isEqualToString:elementIdentifier];
-                if (expectedIdentifier) {
-                    UIScrollView *scrollView = (UIScrollView *)view;
-                    result = [self scrollScrollViewByOnePage:scrollView animated:animated];
-                    break;
-                }
-            }
-        }
-
         dispatch_semaphore_signal(sem);
     });
-
-    if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) != 0) {}
-
-    NSString *debugInfo = result ? @"" : @"element not found or already at end!";
-
-    return @{ SBTUITunnelResponseResultKey: result ? @"YES": @"NO", SBTUITunnelResponseDebugKey: debugInfo };
-}
-
-- (BOOL)scrollScrollViewByOnePage:(UIScrollView *)scrollView animated:(BOOL)animated
-{
-    NSAssert([NSThread isMainThread], @"Call this from main thread!");
-
-    if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionVertical) {
-        CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.height - scrollView.bounds.size.height / 2.0));
-        if (scrollView.contentOffset.y < maxOffset)  {
-            CGFloat targetContentOffsetY = MIN(maxOffset, ceil(scrollView.contentOffset.y + scrollView.frame.size.height));
-
-            [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x, targetContentOffsetY) animated:animated];
-            NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-            while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-            }
-
-            return YES;
-        } else {
-            return NO;
-        }
-    } else if (scrollView.suggestedScrollDirection == SBTUITestTunnelScrollDirectionHorizontal) {
-        CGFloat maxOffset = MAX(0, floor(scrollView.contentSize.width - scrollView.bounds.size.width / 2.0));
-        if (scrollView.contentOffset.x < maxOffset)  {
-            CGFloat targetContentOffsetX = MIN(maxOffset, ceil(scrollView.contentOffset.x + scrollView.frame.size.width));
-
-            [scrollView setContentOffset:CGPointMake(targetContentOffsetX, scrollView.contentOffset.y) animated:animated];
-            NSTimeInterval start = CFAbsoluteTimeGetCurrent();
-            while (CFAbsoluteTimeGetCurrent() - start < 0.25) {
-                [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-            }
-
-            return YES;
-        } else {
-            return NO;
-        }
-    }
-
-    return NO;
+    BOOL completed = dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) == 0;
+    BOOL success = completed && result;
+    return @{ SBTUITunnelResponseResultKey: success ? @"YES": @"NO",
+              SBTUITunnelResponseDebugKey: success ? @"" : @"element not found or already at end!" };
 }
 
 - (NSDictionary *)commandScrollTableView:(NSDictionary *)parameters

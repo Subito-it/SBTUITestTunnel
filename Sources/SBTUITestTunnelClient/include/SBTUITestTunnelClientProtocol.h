@@ -558,7 +558,7 @@
  *
  *  @return `YES` on success, `NO` if the scroll view is already at the end or scroll view not found
  */
-- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag;
+- (BOOL)scrollScrollViewWithIdentifierByPage:(nonnull NSString *)identifier animated:(BOOL)flag NS_SWIFT_NAME(scrollScrollView(withIdentifierByPage:animated:));
 
 #pragma mark - XCUITest unified scroll extensions
 
@@ -577,11 +577,10 @@
 
 /**
  *  Scroll any scrollable content view (UITableView, UICollectionView, or UIScrollView) to a specific element.
- *  Automatically detects the view type and calls the appropriate specific method.
  *
- *  For UITableView and UICollectionView, uses the standard element-based scrolling.
- *  For UIScrollView, tries standard scrolling first. If that fails (common in SwiftUI), falls back to
- *  page-by-page scrolling until the target element is found or maximum iterations is reached.
+ *  Resolves UIKit views and SwiftUI accessibility elements within the specified container.
+ *  If the server cannot resolve the target, searches its XCTest accessibility descendants
+ *  page by page from the beginning, with a bounded timeout.
  *
  *  @param identifier accessibilityIdentifier of the scrollable view
  *  @param targetIdentifier accessibilityIdentifier of the element to scroll to
@@ -593,7 +592,7 @@
 
 /**
  *  Scroll any scrollable content view to a specific normalized offset.
- *  This method forwards to scrollScrollViewWithIdentifier:toOffset:animated: as only UIScrollView supports offset-based scrolling.
+ *  Supports UITableView, UICollectionView and SwiftUI scroll views through their UIScrollView backing.
  *
  *  @param identifier accessibilityIdentifier of the scrollable view
  *  @param targetOffset the normalized targetOffset (0.0 = top/left, 1.0 = bottom/right)

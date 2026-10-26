@@ -93,39 +93,43 @@ struct ExtensionCollectionHorizontalView: View {
 
 struct ExtensionScrollView: View {
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Add enough content to make scrolling necessary
-                ForEach(0 ..< 20, id: \.self) { index in
-                    Text("Content \(index)")
-                        .frame(height: 50)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.3))
-                        .accessibilityIdentifier("pre-content\(index)")
-                }
+        VStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Add enough content to make scrolling necessary
+                    ForEach(0 ..< 20, id: \.self) { index in
+                        Text("Content \(index)")
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.gray.opacity(0.3))
+                            .accessibilityIdentifier("pre-content\(index)")
+                    }
 
-                // The button that tests will scroll to find
-                Button("Button") {
-                    // Button action (can be empty for tests)
-                }
-                .frame(height: 50)
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .accessibilityIdentifier("Button")
+                    // The button that tests will scroll to find
+                    Button("Button") {
+                        // Button action (can be empty for tests)
+                    }
+                    .frame(height: 50)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .accessibilityIdentifier("Button")
 
-                // Add more content after the button
-                ForEach(20 ..< 40, id: \.self) { index in
-                    Text("Content \(index)")
-                        .frame(height: 50)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.3))
-                        .accessibilityIdentifier("before-content\(index)")
+                    // Add more content after the button
+                    ForEach(20 ..< 40, id: \.self) { index in
+                        Text("Content \(index)")
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.gray.opacity(0.3))
+                            .accessibilityIdentifier("before-content\(index)")
+                    }
                 }
+                .padding()
             }
-            .padding()
+            .accessibilityIdentifier("scrollView")
+            Text("Outside scroll view")
+                .accessibilityIdentifier("outside-scroll-target")
         }
-        .accessibilityIdentifier("scrollView")
         .navigationTitle("Extension ScrollView")
     }
 }

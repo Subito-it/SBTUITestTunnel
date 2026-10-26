@@ -59,7 +59,14 @@ struct NetworkTest: Test {
     static func makeBackgroundUpload(name: String, url: URL?, data: Data?, httpBody: Bool = false) -> NetworkTest {
         NetworkTest(name: name, execute: {
             guard let url, let data else { return "" }
-            let dict = try await backgroundUploadTaskNetwork(url: url, data: data, httpBody: httpBody)
+            let requestURL: URL
+            if let override = UserDefaults.standard.string(forKey: "background_upload_url") {
+                guard let overrideURL = URL(string: override) else { throw URLError(.badURL) }
+                requestURL = overrideURL
+            } else {
+                requestURL = url
+            }
+            let dict = try await backgroundUploadTaskNetwork(url: requestURL, data: data, httpBody: httpBody)
             return try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted).base64EncodedString()
         })
     }
@@ -129,28 +136,18 @@ struct NetworkTest: Test {
     }
 
     static func backgroundUploadTaskNetwork(url: URL, data: Data, httpBody: Bool) async throws -> [String: Any] {
-        try await withCheckedThrowingContinuation { continuation in
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            if httpBody {
-                request.httpBody = "The http body".data(using: .utf8)
-            }
-
-            // For SwiftUI, we'll use regular upload task instead of background task
-            // Background tasks require more complex delegate patterns which are better suited for UIKit
-            URLSession.shared.uploadTask(with: request, from: data) { responseData, response, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                let httpResponse = response as? HTTPURLResponse
-                let httpStatus = httpResponse?.statusCode
-                let httpHeaders = httpResponse?.allHeaderFields as? [String: String]
-                let dict = returnDictionary(status: httpStatus, headers: httpHeaders, data: responseData)
-                continuation.resume(returning: dict)
-            }.resume()
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        if httpBody {
+            request.httpBody = "The http body".data(using: .utf8)
         }
+
+        // Background sessions require a file upload and delegate callbacks,
+        // regardless of whether the app's UI is implemented with SwiftUI or UIKit.
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try data.write(to: fileURL)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        return try await BackgroundUpload().send(request: request, fileURL: fileURL)
     }
 
     static func returnDictionary(status: Int?, headers: [String: String]? = [:], data: Data?) -> [String: Any] {
@@ -168,14 +165,96 @@ struct NetworkTest: Test {
     }
 }
 
+private final class BackgroundUpload: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<[String: Any], Error>?
+    private var responseData = Data()
+    private var session: URLSession?
+    private var uploadTask: URLSessionUploadTask?
+    private var finished = false
+
+    func send(request: URLRequest, fileURL: URL) async throws -> [String: Any] {
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                lock.lock()
+                // onCancel can run before this continuation is registered.
+                guard !finished else {
+                    lock.unlock()
+                    continuation.resume(throwing: CancellationError())
+                    return
+                }
+                let configuration = URLSessionConfiguration.background(withIdentifier: "com.subito.swiftui.upload.\(UUID().uuidString)")
+                let queue = OperationQueue()
+                queue.maxConcurrentOperationCount = 1
+                let session = URLSession(configuration: configuration, delegate: self, delegateQueue: queue)
+                let task = session.uploadTask(with: request, fromFile: fileURL)
+                self.continuation = continuation
+                self.session = session
+                uploadTask = task
+                lock.unlock()
+                // If cancellation won immediately after registration, resuming
+                // the already-cancelled task cannot start a new upload.
+                task.resume()
+            }
+        } onCancel: {
+            self.finish(.failure(CancellationError()), cancelling: true)
+        }
+    }
+
+    func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !finished else { return }
+        responseData.append(data)
+    }
+
+    func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        lock.lock()
+        let data = responseData
+        lock.unlock()
+        if let error {
+            finish(.failure(error))
+        } else if let response = task.response as? HTTPURLResponse {
+            finish(.success(NetworkTest.returnDictionary(
+                status: response.statusCode,
+                headers: response.allHeaderFields as? [String: String],
+                data: data
+            )))
+        } else {
+            finish(.failure(URLError(.badServerResponse)))
+        }
+    }
+
+    private func finish(_ result: Result<[String: Any], Error>, cancelling: Bool = false) {
+        lock.lock()
+        guard !finished else {
+            lock.unlock()
+            return
+        }
+        finished = true
+        let continuation = continuation
+        let session = session
+        let task = uploadTask
+        self.continuation = nil
+        self.session = nil
+        uploadTask = nil
+        lock.unlock()
+
+        if cancelling {
+            task?.cancel()
+            session?.invalidateAndCancel()
+        } else {
+            session?.finishTasksAndInvalidate()
+        }
+        continuation?.resume(with: result)
+    }
+}
+
 struct WebSocketTest: Test {
     let name: String
-    let execute: () async throws -> String
 
     static func makeWebSocket(name: String) -> WebSocketTest {
-        WebSocketTest(name: name, execute: {
-            "WebSocket functionality - Navigate to separate view"
-        })
+        WebSocketTest(name: name)
     }
 
     static func == (lhs: WebSocketTest, rhs: WebSocketTest) -> Bool {
@@ -189,12 +268,9 @@ struct WebSocketTest: Test {
 
 struct AutocompleteTest: Test {
     let name: String
-    let execute: () async throws -> String
 
     static func makeAutocomplete(name: String) -> AutocompleteTest {
-        AutocompleteTest(name: name, execute: {
-            "Autocomplete form - Navigate to separate view"
-        })
+        AutocompleteTest(name: name)
     }
 
     static func == (lhs: AutocompleteTest, rhs: AutocompleteTest) -> Bool {
@@ -248,7 +324,7 @@ struct CookiesTest: Test {
     }
 }
 
-// Extension test types for UI components
+/// Extension test types for UI components
 struct ExtensionTest: Test {
     let name: String
     let execute: () async throws -> String
@@ -270,12 +346,9 @@ struct ExtensionTest: Test {
 
 struct CoreLocationTest: Test {
     let name: String
-    let execute: () async throws -> String
 
     static func makeCoreLocation(name: String) -> CoreLocationTest {
-        CoreLocationTest(name: name, execute: {
-            "CoreLocation functionality"
-        })
+        CoreLocationTest(name: name)
     }
 
     static func == (lhs: CoreLocationTest, rhs: CoreLocationTest) -> Bool {
@@ -293,8 +366,7 @@ struct CrashTest: Test {
 
     static func makeCrash(name: String) -> CrashTest {
         CrashTest(name: name, execute: {
-            // Don't actually crash in SwiftUI - return message instead
-            "Crash test - Would terminate app"
+            fatalError("Manual crash fixture")
         })
     }
 
@@ -329,6 +401,7 @@ class TestManager {
         ExtensionTest.makeExtension(name: "showExtensionTable1", description: "Extension Table 1"),
         ExtensionTest.makeExtension(name: "showExtensionScrollView", description: "Extension ScrollView"),
         CoreLocationTest.makeCoreLocation(name: "showCoreLocationViewController"),
+        CoreLocationTest.makeCoreLocation(name: "showCoreLocationViewControllerOnBackgroundThread"),
         ExtensionTest.makeExtension(name: "showExtensionCollectionViewVertical", description: "Collection View Vertical"),
         ExtensionTest.makeExtension(name: "showExtensionCollectionViewHorizontal", description: "Collection View Horizontal"),
         CrashTest.makeCrash(name: "crashApp")

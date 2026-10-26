@@ -27,8 +27,8 @@ target "SBTUITestTunnel_TestsNoSwizzling" do
 end
 
 target "MultiSceneExample" do
-  pod "SBTUITestTunnelServer", :path => "../"
-  pod "SBTUITestTunnelCommon", :path => "../"
+  pod "SBTUITestTunnelServer", :path => "../../"
+  pod "SBTUITestTunnelCommon", :path => "../../"
 end
 
 target "MultiSceneExample_Tests" do

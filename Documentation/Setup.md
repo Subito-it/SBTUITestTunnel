@@ -62,6 +62,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ---
 
+## SwiftUI App Lifecycle Setup
+
+For an app using SwiftUI's `App` lifecycle, call `takeOff()` in the app initializer before constructing models or views that read state injected by the test runner:
+
+```swift
+import SwiftUI
+
+#if DEBUG
+import SBTUITestTunnelServer
+#endif
+
+@main
+struct ExampleApp: App {
+    init() {
+        #if DEBUG
+        SBTUITestTunnelServer.takeOff()
+        #endif
+
+        // Create models that read injected defaults or start requests here.
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+
+`takeOff()` completes the test runner's startup block before returning. Keep reads of launch-injected state after that call. Stored-property initializers, including model creation in `@StateObject` declarations, can run before the body of `App.init`; defer any state-dependent model creation until after the handshake. Register custom commands needed by the startup block before calling `takeOff()`.
+
+The UI test target uses the same `app.launchTunnel()` API as a UIKit app. The [SwiftUI example](./Example.md#swiftui-with-swift-package-manager) demonstrates this setup with the shared test suite.
+
+---
+
 ## 📱 SceneDelegate Lifecycle Setup
 
 **Call `takeOff()` at the very start of `application(_:didFinishLaunchingWithOptions:)` — the same place as for non-scene apps — even when your app uses `UIWindowSceneDelegate`.** Do **not** move it into `scene(_:willConnectTo:options:)`.

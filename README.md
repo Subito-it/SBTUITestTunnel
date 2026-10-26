@@ -1,6 +1,7 @@
 # SBTUITestTunnel
 
-[![CI](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/build-and-test.yml)
+[![UIKit Tests](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit.yml)
+[![SwiftUI Tests](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/swiftui.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/swiftui.yml)
 
 [![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer)](https://cocoapods.org/pods/SBTUITestTunnel)
 [![License](https://img.shields.io/cocoapods/l/SBTUITestTunnel)](https://cocoapods.org/pods/SBTUITestTunnel)
@@ -23,7 +24,7 @@ SBTUITestTunnel extends UI testing functionality allowing to dynamically:
 * CLLocationManager stubbing
 * UNUserNotificationCenter stubbing
 
-The library supports concurrent parallel testing, so multiple Simulators can be used at once.
+The library supports UIKit and SwiftUI apps, as well as concurrent parallel testing on multiple simulators. See the [setup guide](Documentation/Setup.md) for application lifecycle integration and the [example guide](Documentation/Example.md) for both sample apps.
 
 The library consists of two separated components which communicate with each other, one to be instantiate in the application's target and the other in the testing target.
 

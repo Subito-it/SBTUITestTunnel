@@ -34,15 +34,17 @@ struct NetworkResultView: View {
                         .font(.footnote)
                 }
             }
-        }.onAppear {
-            Task {
-                do {
-                    result = try await test.execute()
-                } catch {
-                    result = "Error: \(error.localizedDescription)"
-                }
-                isLoading = false
+        }.task {
+            isLoading = true
+            do {
+                let response = try await test.execute()
+                guard !Task.isCancelled else { return }
+                result = response
+            } catch {
+                guard !Task.isCancelled else { return }
+                result = "Error: \(error.localizedDescription)"
             }
+            isLoading = false
         }
     }
 }
@@ -65,28 +67,44 @@ struct GenericResultView: View {
                         .font(.footnote)
                 }
             }
-        }.onAppear {
-            Task {
-                do {
-                    switch test {
-                    case let webSocketTest as WebSocketTest:
-                        result = try await webSocketTest.execute()
-                    case let autocompleteTest as AutocompleteTest:
-                        result = try await autocompleteTest.execute()
-                    case let cookiesTest as CookiesTest:
-                        result = try await cookiesTest.execute()
-                    case let extensionTest as ExtensionTest:
-                        result = try await extensionTest.execute()
-                    case let crashTest as CrashTest:
-                        result = try await crashTest.execute()
-                    default:
-                        result = "Unknown test type"
-                    }
-                } catch {
-                    result = "Error: \(error.localizedDescription)"
+        }.task {
+            isLoading = true
+            do {
+                let response: String
+                switch test {
+                case let cookiesTest as CookiesTest:
+                    response = try await cookiesTest.execute()
+                case let extensionTest as ExtensionTest:
+                    response = try await extensionTest.execute()
+                case let crashTest as CrashTest:
+                    response = try await crashTest.execute()
+                default:
+                    response = "Unknown test type"
                 }
-                isLoading = false
+                guard !Task.isCancelled else { return }
+                result = response
+            } catch {
+                guard !Task.isCancelled else { return }
+                result = "Error: \(error.localizedDescription)"
             }
+            guard !Task.isCancelled else { return }
+            isLoading = false
         }
+    }
+}
+
+struct AutocompleteView: View {
+    @State private var text = ""
+
+    var body: some View {
+        VStack {
+            TextField("Text", text: $text)
+                .textFieldStyle(.roundedBorder)
+                .disableAutocorrection(false)
+                .accessibilityIdentifier("autocompleteTextField")
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("Autocomplete")
     }
 }

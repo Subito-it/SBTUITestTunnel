@@ -17,6 +17,7 @@
 import CoreLocation
 import Dispatch
 import SwiftUI
+import UserNotifications
 
 #if DEBUG
     import SBTUITestTunnelCommon
@@ -76,6 +77,10 @@ struct SBTUITestTunnel_Example_SwiftUIApp: App {
 
                 SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnCLAuthStatus") { _ in
                     NSString(string: CLLocationManager.authorizationStatus().rawValue.description)
+                }
+
+                SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnCLServicesEnabled") { _ in
+                    NSString(string: CLLocationManager.locationServicesEnabled() ? "YES" : "NO")
                 }
 
                 SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnUNAuthRequest") { _ in

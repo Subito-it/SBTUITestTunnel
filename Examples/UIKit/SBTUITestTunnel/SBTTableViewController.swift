@@ -57,6 +57,7 @@ class CrashTest: BaseTest {}
             "networkConnectionCell", "webSocketConnectionCell", "autocompleteCell",
             "cookieCell", "extension1Cell", "extension2Cell", "extension3Cell",
             "extension4Cell", "extension5Cell", "extension6Cell", "extension7Cell",
+            "extension8Cell", "extension9Cell",
             "crashCell", "baseCell"
         ]
         for identifier in cellIdentifiers {
@@ -120,7 +121,7 @@ class CrashTest: BaseTest {}
         } else if testList[indexPath.row] is Extension8Test {
             tableView.dequeueReusableCell(withIdentifier: "extension8Cell", for: indexPath)
         } else if testList[indexPath.row] is Extension9Test {
-            tableView.dequeueReusableCell(withIdentifier: "extension1Cell", for: indexPath)
+            tableView.dequeueReusableCell(withIdentifier: "extension9Cell", for: indexPath)
         } else if testList[indexPath.row] is CrashTest {
             tableView.dequeueReusableCell(withIdentifier: "crashCell", for: indexPath)
         } else {

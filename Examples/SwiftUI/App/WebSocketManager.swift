@@ -22,8 +22,14 @@ class WebSocketManager: ObservableObject {
 
     private var socket: URLSessionWebSocketTask?
     private var timer: Timer?
+    private var connectionID = UUID()
 
     func setup() {
+        guard socket == nil else { return }
+        connectionID = UUID()
+        connectionStatus = "connecting"
+        networkResult = ""
+        timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.handleTimer()
         }
@@ -38,10 +44,12 @@ class WebSocketManager: ObservableObject {
     }
 
     func sendMessage() {
+        let connectionID = connectionID
         let message = URLSessionWebSocketTask.Message.string("Hello, world!")
         networkResult = "Send message..."
         socket?.send(message) { [weak self] error in
             DispatchQueue.main.async {
+                guard self?.connectionID == connectionID else { return }
                 if let error {
                     self?.networkResult = "⚠️ WebSocket couldn't send message: \(error)"
                 } else {
@@ -52,9 +60,11 @@ class WebSocketManager: ObservableObject {
     }
 
     func receiveMessage() {
+        let connectionID = connectionID
         networkResult = "Receive message..."
         socket?.receive { [weak self] result in
             DispatchQueue.main.async {
+                guard self?.connectionID == connectionID else { return }
                 switch result {
                 case let .failure(error):
                     self?.networkResult = "⚠️ WebSocket receive error: \(error)"
@@ -73,6 +83,7 @@ class WebSocketManager: ObservableObject {
     }
 
     func sendPing() {
+        let connectionID = connectionID
         networkResult = "Send ping..."
 
         // Register receive before sendPing to avoid dropping the pong.
@@ -82,6 +93,7 @@ class WebSocketManager: ObservableObject {
 
         socket?.sendPing { [weak self] error in
             DispatchQueue.main.async {
+                guard self?.connectionID == connectionID else { return }
                 if let error {
                     self?.networkResult = "⚠️ WebSocket couldn't send ping: \(error)"
                 } else {
@@ -92,8 +104,12 @@ class WebSocketManager: ObservableObject {
     }
 
     func disconnect() {
+        connectionID = UUID()
+        timer?.invalidate()
+        timer = nil
         socket?.cancel(with: .goingAway, reason: nil)
         socket = nil
+        connectionStatus = "cancelled"
         networkResult = "Disconnected"
     }
 

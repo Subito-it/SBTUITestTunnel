@@ -1,78 +1,65 @@
-# 📱 Example Project Guide
+# Example Apps
 
-The SBTUITestTunnel example project provides a hands-on demonstration of all the library's features. This guide will help you set up and explore the example app to better understand how to use SBTUITestTunnel in your own projects.
+The repository includes UIKit and SwiftUI apps that exercise the tunnel with the same UI test suite. Run these commands from the repository root. Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) are required; the CocoaPods example also requires CocoaPods.
 
-## 🚀 Quick Start
+## SwiftUI with Swift Package Manager
 
-### Prerequisites
+```bash
+xcodegen generate --spec Examples/SwiftUI/project.yml
+open Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj
+```
 
-- **Xcode** (latest version recommended)
-- **[XcodeGen](https://github.com/yonaskolb/XcodeGen)** for project generation
+Select the **SwiftUI** scheme and an iPhone simulator, then press **⌘U**. The project uses the local package at the repository root.
 
-### Installation & Setup
+The app demonstrates network requests, WebSockets, user defaults, location and notification stubbing, custom commands, and scrolling through SwiftUI lists, grids, and scroll views. Its startup configuration is described in the [setup guide](./Setup.md).
 
-1. **Install XcodeGen** (if not already installed):
-   ```bash
-   brew install xcodegen
-   ```
+## UIKit with Swift Package Manager
 
-2. **Navigate to the Example Directory**:
-   ```bash
-   cd Example
-   ```
+```bash
+xcodegen generate --spec Examples/UIKit/SPM/project.yml
+open Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj
+```
 
-3. **Generate and Open the Project**:
-   ```bash
-   xcodegen && xed .
-   ```
+Select **SBTUITestTunnel_Tests** and press **⌘U**. This builds the UIKit example app and runs the shared tests using the local package, without CocoaPods.
 
-This will generate the `SBTUITestTunnel.xcodeproj` file and open it in Xcode.
+## UIKit with CocoaPods
 
-## 🧪 Running the Tests
+```bash
+xcodegen generate --spec Examples/UIKit/project.yml
+cd Examples/UIKit
+pod install
+open SBTUITestTunnel.xcworkspace
+```
 
-Once the project is open in Xcode:
+Select **SBTUITestTunnel_Tests** and press **⌘U**. Use **SBTUITestTunnel_NoSwizzlingTests** for the manual client integration tests. The **MultiSceneExample** scheme tests launch ordering and additional windows; choose an **iPad simulator** so the multi-window test can run.
 
-1. **Select the Scheme**: Choose **SBTUITestTunnel_Example** from the scheme selector
-2. **Choose Target**: Select a simulator or connected device
-3. **Run UI Tests**: Press **⌘U** or go to **Product → Test**
+## Running from the Command Line
 
-## 🔍 What You'll Find
+After generating the relevant project and resolving its dependencies:
 
-The example project demonstrates:
+```bash
+Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+Scripts/run_uitests.rb Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel_Tests
+Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_Tests
+Scripts/run_uitests_no_swizzling.rb Examples/UIKit/SBTUITestTunnel.xcworkspace
+Scripts/run_uitests_multiscene.rb Examples/UIKit/SBTUITestTunnel.xcworkspace
+```
 
-### 🌐 Network Features
-- **Request Stubbing** - Mock API responses with custom data
-- **Network Monitoring** - Track and analyze network requests
-- **Request Throttling** - Simulate different network speeds
-- **Cookie Blocking** - Prevent cookies from being sent
-- **Request Rewriting** - Modify requests and responses on-the-fly
+The scripts select an available device on the newest installed iOS simulator runtime by UDID. Multi-scene tests select an iPad; the other suites select an iPhone. To choose an installed device and iOS version explicitly, append its name and a version prefix:
 
-### 📱 Device Simulation
-- **Core Location Stubbing** - Mock GPS locations and authorization states
-- **User Notifications** - Test notification permissions without user interaction
-- **User Defaults** - Manipulate app preferences during tests
+```bash
+Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI 'iPhone 17' '26'
+```
 
-### 🔧 Advanced Features
-- **Custom Code Execution** - Run arbitrary code within the app's context
-- **WebSocket Testing** - Interact with real-time communication
-- **Precision Scrolling** - Test complex scrolling scenarios
+An unavailable requested device or runtime fails with an error. Results are written to `<scheme>.xcresult` in the current directory.
 
-## 💡 Learning Tips
+## Exploring the Tests
 
-1. **Start with NetworkTests.swift** - Shows basic stubbing and monitoring
-2. **Explore StubTests.swift** - Demonstrates advanced response scenarios
-3. **Check CoreLocationTests.swift** - Learn location-based testing
-4. **Review test setup methods** - See how to configure launch options
+`Examples/SharedUITests` contains the tests used by both apps:
 
-## 🎯 Next Steps
+- `StubTests.swift`, `MonitorTests.swift`, `RewriteTests.swift`, and `ThrottleTest.swift` cover network interception.
+- `CoreLocationTests.swift`, `NotificationCenterTests.swift`, and `UserDefaultsTests.swift` cover app state and system APIs.
+- `ScrollContentTests.swift` covers scrolling; each app supplies its own UIKit or SwiftUI views.
+- `KeepAliveTests.swift`, `RedirectTests.swift`, and `ProxyURLProtocolClientTests.swift` cover HTTP behavior.
 
-After exploring the example project:
-
-1. **Copy patterns** you find useful to your own tests
-2. **Experiment** with different configurations
-3. **Refer back** to the [Usage Guide](./Usage.md) for detailed API documentation
-4. **Check out** the [Setup Guide](./Setup.md) for integration instructions
-
----
-
-💡 **Pro Tip**: The example project is an excellent reference implementation. Don't hesitate to use it as a starting point for your own UI testing setup!
+Start with the launch setup in `XCTestCase+Extension.swift`, then compare the app implementations under `Examples/UIKit` and `Examples/SwiftUI`. See the [usage guide](./Usage.md) for individual APIs and the [setup guide](./Setup.md) to integrate your own app.

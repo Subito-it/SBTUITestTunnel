@@ -6,18 +6,21 @@ options:
   deploymentTarget: "15.0"
 
 packages:
-  SBTUITestTunnelServer:
-    path: ../..
-  SBTUITestTunnelClient:
-    path: ../..
+  SBTUITestTunnel:
+    path: ../../..
 
 targets:
   App:
     type: application
     platform: iOS
-    sources: [App]
+    deploymentTarget: "15.0"
+    sources:
+      - path: ../SBTUITestTunnel
+        excludes:
+          - "*-Info.plist"
     dependencies:
-      - package: SBTUITestTunnelServer
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
     settings:
       base:
         INFOPLIST_FILE: "../SBTUITestTunnel/SBTUITestTunnel-Info.plist"
@@ -25,13 +28,25 @@ targets:
   UITests:
     type: bundle.ui-testing
     platform: iOS
-    sources: [Tests]
+    deploymentTarget: "15.0"
+    sources:
+      - Tests
+      - path: ../../SharedUITests
+        name: SharedUITests
     dependencies:
-      - package: SBTUITestTunnelClient
+      - target: App
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelClient
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
     settings:
       base:
         INFOPLIST_FILE: "../SBTUITestTunnel_Tests/Info.plist"
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) UIKIT_APP"
+        SWIFT_OBJC_BRIDGING_HEADER: "../../SharedUITests/SBTUITestTunnelTests-Bridging-Header.h"
+        HEADER_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../../../Sources/SBTUITestTunnelServer/GCDWebServer/Core"
 
 schemes:
   SBTUITestTunnel:

@@ -307,15 +307,18 @@ XCTAssertNotNil(userData)
 
 ## 📱 Advanced Scrolling
 
-Perform precise scrolling operations on collection views, table views, and scroll views.
+Perform precise scrolling operations on collection views, table views, and scroll views, including the UIKit scroll containers used by SwiftUI.
 
-> ⚠️ **SwiftUI Important**: Always interact with the XCUIElement before using scroll APIs:
-> ```swift
-> XCTAssert(app.collectionViews["details"].exists) // ← Required!
-> app.scrollCollectionView(withIdentifier: "details", toElementIndex: 5, animated: true)
-> ```
+For SwiftUI, assign stable `.accessibilityIdentifier(...)` values to the scroll container and target views. Resolve the container through XCTest before calling the unified APIs:
 
-### ✨ Unified Scrolling API (NEW)
+```swift
+XCTAssertTrue(app.descendants(matching: .any)["details"].exists)
+app.scrollContent(withIdentifier: "details",
+                  toElementWithIdentifier: "detail-5",
+                  animated: true)
+```
+
+### Unified Scrolling API
 
 The unified API automatically detects the view type and works with UITableView, UICollectionView, and UIScrollView.
 
@@ -336,7 +339,9 @@ app.scrollContent(withIdentifier: "myScrollView",
                  animated: true)
 ```
 
-> 💡 **SwiftUI Support**: For UIScrollView, if standard scrolling fails (common in SwiftUI), the API automatically falls back to page-by-page scrolling until the target element is visible.
+Identifier scrolling can reveal off-screen SwiftUI content through bounded paging. If the server cannot locate the target, the client searches and scrolls within the identified container using XCTest. The operation returns `false` when the container or target cannot be found within its search limit.
+
+Index scrolling requires a `UITableView` or `UICollectionView`; it can be used with a SwiftUI `List` when the OS exposes one of those backing views. SwiftUI `ScrollView`, `LazyVGrid`, and `LazyHStack` do not expose a reliable item index through this API: use target identifiers or normalized offsets instead. Offset `0` means the leading edge and `1` the trailing edge, accounting for content insets.
 
 ### 📋 Table Views
 
@@ -379,8 +384,8 @@ app.scrollScrollViewWithIdentifier(withIdentifier: "contentScroll",
                                   animated: true)
 
 // 📄 Scroll by one page (vertical or horizontal)
-app.scrollScrollViewWithIdentifierByPage(withIdentifier: "contentScroll", 
-                                        animated: true)
+app.scrollScrollView(withIdentifierByPage: "contentScroll",
+                    animated: true)
 ```
 
 ---

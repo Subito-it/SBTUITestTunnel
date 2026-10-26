@@ -16,6 +16,9 @@
 
 import CoreLocation
 import SBTUITestTunnelCommon
+#if canImport(SBTUITestTunnelCommonSwift)
+    import SBTUITestTunnelCommonSwift
+#endif
 import SBTUITestTunnelServer
 import UIKit
 import UserNotifications
@@ -43,10 +46,10 @@ class SBTAppDelegate: UIResponder, UIApplicationDelegate {
 
             let request = URLRequest(url: URL(string: "https://www.subito.it")!)
             let selector = NSSelectorFromString("_protocolClassForRequest:")
-            let klass = (URLProtocol.self as AnyObject).perform(selector, with: request)?.takeUnretainedValue()
-            let className = klass.map { String(describing: type(of: $0)) } ?? ""
-
-            return NSNumber(value: className == "SBTProxyURLProtocol")
+            guard let klass = URLProtocol.perform(selector, with: request)?.takeUnretainedValue() as? AnyClass else {
+                return NSNumber(value: false)
+            }
+            return NSNumber(value: NSStringFromClass(klass) == "SBTProxyURLProtocol")
         }
 
         SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnCLAccuracyAuth") { _ in
@@ -57,6 +60,10 @@ class SBTAppDelegate: UIResponder, UIApplicationDelegate {
         SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnCLAuthStatus") { _ in
             let manager = CLLocationManager()
             return "\(manager.authorizationStatus.rawValue)" as NSObject
+        }
+
+        SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnCLServicesEnabled") { _ in
+            return (CLLocationManager.locationServicesEnabled() ? "YES" : "NO") as NSString
         }
 
         SBTUITestTunnelServer.registerCustomCommandNamed("myCustomCommandReturnUNAuthRequest") { _ in

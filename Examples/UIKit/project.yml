@@ -3,7 +3,6 @@ name: SBTUITestTunnel
 options:
   bundleIdPrefix: com.subito
   groupSortPosition: top
-  postGenCommand: "pod install"
 
 fileGroups:
   - SBTUITestTunnel_Example.entitlements
@@ -19,6 +18,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: "SBTUITestTunnel_Example.entitlements"
     sources:
       - path: SBTUITestTunnel
+        excludes: ["*-Info.plist"]
         name: "SBTUITestTunnel_Example"
     dependencies:
       - sdk: UIKit.framework
@@ -32,11 +32,10 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: "SBTUITestTunnel_Tests/Info.plist"
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) UIKIT_APP"
     sources:
       - path: SBTUITestTunnel_Tests
-        excludes:
-          - "*.swift"
+        excludes: [Info.plist]
       - path: ../SharedUITests
         name: SharedUITests
     dependencies:
@@ -51,7 +50,7 @@ targets:
         GCC_PREPROCESSOR_DEFINITIONS:
           ["DISABLE_UITUNNEL_SWIZZLING=1", "$(inherited)"]
         INFOPLIST_FILE: "SBTUITestTunnel_TestsNoSwizzling/Info.plist"
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: UIKIT_APP
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) UIKIT_APP"
     sources:
       - SBTUITestTunnel_TestsNoSwizzling
     dependencies:
@@ -67,6 +66,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: "com.subito.MultiSceneExample"
     sources:
       - path: MultiSceneExample
+        excludes: ["*-Info.plist"]
         name: "MultiSceneExample"
     dependencies:
       - sdk: UIKit.framework

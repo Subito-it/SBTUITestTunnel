@@ -62,6 +62,47 @@ class MiscellaneousTests: XCTestCase {
         XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
     }
 
+    func testBatchRemovalForProxyRuleTypes() throws {
+        app.launchTunnel()
+
+        let match = SBTRequestMatch(url: "batch-removal.example/.*")
+        let response = SBTStubResponse(response: Data(), returnCode: 200)
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "before", replace: "after")])
+
+        let stubIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        }
+        let rewriteIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.rewriteRequests(matching: match, rewrite: rewrite))
+        }
+        let monitorIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.monitorRequests(matching: match))
+        }
+        let throttleIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.throttleRequests(matching: match, responseTime: 0))
+        }
+        let cookieIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.blockCookiesInRequests(matching: match))
+        }
+
+        XCTAssertEqual(app.stubRequestsAll().count, stubIDs.count)
+        XCTAssertTrue(app.stubRequestsRemove(ids: stubIDs))
+        XCTAssertTrue(app.rewriteRequestsRemove(withIds: rewriteIDs))
+        XCTAssertTrue(app.monitorRequestRemove(withIds: monitorIDs))
+        XCTAssertTrue(app.throttleRequestRemove(withIds: throttleIDs))
+        XCTAssertTrue(app.blockCookiesRequestsRemove(withIds: cookieIDs))
+        XCTAssertTrue(app.stubRequestsAll().isEmpty)
+
+        XCTAssertFalse(app.stubRequestsRemove(id: stubIDs[0]))
+        XCTAssertFalse(app.rewriteRequestsRemove(withId: rewriteIDs[0]))
+        XCTAssertFalse(app.monitorRequestRemove(withId: monitorIDs[0]))
+        XCTAssertFalse(app.throttleRequestRemove(withId: throttleIDs[0]))
+        XCTAssertFalse(app.blockCookiesRequestsRemove(withId: cookieIDs[0]))
+
+        let duplicateID = try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        XCTAssertTrue(app.stubRequestsRemove(ids: [duplicateID, duplicateID]))
+    }
+
     func testStartupCommandsWaitsAppropriately() {
         let userDefaultsKey = "test_ud_key"
         let randomString = ProcessInfo.processInfo.globallyUniqueString
@@ -259,22 +300,105 @@ class MiscellaneousTests: XCTestCase {
             let element = app.staticTexts["50"]
             XCTAssert(element.isHittable)
 
-            // Verify the element is centered in the visible area (between collection view top and keyboard top)
+            // Verify the element is near the top of the visible area (not under the keyboard)
             let collectionView = app.collectionViews["scrollViewWithKeyboard"]
             let keyboard = app.keyboards.firstMatch
             let visibleTop = collectionView.frame.minY
-            let visibleBottom = keyboard.frame.minY
-            let visibleMidY = (visibleTop + visibleBottom) / 2.0
 
-            let elementMidY = element.frame.midY
-
-            let tolerance = element.frame.height / 2.0 + 50.0
+            let tolerance: CGFloat = 50.0
             XCTAssertEqual(
-                elementMidY,
-                visibleMidY,
+                element.frame.minY,
+                visibleTop,
                 accuracy: tolerance,
-                "Element midY (\(elementMidY)) should be near visible area midY (\(visibleMidY)), difference: \(abs(elementMidY - visibleMidY)), tolerance: \(tolerance)"
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
             )
+            XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+        }
+
+        func testScrollViewScrollToElementWithTranslucentNavBar() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewTranslucentNavBar")
+
+            let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+            wait { collectionView.exists }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is near the top of the collection view's visible area
+            let navBar = app.navigationBars.firstMatch
+            let visibleTop = collectionView.frame.minY
+
+            let tolerance: CGFloat = 50.0
+            XCTAssertEqual(
+                element.frame.minY,
+                visibleTop,
+                accuracy: tolerance,
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+            )
+            XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+        }
+
+        func testScrollViewScrollToElementWithTranslucentNavBarAndKeyboardVisible() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewTranslucentNavBar")
+
+            let textField = app.textFields["translucentNavBarTextField"]
+            wait { textField.isHittable }
+            textField.tap()
+
+            wait { self.app.keyboards.count > 0 }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is near the top of the collection view's visible area (not under the keyboard)
+            let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+            let navBar = app.navigationBars.firstMatch
+            let keyboard = app.keyboards.firstMatch
+            let visibleTop = collectionView.frame.minY
+
+            let tolerance: CGFloat = 50.0
+            XCTAssertEqual(
+                element.frame.minY,
+                visibleTop,
+                accuracy: tolerance,
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+            )
+            XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+            XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+        }
+
+        func testScrollViewScrollToElementInLazilyGrowingScrollView() {
+            // Reproduces the bug where scrolling to a target element would stop at the
+            // initial maxContentOffset. The scroll view here holds all 100 labels in the
+            // hierarchy from the start, but its contentSize starts small and grows in
+            // response to scrolling. Without the clamp-then-retry fix in
+            // scrollToTargetView:inScrollView:direction:animated:, the first clamped
+            // scroll would be reported as done and the target would never appear.
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionGrowingScrollView")
+
+            XCTAssertTrue(app.scrollViews["growingScrollView"].waitForExistence(timeout: 5))
+
+            // Target row 95 — well beyond the initial contentSize — must become hittable.
+            let target = app.staticTexts["95"]
+            XCTAssertFalse(target.isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "growingScrollView", toElementWithIdentifier: "95", animated: false))
+
+            XCTAssertTrue(target.isHittable)
         }
 
         func testScrollViewScrollToOffset() {
