@@ -31,7 +31,7 @@ class SBTExtensionTableViewController1: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        100
+        ProcessInfo.processInfo.arguments.contains("--long-scroll-list") ? 10000 : 100
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

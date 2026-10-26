@@ -1405,7 +1405,14 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
         if (scrollView != nil) {
             SBTUITestTunnelScrollDirection direction = scrollView.suggestedScrollDirection;
-            BOOL searchedFromBeginning = NO;
+            UIEdgeInsets insets = scrollView.adjustedContentInset;
+            BOOL isVertical = direction == SBTUITestTunnelScrollDirectionVertical;
+            CGFloat initialOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
+            CGFloat beginning = isVertical ? -insets.top : -insets.left;
+            BOOL searchedFromBeginning = initialOffset <= beginning + 0.5;
+            // Try nearby forward targets first, but reserve half the remaining
+            // time for earlier lazy children if the list is too long to reach its end.
+            NSTimeInterval forwardDeadline = CFAbsoluteTimeGetCurrent() + (deadline - CFAbsoluteTimeGetCurrent()) / 2.0;
             BOOL exhausted = NO;
             while (CFAbsoluteTimeGetCurrent() < deadline) {
                 id target = [self findScrollTargetWithIdentifier:targetElementIdentifier inScrollView:scrollView];
@@ -1416,21 +1423,27 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
                     }
                     continue;
                 }
-                if (exhausted) { break; }
-                if (!searchedFromBeginning) {
-                    // Lazy lists discard earlier children. Restart at the actual
-                    // inset-adjusted beginning before walking forward once.
-                    UIEdgeInsets insets = scrollView.adjustedContentInset;
+                if (!searchedFromBeginning && (exhausted || CFAbsoluteTimeGetCurrent() >= forwardDeadline)) {
+                    // Lazy lists discard earlier children. Wrap once, after
+                    // searching forward from the caller's current position.
                     CGPoint start = scrollView.contentOffset;
-                    if (direction == SBTUITestTunnelScrollDirectionVertical) {
+                    if (isVertical) {
                         start.y = -insets.top;
                     } else {
                         start.x = -insets.left;
                     }
                     searchedFromBeginning = YES;
+                    exhausted = NO;
                     [scrollView setContentOffset:start animated:NO];
+                    [scrollView layoutIfNeeded];
                     [self spinMainRunLoopForInterval:0.1];
                     continue;
+                }
+                if (exhausted) { break; }
+                // After wrapping, stop once we have revisited the initial page.
+                CGFloat currentOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
+                if (searchedFromBeginning && initialOffset > beginning + 0.5 && currentOffset >= initialOffset) {
+                    break;
                 }
                 // Re-resolve once after the end-of-content layout wait, even
                 // when lazy children appeared without growing contentSize.
