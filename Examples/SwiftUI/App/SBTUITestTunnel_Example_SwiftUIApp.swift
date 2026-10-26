@@ -116,7 +116,11 @@ struct SBTUITestTunnel_Example_SwiftUIApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if ProcessInfo.processInfo.arguments.contains("--oversized-scroll-target") {
+                OversizedScrollTargetView(horizontal: ProcessInfo.processInfo.arguments.contains("--horizontal-scroll-target"))
+            } else {
+                ContentView()
+            }
         }
     }
 }

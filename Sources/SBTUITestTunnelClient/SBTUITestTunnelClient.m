@@ -867,8 +867,12 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     for (NSInteger page = 0; page <= 100; page++) {
         if (target.exists && target.isHittable) {
             CGRect visibleFrame = CGRectIntersection(element.frame, self.application.frame);
-            CGRect intersection = CGRectIntersection(target.frame, visibleFrame);
-            CGFloat area = CGRectGetWidth(target.frame) * CGRectGetHeight(target.frame);
+            CGRect targetFrame = target.frame;
+            CGRect intersection = CGRectIntersection(targetFrame, visibleFrame);
+            // Match the server's visibility threshold even when the target is
+            // taller or wider than the viewport and cannot be fully exposed.
+            CGFloat area = MIN(CGRectGetWidth(targetFrame), CGRectGetWidth(visibleFrame)) *
+                MIN(CGRectGetHeight(targetFrame), CGRectGetHeight(visibleFrame));
             if (!CGRectIsNull(intersection) && area > 0.0 &&
                 CGRectGetWidth(intersection) * CGRectGetHeight(intersection) / area >= 0.5) {
                 return YES;

@@ -1354,8 +1354,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return YES;
     }
     CGRect targetFrame = [self frameForScrollTarget:target inWindow:window];
-    CGRect intersection = CGRectIntersection(targetFrame, [self visibleUnobscuredFrameInWindowForScrollView:scrollView]);
-    CGFloat area = CGRectGetWidth(targetFrame) * CGRectGetHeight(targetFrame);
+    CGRect visibleFrame = [self visibleUnobscuredFrameInWindowForScrollView:scrollView];
+    CGRect intersection = CGRectIntersection(targetFrame, visibleFrame);
+    // Oversized targets cannot expose half their total area. Compare against
+    // the portion that can fit in the viewport along each dimension instead.
+    CGFloat area = MIN(CGRectGetWidth(targetFrame), CGRectGetWidth(visibleFrame)) *
+        MIN(CGRectGetHeight(targetFrame), CGRectGetHeight(visibleFrame));
     return !CGRectIsNull(intersection) && area > 0.0 &&
         CGRectGetWidth(intersection) * CGRectGetHeight(intersection) / area >= 0.5;
 }
