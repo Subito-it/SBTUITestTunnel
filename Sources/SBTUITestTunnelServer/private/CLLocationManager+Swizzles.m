@@ -125,47 +125,63 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 
 - (void)swz_setDelegate:(id<CLLocationManagerDelegate>)delegate
 {
+    if (delegate == nil) {
+        // NSMapTable ignores setObject:nil, which would leave the previous delegate registered
+        [_delegatesHashTable removeObjectForKey:self];
+        [_instanceHashTable removeObjectForKey:self];
+        return;
+    }
+
     [_delegatesHashTable setObject:delegate forKey:self];
     [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 
     // Core Location always calls locationManagerDidChangeAuthorization:
     // ... when your app creates an instance of CLLocationManager,
     // whether your app runs in the foreground or in the background.
-    [self sendAuthorizationStatusToDelegate:delegate];
+    [self sbt_sendAuthorizationStatusToDelegate];
 }
 
-- (void)sendAuthorizationStatusToDelegate:(id<CLLocationManagerDelegate>)delegate
+- (void)sbt_sendAuthorizationStatusToDelegate
 {
-    NSThread *targetThread = self.swz_creationThread ?: [NSThread mainThread];
+    [self sbt_performOnCreationThread:^{
+        // Looked up on delivery, so a delegate cleared or replaced in the meantime isn't notified
+        id<CLLocationManagerDelegate> delegate = [_delegatesHashTable objectForKey:self];
 
-    if ([delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
-        [self performSelector:@selector(swz_invokeOldDelegate:)
-                     onThread:targetThread
-                   withObject:delegate
-                waitUntilDone:NO];
-    }
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-    if (@available(iOS 14.0, *)) {
-        if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
-            [self performSelector:@selector(swz_invokeNewDelegate:)
-                         onThread:targetThread
-                       withObject:delegate
-                    waitUntilDone:NO];
-        }
-    }
-#endif
-}
-
-- (void)swz_invokeOldDelegate:(id<CLLocationManagerDelegate>)delegate {
+        if ([delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    [delegate locationManager:self didChangeAuthorizationStatus:self.authorizationStatus];
+            [delegate locationManager:self didChangeAuthorizationStatus:self.authorizationStatus];
 #pragma GCC diagnostic pop
+        }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+        if (@available(iOS 14.0, *)) {
+            // The legacy callback may have cleared or replaced the delegate
+            delegate = [_delegatesHashTable objectForKey:self];
+
+            if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
+                [delegate locationManagerDidChangeAuthorization:self];
+            }
+        }
+#endif
+    }];
 }
 
-- (void)swz_invokeNewDelegate:(id<CLLocationManagerDelegate>)delegate {
-    [delegate locationManagerDidChangeAuthorization:self];
+- (void)sbt_performOnCreationThread:(dispatch_block_t)block
+{
+    NSThread *thread = self.swz_creationThread ?: NSThread.mainThread;
+
+    [self performSelector:@selector(sbt_executeBlock:)
+                 onThread:thread
+               withObject:[block copy]
+            waitUntilDone:NO];
+}
+
+- (void)sbt_executeBlock:(dispatch_block_t)block
+{
+    @autoreleasepool {
+        block();
+    }
 }
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate
