@@ -51,32 +51,32 @@ targets:
     dependencies:
       - target: SBTUITestTunnel_Example
 
-  SceneExample:
+  MultiSceneExample:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
     settings:
       base:
-        INFOPLIST_FILE: "SceneExample/SceneExample-Info.plist"
-        PRODUCT_BUNDLE_IDENTIFIER: "com.subito.SceneExample"
+        INFOPLIST_FILE: "MultiSceneExample/MultiSceneExample-Info.plist"
+        PRODUCT_BUNDLE_IDENTIFIER: "com.subito.MultiSceneExample"
     sources:
-      - path: SceneExample
-        name: "SceneExample"
+      - path: MultiSceneExample
+        name: "MultiSceneExample"
     dependencies:
       - sdk: UIKit.framework
       - sdk: Foundation.framework
 
-  SceneExample_Tests:
+  MultiSceneExample_Tests:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "15.0"
     settings:
       base:
-        INFOPLIST_FILE: "SceneExample_Tests/Info.plist"
+        INFOPLIST_FILE: "MultiSceneExample_Tests/Info.plist"
     sources:
-      - SceneExample_Tests
+      - MultiSceneExample_Tests
     dependencies:
-      - target: SceneExample
+      - target: MultiSceneExample
 
 schemes:
   SBTUITestTunnel:
@@ -137,18 +137,18 @@ schemes:
     management:
       isShown: false
 
-  SceneExample:
+  MultiSceneExample:
     run:
       debugEnabled: false
     build:
       targets:
-        SceneExample: [run, test, profile, analyze, archive]
+        MultiSceneExample: [run, test, profile, analyze, archive]
       config: Debug
     profile:
       config: Debug
     test:
       targets:
-        - SceneExample_Tests
+        - MultiSceneExample_Tests
       config: Debug
       gatherCoverageData: true
       disableMainThreadChecker: true
