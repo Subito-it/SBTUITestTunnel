@@ -42,6 +42,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     private var clearsDelegateOnLegacyAuthorizationCallback = false
     // Only accessed on the tunnel's command queue
     private var heldManagerThreadRelease: DispatchSemaphore?
+    private var stressFixture: SBTCoreLocationStressFixture?
 
     private var managerThread: Thread {
         backgroundThread ?? Thread.main
@@ -139,8 +140,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
         }
 
         SBTUITestTunnelServer.registerCustomCommandNamed(Self.fixtureCommandName) { [weak self] action in
-            self?.performFixtureAction(action as? String)
-            return "YES" as NSString
+            (self?.performFixtureAction(action as? String) ?? "NO") as NSString
         }
     }
 
@@ -155,7 +155,7 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
     }
 
     // Invoked on the tunnel's command queue
-    private func performFixtureAction(_ action: String?) {
+    private func performFixtureAction(_ action: String?) -> String {
         switch action {
         case "reassignDelegate":
             onManagerThread { self.locationManager?.delegate = self }
@@ -179,9 +179,15 @@ class SBTExtensionCoreLocationViewController: UIViewController, CLLocationManage
             waitForQueuedCallbacks()
         case "waitForQueuedCallbacks":
             waitForQueuedCallbacks()
+        case "startStress":
+            stressFixture = SBTCoreLocationStressFixture()
+        case "stopStress":
+            defer { stressFixture = nil }
+            return stressFixture?.stop() ?? "NO"
         default:
             assertionFailure("Unknown Core Location fixture action \(action ?? "nil")")
         }
+        return "YES"
     }
 
     // Returns once the manager thread is blocked; events sent before "releaseManagerThread" queue up behind `work`
@@ -346,5 +352,168 @@ private final class SBTBlock: NSObject {
 
     @objc func run() {
         block()
+    }
+}
+
+/// Hammers the stubbed Core Location state from several threads while the test drives the server.
+private final class SBTCoreLocationStressFixture {
+    private let stats: SBTStressStats
+    private let workers: [SBTStressWorker]
+    private let readers: [Thread]
+    private let readersFinished: DispatchGroup
+
+    init() {
+        let stats = SBTStressStats()
+        let readersFinished = DispatchGroup()
+        self.stats = stats
+        self.readersFinished = readersFinished
+
+        workers = (0 ..< 4).map { _ in SBTStressWorker(stats: stats) }
+        readers = (0 ..< 2).map { _ in
+            Thread {
+                // Never given a delegate, so it only exercises the getters
+                let manager = CLLocationManager()
+                while !Thread.current.isCancelled {
+                    SBTStressWorker.validateStubbedState(of: manager, stats: stats)
+                    _ = CLLocationManager.locationServicesEnabled()
+                    stats.increment("reads")
+                }
+                readersFinished.leave()
+            }
+        }
+
+        workers.forEach { $0.start() }
+        for reader in readers {
+            readersFinished.enter()
+            reader.start()
+        }
+    }
+
+    func stop() -> String {
+        workers.forEach { $0.stop() }
+        readers.forEach { $0.cancel() }
+        readersFinished.wait()
+
+        return stats.summary
+    }
+}
+
+private final class SBTStressStats {
+    private let lock = NSLock()
+    private var counts = [String: Int]()
+
+    func increment(_ key: String) {
+        lock.lock()
+        counts[key, default: 0] += 1
+        lock.unlock()
+    }
+
+    var summary: String {
+        lock.lock()
+        defer { lock.unlock() }
+        return ["callbacks", "reads", "wrongThread", "invalidValue"].map { "\($0)=\(counts[$0, default: 0])" }.joined(separator: ";")
+    }
+}
+
+private final class SBTStressWorker: NSObject, CLLocationManagerDelegate {
+    private let thread = SBTRunLoopThread()
+    private let stats: SBTStressStats
+    // Only accessed on thread
+    private var manager: CLLocationManager?
+    private var timer: Timer?
+    private var iteration = 0
+
+    init(stats: SBTStressStats) {
+        self.stats = stats
+    }
+
+    func start() {
+        thread.start()
+        SBTBlock { self.startChurning() }.perform(#selector(SBTBlock.run), on: thread, with: nil, waitUntilDone: false)
+    }
+
+    private func startChurning() {
+        manager = makeManager()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) { [unowned self] _ in churn() }
+    }
+
+    func stop() {
+        // Once the delegate is cleared, callbacks still queued on the thread find no delegate and are dropped
+        SBTBlock {
+            self.timer?.invalidate()
+            self.timer = nil
+            self.manager?.delegate = nil
+            self.manager = nil
+        }.perform(#selector(SBTBlock.run), on: thread, with: nil, waitUntilDone: true)
+        thread.stop()
+    }
+
+    private func makeManager() -> CLLocationManager {
+        let manager = CLLocationManager()
+        manager.delegate = self
+        manager.startUpdatingLocation()
+        return manager
+    }
+
+    private func churn() {
+        iteration += 1
+        if iteration % 25 == 0 {
+            // The replaced manager deallocates, dropping its weak entries from the stub's maps
+            manager = makeManager()
+            return
+        }
+
+        switch iteration % 4 {
+        case 0: manager?.stopUpdatingLocation()
+        case 1: manager?.startUpdatingLocation()
+        case 2: manager?.delegate = nil
+        default:
+            manager?.delegate = self
+            manager?.startUpdatingLocation()
+        }
+    }
+
+    private func record(_ manager: CLLocationManager) {
+        stats.increment("callbacks")
+        if Thread.current !== thread {
+            stats.increment("wrongThread")
+        }
+        Self.validateStubbedState(of: manager, stats: stats)
+    }
+
+    /// The test only stubs locations whose latitude equals their longitude.
+    static func validateStubbedState(of manager: CLLocationManager, stats: SBTStressStats) {
+        let validStatuses: [CLAuthorizationStatus] = [.notDetermined, .restricted, .denied, .authorizedAlways, .authorizedWhenInUse]
+        let validAccuracies: [CLAccuracyAuthorization] = [.fullAccuracy, .reducedAccuracy]
+
+        if !validStatuses.contains(manager.authorizationStatus) || !validAccuracies.contains(manager.accuracyAuthorization) {
+            stats.increment("invalidValue")
+        }
+        if let location = manager.location, location.coordinate.latitude != location.coordinate.longitude {
+            stats.increment("invalidValue")
+        }
+    }
+
+    // Each callback reenters the stub before returning
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations _: [CLLocation]) {
+        record(manager)
+        manager.stopUpdatingLocation()
+        manager.delegate = nil
+        manager.delegate = self
+        manager.startUpdatingLocation()
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        record(manager)
+        // Reassigning the delegate here would queue another authorization callback, forever
+        manager.stopUpdatingLocation()
+        manager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError _: Error) {
+        record(manager)
+        manager.delegate = nil
+        manager.delegate = self
     }
 }

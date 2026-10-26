@@ -54,6 +54,9 @@
         [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLAuthStatus" block:^NSObject *(NSObject *object) {
             return [@([CLLocationManager authorizationStatus]) stringValue];
         }];
+        [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnCLServicesEnabled" block:^NSObject *(NSObject *object) {
+            return [CLLocationManager locationServicesEnabled] ? @"YES" : @"NO";
+        }];
 
         [SBTUITestTunnelServer registerCustomCommandNamed:@"myCustomCommandReturnUNAuthRequest" block:^NSObject *(NSObject *object) {
             dispatch_semaphore_t sema = dispatch_semaphore_create(0);

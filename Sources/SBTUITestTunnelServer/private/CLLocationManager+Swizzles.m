@@ -21,12 +21,27 @@
 
 #import "CLLocationManager+Swizzles.h"
 
-static NSMapTable *_instanceHashTable;
-static NSMapTable *_delegatesHashTable;
-static NSString *_autorizationStatus;
-static NSString *_accuracyAuthorization;
+#import <os/lock.h>
+
+// Guards every static below. Critical sections never call out to delegates or app code.
+static os_unfair_lock sStateLock = OS_UNFAIR_LOCK_INIT;
+static NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *_instanceHashTable;
+static NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *_delegatesHashTable;
+static CLAuthorizationStatus _authorizationStatus = kCLAuthorizationStatusAuthorizedAlways;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+static CLAccuracyAuthorization _accuracyAuthorization = CLAccuracyAuthorizationFullAccuracy;
+#endif
 static CLLocation *_currentLocation;
-static NSString *_serviceStatus;
+static BOOL _locationServicesEnabled = YES;
+
+static CLAuthorizationStatus SBTStubbedAuthorizationStatus(void)
+{
+    os_unfair_lock_lock(&sStateLock);
+    CLAuthorizationStatus status = _authorizationStatus;
+    os_unfair_lock_unlock(&sStateLock);
+
+    return status;
+}
 
 @implementation CLLocationManager (Swizzles)
 
@@ -48,92 +63,115 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
     return self;
 }
 
+- (void)sbt_markActive
+{
+    // Released after unlocking, in case this is the last reference and the delegate's dealloc reenters
+    id<CLLocationManagerDelegate> delegate NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    delegate = [_delegatesHashTable objectForKey:self];
+    [_instanceHashTable setObject:delegate forKey:self];
+    os_unfair_lock_unlock(&sStateLock);
+}
+
+- (void)sbt_markInactive
+{
+    os_unfair_lock_lock(&sStateLock);
+    [_instanceHashTable removeObjectForKey:self];
+    os_unfair_lock_unlock(&sStateLock);
+}
+
 - (void)swz_startMonitoring
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_startUpdatingLocation
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_startUpdatingHeading
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_requestLocation
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_requestAlwaysAuthorization
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_requestWhenInUseAuthorization
 {
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
+    [self sbt_markActive];
 }
 
 - (void)swz_stopMonitoring
 {
-    [_instanceHashTable removeObjectForKey:self];
+    [self sbt_markInactive];
 }
 
 - (void)swz_stopUpdatingLocation
 {
-    [_instanceHashTable removeObjectForKey:self];
+    [self sbt_markInactive];
 }
 
 - (void)swz_stopUpdatingHeading
 {
-    [_instanceHashTable removeObjectForKey:self];
+    [self sbt_markInactive];
 }
 
 + (CLAuthorizationStatus)swz_authorizationStatus
 {
-    NSString *defaultStatus = [@(kCLAuthorizationStatusAuthorizedAlways) stringValue];
-    NSInteger status = (_autorizationStatus.length > 0 ? _autorizationStatus : defaultStatus).intValue;
-    return (CLAuthorizationStatus)status;
+    return SBTStubbedAuthorizationStatus();
 }
 
 - (CLAuthorizationStatus)swz_authorizationStatus
 {
-    NSString *defaultStatus = [@(kCLAuthorizationStatusAuthorizedAlways) stringValue];
-    NSInteger status = (_autorizationStatus.length > 0 ? _autorizationStatus : defaultStatus).intValue;
-    return (CLAuthorizationStatus)status;
+    return SBTStubbedAuthorizationStatus();
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 - (CLAccuracyAuthorization)swz_accuracyAuthorization API_AVAILABLE(ios(14.0))
 {
-    NSString *defaultAccuracy = [@(CLAccuracyAuthorizationFullAccuracy) stringValue];
-    NSInteger accuracy = (_accuracyAuthorization.length > 0 ? _accuracyAuthorization : defaultAccuracy).intValue;
-    return (CLAccuracyAuthorization)accuracy;
+    os_unfair_lock_lock(&sStateLock);
+    CLAccuracyAuthorization accuracy = _accuracyAuthorization;
+    os_unfair_lock_unlock(&sStateLock);
+
+    return accuracy;
 }
 #endif
 
 + (BOOL)swz_locationServicesEnabled
 {
-    NSString *defaultStatus = @"YES";
-    BOOL status = [(_serviceStatus ?: defaultStatus) isEqualToString:@"YES"];
-    return (CLAuthorizationStatus)status;
+    os_unfair_lock_lock(&sStateLock);
+    BOOL enabled = _locationServicesEnabled;
+    os_unfair_lock_unlock(&sStateLock);
+
+    return enabled;
 }
 
 - (void)swz_setDelegate:(id<CLLocationManagerDelegate>)delegate
 {
+    os_unfair_lock_lock(&sStateLock);
     if (delegate == nil) {
         // NSMapTable ignores setObject:nil, which would leave the previous delegate registered
         [_delegatesHashTable removeObjectForKey:self];
         [_instanceHashTable removeObjectForKey:self];
+    } else {
+        [_delegatesHashTable setObject:delegate forKey:self];
+        [_instanceHashTable setObject:delegate forKey:self];
+    }
+    os_unfair_lock_unlock(&sStateLock);
+
+    if (delegate == nil) {
         return;
     }
-
-    [_delegatesHashTable setObject:delegate forKey:self];
-    [_instanceHashTable setObject:[_delegatesHashTable objectForKey:self] forKey:self];
 
     // Core Location always calls locationManagerDidChangeAuthorization:
     // ... when your app creates an instance of CLLocationManager,
@@ -145,7 +183,7 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 {
     [self sbt_performOnCreationThread:^{
         // Looked up on delivery, so a delegate cleared or replaced in the meantime isn't notified
-        id<CLLocationManagerDelegate> delegate = [_delegatesHashTable objectForKey:self];
+        id<CLLocationManagerDelegate> delegate = [self sbt_registeredDelegate];
 
         if ([delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) {
 #pragma GCC diagnostic push
@@ -157,7 +195,7 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
         if (@available(iOS 14.0, *)) {
             // The legacy callback may have cleared or replaced the delegate
-            delegate = [_delegatesHashTable objectForKey:self];
+            delegate = [self sbt_registeredDelegate];
 
             if ([delegate respondsToSelector:@selector(locationManagerDidChangeAuthorization:)]) {
                 [delegate locationManagerDidChangeAuthorization:self];
@@ -184,39 +222,92 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
     }
 }
 
++ (NSArray<CLLocationManager *> *)sbt_activeManagersSnapshot
+{
+    // Strong references are taken under the lock and released after it, keeping managers alive while events are queued
+    NSArray<CLLocationManager *> *managers NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    managers = _instanceHashTable.keyEnumerator.allObjects;
+    os_unfair_lock_unlock(&sStateLock);
+
+    return managers ?: @[];
+}
+
 - (id<CLLocationManagerDelegate>)stubbedDelegate
 {
-    return [_instanceHashTable objectForKey:self];
+    id<CLLocationManagerDelegate> delegate NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    delegate = [_instanceHashTable objectForKey:self];
+    os_unfair_lock_unlock(&sStateLock);
+
+    return delegate;
 }
 
-+ (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus
+- (id<CLLocationManagerDelegate>)sbt_registeredDelegate
 {
-    _autorizationStatus = autorizationStatus;
+    id<CLLocationManagerDelegate> delegate NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    delegate = [_delegatesHashTable objectForKey:self];
+    os_unfair_lock_unlock(&sStateLock);
+
+    return delegate;
 }
 
-+ (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization
++ (void)setStubbedAuthorizationStatus:(CLAuthorizationStatus)authorizationStatus
 {
+    os_unfair_lock_lock(&sStateLock);
+    _authorizationStatus = authorizationStatus;
+    os_unfair_lock_unlock(&sStateLock);
+}
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
++ (void)setStubbedAccuracyAuthorization:(CLAccuracyAuthorization)accuracyAuthorization
+{
+    os_unfair_lock_lock(&sStateLock);
     _accuracyAuthorization = accuracyAuthorization;
+    os_unfair_lock_unlock(&sStateLock);
 }
+#endif
 
 + (void)setStubbedCurrentLocation:(CLLocation *)location
 {
+    CLLocation *previousLocation NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    previousLocation = _currentLocation;
     _currentLocation = location;
+    os_unfair_lock_unlock(&sStateLock);
+}
+
++ (void)setStubbedLocationServicesEnabled:(BOOL)enabled
+{
+    os_unfair_lock_lock(&sStateLock);
+    _locationServicesEnabled = enabled;
+    os_unfair_lock_unlock(&sStateLock);
 }
 
 - (CLLocation *)location
 {
-    if ([_currentLocation isKindOfClass:[NSNull class]]) {
-        return nil;
-    } else {
-        return _currentLocation;
-    }
+    CLLocation *location NS_VALID_UNTIL_END_OF_SCOPE;
+
+    os_unfair_lock_lock(&sStateLock);
+    location = _currentLocation;
+    os_unfair_lock_unlock(&sStateLock);
+
+    return location;
 }
 
-+ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable
++ (void)loadSwizzles
 {
-    _instanceHashTable = hashTable;
-    _delegatesHashTable = [hashTable copy];
+    os_unfair_lock_lock(&sStateLock);
+    if (_instanceHashTable == nil) {
+        _instanceHashTable = NSMapTable.weakToWeakObjectsMapTable;
+        _delegatesHashTable = NSMapTable.weakToWeakObjectsMapTable;
+    }
+    os_unfair_lock_unlock(&sStateLock);
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -244,8 +335,10 @@ static char const * const swz_creationThreadKey = "swz_creationThreadKey";
 
 + (void)removeSwizzles
 {
+    os_unfair_lock_lock(&sStateLock);
     [_instanceHashTable removeAllObjects];
     [_delegatesHashTable removeAllObjects];
+    os_unfair_lock_unlock(&sStateLock);
     
     // Repeat swizzle to restore default implementation
     static dispatch_once_t onceToken;

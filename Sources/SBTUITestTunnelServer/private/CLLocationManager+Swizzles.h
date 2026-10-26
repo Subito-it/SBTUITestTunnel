@@ -20,11 +20,17 @@
 
 @interface CLLocationManager (Swizzles)
 
-+ (void)setStubbedAuthorizationStatus:(NSString *)autorizationStatus;
-+ (void)setStubbedAccuracyAuthorization:(NSString *)accuracyAuthorization API_AVAILABLE(ios(14));
++ (void)setStubbedAuthorizationStatus:(CLAuthorizationStatus)authorizationStatus;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
++ (void)setStubbedAccuracyAuthorization:(CLAccuracyAuthorization)accuracyAuthorization API_AVAILABLE(ios(14));
+#endif
 + (void)setStubbedCurrentLocation:(CLLocation *)location;
-+ (void)loadSwizzlesWithInstanceHashTable:(NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>>*)hashTable;
++ (void)setStubbedLocationServicesEnabled:(BOOL)enabled;
++ (void)loadSwizzles;
 + (void)removeSwizzles;
+
+/// A copy of the managers currently receiving stubbed events
++ (NSArray<CLLocationManager *> *)sbt_activeManagersSnapshot;
 
 - (id<CLLocationManagerDelegate>)stubbedDelegate;
 - (CLLocation *)location;

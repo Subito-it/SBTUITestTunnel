@@ -122,8 +122,6 @@ void repeating_dispatch_after(int64_t delay, dispatch_queue_t queue, BOOL (^bloc
 
 @property (atomic, assign) BOOL startupCompleted;
 
-@property (nonatomic, strong) NSMapTable<CLLocationManager *, id<CLLocationManagerDelegate>> *coreLocationActiveManagers;
-@property (nonatomic, strong) NSMutableString *coreLocationStubbedServiceStatus;
 @property (nonatomic, strong) NSMutableString *notificationCenterStubbedAuthorizationStatus;
 #if SBTUITESTTUNNEL_HAS_UIKEYBOARD
 @property (nonatomic, assign) CGRect keyboardFrameInScreenCoordinates;
@@ -147,8 +145,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         sharedInstance.server = [[SBTWebServer alloc] init];
         sharedInstance.commandDispatchQueue = dispatch_queue_create("com.sbtuitesttunnel.queue.command", DISPATCH_QUEUE_SERIAL);
         sharedInstance.startupCompleted = NO;
-        sharedInstance.coreLocationActiveManagers = NSMapTable.weakToWeakObjectsMapTable;
-        sharedInstance.coreLocationStubbedServiceStatus = [NSMutableString string];
         sharedInstance.notificationCenterStubbedAuthorizationStatus = [NSMutableString stringWithString:[@(UNAuthorizationStatusAuthorized) stringValue]];
         sharedInstance.webSocketServers = [NSMutableDictionary dictionary];
 #if SBTUITESTTUNNEL_HAS_UIKEYBOARD
@@ -1622,7 +1618,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     #if !DISABLE_UITUNNEL_SWIZZLING
         BOOL stubSystemLocation = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
         if (stubSystemLocation) {
-            [CLLocationManager loadSwizzlesWithInstanceHashTable:self.coreLocationActiveManagers];
+            [CLLocationManager loadSwizzles];
         } else {
             [CLLocationManager removeSwizzles];
         }
@@ -1641,7 +1637,9 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:locationsData error:&unarchiveError];
         NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of CLLocation");
 
-        [CLLocationManager setStubbedCurrentLocation:[locations firstObject]];
+        // The client archives a nil location as NSNull
+        id location = locations.firstObject;
+        [CLLocationManager setStubbedCurrentLocation:[location isKindOfClass:[CLLocation class]] ? location : nil];
     #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
@@ -1650,11 +1648,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 - (NSDictionary *)commandCoreLocationStubAuthorizationStatus:(NSDictionary *)parameters
 {
     #if !DISABLE_UITUNNEL_SWIZZLING
-        NSString *authorizationStatus = parameters[SBTUITunnelObjectValueKey];
-        CLAuthorizationStatus status = (CLAuthorizationStatus)authorizationStatus.intValue;
+        CLAuthorizationStatus status = (CLAuthorizationStatus)[parameters[SBTUITunnelObjectValueKey] intValue];
 
-        [CLLocationManager setStubbedAuthorizationStatus:authorizationStatus];
-        for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
+        [CLLocationManager setStubbedAuthorizationStatus:status];
+        for (CLLocationManager *locationManager in [CLLocationManager sbt_activeManagersSnapshot]) {
             [locationManager sbt_performOnCreationThread:^{
                 id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
 
@@ -1682,10 +1679,10 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 {
     #if !DISABLE_UITUNNEL_SWIZZLING
         #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-            NSString *accuracyAuthorization = parameters[SBTUITunnelObjectValueKey];
+            CLAccuracyAuthorization accuracyAuthorization = (CLAccuracyAuthorization)[parameters[SBTUITunnelObjectValueKey] integerValue];
 
             [CLLocationManager setStubbedAccuracyAuthorization:accuracyAuthorization];
-            for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
+            for (CLLocationManager *locationManager in [CLLocationManager sbt_activeManagersSnapshot]) {
                 [locationManager sbt_performOnCreationThread:^{
                     id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
 
@@ -1702,9 +1699,11 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 - (NSDictionary *)commandCoreLocationStubServiceStatus:(NSDictionary *)parameters
 {
-    NSString *serviceStatus = parameters[SBTUITunnelObjectValueKey];
+    #if !DISABLE_UITUNNEL_SWIZZLING
+        BOOL enabled = [parameters[SBTUITunnelObjectValueKey] isEqualToString:@"YES"];
 
-    [self.coreLocationStubbedServiceStatus setString:serviceStatus];
+        [CLLocationManager setStubbedLocationServicesEnabled:enabled];
+    #endif
 
     return @{ SBTUITunnelResponseResultKey: @"YES" };
 }
@@ -1721,7 +1720,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSArray<CLLocation *> *locations = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:locationsData error:&unarchiveError];
         NSAssert(unarchiveError == nil, @"Error unarchiving NSArray of CLLocation");
 
-        for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
+        for (CLLocationManager *locationManager in [CLLocationManager sbt_activeManagersSnapshot]) {
             #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
                 if (@available(iOS 14.0, *)) {
                     switch (locationManager.authorizationStatus) {
@@ -1757,7 +1756,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         NSError *error = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSError class] fromData:paramData error:&unarchiveError];
         NSAssert(unarchiveError == nil, @"Error unarchiving NSError");
 
-        for (CLLocationManager *locationManager in self.coreLocationActiveManagers.keyEnumerator.allObjects) {
+        for (CLLocationManager *locationManager in [CLLocationManager sbt_activeManagersSnapshot]) {
             [locationManager sbt_performOnCreationThread:^{
                 id<CLLocationManagerDelegate> delegate = locationManager.stubbedDelegate;
 
