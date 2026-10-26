@@ -32,6 +32,7 @@ final class LocalHTTPServer {
     private let routes: [String: Response]
     private var hitsByPath: [String: Int] = [:]
     private var bodiesByPath: [String: [Data]] = [:]
+    private var headersByPath: [String: [[String: String]]] = [:]
 
     init(routes: [String: Response]) throws {
         self.routes = routes
@@ -77,6 +78,11 @@ final class LocalHTTPServer {
         queue.sync { bodiesByPath[path, default: []] }
     }
 
+    /// Received request headers, with lowercase field names.
+    func requestHeaders(_ path: String) -> [[String: String]] {
+        queue.sync { headersByPath[path, default: []] }
+    }
+
     private func handle(_ connection: NWConnection) {
         connection.start(queue: queue)
         receiveRequestHead(on: connection, buffer: Data())
@@ -118,12 +124,21 @@ final class LocalHTTPServer {
     }
 
     private func respond(toRequestHead head: Data, body requestBody: Data, on connection: NWConnection) {
-        let requestLine = String(decoding: head, as: UTF8.self).components(separatedBy: "\r\n").first ?? ""
+        let lines = String(decoding: head, as: UTF8.self).components(separatedBy: "\r\n")
+        let requestLine = lines.first ?? ""
         let requestLineParts = requestLine.split(separator: " ")
         let path = requestLineParts.count > 1 ? String(requestLineParts[1]) : "/"
 
+        var requestHeaders: [String: String] = [:]
+        for line in lines.dropFirst() {
+            let fields = line.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            guard fields.count == 2 else { continue }
+            requestHeaders[fields[0].lowercased()] = fields[1].trimmingCharacters(in: .whitespaces)
+        }
+
         hitsByPath[path, default: 0] += 1
         bodiesByPath[path, default: []].append(requestBody)
+        headersByPath[path, default: []].append(requestHeaders)
 
         let response = routes[path] ?? Response(statusCode: 404)
         var body = Data(response.body.utf8)
