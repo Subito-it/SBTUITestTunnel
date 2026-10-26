@@ -363,12 +363,28 @@ static dispatch_queue_t _connectionQueue;
 
 - (oneway void)_invokeRemoteBlock:(NSDictionary*)serializedBlock
 {
-	_DTXIPCDistantObject* distantObject;
-	id localBlock = [_DTXIPCRemoteBlockRegistry remoteBlockForIdentifier:serializedBlock[@"remoteBlockIdentifier"] distantObject:&distantObject];
-	_DTXIPCExportedObject* exportedObj = [_DTXIPCExportedObject _exportedObjectWithObject:localBlock connection:self serializedInvocation:serializedBlock];
-	if([distantObject _enqueueSynchronousExportedObjectInvocation:exportedObj] == NO)
+	NSString* identifier = serializedBlock[@"remoteBlockIdentifier"];
+	// Keep the decoder's registry lookup valid and the synchronous caller waiting
+	// until the reply has been queued, even if remote cleanup arrives meanwhile.
+	[_DTXIPCRemoteBlockRegistry retainRemoteBlock:identifier];
+	@try
 	{
-		[exportedObj invoke];
+		_DTXIPCDistantObject* distantObject;
+		id localBlock = [_DTXIPCRemoteBlockRegistry remoteBlockForIdentifier:identifier distantObject:&distantObject];
+		if(localBlock == nil)
+		{
+			// Cleanup may already have completed before dispatch started.
+			return;
+		}
+		_DTXIPCExportedObject* exportedObj = [_DTXIPCExportedObject _exportedObjectWithObject:localBlock connection:self serializedInvocation:serializedBlock];
+		if([distantObject _enqueueSynchronousExportedObjectInvocation:exportedObj] == NO)
+		{
+			[exportedObj invoke];
+		}
+	}
+	@finally
+	{
+		[_DTXIPCRemoteBlockRegistry releaseRemoteBlock:identifier];
 	}
 }
 
