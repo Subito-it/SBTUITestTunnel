@@ -1,6 +1,7 @@
 # SBTUITestTunnel
 
 [![UIKit Tests](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit.yml)
+[![UIKit SPM Tests](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit-spm.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/uikit-spm.yml)
 [![SwiftUI Tests](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/swiftui.yml/badge.svg)](https://github.com/Subito-it/SBTUITestTunnel/actions/workflows/swiftui.yml)
 
 [![Version](https://img.shields.io/cocoapods/v/SBTUITestTunnelServer)](https://cocoapods.org/pods/SBTUITestTunnel)
