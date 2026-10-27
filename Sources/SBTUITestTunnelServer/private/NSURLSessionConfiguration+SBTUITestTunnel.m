@@ -21,11 +21,16 @@
 #import "NSURLSessionConfiguration+SBTUITestTunnel.h"
 #import "../include/SBTProxyURLProtocol.h"
 
+@interface NSURLSessionConfiguration (SBTUITestTunnelOriginals)
++ (NSURLSessionConfiguration *)sbt_originalDefaultSessionConfiguration;
++ (NSURLSessionConfiguration *)sbt_originalEphemeralSessionConfiguration;
+@end
+
 @implementation NSURLSessionConfiguration (SBTUITestTunnel)
 
 + (NSURLSessionConfiguration *)swz_defaultSessionConfiguration
 {
-    NSURLSessionConfiguration *config = [self swz_defaultSessionConfiguration];
+    NSURLSessionConfiguration *config = [self sbt_originalDefaultSessionConfiguration];
     [self addSBTProxyProtocol:config];
     
     return config;
@@ -33,7 +38,7 @@
 
 + (NSURLSessionConfiguration *)swz_ephemeralSessionConfiguration
 {
-    NSURLSessionConfiguration *config = [self swz_ephemeralSessionConfiguration];
+    NSURLSessionConfiguration *config = [self sbt_originalEphemeralSessionConfiguration];
     [self addSBTProxyProtocol:config];
     
     return config;
@@ -46,13 +51,10 @@
     sessionConfig.protocolClasses = urlProtocolClasses;
 }
 
-+ (void)load
++ (void)sbt_installSessionConfigurationSwizzles
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelClassSwizzle(self, @selector(defaultSessionConfiguration), @selector(swz_defaultSessionConfiguration));
-        SBTTestTunnelClassSwizzle(self, @selector(ephemeralSessionConfiguration), @selector(swz_ephemeralSessionConfiguration));
-    });
+    SBTTestTunnelClassSwizzleOnce(NSURLSessionConfiguration.class, @selector(defaultSessionConfiguration), @selector(swz_defaultSessionConfiguration), @selector(sbt_originalDefaultSessionConfiguration));
+    SBTTestTunnelClassSwizzleOnce(NSURLSessionConfiguration.class, @selector(ephemeralSessionConfiguration), @selector(swz_ephemeralSessionConfiguration), @selector(sbt_originalEphemeralSessionConfiguration));
 }
 
 @end

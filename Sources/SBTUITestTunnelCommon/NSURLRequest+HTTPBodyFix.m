@@ -19,6 +19,12 @@
 #import "include/SBTSwizzleHelpers.h"
 #import "include/SBTRequestPropertyStorage.h"
 
+@interface NSURLRequest (SBTUITestTunnelOriginals)
+- (NSData *)sbt_originalHTTPBody;
+- (id)sbt_originalCopyWithZone:(NSZone *)zone NS_RETURNS_RETAINED;
+- (id)sbt_originalMutableCopyWithZone:(NSZone *)zone NS_RETURNS_RETAINED;
+@end
+
 @implementation NSURLRequest (HTTPBodyFix)
 
 // In Xcode 15+ CFNetwork emits a runtime warning when an upload task contains a body:
@@ -124,14 +130,14 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
         return nil;
     }
 
-    NSData *ret = [self swz_HTTPBody];
+    NSData *ret = [self sbt_originalHTTPBody];
         
     return ret ?: [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
 }
 
-- (id)swz_copyWithZone:(NSZone *)zone
+- (id)swz_copyWithZone:(NSZone *)zone NS_RETURNS_RETAINED
 {
-    NSURLRequest *ret = [self swz_copyWithZone:zone];
+    NSURLRequest *ret = [self sbt_originalCopyWithZone:zone];
     
     if ([ret isKindOfClass:[NSMutableURLRequest class]]) {
         NSData *body = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
@@ -143,9 +149,9 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     return ret;
 }
 
-- (id)swz_mutableCopyWithZone:(NSZone *)zone
+- (id)swz_mutableCopyWithZone:(NSZone *)zone NS_RETURNS_RETAINED
 {
-    NSMutableURLRequest *ret = [self swz_mutableCopyWithZone:zone];
+    NSMutableURLRequest *ret = [self sbt_originalMutableCopyWithZone:zone];
     
     if ([ret isKindOfClass:[NSMutableURLRequest class]]) {
         NSData *body = [SBTRequestPropertyStorage propertyForKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:self];
@@ -157,14 +163,11 @@ NSString * const SBTUITunneledNSURLProtocolIsUploadTaskKey = @"SBTUITunneledNSUR
     return ret;
 }
 
-+ (void)load
++ (void)sbt_installHTTPBodySwizzles
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(HTTPBody), @selector(swz_HTTPBody));
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(copyWithZone:), @selector(swz_copyWithZone:));
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(mutableCopyWithZone:), @selector(swz_mutableCopyWithZone:));
-    });
+    SBTTestTunnelInstanceSwizzleOnce(NSURLRequest.class, @selector(HTTPBody), @selector(swz_HTTPBody), @selector(sbt_originalHTTPBody));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLRequest.class, @selector(copyWithZone:), @selector(swz_copyWithZone:), @selector(sbt_originalCopyWithZone:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLRequest.class, @selector(mutableCopyWithZone:), @selector(swz_mutableCopyWithZone:), @selector(sbt_originalMutableCopyWithZone:));
 }
 
 - (nullable NSData *)sbt_extractHTTPBody

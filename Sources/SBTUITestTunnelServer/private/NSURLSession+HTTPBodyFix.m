@@ -18,6 +18,15 @@
 
 #import "NSURLSession+HTTPBodyFix.h"
 
+@interface NSURLSession (SBTUITestTunnelOriginals)
+- (NSURLSessionUploadTask *)sbt_originalUploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData;
+- (NSURLSessionUploadTask *)sbt_originalUploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL;
+- (NSURLSessionUploadTask *)sbt_originalUploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData completionHandler:(void (^)(NSData *, NSURLResponse *, NSError *))completionHandler;
+- (NSURLSessionUploadTask *)sbt_originalUploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL completionHandler:(void (^)(NSData *, NSURLResponse *, NSError *))completionHandler;
+- (NSURLSessionDataTask *)sbt_originalDataTaskWithRequest:(NSURLRequest *)request;
+- (NSURLSessionDataTask *)sbt_originalDataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData *, NSURLResponse *, NSError *))completionHandler;
+@end
+
 @implementation NSURLSession (HTTPBodyFix)
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData
@@ -32,7 +41,7 @@
         [requestWithoutBody sbt_markUploadTaskRequest];
     }
     
-    return [self swz_uploadTaskWithRequest:requestWithoutBody fromData:bodyData];
+    return [self sbt_originalUploadTaskWithRequest:requestWithoutBody fromData:bodyData];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL
@@ -50,7 +59,7 @@
         }
     }
     
-    return [self swz_uploadTaskWithRequest:requestWithoutBody fromFile:fileURL];
+    return [self sbt_originalUploadTaskWithRequest:requestWithoutBody fromFile:fileURL];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromData:(NSData *)bodyData completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
@@ -65,12 +74,12 @@
         [requestWithoutBody sbt_markUploadTaskRequest];
     }
 
-    return [self swz_uploadTaskWithRequest:requestWithoutBody fromData:bodyData completionHandler:completionHandler];
+    return [self sbt_originalUploadTaskWithRequest:requestWithoutBody fromData:bodyData completionHandler:completionHandler];
 }
 
 - (NSURLSessionUploadTask *)swz_uploadTaskWithRequest:(NSURLRequest *)request fromFile:(NSURL *)fileURL completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 {    
-    return [self swz_uploadTaskWithRequest:request fromFile:fileURL completionHandler:completionHandler];
+    return [self sbt_originalUploadTaskWithRequest:request fromFile:fileURL completionHandler:completionHandler];
 }
 
 - (NSURLSessionDataTask *)swz_dataTaskWithRequest:(NSURLRequest *)request
@@ -79,7 +88,7 @@
         [SBTRequestPropertyStorage setProperty:request.HTTPBody forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
     }
     
-    return [self swz_dataTaskWithRequest:request];
+    return [self sbt_originalDataTaskWithRequest:request];
 }
 
 - (NSURLSessionDataTask *)swz_dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler
@@ -88,22 +97,17 @@
         [SBTRequestPropertyStorage setProperty:request.HTTPBody forKey:SBTUITunneledNSURLProtocolHTTPBodyKey inRequest:(NSMutableURLRequest *)request];
     }
     
-    return [self swz_dataTaskWithRequest:request completionHandler:completionHandler];
+    return [self sbt_originalDataTaskWithRequest:request completionHandler:completionHandler];
 }
 
-+ (void)load
++ (void)sbt_installHTTPBodySwizzles
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(uploadTaskWithRequest:fromData:), @selector(swz_uploadTaskWithRequest:fromData:));
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(uploadTaskWithRequest:fromFile:), @selector(swz_uploadTaskWithRequest:fromFile:));
-        
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(uploadTaskWithRequest:fromData:completionHandler:), @selector(swz_uploadTaskWithRequest:fromData:completionHandler:));
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(uploadTaskWithRequest:fromFile:completionHandler:), @selector(swz_uploadTaskWithRequest:fromFile:completionHandler:));
-        
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(dataTaskWithRequest:), @selector(swz_dataTaskWithRequest:));
-        SBTTestTunnelInstanceSwizzle(self.class, @selector(dataTaskWithRequest:completionHandler:), @selector(swz_dataTaskWithRequest:completionHandler:));
-    });
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(uploadTaskWithRequest:fromData:), @selector(swz_uploadTaskWithRequest:fromData:), @selector(sbt_originalUploadTaskWithRequest:fromData:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(uploadTaskWithRequest:fromFile:), @selector(swz_uploadTaskWithRequest:fromFile:), @selector(sbt_originalUploadTaskWithRequest:fromFile:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(uploadTaskWithRequest:fromData:completionHandler:), @selector(swz_uploadTaskWithRequest:fromData:completionHandler:), @selector(sbt_originalUploadTaskWithRequest:fromData:completionHandler:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(uploadTaskWithRequest:fromFile:completionHandler:), @selector(swz_uploadTaskWithRequest:fromFile:completionHandler:), @selector(sbt_originalUploadTaskWithRequest:fromFile:completionHandler:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(dataTaskWithRequest:), @selector(swz_dataTaskWithRequest:), @selector(sbt_originalDataTaskWithRequest:));
+    SBTTestTunnelInstanceSwizzleOnce(NSURLSession.class, @selector(dataTaskWithRequest:completionHandler:), @selector(swz_dataTaskWithRequest:completionHandler:), @selector(sbt_originalDataTaskWithRequest:completionHandler:));
 }
 
 @end

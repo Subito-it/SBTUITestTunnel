@@ -20,6 +20,9 @@
 
 @interface NSURLRequest (HTTPBodyFix)
 
+/// Installs request-body interception when the tunnel is explicitly activated.
++ (void)sbt_installHTTPBodySwizzles;
+
 /// Reads data from an NSInputStream
 + (nullable NSData *)sbt_readFromBodyStream:(nullable NSInputStream *)stream;
 

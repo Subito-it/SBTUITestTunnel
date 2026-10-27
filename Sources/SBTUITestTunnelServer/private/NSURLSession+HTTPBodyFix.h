@@ -18,4 +18,6 @@
 
 @interface NSURLSession (HTTPBodyFix)
 
++ (void)sbt_installHTTPBodySwizzles;
+
 @end

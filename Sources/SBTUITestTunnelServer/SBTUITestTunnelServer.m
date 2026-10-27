@@ -26,6 +26,9 @@
 #import "include/SBTProxyURLProtocol.h"
 #import "private/CLLocationManager+Swizzles.h"
 #import "private/UNUserNotificationCenter+Swizzles.h"
+#import "private/NSURLSession+HTTPBodyFix.h"
+#import "private/NSURLSessionConfiguration+SBTUITestTunnel.h"
+#import "private/UIViewController+Swizzles.h"
 #import "private/UITextField+DisableAutocomplete.h"
 #import "private/UIView+Extensions.h"
 #import "WebSocket/SBTWebSocketServer.h"
@@ -36,6 +39,17 @@ static NSRunLoopMode const SBTUITestTunnelStartupRunLoopMode = @"com.sbtuitesttu
 static CFRunLoopSourceRef SBTUITestTunnelStartupRunLoopSource;
 
 static void SBTUITestTunnelPerformStartupRunLoopSource(void *info) {}
+
+static void SBTInstallTunnelSwizzles(void)
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        [NSURLRequest sbt_installHTTPBodySwizzles];
+        [NSURLSession sbt_installHTTPBodySwizzles];
+        [NSURLSessionConfiguration sbt_installSessionConfigurationSwizzles];
+        [UIViewController sbt_installPreviewingSwizzle];
+    });
+}
 
 static BOOL SBTApplyUIAnimationSpeedToKeyWindows(NSInteger animationSpeed)
 {
@@ -191,6 +205,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
         return NO;
     }
 
+    if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
+        NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
+        return NO;
+    }
+
+    SBTInstallTunnelSwizzles();
+
     // A dedicated source is scoped to the startup mode and makes runMode:
     // return after it is handled. A queued run-loop block would execute in the
     // right mode, but would not itself end that runMode: invocation.
@@ -229,11 +250,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     [self processLaunchOptionsIfNeeded];
 
     [self.ipcProxy serverDidConnect:nil];
-
-    if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
-        NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
-        return NO;
-    }
 
     if ([self waitForStartupCompleted]) {
         NSLog(@"[SBTUITestTunnel] Up and running!");
@@ -311,11 +327,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     }];
 
     [self processLaunchOptionsIfNeeded];
-
-    if (![[NSProcessInfo processInfo].arguments containsObject:SBTUITunneledApplicationLaunchSignal]) {
-        NSLog(@"[SBTUITestTunnel] Signal launch option missing, safely landing!");
-        return NO;
-    }
 
     NSDictionary *serverOptions = [NSMutableDictionary dictionary];
 
@@ -2085,6 +2096,7 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
 
 + (void)_connectionlessReset
 {
+    SBTInstallTunnelSwizzles();
     [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
     [self.sharedInstance reset];
 }
