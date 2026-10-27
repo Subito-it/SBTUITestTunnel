@@ -62,6 +62,27 @@ app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesyst
 }
 ```
 
+### Async Tests
+
+Mark async UI tests with `@MainActor` and call the same launch methods:
+
+```swift
+@MainActor
+func testStartupCommands() async {
+    app.launchTunnel {
+        self.app.userDefaultsSetObject("ready" as NSString, forKey: "test_state")
+    }
+
+    await Task.yield()
+
+    XCTAssertEqual(app.userDefaultsObject(forKey: "test_state") as? String, "ready")
+}
+```
+
+Launch waits synchronously until the startup block and tunnel handshake finish.
+The startup block runs on the main thread and must be synchronous; await
+asynchronous setup before calling `launchTunnel`.
+
 ---
 
 ## 🌐 Network Features
