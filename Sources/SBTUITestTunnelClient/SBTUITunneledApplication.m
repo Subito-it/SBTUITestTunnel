@@ -395,6 +395,11 @@
     return [self.client scrollContentWithIdentifier:identifier toOffset:targetOffset animated:flag];
 }
 
+- (BOOL)scrollContentToEndWithIdentifier:(nonnull NSString *)identifier animated:(BOOL)flag
+{
+    return [self.client scrollContentToEndWithIdentifier:identifier animated:flag];
+}
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

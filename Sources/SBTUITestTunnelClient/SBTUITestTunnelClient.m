@@ -899,6 +899,20 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [self scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
 }
 
+- (BOOL)scrollContentToEndWithIdentifier:(NSString *)identifier animated:(BOOL)flag
+{
+    NSAssert(identifier.length > 0, @"Invalid empty identifier!");
+    XCUIElement *element = [self scrollableElementWithIdentifier:identifier];
+    if (!element.exists) {
+        return NO;
+    }
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewToEnd params:params] boolValue];
+}
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

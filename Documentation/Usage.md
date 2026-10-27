@@ -337,11 +337,17 @@ app.scrollContent(withIdentifier: "myList",
 app.scrollContent(withIdentifier: "myScrollView", 
                  toOffset: 0.75,  // 75% down
                  animated: true)
+
+// ⏬ Scroll to the end of the content
+app.scrollContentToEnd(withIdentifier: "myScrollView",
+                       animated: true)
 ```
 
 Identifier scrolling can reveal off-screen SwiftUI content through bounded paging. If the server cannot locate the target, the client searches and scrolls within the identified container using XCTest. The operation returns `false` when the container or target cannot be found within its search limit.
 
 Index scrolling requires a `UITableView` or `UICollectionView`; it can be used with a SwiftUI `List` when the OS exposes one of those backing views. SwiftUI `ScrollView`, `LazyVGrid`, and `LazyHStack` do not expose a reliable item index through this API: use target identifiers or normalized offsets instead. Offset `0` means the leading edge and `1` the trailing edge, accounting for content insets.
+
+Scrolling to the end pages forward until no further scrolling is possible, so it also reaches content that grows lazily while scrolling, where offset `1` stops at the end of the content laid out so far. A view that is already at the end doesn't move.
 
 ### 📋 Table Views
 

@@ -120,6 +120,7 @@ extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScr
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewByPage;
+extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewToEnd;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandXCUIExtensionForceTouchView;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubbing;
 extern NSString * _Nonnull const SBTUITunneledApplicationCommandCoreLocationStubManagerLocation;

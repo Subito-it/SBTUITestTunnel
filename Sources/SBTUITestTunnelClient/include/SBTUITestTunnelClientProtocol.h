@@ -602,6 +602,18 @@
  */
 - (BOOL)scrollContentWithIdentifier:(nonnull NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag;
 
+/**
+ *  Scroll any scrollable content view to the end of its content (bottom or right, depending on scroll direction).
+ *  Pages forward until no further scrolling is possible, so content that grows lazily while scrolling is reached too.
+ *  The view doesn't move if it is already at the end.
+ *
+ *  @param identifier accessibilityIdentifier of the scrollable view
+ *  @param flag pass YES to animate the scroll; otherwise, pass NO
+ *
+ *  @return `YES` on success, `NO` if the view is not found or the end cannot be reached within the timeout
+ */
+- (BOOL)scrollContentToEndWithIdentifier:(nonnull NSString *)identifier animated:(BOOL)flag NS_SWIFT_NAME(scrollContentToEnd(withIdentifier:animated:));
+
 #pragma mark - XCUITest 3D touch extensions
 
 /**

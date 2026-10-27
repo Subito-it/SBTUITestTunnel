@@ -76,6 +76,24 @@ class ScrollContentTests: XCTestCase {
         XCTAssert(app.staticTexts["Label 50"].isHittable)
     }
 
+    func testScrollContentTableViewToEnd() {
+        openTestSection(identifier: "showExtensionTable1")
+
+        wait { self.app.staticTexts["Label 5"].isHittable }
+        XCTAssertFalse(app.staticTexts["Label 99"].isHittable)
+
+        XCTAssertTrue(app.scrollContentToEnd(withIdentifier: "table", animated: true))
+
+        let last = app.staticTexts["Label 99"]
+        XCTAssert(last.isHittable)
+        XCTAssertFalse(app.staticTexts["Label 5"].isHittable)
+
+        // Already at the end: succeeds without moving.
+        let lastFrame = last.frame
+        XCTAssertTrue(app.scrollContentToEnd(withIdentifier: "table", animated: true))
+        XCTAssertEqual(last.frame.minY, lastFrame.minY, accuracy: 1)
+    }
+
     func testScrollContentCollectionViewVertical() {
         openTestSection(identifier: "showExtensionCollectionViewVertical")
 
@@ -175,6 +193,7 @@ class ScrollContentTests: XCTestCase {
         XCTAssertFalse(app.scrollContent(withIdentifier: "missing-scroll-container", toElementIndex: 0, animated: false))
         XCTAssertFalse(app.scrollContent(withIdentifier: "missing-scroll-container", toOffset: 1, animated: false))
         XCTAssertFalse(app.scrollScrollView(withIdentifierByPage: "missing-scroll-container", animated: false))
+        XCTAssertFalse(app.scrollContentToEnd(withIdentifier: "missing-scroll-container", animated: false))
     }
 
     func testScrollContentMissingTarget() {
