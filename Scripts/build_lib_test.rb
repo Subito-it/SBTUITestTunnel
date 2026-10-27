@@ -91,6 +91,46 @@ class BuildTest < Minitest::Test
     assert_equal({family: 'iPad'}, invocation.last)
   end
 
+  def test_build_ui_tests_uses_requested_derived_data_path
+    invocation = nil
+    Build.stub(:make_destination, 'platform=iOS Simulator,id=test-udid') do
+      Build.stub(:system, ->(*arguments) { invocation = arguments; true }) do
+        assert Build.build_ui_tests('App.xcworkspace', 'My Scheme', derived_data_path: 'Derived Data')
+      end
+    end
+    arguments = Shellwords.split(invocation.last.delete_suffix(' | xcpretty'))
+    assert_equal 'build-for-testing', arguments[1]
+    assert_equal 'Derived Data', arguments[arguments.index('-derivedDataPath') + 1]
+  end
+
+  def test_prebuilt_ui_tests_run_the_scheme_xctestrun_on_requested_family
+    Dir.mktmpdir('sbt-build-test') do |products|
+      xctestrun = File.join(products, 'MultiSceneExample_iphonesimulator26.2-arm64.xctestrun')
+      FileUtils.touch(xctestrun)
+      FileUtils.touch(File.join(products, 'MultiSceneExample_Other_iphonesimulator26.2-arm64.xctestrun'))
+      invocation = nil
+      family = nil
+      Build.stub(:make_destination, ->(**options) { family = options[:family]; 'platform=iOS Simulator,id=ipad' }) do
+        Build.stub(:system, ->(*arguments) { invocation = arguments; true }) do
+          assert Build.run_ui_tests_without_building(products, 'MultiSceneExample', family: 'iPad')
+        end
+      end
+      arguments = Shellwords.split(invocation.last.delete_suffix(' | xcpretty'))
+      assert_equal 'iPad', family
+      assert_equal 'test-without-building', arguments[1]
+      assert_equal xctestrun, arguments[arguments.index('-xctestrun') + 1]
+      refute_includes arguments, '-scheme'
+      assert_equal 'MultiSceneExample.xcresult', arguments[arguments.index('-resultBundlePath') + 1]
+    end
+  end
+
+  def test_missing_xctestrun_fails_with_scheme_name
+    Dir.mktmpdir('sbt-build-test') do |products|
+      error = assert_raises(RuntimeError) { Build.find_xctestrun(products, 'SBTUITestTunnel_Tests') }
+      assert_includes error.message, 'SBTUITestTunnel_Tests'
+    end
+  end
+
   private
 
   def device(name, udid, available = true)

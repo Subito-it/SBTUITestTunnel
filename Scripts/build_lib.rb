@@ -9,15 +9,33 @@ module Build
   UITESTS_SCHEME = 'SBTUITestTunnel_Tests'
   UITESTS_NOSWIZZ_SCHEME = 'SBTUITestTunnel_NoSwizzlingTests'
   UITESTS_MULTISCENE_SCHEME = 'MultiSceneExample'
+  TEST_ARGUMENTS = ['-retry-tests-on-failure', '-test-iterations', '5'].freeze
 
   def self.build_app(project_path, scheme = EXAMPLE_APP_SCHEME, simulator_name = nil, simulator_os = nil)
     puts "⏳ Building app for scheme '#{scheme}'..."
     run_xcodebuild('clean build', project_path, scheme, simulator_name, simulator_os)
   end
 
-  def self.build_ui_tests(project_path, scheme = UITESTS_SCHEME, simulator_name = nil, simulator_os = nil)
+  def self.build_ui_tests(project_path, scheme = UITESTS_SCHEME, simulator_name = nil, simulator_os = nil,
+                          derived_data_path: nil)
     puts "⏳ Building UI tests for scheme '#{scheme}'..."
-    run_xcodebuild('build-for-testing', project_path, scheme, simulator_name, simulator_os)
+    run_xcodebuild('build-for-testing', project_path, scheme, simulator_name, simulator_os,
+                   derived_data_path: derived_data_path)
+  end
+
+  def self.run_ui_tests_without_building(products_path, scheme, family: 'iPhone')
+    puts "⏳ Running prebuilt UI tests for scheme '#{scheme}'..."
+    command = ['xcodebuild', 'test-without-building', '-xctestrun', find_xctestrun(products_path, scheme),
+               *TEST_ARGUMENTS, '-destination', make_destination(family: family),
+               '-resultBundlePath', make_result_bundle_path(scheme)]
+    execute(command)
+  end
+
+  def self.find_xctestrun(products_path, scheme)
+    matches = Dir.glob(File.join(products_path, "#{scheme}_iphonesimulator*.xctestrun"))
+    raise "Expected one xctestrun for '#{scheme}' in '#{products_path}', found #{matches.length}" unless matches.length == 1
+
+    matches.first
   end
 
   def self.run_ui_tests(project_path, scheme = UITESTS_SCHEME, simulator_name = nil, simulator_os = nil)
@@ -39,14 +57,19 @@ module Build
     run_xcodebuild('test', project_path, UITESTS_MULTISCENE_SCHEME, family: 'iPad')
   end
 
-  def self.run_xcodebuild(action, path, scheme_name, simulator_name = nil, simulator_os = nil, family: 'iPhone')
+  def self.run_xcodebuild(action, path, scheme_name, simulator_name = nil, simulator_os = nil, family: 'iPhone',
+                          derived_data_path: nil)
     destination = make_destination(simulator_name, simulator_os, family: family)
     project_type = path.end_with?('.xcworkspace') ? '-workspace' : '-project'
     result_bundle_path = make_result_bundle_path(scheme_name)
     command = ['xcodebuild', *Shellwords.split(action), '-scheme', scheme_name,
-               project_type, path, '-sdk', 'iphonesimulator', '-retry-tests-on-failure',
-               '-test-iterations', '5', '-destination', destination,
-               '-resultBundlePath', result_bundle_path]
+               project_type, path, '-sdk', 'iphonesimulator', *TEST_ARGUMENTS,
+               '-destination', destination, '-resultBundlePath', result_bundle_path]
+    command += ['-derivedDataPath', derived_data_path] if derived_data_path
+    execute(command)
+  end
+
+  def self.execute(command)
     # Preserve xcodebuild failures even if xcpretty exits successfully.
     result = system('/bin/bash', '-o', 'pipefail', '-c', "#{Shellwords.join(command)} | xcpretty")
     puts result ? 'XcodeBuild status: ✅ SUCCESS' : 'XcodeBuild status: 🚨 FAILED'

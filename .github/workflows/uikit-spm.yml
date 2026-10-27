@@ -1,0 +1,35 @@
+name: UIKit SPM Tests
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-15
+    name: UIKit SPM Tests
+    env:
+      xcode_version: "26.2"
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate UIKit SPM project
+        run: xcodegen generate --spec Examples/UIKit/SPM/project.yml
+      - name: Build UIKit SPM App
+        run: Scripts/build_app.rb Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel
+      - name: Run UIKit SPM UI Tests
+        id: uitests
+        run: Scripts/run_uitests.rb Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel_Tests
+      - name: Collect UIKit SPM UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: SBTUITestTunnel_UIKit_SPM_Tests.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: ${{ !cancelled() && steps.uitests.outcome != 'skipped' }}

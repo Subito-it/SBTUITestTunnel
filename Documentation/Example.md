@@ -53,6 +53,14 @@ Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftU
 
 An unavailable requested device or runtime fails with an error. Results are written to `<scheme>.xcresult` in the current directory.
 
+To build several UIKit suites once and run them separately, as CI does, build them into a shared derived data folder and then run each suite from the build products:
+
+```bash
+Scripts/build_uitests_products.rb Examples/UIKit/SBTUITestTunnel.xcworkspace DerivedData SBTUITestTunnel_Tests SBTUITestTunnel_NoSwizzlingTests MultiSceneExample
+Scripts/run_prebuilt_uitests.rb DerivedData/Build/Products SBTUITestTunnel_Tests
+Scripts/run_prebuilt_uitests.rb DerivedData/Build/Products MultiSceneExample iPad
+```
+
 ## Exploring the Tests
 
 `Examples/SharedUITests` contains the tests used by both apps:
