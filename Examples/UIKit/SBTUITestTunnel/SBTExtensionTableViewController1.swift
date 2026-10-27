@@ -24,6 +24,15 @@ class SBTExtensionTableViewController1: UITableViewController {
         tableView.register(LabelTableViewCell.self, forCellReuseIdentifier: "labelCell")
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Picker-like lists let the last row scroll up to the top with a bottom inset almost as tall as the table.
+        if ProcessInfo.processInfo.arguments.contains("--large-bottom-inset") {
+            let safeArea = tableView.safeAreaInsets
+            tableView.contentInset.bottom = tableView.bounds.height - safeArea.top - safeArea.bottom - tableView.rowHeight
+        }
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {

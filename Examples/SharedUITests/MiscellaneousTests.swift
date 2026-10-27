@@ -401,6 +401,22 @@ class MiscellaneousTests: XCTestCase {
             XCTAssertTrue(target.isHittable)
         }
 
+        func testScrollContentToEndInLazilyGrowingScrollView() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionGrowingScrollView")
+
+            XCTAssertTrue(app.scrollViews["growingScrollView"].waitForExistence(timeout: 5))
+
+            // The initial contentSize ends at row 29: the last row is reachable only by growing it.
+            let last = app.staticTexts["99"]
+            XCTAssertFalse(last.isHittable)
+
+            XCTAssertTrue(app.scrollContentToEnd(withIdentifier: "growingScrollView", animated: false))
+
+            XCTAssertTrue(last.isHittable)
+        }
+
         func testScrollViewScrollToOffset() {
             app.launchTunnel()
 

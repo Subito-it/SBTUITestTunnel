@@ -1374,10 +1374,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
     CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:direction];
     CGFloat currentOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
-    UIEdgeInsets insets = scrollView.adjustedContentInset;
+    // Pages must not skip what bars and system UI cover, which the safe area
+    // reports. adjustedContentInset isn't used: it also includes contentInset,
+    // which apps often set as extra scrolling room larger than the viewport.
+    UIEdgeInsets obscured = scrollView.safeAreaInsets;
     CGFloat pageSize = isVertical
-        ? scrollView.bounds.size.height - insets.top - insets.bottom
-        : scrollView.bounds.size.width - insets.left - insets.right;
+        ? scrollView.bounds.size.height - obscured.top - obscured.bottom
+        : scrollView.bounds.size.width - obscured.left - obscured.right;
     pageSize = MAX(1.0, pageSize * 0.9);
 
     if (currentOffset < maxOffset - 0.5) {
@@ -1511,6 +1514,35 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL success = completed && result;
     return @{ SBTUITunnelResponseResultKey: success ? @"YES": @"NO",
               SBTUITunnelResponseDebugKey: success ? @"" : @"element not found or already at end!" };
+}
+
+- (NSDictionary *)commandScrollScrollViewToEnd:(NSDictionary *)parameters
+{
+    NSString *elementIdentifier = parameters[SBTUITunnelObjectKey];
+    BOOL animated = [parameters[SBTUITunnelObjectAnimatedKey] boolValue];
+    __block BOOL result = NO;
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    NSTimeInterval deadline = CFAbsoluteTimeGetCurrent() + 9.0;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIScrollView *scrollView = [self findVisibleScrollViewWithIdentifier:elementIdentifier];
+        if (scrollView != nil) {
+            // Paging (rather than jumping to the current maxOffset) lets lazy
+            // content grow until the end of the content is really reached.
+            while (CFAbsoluteTimeGetCurrent() < deadline) {
+                if (![self advanceScrollView:scrollView direction:scrollView.suggestedScrollDirection animated:animated]) {
+                    result = YES;
+                    break;
+                }
+            }
+        }
+        dispatch_semaphore_signal(sem);
+    });
+
+    BOOL completed = dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC))) == 0;
+    BOOL success = completed && result;
+    return @{ SBTUITunnelResponseResultKey: success ? @"YES": @"NO",
+              SBTUITunnelResponseDebugKey: success ? @"" : @"element not found or end not reached!" };
 }
 
 - (NSDictionary *)commandScrollTableView:(NSDictionary *)parameters
