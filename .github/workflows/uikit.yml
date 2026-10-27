@@ -1,0 +1,70 @@
+name: UIKit Tests
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-15
+    name: UIKit Tests
+    env:
+      xcode_version: "26.2"
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Check build scripts
+        run: ruby Scripts/build_lib_test.rb
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate UIKit projects
+        run: |
+          xcodegen generate --spec Examples/UIKit/project.yml
+          xcodegen generate --spec Examples/UIKit/SPM/project.yml
+          cd Examples/UIKit
+          pod install --verbose
+      - name: Build UIKit App
+        run: Scripts/build_app.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel
+      - name: Run UIKit UI Tests
+        id: uitests
+        run: Scripts/run_uitests.rb Examples/UIKit/SBTUITestTunnel.xcworkspace SBTUITestTunnel_Tests
+      - name: Collect UIKit UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: SBTUITestTunnel_UIKit_Tests.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: ${{ !cancelled() && steps.uitests.outcome != 'skipped' }}
+      - name: Run UIKit No Swizzling UI Tests
+        id: uitests_no_swizzling
+        run: Scripts/run_uitests_no_swizzling.rb Examples/UIKit/SBTUITestTunnel.xcworkspace
+      - name: Collect UIKit No Swizzling UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: SBTUITestTunnel_UIKit_NoSwizzling.xcresult
+          path: SBTUITestTunnel_NoSwizzlingTests.xcresult
+        if: ${{ !cancelled() && steps.uitests_no_swizzling.outcome != 'skipped' }}
+      - name: Run UIKit multi-scene UI Tests on iPad
+        id: uitests_multiscene
+        run: Scripts/run_uitests_multiscene.rb Examples/UIKit/SBTUITestTunnel.xcworkspace
+      - name: Collect multi-scene UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: MultiSceneExample_iOS.xcresult
+          path: MultiSceneExample.xcresult
+        if: ${{ !cancelled() && steps.uitests_multiscene.outcome != 'skipped' }}
+      - name: Build UIKit SPM App
+        run: Scripts/build_app.rb Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel
+      - name: Run UIKit SPM UI Tests
+        id: uitests_spm
+        run: Scripts/run_uitests.rb Examples/UIKit/SPM/SBTUITestTunnel.xcodeproj SBTUITestTunnel_Tests
+      - name: Collect UIKit SPM UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: SBTUITestTunnel_UIKit_SPM_Tests.xcresult
+          path: SBTUITestTunnel_Tests.xcresult
+        if: ${{ !cancelled() && steps.uitests_spm.outcome != 'skipped' }}

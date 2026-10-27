@@ -117,6 +117,7 @@ NSString * const SBTUITunneledApplicationCommandStartupCommandsCompleted = @"com
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollTableView = @"commandScrollTableView";
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollCollectionView = @"commandScrollCollectionView";
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView = @"commandScrollScrollView";
+NSString * const SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewByPage = @"commandScrollScrollViewByPage";
 NSString * const SBTUITunneledApplicationCommandXCUIExtensionForceTouchView = @"commandForceTouchPopView";
 NSString * const SBTUITunneledApplicationCommandCoreLocationStubbing = @"commandCoreLocationStubbing";
 NSString * const SBTUITunneledApplicationCommandCoreLocationStubManagerLocation = @"commandCoreLocationStubManagerLocation";

@@ -1,0 +1,496 @@
+// MiscellaneousTests.swift
+//
+// Copyright (C) 2016 Subito.it S.r.l (www.subito.it)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+import SBTUITestTunnelClient
+import SBTUITestTunnelServer
+import XCTest
+
+class MiscellaneousTests: XCTestCase {
+    func testLaunchTimeWithStubs() {
+        func stubAndGetDuration(amount: Int) -> CFAbsoluteTime {
+            let start = CFAbsoluteTimeGetCurrent()
+            for _ in 1 ... amount {
+                app.stubRequests(
+                    matching: SBTRequestMatch(url: "something", method: "GET"),
+                    response: SBTStubResponse(response: Data(), returnCode: 200)
+                )
+            }
+            return CFAbsoluteTimeGetCurrent() - start
+        }
+
+        var durations: [CFAbsoluteTime] = []
+        app.launchTunnel {
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+            durations.append(stubAndGetDuration(amount: 10))
+        }
+
+        // Median is more noise-resistant than the first sample on loaded CI runners.
+        let sorted = durations.sorted()
+        let median = sorted[sorted.count / 2]
+        let referenceMetric = median * 2
+        XCTAssertTrue(
+            durations.allSatisfy { $0 < referenceMetric },
+            "Stubbing took longer than expected: metrics \(durations) are higher than the reference \(referenceMetric)"
+        )
+    }
+
+    func testStartupCommands() {
+        let userDefaultsKey = "test_ud_key"
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+
+        app.launchTunnel {
+            self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
+            self.app.setUserInterfaceAnimationsEnabled(false)
+        }
+
+        XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultsKey) as! String)
+    }
+
+    func testBatchRemovalForProxyRuleTypes() throws {
+        app.launchTunnel()
+
+        let match = SBTRequestMatch(url: "batch-removal.example/.*")
+        let response = SBTStubResponse(response: Data(), returnCode: 200)
+        let rewrite = SBTRewrite(urlReplacement: [SBTRewriteReplacement(find: "before", replace: "after")])
+
+        let stubIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        }
+        let rewriteIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.rewriteRequests(matching: match, rewrite: rewrite))
+        }
+        let monitorIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.monitorRequests(matching: match))
+        }
+        let throttleIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.throttleRequests(matching: match, responseTime: 0))
+        }
+        let cookieIDs = try (0 ..< 2).map { _ in
+            try XCTUnwrap(app.blockCookiesInRequests(matching: match))
+        }
+
+        XCTAssertEqual(app.stubRequestsAll().count, stubIDs.count)
+        XCTAssertTrue(app.stubRequestsRemove(ids: stubIDs))
+        XCTAssertTrue(app.rewriteRequestsRemove(withIds: rewriteIDs))
+        XCTAssertTrue(app.monitorRequestRemove(withIds: monitorIDs))
+        XCTAssertTrue(app.throttleRequestRemove(withIds: throttleIDs))
+        XCTAssertTrue(app.blockCookiesRequestsRemove(withIds: cookieIDs))
+        XCTAssertTrue(app.stubRequestsAll().isEmpty)
+
+        XCTAssertFalse(app.stubRequestsRemove(id: stubIDs[0]))
+        XCTAssertFalse(app.rewriteRequestsRemove(withId: rewriteIDs[0]))
+        XCTAssertFalse(app.monitorRequestRemove(withId: monitorIDs[0]))
+        XCTAssertFalse(app.throttleRequestRemove(withId: throttleIDs[0]))
+        XCTAssertFalse(app.blockCookiesRequestsRemove(withId: cookieIDs[0]))
+
+        let duplicateID = try XCTUnwrap(app.stubRequests(matching: match, response: response))
+        XCTAssertTrue(app.stubRequestsRemove(ids: [duplicateID, duplicateID]))
+    }
+
+    func testStartupCommandsWaitsAppropriately() {
+        let userDefaultsKey = "test_ud_key"
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+
+        var startupBlockProcessed = false
+
+        app.launchTunnel {
+            self.app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultsKey)
+            self.app.setUserInterfaceAnimationsEnabled(false)
+            Thread.sleep(forTimeInterval: 8.0)
+            startupBlockProcessed = true
+        }
+
+        XCTAssert(startupBlockProcessed)
+    }
+
+    func testCustomCommand() {
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+        let retObj = app.performCustomCommandNamed("myCustomCommandReturnNil", object: NSString(string: randomString))
+        let randomStringRemote = app.userDefaultsObject(forKey: "custom_command_test") as! String
+        XCTAssertEqual(randomString, randomStringRemote)
+        XCTAssertNil(retObj)
+
+        let randomString2 = ProcessInfo.processInfo.globallyUniqueString
+        let retObj2 = app.performCustomCommandNamed("myCustomCommandReturn123", object: NSString(string: randomString2))
+        let randomStringRemote2 = app.userDefaultsObject(forKey: "custom_command_test") as! String
+        XCTAssertEqual(randomString2, randomStringRemote2)
+        XCTAssertEqual("123", retObj2 as! String)
+
+        XCUIDevice.shared.press(XCUIDevice.Button.home)
+        sleep(5)
+        app.activate()
+
+        let retObj3 = app.performCustomCommandNamed("myCustomCommandReturn123", object: nil)
+        XCTAssertNil(app.userDefaultsObject(forKey: "custom_command_test"))
+        XCTAssertEqual("123", retObj3 as! String)
+    }
+
+    func testStubWithFilename() {
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+
+        let requestMatch = SBTRequestMatch(url: "postman-echo.com")
+        let response = SBTStubResponse(fileNamed: "test_file.json")
+        app.monitorRequests(matching: requestMatch)
+        app.stubRequests(matching: requestMatch, response: response)
+
+        openTestSection(identifier: "executeDataTaskRequest")
+
+        #if SWIFTUI_APP
+            let textResult = app.staticTexts["result"]
+            wait { textResult.exists }
+            let result = textResult.label
+        #else
+            let textResult = app.textViews["result"]
+            wait { textResult.exists }
+            let result = textResult.value as! String
+        #endif
+        let resultData = Data(base64Encoded: result)!
+        let resultDict = try! JSONSerialization.jsonObject(with: resultData, options: []) as! [String: Any]
+
+        let networkBase64 = resultDict["data"] as! String
+        let networkString = String(data: Data(base64Encoded: networkBase64)!, encoding: .utf8)
+
+        let monitoredRequests = app.monitoredRequestsFlushAll()
+        XCTAssertEqual(monitoredRequests.count, 1)
+        let responseHeaders = monitoredRequests.first?.response?.allHeaderFields
+
+        XCTAssertEqual(networkString, "{\"hello\":\"there\"}\n")
+        XCTAssertEqual(responseHeaders?["Content-Type"] as? String, "application/json")
+    }
+
+    func testShutdown() {
+        app.launchTunnel()
+
+        app.terminate()
+        XCTAssert(app.wait(for: .notRunning, timeout: 5))
+
+        app.launchTunnel()
+        XCTAssert(app.wait(for: .runningForeground, timeout: 5))
+
+        wait(withTimeout: 15.0) {
+            self.app.descendants(matching: .any)
+                .matching(identifier: "example_list")
+                .firstMatch
+                .exists
+        }
+    }
+
+    func testLaunchArgumentsResetBetweenLaunches() {
+        let userDefaultKey = "test_key"
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+        XCTAssertNil(app.userDefaultsObject(forKey: userDefaultKey))
+
+        let randomString = ProcessInfo.processInfo.globallyUniqueString
+        app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: userDefaultKey)
+
+        app.terminate()
+
+        Thread.sleep(forTimeInterval: 3.0)
+
+        app.launchTunnel()
+        // UserDefaults shouldn't get reset
+        XCTAssertEqual(randomString, app.userDefaultsObject(forKey: userDefaultKey) as? String)
+    }
+
+    /// UIKit-specific legacy scrolling tests (modern tests are in: ScrollContentTests.swift)
+    #if UIKIT_APP
+        func testTableViewScrolling() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionTable1")
+
+            XCTAssert(app.staticTexts["Label 5"].isHittable)
+            XCTAssertFalse(app.staticTexts["Label 99"].isHittable)
+
+            XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toRowIndex: 99, animated: false))
+
+            XCTAssertFalse(app.staticTexts["Label 5"].isHittable)
+            XCTAssert(app.staticTexts["Label 99"].isHittable)
+        }
+
+        func testTableViewScrolling2() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionTable2")
+
+            XCTAssertFalse(app.staticTexts["80"].isHittable)
+
+            XCTAssertTrue(app.scrollTableView(withIdentifier: "table", toElementWithIdentifier: "80", animated: true))
+
+            XCTAssert(app.staticTexts["80"].isHittable)
+        }
+
+        func testCollectionViewScrollingVertical() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewVertical")
+
+            XCTAssertFalse(app.buttons["Button 30"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 30, animated: true))
+            XCTAssert(app.buttons["Button 30"].isHittable)
+
+            XCTAssertFalse(app.buttons["Button 50"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "button_50", animated: true))
+            XCTAssert(app.buttons["Button 50"].isHittable)
+        }
+
+        func testCollectionViewScrollingHorizontal() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewHorizontal")
+
+            XCTAssertFalse(app.staticTexts["10"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementIndex: 10, animated: true))
+            XCTAssert(app.staticTexts["10"].isHittable)
+
+            XCTAssertFalse(app.staticTexts["40"].isHittable)
+
+            XCTAssertTrue(app.scrollCollectionView(withIdentifier: "collection", toElementWithIdentifier: "40", animated: true))
+            XCTAssert(app.staticTexts["40"].isHittable)
+        }
+
+        func testScrollViewScrollToElement() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionScrollView")
+
+            XCTAssertFalse(app.buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toElementWithIdentifier: "Button", animated: true))
+
+            XCTAssert(app.buttons["Button"].isHittable)
+        }
+
+        func testScrollViewScrollToElementWithKeyboardVisible() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewWithKeyboard")
+
+            let textField = app.textFields["keyboardTextField"]
+            wait { textField.isHittable }
+            textField.tap()
+
+            wait { self.app.keyboards.count > 0 }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollViewWithKeyboard", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is near the top of the visible area (not under the keyboard)
+            let collectionView = app.collectionViews["scrollViewWithKeyboard"]
+            let keyboard = app.keyboards.firstMatch
+            let visibleTop = collectionView.frame.minY
+
+            let tolerance: CGFloat = 50.0
+            XCTAssertEqual(
+                element.frame.minY,
+                visibleTop,
+                accuracy: tolerance,
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+            )
+            XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+        }
+
+        func testScrollViewScrollToElementWithTranslucentNavBar() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewTranslucentNavBar")
+
+            let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+            wait { collectionView.exists }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is near the top of the collection view's visible area
+            let navBar = app.navigationBars.firstMatch
+            let visibleTop = collectionView.frame.minY
+
+            let tolerance: CGFloat = 50.0
+            XCTAssertEqual(
+                element.frame.minY,
+                visibleTop,
+                accuracy: tolerance,
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+            )
+            XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+        }
+
+        func testScrollViewScrollToElementWithTranslucentNavBarAndKeyboardVisible() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionCollectionViewTranslucentNavBar")
+
+            let textField = app.textFields["translucentNavBarTextField"]
+            wait { textField.isHittable }
+            textField.tap()
+
+            wait { self.app.keyboards.count > 0 }
+
+            XCTAssertFalse(app.staticTexts["50"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "collectionTranslucentNavBar", toElementWithIdentifier: "50", animated: true))
+
+            let element = app.staticTexts["50"]
+            XCTAssert(element.isHittable)
+
+            // Verify the element is near the top of the collection view's visible area (not under the keyboard)
+            let collectionView = app.collectionViews["collectionTranslucentNavBar"]
+            let navBar = app.navigationBars.firstMatch
+            let keyboard = app.keyboards.firstMatch
+            let visibleTop = collectionView.frame.minY
+
+            let tolerance: CGFloat = 50.0
+            XCTAssertEqual(
+                element.frame.minY,
+                visibleTop,
+                accuracy: tolerance,
+                "Element minY (\(element.frame.minY)) should be near visible area top (\(visibleTop)), difference: \(abs(element.frame.minY - visibleTop)), tolerance: \(tolerance)"
+            )
+            XCTAssertGreaterThanOrEqual(element.frame.minY, navBar.frame.maxY, "Element should not be hidden under the translucent nav bar")
+            XCTAssertLessThanOrEqual(element.frame.maxY, keyboard.frame.minY, "Element should not be under the keyboard")
+        }
+
+        func testScrollViewScrollToElementInLazilyGrowingScrollView() {
+            // Reproduces the bug where scrolling to a target element would stop at the
+            // initial maxContentOffset. The scroll view here holds all 100 labels in the
+            // hierarchy from the start, but its contentSize starts small and grows in
+            // response to scrolling. Without the clamp-then-retry fix in
+            // scrollToTargetView:inScrollView:direction:animated:, the first clamped
+            // scroll would be reported as done and the target would never appear.
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionGrowingScrollView")
+
+            XCTAssertTrue(app.scrollViews["growingScrollView"].waitForExistence(timeout: 5))
+
+            // Target row 95 — well beyond the initial contentSize — must become hittable.
+            let target = app.staticTexts["95"]
+            XCTAssertFalse(target.isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "growingScrollView", toElementWithIdentifier: "95", animated: false))
+
+            XCTAssertTrue(target.isHittable)
+        }
+
+        func testScrollViewScrollToOffset() {
+            app.launchTunnel()
+
+            openTestSection(identifier: "showExtensionScrollView")
+
+            XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.65, animated: true))
+
+            XCTAssert(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+
+            XCTAssertTrue(app.scrollScrollView(withIdentifier: "scrollView", toOffset: 0.0, animated: true))
+
+            XCTAssertFalse(app.scrollViews["scrollView"].buttons["Button"].isHittable)
+        }
+    #endif
+
+    func testUrlProtocolIsRegisteredWhenRunningUITests() {
+        app.launchTunnel()
+
+        guard let isRegistered = app.performCustomCommandNamed("isSBTProxyURLProtocolRegistered", object: nil) as? NSNumber else {
+            return XCTFail("Unexpected object returned")
+        }
+
+        XCTAssert(isRegistered.boolValue)
+    }
+
+    func testUrlProtocolIsNotRegisteredWhenDebuggingApplication() {
+        XCTAssertFalse(SBTUITestTunnelServer.takeOff())
+
+        SBTProxyURLProtocol.stubRequests(matching: SBTRequestMatch(url: ".*"), stubResponse: SBTStubResponse(response: ""))
+
+        let request = URLRequest(url: URL(string: "https://www.subito.it")!)
+        let selector = NSSelectorFromString("_protocolClassForRequest:")
+        guard let klass = URLProtocol.perform(selector, with: request)?.takeUnretainedValue() as? AnyClass else {
+            return XCTFail("Unexpected object returned")
+        }
+
+        XCTAssertEqual(NSStringFromClass(klass), "_NSURLHTTPProtocol")
+    }
+
+    func testUserDefaultDefaultsRegistration() {
+        app.launchTunnel()
+
+        app.userDefaultsRegisterDefaults(["key": "value"])
+        XCTAssertEqual(app.userDefaultsObject(forKey: "key") as? String, "value")
+
+        app.terminate()
+        app.launchTunnel()
+
+        XCTAssertNil(app.userDefaultsObject(forKey: "key"))
+    }
+
+    func testLaunchTimeWithUserDefaults() throws {
+        func writeToDefaultsAndGetDuration(amount: Int) -> CFAbsoluteTime {
+            let randomString = ProcessInfo.processInfo.globallyUniqueString
+            let start: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
+            for i in 1 ... amount {
+                app.userDefaultsSetObject(randomString as NSCoding & NSObjectProtocol, forKey: "\(i)")
+            }
+            return CFAbsoluteTimeGetCurrent() - start
+        }
+
+        var durations: [CFAbsoluteTime] = []
+        app.launchTunnel {
+            for _ in 1 ... 10 {
+                durations.append(writeToDefaultsAndGetDuration(amount: 50))
+            }
+        }
+
+        let last5avg = durations.suffix(5).reduce(0, +) / 5
+
+        // Skip the first three iterations as warm-up; early samples spike on loaded CI runners.
+        for duration in durations.dropFirst(3) {
+            XCTAssertTrue(duration < last5avg * 2.5, "Last 5 average: \(last5avg), duration: \(duration). All durations \(durations)")
+        }
+    }
+
+    func testCrashingAppDoesNotCrashUITest() throws {
+        throw XCTSkip("This test should only be run manually")
+
+        app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+
+        XCTAssert(app.monitorRequestRemoveAll())
+        openTestSection(identifier: "crashApp")
+
+        Thread.sleep(forTimeInterval: 2.0)
+
+        XCTAssertFalse(app.monitorRequestRemoveAll())
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "crashApp").firstMatch.exists)
+        XCTAssertFalse(app.wait(for: .runningForeground, timeout: 0.1))
+    }
+}

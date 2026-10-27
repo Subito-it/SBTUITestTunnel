@@ -1,0 +1,75 @@
+name: SBTUITestTunnel
+
+options:
+  bundleIdPrefix: com.tunnel.spm
+  platform: iOS
+  deploymentTarget: "15.0"
+
+packages:
+  SBTUITestTunnel:
+    path: ../../..
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: ../SBTUITestTunnel
+        excludes:
+          - "*-Info.plist"
+    dependencies:
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
+    settings:
+      base:
+        INFOPLIST_FILE: "../SBTUITestTunnel/SBTUITestTunnel-Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "../SBTUITestTunnel_Example.entitlements"
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - Tests
+      - path: ../../SharedUITests
+        name: SharedUITests
+    dependencies:
+      - target: App
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelClient
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
+    settings:
+      base:
+        INFOPLIST_FILE: "../SBTUITestTunnel_Tests/Info.plist"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) UIKIT_APP"
+        SWIFT_OBJC_BRIDGING_HEADER: "../../SharedUITests/SBTUITestTunnelTests-Bridging-Header.h"
+        HEADER_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../../../Sources/SBTUITestTunnelServer/GCDWebServer/Core"
+
+schemes:
+  SBTUITestTunnel:
+    build:
+      targets:
+        App: [all]
+        UITests: [all]
+    run:
+      executable: App
+      buildConfiguration: Debug
+    test:
+      targets:
+        - UITests
+  SBTUITestTunnel_Tests:
+    build:
+      targets:
+        App: [all]
+        UITests: [all]
+    run:
+      executable: App
+      debugEnabled: false
+      buildConfiguration: Debug
+    test:
+      targets:
+        - UITests
+      debugEnabled: false

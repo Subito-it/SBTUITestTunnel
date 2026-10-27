@@ -806,6 +806,99 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollView params:params] boolValue];
 }
 
+- (BOOL)scrollScrollViewWithIdentifierByPage:(NSString *)identifier animated:(BOOL)flag
+{
+    NSAssert([identifier length] > 0, @"Invalid empty identifier!");
+
+    NSDictionary<NSString *, NSString *> *params = @{SBTUITunnelObjectKey: identifier,
+                                                     SBTUITunnelObjectAnimatedKey: [@(flag) stringValue]};
+
+    return [[self sendSynchronousRequestWithPath:SBTUITunneledApplicationCommandXCUIExtensionScrollScrollViewByPage params:params] boolValue];
+}
+
+#pragma mark - XCUITest unified scroll extensions
+
+- (XCUIElement *)scrollableElementWithIdentifier:(NSString *)identifier
+{
+    return [[self.application descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:identifier].firstMatch;
+}
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toElementIndex:(NSInteger)index animated:(BOOL)flag
+{
+    NSAssert(identifier.length > 0, @"Invalid empty identifier!");
+    XCUIElement *element = [self scrollableElementWithIdentifier:identifier];
+    if (!element.exists) {
+        return NO;
+    }
+
+    if (element.elementType == XCUIElementTypeTable) {
+        return [self scrollTableViewWithIdentifier:identifier toRowIndex:index animated:flag];
+    }
+    if (element.elementType == XCUIElementTypeCollectionView) {
+        return [self scrollCollectionViewWithIdentifier:identifier toElementIndex:index animated:flag];
+    }
+    return NO;
+}
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toElementWithIdentifier:(NSString *)targetIdentifier animated:(BOOL)flag
+{
+    NSAssert(identifier.length > 0, @"Invalid empty identifier!");
+    NSAssert(targetIdentifier.length > 0, @"Invalid empty target identifier!");
+    XCUIElement *element = [self scrollableElementWithIdentifier:identifier];
+    if (!element.exists) {
+        return NO;
+    }
+
+    // All three UIKit containers are UIScrollView subclasses. The server also
+    // resolves SwiftUI's virtual accessibility elements inside the container.
+    if ([self scrollScrollViewWithIdentifier:identifier toElementWithIdentifier:targetIdentifier animated:flag]) {
+        return YES;
+    }
+
+    // Some SwiftUI accessibility nodes are visible only to XCTest. Restrict the
+    // fallback query to this container, including when a List exposes itself as
+    // a table or collection view, and search from the beginning for lazy content.
+    if (![self scrollScrollViewWithIdentifier:identifier toOffset:0.0 animated:NO]) {
+        return NO;
+    }
+    XCUIElement *target = [[element descendantsMatchingType:XCUIElementTypeAny] matchingIdentifier:targetIdentifier].firstMatch;
+    NSTimeInterval deadline = CFAbsoluteTimeGetCurrent() + 10.0;
+    BOOL exhausted = NO;
+    for (NSInteger page = 0; page <= 100; page++) {
+        if (target.exists && target.isHittable) {
+            CGRect visibleFrame = CGRectIntersection(element.frame, self.application.frame);
+            CGRect targetFrame = target.frame;
+            CGRect intersection = CGRectIntersection(targetFrame, visibleFrame);
+            // Match the server's visibility threshold even when the target is
+            // taller or wider than the viewport and cannot be fully exposed.
+            CGFloat area = MIN(CGRectGetWidth(targetFrame), CGRectGetWidth(visibleFrame)) *
+                MIN(CGRectGetHeight(targetFrame), CGRectGetHeight(visibleFrame));
+            if (!CGRectIsNull(intersection) && area > 0.0 &&
+                CGRectGetWidth(intersection) * CGRectGetHeight(intersection) / area >= 0.5) {
+                return YES;
+            }
+        }
+        if (exhausted || page == 100 || CFAbsoluteTimeGetCurrent() >= deadline) {
+            break;
+        }
+        // The server's final layout wait can materialize accessibility nodes
+        // without changing contentSize. Check once more after every page call,
+        // including the one that reports no further scrolling is possible.
+        exhausted = ![self scrollScrollViewWithIdentifierByPage:identifier animated:flag];
+    }
+    return NO;
+}
+
+- (BOOL)scrollContentWithIdentifier:(NSString *)identifier toOffset:(CGFloat)targetOffset animated:(BOOL)flag
+{
+    NSAssert(identifier.length > 0, @"Invalid empty identifier!");
+    XCUIElement *element = [self scrollableElementWithIdentifier:identifier];
+    if (!element.exists) {
+        return NO;
+    }
+    return [self scrollScrollViewWithIdentifier:identifier toOffset:targetOffset animated:flag];
+}
+
 #pragma mark - XCUITest 3D touch extensions
 
 - (BOOL)forcePressViewWithIdentifier:(NSString *)identifier

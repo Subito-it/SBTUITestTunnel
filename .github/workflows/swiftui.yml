@@ -1,0 +1,37 @@
+name: SwiftUI Tests
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-15
+    name: SwiftUI Tests
+    env:
+      xcode_version: "26.2"
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+    steps:
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      - name: Select Xcode version ${{ env.xcode_version }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.xcode_version }}.app/Contents/Developer
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Check build scripts
+        run: ruby Scripts/build_lib_test.rb
+      - name: Install required tools
+        run: |
+          brew update
+          brew install xcodegen
+      - name: Generate SwiftUI project
+        run: xcodegen generate --spec Examples/SwiftUI/project.yml
+      - name: Build SwiftUI App
+        run: Scripts/build_app.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Run SwiftUI UI Tests
+        id: uitests
+        run: Scripts/run_uitests.rb Examples/SwiftUI/SBTUITestTunnel_SwiftUI.xcodeproj SwiftUI
+      - name: Collect SwiftUI UI Tests artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: SBTUITestTunnel_SwiftUI_Tests.xcresult
+          path: SwiftUI.xcresult
+        if: ${{ !cancelled() && steps.uitests.outcome != 'skipped' }}

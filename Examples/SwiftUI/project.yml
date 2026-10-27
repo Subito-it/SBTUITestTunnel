@@ -1,0 +1,65 @@
+name: SBTUITestTunnel_SwiftUI
+
+options:
+  bundleIdPrefix: com.subito.uitest.swiftui
+
+packages:
+  SBTUITestTunnel:
+    path: ../..
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: App
+        excludes: [Info.plist]
+    dependencies:
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
+      - sdk: SwiftUI.framework
+      - sdk: Foundation.framework
+    settings:
+      base:
+        INFOPLIST_FILE: "App/Info.plist"
+        CODE_SIGN_ENTITLEMENTS: "App/SBTUITestTunnel_SwiftUI.entitlements"
+
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: UITests
+        excludes: [Info.plist]
+      - path: ../SharedUITests
+        name: SharedUITests
+    dependencies:
+      - target: App
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelClient
+      - package: SBTUITestTunnel
+        product: SBTUITestTunnelServer
+    settings:
+      base:
+        INFOPLIST_FILE: "UITests/Info.plist"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SWIFTUI_APP"
+        SWIFT_OBJC_BRIDGING_HEADER: "../SharedUITests/SBTUITestTunnelTests-Bridging-Header.h"
+        HEADER_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../../Sources/SBTUITestTunnelServer/GCDWebServer/Core"
+
+schemes:
+  SwiftUI:
+    build:
+      targets:
+        App: [run, test, profile, analyze, archive]
+    run:
+      config: Debug
+      debugEnabled: false
+    test:
+      targets: [UITests]
+      config: Debug
+      gatherCoverageData: true
+      disableMainThreadChecker: true
+      debugEnabled: false
