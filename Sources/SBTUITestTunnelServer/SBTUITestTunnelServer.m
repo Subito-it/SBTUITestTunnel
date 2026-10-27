@@ -1374,10 +1374,13 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     BOOL isVertical = (direction == SBTUITestTunnelScrollDirectionVertical);
     CGFloat maxOffset = [self maxContentOffsetForScrollView:scrollView direction:direction];
     CGFloat currentOffset = isVertical ? scrollView.contentOffset.y : scrollView.contentOffset.x;
-    UIEdgeInsets insets = scrollView.adjustedContentInset;
+    // Pages must not skip what bars and system UI cover, which the safe area
+    // reports. adjustedContentInset isn't used: it also includes contentInset,
+    // which apps often set as extra scrolling room larger than the viewport.
+    UIEdgeInsets obscured = scrollView.safeAreaInsets;
     CGFloat pageSize = isVertical
-        ? scrollView.bounds.size.height - insets.top - insets.bottom
-        : scrollView.bounds.size.width - insets.left - insets.right;
+        ? scrollView.bounds.size.height - obscured.top - obscured.bottom
+        : scrollView.bounds.size.width - obscured.left - obscured.right;
     pageSize = MAX(1.0, pageSize * 0.9);
 
     if (currentOffset < maxOffset - 0.5) {
