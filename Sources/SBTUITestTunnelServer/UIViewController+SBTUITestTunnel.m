@@ -17,6 +17,11 @@
 @import SBTUITestTunnelCommon;
 
 #import "UIViewController+SBTUITestTunnel.h"
+#import "private/UIViewController+Swizzles.h"
+
+@interface UIViewController (SBTUITestTunnelOriginals)
+- (id<UIViewControllerPreviewing>)sbt_originalRegisterForPreviewingWithDelegate:(id<UIViewControllerPreviewingDelegate>)delegate sourceView:(UIView *)sourceView;
+@end
 
 @interface SBTUIViewControllerPreviewingGroup : NSObject
 
@@ -47,7 +52,7 @@ static NSMapTable<UIView *, id<UIViewControllerPreviewingDelegate>> *previewingD
 
 - (id<UIViewControllerPreviewing>)swz_registerForPreviewingWithDelegate:(id<UIViewControllerPreviewingDelegate>)delegate sourceView:(UIView *)sourceView;
 {
-    id<UIViewControllerPreviewing> ret = [self swz_registerForPreviewingWithDelegate:delegate sourceView:sourceView];
+    id<UIViewControllerPreviewing> ret = [self sbt_originalRegisterForPreviewingWithDelegate:delegate sourceView:sourceView];
     
     if (previewingDelegates == nil) {
         previewingDelegates = [NSMapTable weakToWeakObjectsMapTable];
@@ -58,12 +63,9 @@ static NSMapTable<UIView *, id<UIViewControllerPreviewingDelegate>> *previewingD
     return ret;
 }
 
-+ (void)load
++ (void)sbt_installPreviewingSwizzle
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SBTTestTunnelInstanceSwizzle(self, @selector(registerForPreviewingWithDelegate:sourceView:), @selector(swz_registerForPreviewingWithDelegate:sourceView:));
-    });
+    SBTTestTunnelInstanceSwizzleOnce(UIViewController.class, @selector(registerForPreviewingWithDelegate:sourceView:), @selector(swz_registerForPreviewingWithDelegate:sourceView:), @selector(sbt_originalRegisterForPreviewingWithDelegate:sourceView:));
 }
 
 @end

@@ -18,4 +18,6 @@
 
 @interface NSURLSessionConfiguration (SBTUITestTunnel)
 
++ (void)sbt_installSessionConfigurationSwizzles;
+
 @end

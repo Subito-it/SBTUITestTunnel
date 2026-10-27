@@ -14,6 +14,8 @@ It's your responsibility to ensure this library are excluded from App Store buil
 
 Initialize the SBTUITestTunnel server in your app's `AppDelegate` when launching in debug mode.
 
+Network interception and previewing swizzles are installed only when `takeOff()` finds the tunnel launch parameters and launch signal. Linking the library, or calling `takeOff()` outside a UI test launch, leaves those methods unchanged, including in Xcode Previews. Call `takeOff()` before creating application networking sessions; existing session configurations are not updated retroactively.
+
 ```swift
 import UIKit
 

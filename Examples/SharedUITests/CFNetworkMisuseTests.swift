@@ -16,9 +16,15 @@
 
 import Foundation
 @testable import SBTUITestTunnelCommon
+import SBTUITestTunnelServer
 import XCTest
 
 final class CFNetworkMisuseTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
+    }
+
     private let testURL = URL(string: "https://postman-echo.com/post")!
     private let testData = "this is a test".data(using: .utf8)
 

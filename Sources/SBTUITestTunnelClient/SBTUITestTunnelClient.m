@@ -23,6 +23,16 @@
 const NSString *SBTUITunnelJsonMimeType = @"application/json";
 #define kSBTUITestTunnelErrorDomain @"com.subito.sbtuitesttunnel.error"
 
+static void SBTPerformOnMainRunLoop(dispatch_block_t block)
+{
+    // An @MainActor async test can already occupy the main dispatch queue while
+    // launchTunnel pumps a nested run loop. That loop cannot re-enter the queue
+    // to service dispatch_async(main) work. Enqueue the handshake on the run
+    // loop itself so it can complete while XCUIApplication.launch is waiting.
+    CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopCommonModes, block);
+    CFRunLoopWakeUp(CFRunLoopGetMain());
+}
+
 @interface SBTUITestTunnelClient() <NSNetServiceDelegate, SBTIPCTunnel>
 {
     BOOL _userInterfaceAnimationsEnabled;
@@ -172,7 +182,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
 
             NSLog(@"[SBTUITestTunnel] HTTP tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);
 
-            dispatch_async(dispatch_get_main_queue(), ^{
+            SBTPerformOnMainRunLoop(^{
                 weakSelf.connected = YES;
                 if (weakSelf.startupBlock) {
                     weakSelf.startupBlock();
@@ -258,7 +268,7 @@ static NSTimeInterval SBTUITunneledApplicationDefaultTimeout = 30.0;
     }
     
     __weak typeof(self)weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    SBTPerformOnMainRunLoop(^{
         weakSelf.connected = YES;
 
         NSLog(@"[SBTUITestTunnel] IPC tunnel did connect after, %fs", CFAbsoluteTimeGetCurrent() - weakSelf.launchStart);

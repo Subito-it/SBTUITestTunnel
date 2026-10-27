@@ -22,7 +22,7 @@ __unused static void SBTTestTunnelClassSwizzle(Class cls, SEL originalSelector, 
     Method swizzledMethod = class_getClassMethod(cls, swizzledSelector);
     
     if (class_addMethod(object_getClass(cls), originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))) {
-        class_replaceMethod(cls, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+        class_replaceMethod(object_getClass(cls), swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
     } else {
         method_exchangeImplementations(originalMethod, swizzledMethod);
     }
@@ -38,4 +38,26 @@ __unused static void SBTTestTunnelInstanceSwizzle(Class cls, SEL originalSelecto
     } else {
         method_exchangeImplementations(originalMethod, swizzledMethod);
     }
+}
+
+// Permanent hooks use a runtime-only alias for the original implementation.
+// Do not implement originalAliasSelector in a category: another binary image
+// could replace that method when loaded, breaking an already installed hook.
+// Adding the alias also guards installation across copies of the library.
+__unused static void SBTTestTunnelInstanceSwizzleOnce(Class cls, SEL originalSelector, SEL swizzledSelector, SEL originalAliasSelector)
+{
+    @synchronized (cls) {
+        Method originalMethod = class_getInstanceMethod(cls, originalSelector);
+        Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
+
+        if (originalMethod && swizzledMethod &&
+            class_addMethod(cls, originalAliasSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))) {
+            class_replaceMethod(cls, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+        }
+    }
+}
+
+__unused static void SBTTestTunnelClassSwizzleOnce(Class cls, SEL originalSelector, SEL swizzledSelector, SEL originalAliasSelector)
+{
+    SBTTestTunnelInstanceSwizzleOnce(object_getClass(cls), originalSelector, swizzledSelector, originalAliasSelector);
 }
