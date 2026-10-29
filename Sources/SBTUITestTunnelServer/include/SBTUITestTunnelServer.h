@@ -32,6 +32,14 @@
 + (BOOL)takeOff;
 
 /**
+ *  Routes requests through `SBTProxyURLProtocol` without a UI test launch, so in-app tools can monitor, stub or throttle
+ *  network traffic with the `SBTProxyURLProtocol` rule methods. Covers `NSURLSession.sharedSession` and sessions whose
+ *  configuration is obtained from `defaultSessionConfiguration` or `ephemeralSessionConfiguration` after this call.
+ *  Safe to call more than once, before or after `takeOff`.
+ */
++ (void)activateNetworkInterception;
+
+/**
  *  Register a custom command. It is your responsibility to unregister the custom command when it is no longer needed
  *
  *  @param commandName that will match [SBTUITestTunnelClient performCustomCommandNamed:object:]
