@@ -445,6 +445,8 @@ class MiscellaneousTests: XCTestCase {
     }
 
     func testUrlProtocolIsNotRegisteredWhenDebuggingApplication() {
+        // Connectionless tests that ran earlier in this runner process registered the protocol
+        URLProtocol.unregisterClass(SBTProxyURLProtocol.self)
         XCTAssertFalse(SBTUITestTunnelServer.takeOff())
 
         SBTProxyURLProtocol.stubRequests(matching: SBTRequestMatch(url: ".*"), stubResponse: SBTStubResponse(response: ""))
