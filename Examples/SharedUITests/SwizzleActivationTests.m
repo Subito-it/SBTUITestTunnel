@@ -19,7 +19,9 @@
 @import SBTUITestTunnelServer;
 
 @interface SBTUITestTunnelServer (SwizzleActivationTests)
++ (instancetype)sharedInstance;
 + (void)_connectionlessReset;
+- (BOOL)takeOffOnce;
 @end
 
 static BOOL SBTProxyInjectedAtLoad;
@@ -114,6 +116,49 @@ static NSArray<NSValue *> *SBTHookImplementations(void)
     XCTAssertEqualObjects([task.originalRequest sbt_uploadHTTPBody], body);
     [task cancel];
     [session invalidateAndCancel];
+}
+
+- (void)testNetworkInterceptionActivationInstallsOnlyNetworkHooks
+{
+    SEL previewingSelector = NSSelectorFromString(@"registerForPreviewingWithDelegate:sourceView:");
+    IMP previewing = method_getImplementation(class_getInstanceMethod(UIViewController.class, previewingSelector));
+
+    [SBTUITestTunnelServer activateNetworkInterception];
+    NSArray *installed = SBTHookImplementations();
+    [SBTUITestTunnelServer activateNetworkInterception];
+
+    XCTAssertEqualObjects(SBTHookImplementations(), installed);
+    XCTAssertEqual(method_getImplementation(class_getInstanceMethod(UIViewController.class, previewingSelector)), previewing);
+    for (NSURLSessionConfiguration *config in @[[NSURLSessionConfiguration defaultSessionConfiguration], [NSURLSessionConfiguration ephemeralSessionConfiguration]]) {
+        NSPredicate *proxy = [NSPredicate predicateWithBlock:^BOOL(Class cls, NSDictionary *bindings) { return cls == SBTProxyURLProtocol.class; }];
+        XCTAssertEqual([config.protocolClasses filteredArrayUsingPredicate:proxy].count, 1u);
+    }
+}
+
+- (void)testTakeOffWithoutLaunchParametersKeepsActivatedInterceptionRegistered
+{
+    [SBTUITestTunnelServer activateNetworkInterception];
+    XCTAssertFalse([SBTUITestTunnelServer.sharedInstance takeOffOnce]);
+
+    NSString *path = [@"/" stringByAppendingString:NSUUID.UUID.UUIDString];
+    SBTRequestMatch *match = [[SBTRequestMatch alloc] initWithURL:path query:nil method:nil body:nil requestHeaders:nil responseHeaders:nil];
+    NSString *monitorId = [SBTProxyURLProtocol monitorRequestsMatching:match];
+
+    XCTestExpectation *completion = [self expectationWithDescription:@"Request completed"];
+    NSURL *url = [NSURL URLWithString:[@"https://example.invalid" stringByAppendingString:path]];
+    [[NSURLSession.sharedSession dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [completion fulfill];
+    }] resume];
+    [self waitForExpectations:@[completion] timeout:30.0];
+
+    NSArray<SBTMonitoredNetworkRequest *> *monitored = [SBTProxyURLProtocol monitoredRequestsAll];
+    [SBTProxyURLProtocol monitorRequestsRemoveWithId:monitorId];
+    [SBTProxyURLProtocol monitoredRequestsFlushAll];
+
+    NSPredicate *matchingURL = [NSPredicate predicateWithBlock:^BOOL(SBTMonitoredNetworkRequest *request, NSDictionary *bindings) {
+        return [request.originalRequest.URL isEqual:url] || [request.request.URL isEqual:url];
+    }];
+    XCTAssertEqual([monitored filteredArrayUsingPredicate:matchingURL].count, 1u);
 }
 
 @end

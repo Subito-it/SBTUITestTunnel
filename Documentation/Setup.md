@@ -16,6 +16,8 @@ Initialize the SBTUITestTunnel server in your app's `AppDelegate` when launching
 
 Network interception and previewing swizzles are installed only when `takeOff()` finds the tunnel launch parameters and launch signal. Linking the library, or calling `takeOff()` outside a UI test launch, leaves those methods unchanged, including in Xcode Previews. Call `takeOff()` before creating application networking sessions; existing session configurations are not updated retroactively.
 
+To monitor or stub requests outside UI tests, for example from an in-app debug tool, call `SBTUITestTunnelServer.activateNetworkInterception()` and manage rules with the `SBTProxyURLProtocol` class methods. It installs only the network interception swizzles and registers `SBTProxyURLProtocol`. The same ordering applies: apart from the shared session, sessions whose configuration was created before the call aren't intercepted.
+
 ```swift
 import UIKit
 

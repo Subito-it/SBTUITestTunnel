@@ -40,13 +40,21 @@ static CFRunLoopSourceRef SBTUITestTunnelStartupRunLoopSource;
 
 static void SBTUITestTunnelPerformStartupRunLoopSource(void *info) {}
 
-static void SBTInstallTunnelSwizzles(void)
+static void SBTInstallNetworkSwizzles(void)
 {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         [NSURLRequest sbt_installHTTPBodySwizzles];
         [NSURLSession sbt_installHTTPBodySwizzles];
         [NSURLSessionConfiguration sbt_installSessionConfigurationSwizzles];
+    });
+}
+
+static void SBTInstallTunnelSwizzles(void)
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        SBTInstallNetworkSwizzles();
         [UIViewController sbt_installPreviewingSwizzle];
     });
 }
@@ -190,6 +198,12 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     return result;
 }
 
++ (void)activateNetworkInterception
+{
+    SBTInstallNetworkSwizzles();
+    [NSURLProtocol registerClass:[SBTProxyURLProtocol class]];
+}
+
 - (BOOL)takeOffOnce
 {
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
@@ -198,8 +212,6 @@ static NSTimeInterval SBTUITunneledServerDefaultTimeout = 60.0;
     NSString *tunnelPort = environment[SBTUITunneledApplicationLaunchEnvironmentPortKey];
 
     if (!tunnelPort && !ipcIdentifier) {
-        [NSURLProtocol unregisterClass:[SBTProxyURLProtocol class]];
-
         // Required methods missing, presumely app wasn't launched from ui test
         NSLog(@"[SBTUITestTunnel] required environment parameters missing, safely landing");
         return NO;
