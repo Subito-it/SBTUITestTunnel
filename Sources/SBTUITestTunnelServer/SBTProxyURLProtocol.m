@@ -811,18 +811,26 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics
 {
-    // A revalidation reports the cached response and the conditional request that got the 304
+    // A cached response the URL loading system can't reuse, such as a stale one without validators, is reported as a
+    // local cache fetch followed by the network load replacing it: only a 304 means the cached response was served
     BOOL fromCache = NO;
     BOOL fromNetwork = NO;
+    BOOL notModified = NO;
     for (NSURLSessionTaskTransactionMetrics *transaction in metrics.transactionMetrics) {
-        fromCache |= transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeLocalCache;
-        fromNetwork |= transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad;
+        if (transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeLocalCache) {
+            fromCache = YES;
+        } else if (transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad) {
+            fromNetwork = YES;
+            notModified |= [transaction.response isKindOfClass:[NSHTTPURLResponse class]] && ((NSHTTPURLResponse *)transaction.response).statusCode == 304;
+        }
     }
 
-    if (fromCache) {
-        self.fetchType = fromNetwork ? SBTMonitoredNetworkRequestFetchTypeRevalidatedCache : SBTMonitoredNetworkRequestFetchTypeCache;
+    if (fromCache && notModified) {
+        self.fetchType = SBTMonitoredNetworkRequestFetchTypeRevalidatedCache;
     } else if (fromNetwork) {
         self.fetchType = SBTMonitoredNetworkRequestFetchTypeNetwork;
+    } else if (fromCache) {
+        self.fetchType = SBTMonitoredNetworkRequestFetchTypeCache;
     }
 }
 

@@ -74,6 +74,18 @@ class CachingTests: XCTestCase {
         XCTAssertEqual(app.monitoredRequestsFlushAll().map(\.fetchType), [.network, .network])
     }
 
+    func testStaleResponsesThatCannotBeRevalidatedAreReportedAsNetworkLoads() async throws {
+        app.monitorRequests(matching: SBTRequestMatch(url: "127.0.0.1"))
+
+        for method in ["GET", "GET", "POST", "POST"] {
+            let body = try await load("/unvalidated", method: method, using: URLSession.shared.data(for:))
+            XCTAssertEqual(body, "unvalidated body")
+        }
+
+        XCTAssertEqual(server.hits("/unvalidated"), 4)
+        XCTAssertEqual(app.monitoredRequestsFlushAll().map(\.fetchType), [.network, .network, .network, .network])
+    }
+
     func testStubbedResponsesAreNotCached() async throws {
         app.monitorRequests(matching: SBTRequestMatch(url: "127.0.0.1"))
         app.stubRequests(matching: SBTRequestMatch(url: "fresh"), response: SBTStubResponse(response: "stubbed body", headers: freshHeaders, contentType: "text/plain", returnCode: 200, responseTime: 0.0, activeIterations: 1))
@@ -122,9 +134,14 @@ class CachingTests: XCTestCase {
         }
     }
 
-    private func load(_ path: String, cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy, using load: Load) async throws -> String {
+    private func load(_ path: String, method: String = "GET", cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy, using load: Load) async throws -> String {
         let url = try XCTUnwrap(URL(string: server.url(path)))
-        let (data, response) = try await load(URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: 5.0))
+        var request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: 5.0)
+        request.httpMethod = method
+        if method == "POST" {
+            request.httpBody = Data("request body".utf8)
+        }
+        let (data, response) = try await load(request)
         let httpResponse = try XCTUnwrap(response as? HTTPURLResponse)
         XCTAssertEqual(httpResponse.statusCode, 200)
 
@@ -173,7 +190,8 @@ extension CachingTests {
         URLCache.shared.removeAllCachedResponses()
         server = try LocalHTTPServer(routes: [
             "/revalidated": .init(statusCode: 200, headers: ["Cache-Control": "no-cache", "ETag": revalidatedETag], body: "revalidated body"),
-            "/fresh": .init(statusCode: 200, headers: freshHeaders, body: "fresh body")
+            "/fresh": .init(statusCode: 200, headers: freshHeaders, body: "fresh body"),
+            "/unvalidated": .init(statusCode: 200, headers: ["Cache-Control": "no-cache"], body: "unvalidated body")
         ])
 
         SBTUITestTunnelServer.perform(NSSelectorFromString("_connectionlessReset"))
