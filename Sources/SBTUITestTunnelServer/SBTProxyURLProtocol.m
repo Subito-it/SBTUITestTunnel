@@ -611,9 +611,17 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
 - (void)deliverResponse:(NSURLResponse *)response
 {
+    // The URL loading system records the storage policy on the response object: handing the client the proxied
+    // task's own response would stop that task from caching it and from revalidating it with ETag/Last-Modified
+    NSURLResponse *clientResponse = response;
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        clientResponse = [[NSHTTPURLResponse alloc] initWithURL:httpResponse.URL statusCode:httpResponse.statusCode HTTPVersion:nil headerFields:httpResponse.allHeaderFields];
+    }
+
     [self performOnClientThread:^{
         if (!self.finished) {
-            [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            [self.client URLProtocol:self didReceiveResponse:clientResponse cacheStoragePolicy:NSURLCacheStorageNotAllowed];
         }
     }];
 }
