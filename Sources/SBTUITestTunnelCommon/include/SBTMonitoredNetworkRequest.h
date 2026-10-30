@@ -18,6 +18,17 @@
 
 @class SBTRequestMatch;
 
+/// Where the response of a request passed through to the network came from
+typedef NS_ENUM(NSInteger, SBTMonitoredNetworkRequestFetchType) {
+    /// Stubbed requests, and loads that reported no fetch
+    SBTMonitoredNetworkRequestFetchTypeUnknown = 0,
+    SBTMonitoredNetworkRequestFetchTypeNetwork,
+    /// Served from the cache without contacting the server
+    SBTMonitoredNetworkRequestFetchTypeCache,
+    /// Served from the cache after a conditional request got a 304 Not Modified
+    SBTMonitoredNetworkRequestFetchTypeRevalidatedCache,
+} NS_SWIFT_NAME(SBTMonitoredNetworkRequest.FetchType);
+
 @interface SBTMonitoredNetworkRequest : NSObject<NSSecureCoding>
 
 - (nullable NSString *)responseString;
@@ -40,5 +51,6 @@
 
 @property (nonatomic, assign) BOOL isStubbed;
 @property (nonatomic, assign) BOOL isRewritten;
+@property (nonatomic, assign) SBTMonitoredNetworkRequestFetchType fetchType;
 
 @end

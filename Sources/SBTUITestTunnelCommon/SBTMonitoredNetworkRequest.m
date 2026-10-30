@@ -37,6 +37,7 @@
         self.responseData = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(responseData))];
         self.isStubbed = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isStubbed))];
         self.isRewritten = [decoder decodeBoolForKey:NSStringFromSelector(@selector(isRewritten))];
+        self.fetchType = [decoder decodeIntegerForKey:NSStringFromSelector(@selector(fetchType))];
         self.requestData = [decoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(requestData))];
     }
     
@@ -61,6 +62,7 @@
     [encoder encodeObject:self.requestData forKey:NSStringFromSelector(@selector(requestData))];
     [encoder encodeBool:self.isStubbed forKey:NSStringFromSelector(@selector(isStubbed))];
     [encoder encodeBool:self.isRewritten forKey:NSStringFromSelector(@selector(isRewritten))];
+    [encoder encodeInteger:self.fetchType forKey:NSStringFromSelector(@selector(fetchType))];
 }
 
 - (NSString *)description

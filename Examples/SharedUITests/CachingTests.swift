@@ -71,6 +71,7 @@ class CachingTests: XCTestCase {
         }
 
         XCTAssertEqual(server.requestHeaders("/revalidated").map { $0["if-none-match"] }, [nil, nil])
+        XCTAssertEqual(app.monitoredRequestsFlushAll().map(\.fetchType), [.network, .network])
     }
 
     func testStubbedResponsesAreNotCached() async throws {
@@ -89,6 +90,10 @@ class CachingTests: XCTestCase {
         XCTContext.runActivity(named: "The response that reached the server gets cached") { _ in
             XCTAssertEqual(secondBody, "fresh body")
             XCTAssertEqual(server.hits("/fresh"), 1)
+        }
+
+        XCTContext.runActivity(named: "Only the loads that weren't stubbed report where their response came from") { _ in
+            XCTAssertEqual(app.monitoredRequestsFlushAll().map(\.fetchType), [.unknown, .network, .cache])
         }
     }
 
@@ -112,8 +117,8 @@ class CachingTests: XCTestCase {
             XCTAssertEqual(server.hits("/fresh"), 1, file: file, line: line)
         }
 
-        XCTContext.runActivity(named: "Every load is monitored") { _ in
-            XCTAssertEqual(app.monitoredRequestsFlushAll().count, 4, file: file, line: line)
+        XCTContext.runActivity(named: "Every load is monitored with where its response came from") { _ in
+            XCTAssertEqual(app.monitoredRequestsFlushAll().map(\.fetchType), [.network, .revalidatedCache, .network, .cache], file: file, line: line)
         }
     }
 

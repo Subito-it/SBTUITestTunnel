@@ -46,6 +46,8 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 @property (nonatomic, strong) NSURLRequest *redirectRequest;
 // The task drops its response when reading the body of the redirect fails
 @property (nonatomic, strong) NSHTTPURLResponse *redirectResponse;
+// Only accessed on the proxy session's delegate queue, which gets the task metrics before the task completes
+@property (nonatomic, assign) SBTMonitoredNetworkRequestFetchType fetchType;
 
 // The URL loading system calls startLoading and stopLoading on this thread and expects client callbacks on it, in these run loop modes
 @property (nonatomic, strong) NSThread *clientThread;
@@ -747,6 +749,7 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
         
         monitoredRequest.isStubbed = NO;
         monitoredRequest.isRewritten = isRequestRewritten;
+        monitoredRequest.fetchType = self.fetchType;
         
         monitoredRequest.requestData = [monitoredRequest.originalRequest sbt_extractHTTPBody];
         
@@ -804,6 +807,23 @@ typedef void(^SBTStubUpdateBlock)(NSURLRequest *request);
 
     // The URL loading system follows the redirect: this task completes with the redirect response instead
     completionHandler(nil);
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics
+{
+    // A revalidation reports the cached response and the conditional request that got the 304
+    BOOL fromCache = NO;
+    BOOL fromNetwork = NO;
+    for (NSURLSessionTaskTransactionMetrics *transaction in metrics.transactionMetrics) {
+        fromCache |= transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeLocalCache;
+        fromNetwork |= transaction.resourceFetchType == NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad;
+    }
+
+    if (fromCache) {
+        self.fetchType = fromNetwork ? SBTMonitoredNetworkRequestFetchTypeRevalidatedCache : SBTMonitoredNetworkRequestFetchTypeCache;
+    } else if (fromNetwork) {
+        self.fetchType = SBTMonitoredNetworkRequestFetchTypeNetwork;
+    }
 }
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
