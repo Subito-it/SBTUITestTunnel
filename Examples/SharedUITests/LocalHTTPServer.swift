@@ -17,7 +17,8 @@
 import Foundation
 import Network
 
-/// HTTP server on the loopback interface that serves canned responses and counts the requests it receives per path
+/// HTTP server on the loopback interface that serves canned responses and counts the requests it receives per path.
+/// Answers 304 Not Modified, with the route's headers and no body, to requests whose If-None-Match is the route's ETag.
 final class LocalHTTPServer {
     struct Response {
         var statusCode: Int
@@ -140,7 +141,11 @@ final class LocalHTTPServer {
         bodiesByPath[path, default: []].append(requestBody)
         headersByPath[path, default: []].append(requestHeaders)
 
-        let response = routes[path] ?? Response(statusCode: 404)
+        var response = routes[path] ?? Response(statusCode: 404)
+        if let etag = response.headers["ETag"], requestHeaders["if-none-match"] == etag {
+            response.statusCode = 304
+            response.body = ""
+        }
         var body = Data(response.body.utf8)
         var headers = response.headers
         headers["Content-Type"] = headers["Content-Type"] ?? "text/plain"
